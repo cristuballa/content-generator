@@ -1,8 +1,10 @@
 import os
 import sys
+import time
 import asyncio
 import mimetypes
 import subprocess
+import shlex
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -122,9 +124,10 @@ class AddProjectRequest(BaseModel):
     type: str = "custom"
 
 class RunPipelineRequest(BaseModel):
-    script_name: str
+    script_name: Optional[str] = None
     script_rel_path: Optional[str] = None
     args: List[str] = []
+    command_str: Optional[str] = None
     custom_command: Optional[str] = None
 
 class AssetStatusRequest(BaseModel):
@@ -307,6 +310,27 @@ async def run_pipeline(req: RunPipelineRequest):
         raise HTTPException(status_code=400, detail="No valid project active")
 
     base_p = Path(active_path)
+
+    # 1. Check if direct command_str or custom_command was provided
+    raw_cmd = req.command_str or req.custom_command
+    if raw_cmd and raw_cmd.strip():
+        tokens = shlex.split(raw_cmd.strip(), posix=False)
+        if not tokens:
+            raise HTTPException(status_code=400, detail="Empty command line string")
+
+        # Strip leading python invocation if present
+        if tokens[0].lower() in ("python", "python.exe", "pythonw", "pythonw.exe"):
+            tokens = tokens[1:]
+
+        if not tokens:
+            raise HTTPException(status_code=400, detail="No target script specified in command line")
+
+        script_name = tokens[0]
+        args = tokens[1:]
+    else:
+        script_name = req.script_name or "generate_reel.py"
+        args = req.args
+
     script_path = None
 
     if req.script_rel_path:
@@ -315,24 +339,31 @@ async def run_pipeline(req: RunPipelineRequest):
             script_path = p
 
     if not script_path:
-        p = base_p / req.script_name
+        p = base_p / script_name
         if p.exists():
             script_path = p
 
+    if not script_path and not script_name.endswith(".py"):
+        p_py = base_p / f"{script_name}.py"
+        if p_py.exists():
+            script_path = p_py
+
     if not script_path:
-        candidates = list(base_p.glob(f"*/{req.script_name}")) + list(base_p.glob(f"*/*/{req.script_name}"))
+        candidates = list(base_p.glob(f"*/{script_name}")) + list(base_p.glob(f"*/*/{script_name}"))
+        if not candidates and not script_name.endswith(".py"):
+            candidates = list(base_p.glob(f"*/{script_name}.py")) + list(base_p.glob(f"*/*/{script_name}.py"))
         if candidates:
             script_path = candidates[0]
 
     if not script_path or not script_path.exists():
-        raise HTTPException(status_code=404, detail=f"Script not found: {req.script_name}")
+        raise HTTPException(status_code=404, detail=f"Script not found: {script_name}")
 
     run_cwd = str(script_path.parent) if script_path.parent.exists() else str(base_p)
 
     res = await process_runner.run_script(
         script_path=str(script_path),
         cwd=run_cwd,
-        args=req.args
+        args=args
     )
     if not res.get("success"):
         raise HTTPException(status_code=400, detail=res.get("error"))

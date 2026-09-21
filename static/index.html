@@ -318,16 +318,16 @@
             </div>
           </div>
 
-          <!-- Custom Args Input -->
-          <div id="customArgsWrapper">
-            <label class="block text-[11px] text-slate-400 mb-1">Command Line Flags / Arguments</label>
-            <input type="text" id="inputCustomArgs" placeholder="Optional extra flags (e.g. --images-only --speed 1.0)" class="w-full bg-[#181e2b] border border-[#293246] text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-[#FFE614]">
-          </div>
-
-          <!-- Live Command Preview -->
-          <div class="bg-[#121620] border border-[#212836] rounded-lg px-2.5 py-1.5 font-mono text-[11px] text-slate-300 flex items-center gap-2 overflow-x-auto shadow-inner">
-            <span class="text-slate-500 font-bold select-none shrink-0">CMD:</span>
-            <span id="labelCommandPreview" class="text-emerald-400 font-semibold truncate select-all">python generate_reel.py</span>
+          <!-- Editable Command Line -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="inputCommandLine" class="block text-[11px] text-slate-400 font-medium">Command Line</label>
+              <span class="text-[10px] text-slate-500 font-mono">Editable</span>
+            </div>
+            <input type="text" id="inputCommandLine" spellcheck="false" autocomplete="off"
+              class="w-full bg-[#121620] border border-[#293246] text-xs text-emerald-400 font-semibold font-mono rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#FFE614] shadow-inner transition-colors"
+              placeholder="python generate_reel.py"
+              title="Command line to execute. You can edit this directly before running.">
           </div>
 
           <!-- Large Execution Buttons: START and STOP -->
@@ -816,6 +816,6 @@
   <div id="toastContainer" class="toast-container fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 sm:px-0"></div>
 
   <!-- App Script -->
-  <script src="/static/js/app.js?v=3.2"></script>
+  <script src="/static/js/app.js?v=3.3"></script>
 </body>
 </html>

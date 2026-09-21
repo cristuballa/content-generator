@@ -5,98 +5,98 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 KNOWN_PIPELINE_SCRIPTS = {
+    "generate_reel.py": {
+        "label": "generate_reel",
+        "description": "Renders 9:16 vertical video reel with FLUX visuals, AI narration & karaoke captions",
+        "category": "video",
+        "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
+    },
+    "generate_video.py": {
+        "label": "generate_video",
+        "description": "Renders dynamic Ken Burns camera motion & Videoke karaoke subtitles",
+        "category": "video",
+        "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
+    },
+    "generate_image.py": {
+        "label": "generate_image",
+        "description": "Renders scene visuals via ComfyUI FLUX workflow",
+        "category": "visual",
+        "recommended_args": ["--all", "--chapter 1"]
+    },
+    "generate_images.py": {
+        "label": "generate_image",
+        "description": "Renders 16:9 widescreen 1344x768 manhwa scene visuals via ComfyUI",
+        "category": "visual",
+        "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
+    },
     "generate_chapter.py": {
-        "label": "Master Chapter Dispatcher",
+        "label": "generate_chapter",
         "description": "Full workflow orchestrator across all or single chapters",
         "category": "master",
         "recommended_args": ["--status", "--all", "--chapter 1", "--audio-only", "--images-only"]
     },
+    "combine_chapters.py": {
+        "label": "combine_chapters",
+        "description": "Merge rendered chapters into master video",
+        "category": "mastering",
+        "recommended_args": ["--check-only", "", "--from 1 --to 4"]
+    },
+    "combine_all_videos.py": {
+        "label": "combine_all_videos",
+        "description": "Lossless concat demuxer muxing all chapter reels into final video",
+        "category": "mastering",
+        "recommended_args": ["--check-only", "", "--from 1 --to 4", "--render-missing", "--reencode"]
+    },
     "generate_audio.py": {
-        "label": "Dual-Track Audio Generator",
+        "label": "generate_audio",
         "description": "Synthesize Microsoft VibeVoice audio & run Whisper alignment",
         "category": "audio",
         "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
     },
     "batch_generate_vibevoice.py": {
-        "label": "VibeVoice Batch Narrator",
+        "label": "batch_generate_vibevoice",
         "description": "Direct Microsoft VibeVoice Realtime 0.5B neural TTS batcher",
         "category": "audio",
         "recommended_args": ["--all", "--chapter 1"]
     },
-    "generate_images.py": {
-        "label": "FLUX Image Generator",
-        "description": "Renders 16:9 widescreen 1344x768 manhwa scene visuals via ComfyUI",
-        "category": "visual",
-        "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
-    },
-    "generate_video.py": {
-        "label": "Video Compositor & Motion",
-        "description": "Renders dynamic Ken Burns camera motion & Videoke karaoke subtitles",
-        "category": "video",
-        "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
-    },
-    "combine_all_videos.py": {
-        "label": "Combine Chapters Master Video",
-        "description": "Lossless concat demuxer muxing all chapter reels into final video",
-        "category": "mastering",
-        "recommended_args": ["--check-only", "", "--from 1 --to 4", "--render-missing", "--reencode"]
-    },
-    "combine_chapters.py": {
-        "label": "Combine Chapters",
-        "description": "Merge rendered chapters into master video",
-        "category": "mastering",
-        "recommended_args": ["--check-only", "", "--from 1 --to 4"]
-    },
     "build_all_chapters_video.py": {
-        "label": "Build All Chapters Video",
+        "label": "build_all_chapters_video",
         "description": "Compiles all available chapters into complete story video",
         "category": "mastering",
         "recommended_args": ["--check-only", "", "--from 1 --to 4"]
     },
     "generate_all_character_turnarounds.py": {
-        "label": "Character Turnarounds Generator",
+        "label": "generate_all_character_turnarounds",
         "description": "4-angle turnaround model sheets for visual continuity",
         "category": "preprod",
         "recommended_args": [""]
     },
     "generate_trading_god_turnarounds.py": {
-        "label": "Trading God Turnarounds",
+        "label": "generate_trading_god_turnarounds",
         "description": "Character model sheets for Trading God series",
         "category": "preprod",
         "recommended_args": [""]
     },
     "rebuild_all_sections_and_full_movie.py": {
-        "label": "Rebuild Sections & Master Movie",
+        "label": "rebuild_all_sections_and_full_movie",
         "description": "Rebuilds all narrative sections into master video",
         "category": "mastering",
         "recommended_args": [""]
     },
     "create_all_episode_scripts.py": {
-        "label": "Episode Script Creator",
+        "label": "create_all_episode_scripts",
         "description": "Script decomposition and narrative formatting",
         "category": "preprod",
         "recommended_args": [""]
     },
     "extract_yt_script.py": {
-        "label": "YouTube Script Extractor",
+        "label": "extract_yt_script",
         "description": "Pulls original narration transcripts and segments paragraphs",
         "category": "preprod",
         "recommended_args": [""]
     },
-    "generate_reel.py": {
-        "label": "Vertical Reel Generator",
-        "description": "Renders 9:16 vertical video reel with FLUX visuals, AI narration & karaoke captions",
-        "category": "video",
-        "recommended_args": ["--all", "--chapter 1", "--from 1 --to 4"]
-    },
-    "generate_image.py": {
-        "label": "FLUX Scene Image Generator",
-        "description": "Renders scene visuals via ComfyUI FLUX workflow",
-        "category": "visual",
-        "recommended_args": ["--all", "--chapter 1"]
-    },
     "generate_episodes.py": {
-        "label": "Batch Episode Generator",
+        "label": "generate_episodes",
         "description": "Batch documentary episode generation pipeline",
         "category": "master",
         "recommended_args": ["--all", "--from 1 --to 4"]

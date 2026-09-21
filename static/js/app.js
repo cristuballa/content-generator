@@ -409,51 +409,91 @@ function updateScriptDropdown(ch = null) {
   if (!scriptSelect) return;
 
   const targetCh = ch || selectedEpisodeObj;
-  let rawScripts = [];
+  let detectedScripts = [];
   if (targetCh && targetCh.scripts && targetCh.scripts.length > 0) {
-    rawScripts = [...targetCh.scripts];
+    detectedScripts = [...targetCh.scripts];
     if (currentProject && currentProject.scripts) {
       currentProject.scripts.forEach(rs => {
-        if (!rawScripts.some(s => s.filename === rs.filename)) {
-          rawScripts.push(rs);
+        if (!detectedScripts.some(s => s.filename === rs.filename)) {
+          detectedScripts.push(rs);
         }
       });
     }
   } else if (currentProject && currentProject.scripts) {
-    rawScripts = [...currentProject.scripts];
+    detectedScripts = [...currentProject.scripts];
   }
 
-  // Filter scripts with generate, combine, build, rebuild, run
-  const validScripts = rawScripts.filter(s => {
-    const fn = (s.filename || "").toLowerCase();
-    const lbl = (s.label || "").toLowerCase();
-    return fn.includes("generate") || fn.includes("combine") || fn.includes("build") || fn.includes("rebuild") || fn.includes("run") ||
-           lbl.includes("generate") || lbl.includes("combine") || lbl.includes("build") || lbl.includes("rebuild") || lbl.includes("run");
+  // Core 3 requested scripts
+  const coreScripts = [
+    { id: "generate_reel", filename: "generate_reel.py" },
+    { id: "generate_video", filename: "generate_video.py" },
+    { id: "generate_image", filename: "generate_image.py" }
+  ];
+
+  const scriptOptions = [];
+
+  // 1. Add core scripts
+  coreScripts.forEach(cs => {
+    let actualFn = cs.filename;
+    // Check if project uses plural generate_images.py instead
+    if (cs.id === "generate_image" && detectedScripts.some(s => s.filename === "generate_images.py")) {
+      actualFn = "generate_images.py";
+    }
+    const found = detectedScripts.find(s => s.filename === actualFn);
+    scriptOptions.push({
+      id: cs.id,
+      label: cs.id,
+      filename: actualFn,
+      rel_path: found ? found.rel_path : actualFn,
+      existsInProject: Boolean(found)
+    });
   });
 
-  scriptSelect.innerHTML = "";
-  if (validScripts.length > 0) {
-    validScripts.forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s.filename;
-      opt.setAttribute("data-rel", s.rel_path || s.filename);
-      opt.textContent = `${s.label || s.filename} (${s.filename})`;
-      scriptSelect.appendChild(opt);
-    });
-
-    // Preferred default: generate_chapter.py > generate_reel.py > combine_all_videos.py > combine_chapters.py
-    const preferred = ["generate_chapter.py", "generate_reel.py", "combine_all_videos.py", "combine_chapters.py", "generate_video.py"];
-    let chosenVal = validScripts[0].filename;
-    for (let pref of preferred) {
-      if (validScripts.some(s => s.filename === pref)) {
-        chosenVal = pref;
-        break;
-      }
+  // 2. Add other detected pipeline scripts in project (e.g. generate_chapter, combine_chapters)
+  detectedScripts.forEach(s => {
+    const cleanId = (s.filename || "").replace(/\.py$/i, "");
+    if (!scriptOptions.some(opt => opt.id === cleanId || opt.filename === s.filename)) {
+      scriptOptions.push({
+        id: cleanId,
+        label: cleanId,
+        filename: s.filename,
+        rel_path: s.rel_path || s.filename,
+        existsInProject: true
+      });
     }
-    scriptSelect.value = chosenVal;
-  } else {
-    scriptSelect.innerHTML = "<option value=''>No pipeline scripts found</option>";
+  });
+
+  // Render options in dropdown
+  scriptSelect.innerHTML = "";
+  scriptOptions.forEach(opt => {
+    const el = document.createElement("option");
+    el.value = opt.filename;
+    el.textContent = opt.label;
+    if (opt.rel_path) el.setAttribute("data-rel", opt.rel_path);
+    scriptSelect.appendChild(el);
+  });
+
+  // 3. Default to whichever script the current project uses
+  let defaultVal = "generate_reel.py";
+  const hasReel = detectedScripts.some(s => s.filename === "generate_reel.py");
+  const hasVideo = detectedScripts.some(s => s.filename === "generate_video.py");
+  const hasImage = detectedScripts.some(s => s.filename === "generate_image.py" || s.filename === "generate_images.py");
+  const hasChapter = detectedScripts.some(s => s.filename === "generate_chapter.py");
+
+  if (hasReel) {
+    defaultVal = "generate_reel.py";
+  } else if (hasVideo) {
+    defaultVal = "generate_video.py";
+  } else if (hasChapter) {
+    defaultVal = "generate_chapter.py";
+  } else if (hasImage) {
+    defaultVal = detectedScripts.find(s => s.filename === "generate_images.py") ? "generate_images.py" : "generate_image.py";
+  } else if (detectedScripts.length > 0) {
+    defaultVal = detectedScripts[0].filename;
   }
+
+  scriptSelect.value = defaultVal;
+  updateCommandPreview();
 }
 
 function applyProjectScan(scan) {
@@ -1158,8 +1198,6 @@ function getActivePipelineConfig() {
   const toVal = inputTo ? inputTo.value.trim() : "";
   const chkAds = document.getElementById("checkboxAds");
   const useAds = chkAds ? chkAds.checked : false;
-  const customArgsInput = document.getElementById("inputCustomArgs");
-  const customArgsRaw = customArgsInput ? customArgsInput.value.trim() : "";
 
   const availableChapters = getAvailableChapters(selectedEpisodeObj);
   const hasChapters = availableChapters.length > 0;
@@ -1203,26 +1241,21 @@ function getActivePipelineConfig() {
     args.push("--ads");
   }
 
-  // 5. Any extra custom flags typed by user
-  if (customArgsRaw) {
-    args.push(...customArgsRaw.split(" ").filter(Boolean));
-  }
-
   return { script, scriptRelPath, args, modeLabel };
 }
 
 function updateCommandPreview() {
   const { script, args, modeLabel } = getActivePipelineConfig();
-  const previewEl = document.getElementById("labelCommandPreview");
   const badgeEl = document.getElementById("launcherModeBadge");
-
   if (badgeEl) {
     badgeEl.textContent = modeLabel;
   }
 
-  if (previewEl) {
-    const cmdStr = `python ${script || 'script.py'} ${args.join(" ")}`.trim();
-    previewEl.textContent = cmdStr;
+  const cmdInput = document.getElementById("inputCommandLine");
+  if (cmdInput) {
+    const scriptName = script || "generate_reel.py";
+    const cmdStr = `python ${scriptName} ${args.join(" ")}`.trim();
+    cmdInput.value = cmdStr;
   }
 }
 
@@ -1544,11 +1577,11 @@ async function fetchTelemetry() {
 }
 
 // ================= 4. PIPELINE EXECUTION =================
-async function executePipeline(scriptName, argsList, scriptRelPath = null) {
-  if (!scriptName) {
+async function executePipeline(scriptName, argsList = [], scriptRelPath = null, commandStr = null) {
+  if (!commandStr && !scriptName) {
     showNotification({
-      title: "Missing Script",
-      message: "Please select a valid pipeline script to execute.",
+      title: "Missing Command / Script",
+      message: "Please enter a valid command line or select a pipeline script to execute.",
       type: "warning"
     });
     return;
@@ -1556,20 +1589,24 @@ async function executePipeline(scriptName, argsList, scriptRelPath = null) {
 
   showNotification({
     title: "Pipeline Dispatched",
-    message: `Executing <b>${scriptName}</b> ${argsList.join(" ")}`,
+    message: commandStr ? `Executing: <b>${commandStr}</b>` : `Executing <b>${scriptName}</b> ${argsList.join(" ")}`,
     type: "info",
     duration: 3500
   });
 
   try {
+    const payload = commandStr
+      ? { command_str: commandStr }
+      : {
+          script_name: scriptName,
+          script_rel_path: scriptRelPath,
+          args: argsList
+        };
+
     const res = await fetch("/api/pipeline/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        script_name: scriptName,
-        script_rel_path: scriptRelPath,
-        args: argsList
-      })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (!res.ok) {
@@ -2114,22 +2151,33 @@ function setupEventListeners() {
     });
   }
 
-  const customArgsInput = document.getElementById("inputCustomArgs");
-  if (customArgsInput) {
-    customArgsInput.addEventListener("input", updateCommandPreview);
+  const cmdInput = document.getElementById("inputCommandLine");
+  if (cmdInput) {
+    cmdInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("btnRunPipeline").click();
+      }
+    });
   }
 
   document.getElementById("btnRunPipeline").onclick = () => {
-    const { script, scriptRelPath, args } = getActivePipelineConfig();
-    if (!script) {
-      showNotification({
-        title: "Missing Script",
-        message: "Please select a valid pipeline script to execute.",
-        type: "warning"
-      });
-      return;
+    const cmdLine = document.getElementById("inputCommandLine");
+    const rawCmd = cmdLine ? cmdLine.value.trim() : "";
+    if (rawCmd) {
+      executePipeline(null, [], null, rawCmd);
+    } else {
+      const { script, scriptRelPath, args } = getActivePipelineConfig();
+      if (!script) {
+        showNotification({
+          title: "Missing Script",
+          message: "Please enter a valid command line or select a pipeline script to execute.",
+          type: "warning"
+        });
+        return;
+      }
+      executePipeline(script, args, scriptRelPath);
     }
-    executePipeline(script, args, scriptRelPath);
   };
 
   document.getElementById("btnStopPipeline").onclick = () => {
