@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KCT Studio | AI Video Pipeline</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" href="/static/favicon.ico">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            studio: {
+              bg: "#0a0c10",
+              card: "#121620",
+              border: "#212836",
+              gold: "#FFE614",
+              cyan: "#00f0ff",
+              emerald: "#10b981",
+              rose: "#f43f5e"
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=2.3">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#0a0c10] text-slate-100 min-h-screen flex flex-col">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="border-b border-[#212836] bg-[#10141d]/90 sticky top-0 z-40 backdrop-blur-md px-4 lg:px-8 py-3">
+    <div class="max-w-[1720px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Project Selector -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-[#FFE614] shadow-[0_0_8px_#FFE614] animate-pulse"></div>
+          <span class="font-black tracking-wider text-lg uppercase bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-200 bg-clip-text text-transparent">
+            KCT STUDIO
+          </span>
+          <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono border border-slate-700">v2.0</span>
+        </div>
+
+        <!-- Project Switcher -->
+        <div class="flex items-center gap-2">
+          <select id="projectSelect" class="bg-[#181e2b] border border-[#2c364c] text-sm text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#FFE614] transition font-medium min-w-[240px]">
+            <option value="" disabled selected>Loading projects...</option>
+          </select>
+          <button id="btnAddProject" title="Add / Browse Project Folder" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+            <i data-lucide="folder-plus" class="w-4 h-4 text-[#FFE614]"></i>
+            <span class="hidden sm:inline">Add</span>
+          </button>
+          <button id="btnManageProjects" title="Manage Projects (Hide / Remove from List)" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+            <i data-lucide="folder-cog" class="w-4 h-4 text-cyan-400"></i>
+            <span class="hidden sm:inline">Manage</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hardware Telemetry & Quick Settings -->
+      <div class="flex items-center gap-3">
+        <!-- GPU Status -->
+        <div id="gpuTelemetry" class="hidden sm:flex items-center gap-2 bg-[#141924] border border-[#222a3b] px-3 py-1 rounded-lg text-xs font-mono">
+          <i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i>
+          <span id="gpuName" class="text-slate-400">GPU:</span>
+          <span id="gpuVram" class="text-emerald-400 font-bold">-- / -- MB</span>
+          <span id="gpuTemp" class="text-amber-400">--°C</span>
+        </div>
+
+        <!-- ComfyUI Status -->
+        <div id="comfyTelemetry" class="flex items-center gap-1.5 bg-[#141924] border border-[#222a3b] px-2.5 py-1 rounded-lg text-xs font-mono">
+          <div id="comfyIndicator" class="w-2 h-2 rounded-full bg-slate-500"></div>
+          <span class="text-slate-400">ComfyUI:</span>
+          <span id="comfyStatus" class="text-slate-400">Checking...</span>
+        </div>
+
+        <!-- Social Settings Button -->
+        <button id="btnSocialSettings" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+          <i data-lucide="share-2" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Social Automation</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN WORKSPACE ================= -->
+  <main class="flex-1 max-w-[1720px] w-full mx-auto p-3 lg:p-5 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-[calc(100vh-68px)]">
+
+    <!-- ================= LEFT COLUMN: PIPELINE ORCHESTRATION & TERMINAL (5 COLS) ================= -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
+
+      <!-- Active Project Info Card -->
+      <div class="studio-card p-4">
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 id="projTitle" class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+              <span id="projIconWrapper"><i data-lucide="film" class="w-4 h-4 text-[#FFE614]"></i></span>
+              <span id="projNameText">Loading Project...</span>
+            </h2>
+            <p id="projPathText" class="text-xs text-slate-400 font-mono truncate max-w-sm mt-0.5" title="">
+              C:/Projects/...
+            </p>
+          </div>
+          <div class="flex items-center gap-1">
+            <button id="btnQuickHideProject" title="Hide active project from main dropdown (files remain safe on disk)" class="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded transition">
+              <i data-lucide="eye-off" class="w-4 h-4"></i>
+            </button>
+            <button id="btnQuickRemoveProject" title="Remove / Unlink active project from Studio list (files remain safe on disk)" class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+            <button id="btnRefreshProject" title="Rescan Project Directory" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Chips -->
+        <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#212836] text-center">
+          <div class="bg-[#181e2b] p-2 rounded-lg border border-[#232a3b]">
+            <div id="statChapters" class="text-base font-bold text-slate-100 font-mono">-</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Chapters</div>
+          </div>
+          <div class="bg-[#181e2b] p-2 rounded-lg border border-[#232a3b]">
+            <div id="statRendered" class="text-base font-bold text-emerald-400 font-mono">-</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Rendered</div>
+          </div>
+          <div class="bg-[#181e2b] p-2 rounded-lg border border-[#232a3b]">
+            <div id="statScenes" class="text-base font-bold text-cyan-400 font-mono">-</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Scenes</div>
+          </div>
+          <div class="bg-[#181e2b] p-2 rounded-lg border border-[#232a3b]">
+            <div id="statTurnarounds" class="text-base font-bold text-[#FFE614] font-mono">--</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Models</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left Panel Tabbed Container: Episodes / Folders (Default) & Pipeline Presets -->
+      <div class="studio-card p-4">
+        <!-- Tab Buttons Header -->
+        <div class="flex items-center gap-1.5 p-1 bg-[#121620] rounded-xl border border-[#232a3b] mb-3">
+          <button id="tabBtnEpisodes" class="flex-1 py-1.5 px-3 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 bg-[#FFE614] text-slate-950 shadow">
+            <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+            <span>Episodes / Folders</span>
+            <span id="episodesCountBadge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full font-mono bg-slate-900 text-[#FFE614]">0</span>
+          </button>
+          <button id="tabBtnPresets" class="flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 bg-transparent text-slate-400 hover:text-slate-200 hover:bg-[#181e2b]">
+            <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+            <span>Pipeline Presets</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: Numbered Episodes / Folders List (Active by default) -->
+        <div id="tabEpisodesView" class="flex flex-col gap-2">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+            <span class="flex items-center gap-1">
+              <i data-lucide="folder-check" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>Numbered Episode Directories:</span>
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button id="btnJumpToUngenerated" class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition flex items-center gap-1 cursor-pointer hidden" title="Line up list to first ungenerated episode">
+                <i data-lucide="arrow-down-circle" class="w-3 h-3 text-amber-400"></i>
+                <span id="btnJumpToUngeneratedText">Next: #--</span>
+              </button>
+              <button id="btnClearEpisodeFilter" class="text-cyan-400 hover:text-[#FFE614] hover:underline hidden font-semibold" title="Clear selected episode filter">
+                Show All
+              </button>
+            </div>
+          </div>
+
+          <!-- Episode Filter & Sort Bar -->
+          <div class="flex items-center justify-between gap-1.5 px-0.5">
+            <!-- Quick Episode Filter Input -->
+            <div class="relative flex-1 min-w-[110px]">
+              <i data-lucide="search" class="w-3 h-3 absolute left-2 top-2 text-slate-500"></i>
+              <input type="text" id="inputEpisodeSearch" placeholder="Filter episodes..." class="w-full bg-[#181e2b] border border-[#293246] text-[11px] text-slate-200 rounded-lg pl-6 pr-2 py-1 focus:outline-none focus:border-[#FFE614]">
+            </div>
+
+            <!-- Episode Sort Dropdown -->
+            <div class="flex items-center gap-1 bg-[#181e2b] border border-[#293246] rounded-lg px-2 py-1 text-[11px] text-slate-300">
+              <i data-lucide="arrow-up-down" class="w-3 h-3 text-slate-400 shrink-0"></i>
+              <span class="text-slate-500 text-[10px] hidden sm:inline">Sort:</span>
+              <select id="selectEpisodeSort" class="bg-transparent text-[11px] text-slate-200 focus:outline-none cursor-pointer font-medium">
+                <option value="num_asc"># (1 → 99)</option>
+                <option value="num_desc"># (99 → 1)</option>
+                <option value="ungenerated_first">Ungenerated First</option>
+                <option value="name_asc">Name (A → Z)</option>
+                <option value="name_desc">Name (Z → A)</option>
+                <option value="vids_desc">Most Videos</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Scrollable Episode List -->
+          <div id="episodeFolderList" class="relative flex flex-col gap-1.5 max-h-[310px] overflow-y-auto pr-1">
+            <div class="py-8 text-center text-slate-500 text-xs">
+              <i data-lucide="folder-search" class="w-6 h-6 mx-auto mb-1 opacity-50"></i>
+              <span>Scanning numbered episode folders...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Pipeline Action Presets (One-Click Dispatch) -->
+        <div id="tabPresetsView" class="hidden">
+          <div class="text-[11px] text-slate-400 mb-2 px-1 flex items-center justify-between">
+            <span>One-Click Pipeline Dispatch:</span>
+            <span class="text-[10px] text-slate-500">Full Workspace Scope</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button class="preset-btn bg-[#181e2b] hover:bg-[#202738] border border-[#293246] hover:border-emerald-500/50 p-2.5 rounded-lg text-left transition group" data-script="generate_chapter.py" data-args="--all">
+              <div class="flex items-center gap-2 text-emerald-400 font-semibold text-xs mb-0.5">
+                <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> Full Pipeline
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">Run all chapters end-to-end</div>
+            </button>
+
+            <button class="preset-btn bg-[#181e2b] hover:bg-[#202738] border border-[#293246] hover:border-cyan-500/50 p-2.5 rounded-lg text-left transition group" data-script="generate_audio.py" data-args="--all">
+              <div class="flex items-center gap-2 text-cyan-400 font-semibold text-xs mb-0.5">
+                <i data-lucide="mic" class="w-3.5 h-3.5"></i> Audio & Whisper
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">VibeVoice + Word alignment</div>
+            </button>
+
+            <button class="preset-btn bg-[#181e2b] hover:bg-[#202738] border border-[#293246] hover:border-amber-500/50 p-2.5 rounded-lg text-left transition group" data-script="generate_images.py" data-args="--all">
+              <div class="flex items-center gap-2 text-amber-400 font-semibold text-xs mb-0.5">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i> FLUX Images
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">1344x768 Scene PNGs</div>
+            </button>
+
+            <button class="preset-btn bg-[#181e2b] hover:bg-[#202738] border border-[#293246] hover:border-purple-500/50 p-2.5 rounded-lg text-left transition group" data-script="generate_video.py" data-args="--all">
+              <div class="flex items-center gap-2 text-purple-400 font-semibold text-xs mb-0.5">
+                <i data-lucide="video" class="w-3.5 h-3.5"></i> Video Motion
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">Ken Burns + Videoke Captions</div>
+            </button>
+
+            <button class="preset-btn bg-[#181e2b] hover:bg-[#202738] border border-[#293246] hover:border-[#FFE614]/50 p-2.5 rounded-lg text-left transition group" data-script="combine_all_videos.py" data-args="">
+              <div class="flex items-center gap-2 text-[#FFE614] font-semibold text-xs mb-0.5">
+                <i data-lucide="film" class="w-3.5 h-3.5"></i> Master Combiner
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">Lossless Concat Story Movie</div>
+            </button>
+
+            <button class="preset-btn bg-[#181e2b] hover:bg-[#202738] border border-[#293246] hover:border-slate-400 p-2.5 rounded-lg text-left transition group" data-script="generate_chapter.py" data-args="--status">
+              <div class="flex items-center gap-2 text-slate-300 font-semibold text-xs mb-0.5">
+                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Check Status
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">Audit audio, images & video</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Execution Controls & Custom Arguments -->
+      <div class="studio-card p-4">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+          Custom Execution Launcher
+        </h3>
+
+        <div class="flex flex-col gap-3">
+          <!-- Script Selector -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Target Script</label>
+              <select id="selectScript" class="w-full bg-[#181e2b] border border-[#293246] text-xs text-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-[#FFE614]">
+                <option value="">Detecting scripts...</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Target Scope / Chapter</label>
+              <select id="selectChapterTarget" class="w-full bg-[#181e2b] border border-[#293246] text-xs text-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-[#FFE614]">
+                <option value="--all">All Chapters (--all)</option>
+                <option value="--status">Audit Status (--status)</option>
+                <option value="--chapter 1">Chapter 1</option>
+                <option value="--chapter 2">Chapter 2</option>
+                <option value="--chapter 3">Chapter 3</option>
+                <option value="--chapter 4">Chapter 4</option>
+                <option value="--chapter 5">Chapter 5</option>
+                <option value="--chapter 6">Chapter 6</option>
+                <option value="--chapter 7">Chapter 7</option>
+                <option value="--chapter 8">Chapter 8</option>
+                <option value="custom">Custom Arguments...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Range & Optional Flags: From / To / Ads -->
+          <div class="flex items-center flex-wrap gap-2.5 bg-[#141a24] px-3 py-2 rounded-lg border border-[#222a3a]">
+            <div class="flex items-center gap-1.5">
+              <label for="inputFromEpisode" class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">From</label>
+              <input type="number" id="inputFromEpisode" min="1" placeholder="--" class="w-16 bg-[#181e2b] border border-[#293246] text-xs text-center text-slate-200 rounded-lg px-2 py-1.5 font-mono focus:outline-none focus:border-[#FFE614]" title="Start episode number (e.g. 81)">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label for="inputToEpisode" class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">To</label>
+              <input type="number" id="inputToEpisode" min="1" placeholder="--" class="w-16 bg-[#181e2b] border border-[#293246] text-xs text-center text-slate-200 rounded-lg px-2 py-1.5 font-mono focus:outline-none focus:border-[#FFE614]" title="End episode number (e.g. 82)">
+            </div>
+            
+            <!-- Ads Checkbox -->
+            <label class="flex items-center gap-1.5 cursor-pointer select-none ml-1 text-slate-300 hover:text-white transition-colors" title="Include 12-second marketing ad callout (--ads)">
+              <input type="checkbox" id="checkboxAds" class="w-4 h-4 rounded bg-[#181e2b] border-[#293246] text-[#FFE614] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#FFE614]">
+              <span class="text-xs font-semibold">Ads <span class="text-[10px] text-slate-500">(--ads)</span></span>
+            </label>
+
+            <!-- Mode / Status Indicator -->
+            <div id="launcherModeBadge" class="ml-auto text-[10px] font-mono px-2 py-0.5 rounded bg-[#1c2434] text-slate-400 border border-slate-700/60 truncate max-w-[140px]" title="Active execution target">
+              Single Ep
+            </div>
+          </div>
+
+          <!-- Custom Args Input -->
+          <div id="customArgsWrapper">
+            <label class="block text-[11px] text-slate-400 mb-1">Command Line Flags / Arguments</label>
+            <input type="text" id="inputCustomArgs" placeholder="Optional extra flags (e.g. --images-only --speed 1.0)" class="w-full bg-[#181e2b] border border-[#293246] text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-[#FFE614]">
+          </div>
+
+          <!-- Live Command Preview -->
+          <div class="bg-[#121620] border border-[#212836] rounded-lg px-2.5 py-1.5 font-mono text-[11px] text-slate-300 flex items-center gap-2 overflow-x-auto shadow-inner">
+            <span class="text-slate-500 font-bold select-none shrink-0">CMD:</span>
+            <span id="labelCommandPreview" class="text-emerald-400 font-semibold truncate select-all">python generate_reel.py</span>
+          </div>
+
+          <!-- Large Execution Buttons: START and STOP -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button id="btnRunPipeline" class="btn-primary py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 text-sm font-bold">
+              <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+              <span>START PIPELINE</span>
+            </button>
+
+            <button id="btnStopPipeline" class="btn-danger py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold opacity-60 cursor-not-allowed" disabled>
+              <i data-lucide="square" class="w-4 h-4 fill-white"></i>
+              <span>STOP PROCESS</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Streaming Console Terminal -->
+      <div class="studio-card terminal-card p-4 flex flex-col max-h-[calc(100vh-85px)] min-h-[300px]">
+        <!-- Terminal Header -->
+        <div class="flex items-center justify-between pb-2 border-b border-[#212836] mb-2 text-xs shrink-0">
+          <div class="flex items-center gap-2 font-mono">
+            <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+            <span id="processStatusBadge" class="font-bold text-slate-300">IDLE</span>
+            <span id="processPidBadge" class="text-slate-500 text-[11px] hidden">PID: <b class="text-slate-300">--</b></span>
+          </div>
+          
+          <div class="flex items-center gap-3 text-slate-400">
+            <label class="flex items-center gap-1 cursor-pointer text-[11px]">
+              <input type="checkbox" id="chkAutoScroll" checked class="rounded bg-slate-800 border-slate-700 text-[#FFE614] focus:ring-0">
+              <span>Auto-Scroll</span>
+            </label>
+            <button id="btnClearConsole" title="Clear Console" class="hover:text-white transition">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+            <button id="btnCopyLogs" title="Copy Console Logs" class="hover:text-white transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Terminal Body -->
+        <div id="terminalOutput" class="terminal-window p-3 overflow-y-auto flex-1 min-h-0 font-mono text-xs leading-relaxed select-text">
+          <div class="text-slate-500 italic">Console initialized. Ready to execute pipeline scripts...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= RIGHT COLUMN: CONTENT CATALOG & REVIEW MATRIX (7 COLS) ================= -->
+    <div class="lg:col-span-7 flex flex-col gap-4 lg:sticky lg:top-[68px] lg:h-[calc(100vh-85px)]">
+
+      <!-- Catalog Header & Filters -->
+      <div class="studio-card p-4 shrink-0">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <i data-lucide="layers" class="w-5 h-5 text-[#FFE614]"></i>
+            <h2 class="text-base font-bold text-white tracking-wide">Content Catalog & Review Matrix</h2>
+            <span id="assetCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono">0 Videos</span>
+            
+            <!-- Active Episode Filter Chip -->
+            <div id="activeEpisodeFilterBadge" class="hidden items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-mono">
+              <i data-lucide="folder" class="w-3 h-3 text-amber-400"></i>
+              <span id="activeEpisodeFilterName" class="font-bold truncate max-w-[160px]">Episode 1</span>
+              <button id="btnResetEpisodeFilter" class="ml-1 text-slate-400 hover:text-white transition" title="Clear filter (Show All)">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Show Hidden Toggle -->
+            <label class="flex items-center gap-1.5 cursor-pointer text-xs bg-[#181e2b] px-2.5 py-1.5 rounded-lg border border-[#293246] text-slate-300 hover:text-white transition">
+              <input type="checkbox" id="chkShowHidden" class="rounded bg-slate-800 border-slate-700 text-[#FFE614] focus:ring-0">
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+              <span>Show Hidden</span>
+            </label>
+
+            <!-- Refresh Catalog Button -->
+            <button id="btnRefreshCatalog" class="bg-[#181e2b] hover:bg-[#202738] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#293246] text-xs transition flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Scan Assets</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Pills, Sort & Search -->
+        <div class="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-[#212836]">
+          <div class="flex flex-wrap gap-1.5 text-xs font-medium" id="filterTabs">
+            <button class="filter-tab active px-3 py-1 rounded-lg bg-[#FFE614] text-slate-950 font-bold" data-filter="episodes_default">Episodes / Reels</button>
+            <button class="filter-tab px-3 py-1 rounded-lg bg-[#181e2b] text-slate-300 hover:bg-[#222a3b]" data-filter="all">All Content</button>
+            <button class="filter-tab px-3 py-1 rounded-lg bg-[#181e2b] text-slate-300 hover:bg-[#222a3b]" data-filter="final_master">Final Master</button>
+            <button class="filter-tab px-3 py-1 rounded-lg bg-[#181e2b] text-emerald-400 hover:bg-[#222a3b]" data-status="approved">Approved</button>
+            <button class="filter-tab px-3 py-1 rounded-lg bg-[#181e2b] text-rose-400 hover:bg-[#222a3b]" data-status="rejected">Rejected</button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <!-- Sort Selector: Date (Default latest -> oldest), Name -->
+            <div class="flex items-center gap-1.5 bg-[#181e2b] border border-[#293246] rounded-lg px-2.5 py-1 text-xs text-slate-300">
+              <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+              <span class="text-slate-500 text-[11px] hidden sm:inline">Sort:</span>
+              <select id="selectAssetSort" class="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer font-medium">
+                <option value="date_desc">Date (Newest first)</option>
+                <option value="date_asc">Date (Oldest first)</option>
+                <option value="name_asc">Name (A → Z)</option>
+                <option value="name_desc">Name (Z → A)</option>
+              </select>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative min-w-[160px]">
+              <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500"></i>
+              <input type="text" id="inputAssetSearch" placeholder="Search videos..." class="w-full bg-[#181e2b] border border-[#293246] text-xs text-slate-200 rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FFE614]">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asset Grid View -->
+      <div id="assetGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0 pr-1 pb-2 content-start items-start">
+        <!-- Asset Cards dynamically injected here -->
+        <div class="col-span-2 py-12 text-center text-slate-500">
+          <i data-lucide="film" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+          <p class="text-sm">Scanning project media assets...</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= VIDEO PLAYER MODAL ================= -->
+  <div id="videoModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-4xl bg-[#121620] border border-[#2e394e] rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-[#212836] bg-[#0e1118]">
+        <div class="flex items-center gap-3">
+          <span id="modalChapterBadge" class="text-xs px-2.5 py-1 rounded-md bg-[#FFE614]/20 text-[#FFE614] border border-[#FFE614]/40 font-bold font-mono">Chapter 1</span>
+          <h3 id="modalVideoTitle" class="text-sm font-bold text-slate-100 truncate max-w-lg">chapter_1_full.mp4</h3>
+        </div>
+        <button id="btnCloseVideoModal" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Video Screen -->
+      <div class="bg-black flex items-center justify-center relative aspect-video w-full">
+        <video id="modalVideoPlayer" class="w-full h-full max-h-[60vh]" controls autoplay playsinline preload="auto">
+          <source src="" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+
+      <!-- Video Info & Modal Actions -->
+      <div class="p-4 bg-[#121620] flex flex-col gap-3.5 border-t border-[#212836]">
+        <!-- Top Row: Technical Details & Action Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <!-- Technical Details -->
+          <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+            <span id="modalRes"><i data-lucide="monitor" class="w-3.5 h-3.5 inline mr-1"></i>1344x768</span>
+            <span id="modalDur"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1"></i>--:--</span>
+            <span id="modalSize"><i data-lucide="hard-drive" class="w-3.5 h-3.5 inline mr-1"></i>-- MB</span>
+            <span id="modalStatusBadge" class="px-2 py-0.5 rounded text-[11px]">Pending</span>
+          </div>
+
+          <!-- Modal Review Controls -->
+          <div class="flex items-center gap-2">
+            <button id="modalBtnOpenMeta" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5" title="Open video metadata in Notepad">
+              <i data-lucide="file-text" class="w-4 h-4 text-[#FFE614]"></i>
+              <span>Open Metadata (Notepad)</span>
+            </button>
+
+            <button id="modalBtnReject" class="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5">
+              <i data-lucide="x-circle" class="w-4 h-4"></i>
+              <span>Reject Video</span>
+            </button>
+            
+            <button id="modalBtnRegen" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              <span>Regenerate</span>
+            </button>
+
+            <button id="modalBtnApprove" class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-950">
+              <i data-lucide="check-circle" class="w-4 h-4 fill-slate-950 text-emerald-500"></i>
+              <span>Approve & Post</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Social Media Posted Checkboxes -->
+        <div class="pt-3 border-t border-[#1a2130] flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Posted To Social Media:</span>
+            <div id="modalSocialCheckboxes" class="flex flex-wrap items-center gap-4">
+              <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-white transition">
+                <input type="checkbox" id="checkSocmedFb" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-[#1877F2] focus:ring-0 cursor-pointer">
+                <span class="font-medium text-[#1877F2]">Facebook</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-white transition">
+                <input type="checkbox" id="checkSocmedYt" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-red-500 focus:ring-0 cursor-pointer">
+                <span class="font-medium text-red-400">YouTube</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-white transition">
+                <input type="checkbox" id="checkSocmedInst" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-rose-500 focus:ring-0 cursor-pointer">
+                <span class="font-medium text-rose-400">Instagram</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-white transition">
+                <input type="checkbox" id="checkSocmedTt" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-400 focus:ring-0 cursor-pointer">
+                <span class="font-medium text-cyan-300">TikTok</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-white transition">
+                <input type="checkbox" id="checkSocmedX" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-slate-200 focus:ring-0 cursor-pointer">
+                <span class="font-medium text-slate-200">X (Twitter)</span>
+              </label>
+            </div>
+          </div>
+          <div class="text-[11px] text-slate-500 font-mono">
+            <span>Instant sync with catalog</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= ADD / BROWSE PROJECT MODAL ================= -->
+  <div id="addProjectModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-lg bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-[#FFE614]"></i>
+          <span>Add Existing Project Directory</span>
+        </h3>
+        <button id="btnCloseAddProjectModal" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Project Display Name</label>
+          <input type="text" id="newProjName" placeholder="e.g. My Anime Story Recap" class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFE614]">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Absolute Directory Path</label>
+          <input type="text" id="newProjPath" placeholder="e.g. E:\Projects\Manhwa Cinema Lab\My_Story" class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-[#FFE614]">
+          <p class="text-[11px] text-slate-500 mt-1">Point to any folder containing your generation scripts (`generate_chapter.py`, `generate_video.py`, etc.).</p>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Project Genre / Type</label>
+          <select id="newProjType" class="w-full bg-[#181e2b] border border-[#293246] text-slate-200 rounded-lg px-3 py-2">
+            <option value="manhwa">Manhwa / Anime Cinema (FLUX + Wan 2.1)</option>
+            <option value="documentary">Biblical / Documentary Reels (BHRS)</option>
+            <option value="custom">Custom Pipeline</option>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t border-[#212836] flex justify-end gap-2">
+          <button id="btnCancelAddProj" class="btn-secondary px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button id="btnSaveAddProj" class="btn-primary px-5 py-2 rounded-lg font-bold">Add & Switch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SOCIAL AUTOMATION SETTINGS MODAL ================= -->
+  <div id="socialModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="share-2" class="w-5 h-5 text-[#FFE614]"></i>
+          <span>Social Media Automation Settings</span>
+        </h3>
+        <button id="btnCloseSocialModal" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-4 text-xs">
+        
+        <!-- Dry Run Toggle Banner -->
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-amber-300 text-xs">Dry-Run / Sandbox Simulation Mode</div>
+            <div class="text-[11px] text-slate-400">When enabled, approval simulates posting and verifies payloads without sending to live feeds.</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="socialDryRun" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+          </label>
+        </div>
+
+        <!-- Auto Publish on Approve -->
+        <div class="p-3 rounded-xl bg-[#181e2b] border border-[#293246] flex items-center justify-between">
+          <div>
+            <div class="font-bold text-slate-200 text-xs">Auto-Publish on Video Approval</div>
+            <div class="text-[11px] text-slate-400">Trigger social posting dispatcher automatically whenever a video is marked "Approved".</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="socialAutoPublish" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+
+        <!-- Webhook Integration -->
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1.5">
+            <i data-lucide="webhook" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Automation Webhook URL (Make.com, Zapier, n8n)</span>
+          </label>
+          <input type="text" id="socialWebhookUrl" placeholder="https://hook.us1.make.com/..." class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-[#FFE614]">
+          <p class="text-[11px] text-slate-500 mt-1">Receives full video path, title, description, and metadata as JSON payload.</p>
+        </div>
+
+        <!-- Platforms Configuration -->
+        <div class="border-t border-[#212836] pt-3">
+          <div class="font-bold text-slate-200 text-xs mb-2">Target Platforms</div>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+              <input type="checkbox" id="enableYt" checked class="rounded bg-slate-800 border-slate-700 text-red-500">
+              <span class="font-semibold text-slate-200">YouTube Video</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+              <input type="checkbox" id="enableFb" checked class="rounded bg-slate-800 border-slate-700 text-blue-500">
+              <span class="font-semibold text-slate-200">Facebook Page</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+              <input type="checkbox" id="enableTiktok" checked class="rounded bg-slate-800 border-slate-700 text-cyan-400">
+              <span class="font-semibold text-slate-200">TikTok Shorts</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+              <input type="checkbox" id="enableX" checked class="rounded bg-slate-800 border-slate-700 text-slate-100">
+              <span class="font-semibold text-slate-200">X (Twitter)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-[#212836] flex justify-end gap-2">
+          <button id="btnCancelSocial" class="btn-secondary px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button id="btnSaveSocial" class="btn-primary px-5 py-2 rounded-lg font-bold">Save Settings</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= REJECT REASON MODAL ================= -->
+  <div id="rejectModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-md bg-[#121620] border border-[#2e394e] rounded-2xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-3">
+        <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+          <i data-lucide="x-circle" class="w-4 h-4"></i>
+          <span>Reject Video & Record Notes</span>
+        </h3>
+        <button id="btnCloseRejectModal" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-3 text-xs">
+        <p class="text-slate-400">Specify why this video was rejected (e.g. caption misalignment, VRAM stutter, FLUX facial distortion):</p>
+        <textarea id="rejectNotes" rows="3" placeholder="Notes for regeneration..." class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg p-2.5 focus:outline-none focus:border-rose-500"></textarea>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button id="btnCancelReject" class="btn-secondary px-3 py-1.5 rounded-lg">Cancel</button>
+          <button id="btnConfirmReject" class="btn-danger px-4 py-1.5 rounded-lg font-bold">Reject Video</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MANAGE PROJECTS MODAL ================= -->
+  <div id="manageProjectsModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-2xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-cog" class="w-5 h-5 text-cyan-400"></i>
+          <h3 class="text-base font-bold text-white">Project Workspaces Manager</h3>
+        </div>
+        <button id="btnCloseManageProjectsModal" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Safety Disclaimer Banner -->
+      <div class="p-3 mb-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 flex items-start gap-3">
+        <i data-lucide="shield-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <b class="text-cyan-300">File Safety Guarantee:</b> Hiding or removing a project only unlinks it from the KCT Studio workspace menu. Your original project folders, generated videos, scripts, narration audios, and images on disk are <b>100% safe and never deleted</b>.
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3 text-xs">
+        <div class="flex items-center gap-2 flex-1 max-w-xs">
+          <div class="relative w-full">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500"></i>
+            <input type="text" id="inputManageProjectSearch" placeholder="Filter projects..." class="w-full bg-[#181e2b] border border-[#293246] text-xs text-slate-200 rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FFE614]">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white transition">
+            <input type="checkbox" id="chkShowHiddenProjects" class="rounded bg-slate-800 border-slate-700 text-[#FFE614] focus:ring-0">
+            <span>Show Hidden Projects</span>
+          </label>
+          <button id="btnOpenAddFromManager" class="btn-primary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+            <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+            <span>Add Project</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable Projects List -->
+      <div id="manageProjectsList" class="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 max-h-[380px]">
+        <div class="py-8 text-center text-slate-500 text-xs">Loading projects...</div>
+      </div>
+
+      <!-- Footer -->
+      <div class="pt-4 mt-3 border-t border-[#212836] flex justify-end">
+        <button id="btnDoneManageProjects" class="btn-secondary px-5 py-2 rounded-lg font-semibold text-xs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EDIT PROJECT MODAL ================= -->
+  <div id="editProjectModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-lg bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-5 h-5 text-[#FFE614]"></i>
+          <h3 class="text-base font-bold text-white">Edit Project Workspace</h3>
+        </div>
+        <button id="btnCloseEditProjectModal" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Safety Notice Banner -->
+      <div class="p-3 mb-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5">
+        <i data-lucide="shield-check" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <b class="text-amber-300">Disk Safety Guarantee:</b> Changing the project name or directory path only updates the KCT Studio workspace entry. Your folders, generated videos, narration audio, and images on disk are <b>never moved or deleted</b>.
+        </div>
+      </div>
+
+      <form id="formEditProject" class="flex flex-col gap-4 text-xs">
+        <input type="hidden" id="editProjectOldPath">
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Project Name (Display Label)</label>
+          <input type="text" id="editProjectName" required placeholder="e.g. Bible Hidden Secrets (Reels)" class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFE614]">
+          <p class="text-[11px] text-slate-500 mt-1">Friendly display name shown in workspace header and switcher.</p>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Folder Location (Directory Path)</label>
+          <input type="text" id="editProjectPath" required placeholder="e.g. E:\Projects\Bible Hidden Secrets Revealed\reels" class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-[#FFE614]">
+          <p class="text-[11px] text-slate-500 mt-1">Absolute folder path on disk where scripts or numbered episode directories are located.</p>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Pipeline Category / Type</label>
+          <select id="editProjectType" class="w-full bg-[#181e2b] border border-[#293246] text-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFE614]">
+            <option value="manhwa">Manhwa Cinema Lab (16:9 Cel-Shading)</option>
+            <option value="documentary">Bible Hidden Secrets (Cinematic Documentary)</option>
+            <option value="custom">Custom Pipeline Workspace</option>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t border-[#212836] flex justify-end gap-2">
+          <button type="button" id="btnCancelEditProject" class="btn-secondary px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" id="btnSaveEditProject" class="btn-primary px-5 py-2 rounded-lg font-bold flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Enhanced Toast Notifications Stack -->
+  <div id="toastContainer" class="toast-container fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 sm:px-0"></div>
+
+  <!-- App Script -->
+  <script src="/static/js/app.js?v=3.2"></script>
+</body>
+</html>
