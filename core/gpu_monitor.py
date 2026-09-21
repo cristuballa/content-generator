@@ -37,22 +37,119 @@ def get_gpu_stats() -> List[Dict[str, Any]]:
         print(f"[GPU Monitor] Failed to query nvidia-smi: {e}")
     return gpus
 
-def check_comfyui(url: str = "http://127.0.0.1:8188") -> Dict[str, Any]:
+import socket
+import time
+from urllib.parse import urlparse
+
+# In-memory status cache for graceful debouncing
+_last_comfy_state = {
+    "online": False,
+    "busy": False,
+    "status": "offline",
+    "last_seen": 0,
+    "devices": []
+}
+
+def _is_port_listening(host: str, port: int, timeout: float = 0.25) -> bool:
     try:
-        resp = requests.get(f"{url.rstrip('/')}/system_stats", timeout=1.5)
-        if resp.status_code == 200:
-            data = resp.json()
-            return {
-                "online": True,
-                "url": url,
-                "devices": data.get("devices", [])
-            }
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(timeout)
+        res = s.connect_ex((host, port))
+        s.close()
+        return res == 0
+    except Exception:
+        return False
+
+def _is_comfy_process_running() -> bool:
+    try:
+        for proc in psutil.process_iter(['name', 'cmdline']):
+            name = (proc.info.get('name') or '').lower()
+            if 'python' in name:
+                cmdline = ' '.join(proc.info.get('cmdline') or [])
+                if 'main.py' in cmdline and ('8188' in cmdline or 'ComfyUI' in cmdline):
+                    return True
     except Exception:
         pass
+    return False
+
+def check_comfyui(url: str = "http://127.0.0.1:8188") -> Dict[str, Any]:
+    global _last_comfy_state
+    now = time.time()
+
+    parsed = urlparse(url)
+    host = parsed.hostname or "127.0.0.1"
+    port = parsed.port or 8188
+
+    port_open = _is_port_listening(host, port)
+    proc_running = _is_comfy_process_running() if not port_open else True
+
+    if not port_open and not proc_running:
+        # Check grace period (within 4 seconds of being active to prevent flickers during heavy CUDA sync)
+        if now - _last_comfy_state["last_seen"] < 4.0 and _last_comfy_state["online"]:
+            return {
+                "online": True,
+                "busy": True,
+                "status": "busy",
+                "url": url,
+                "devices": _last_comfy_state["devices"]
+            }
+        _last_comfy_state["online"] = False
+        _last_comfy_state["busy"] = False
+        _last_comfy_state["status"] = "offline"
+        return {
+            "online": False,
+            "busy": False,
+            "status": "offline",
+            "url": url,
+            "devices": []
+        }
+
+    # Port is open or process is alive
+    _last_comfy_state["last_seen"] = now
+    is_busy = False
+    devices = _last_comfy_state.get("devices", [])
+
+    # Try HTTP check with short timeout to detect if busy or idle
+    base_url = url.rstrip('/')
+    try:
+        # Check /prompt endpoint for active queue/generation
+        resp = requests.get(f"{base_url}/prompt", timeout=1.0)
+        if resp.status_code == 200:
+            p_data = resp.json()
+            remaining = p_data.get("exec_info", {}).get("queue_remaining", 0)
+            if remaining > 0:
+                is_busy = True
+    except requests.exceptions.Timeout:
+        # Timeout during HTTP call when port is open strongly indicates heavy GPU/GIL load
+        is_busy = True
+    except Exception:
+        pass
+
+    # Query system stats if not already busy
+    if not is_busy:
+        try:
+            resp_stats = requests.get(f"{base_url}/system_stats", timeout=1.0)
+            if resp_stats.status_code == 200:
+                s_data = resp_stats.json()
+                devices = s_data.get("devices", devices)
+        except requests.exceptions.Timeout:
+            is_busy = True
+        except Exception:
+            pass
+
+    _last_comfy_state.update({
+        "online": True,
+        "busy": is_busy,
+        "status": "busy" if is_busy else "online",
+        "devices": devices
+    })
+
     return {
-        "online": False,
+        "online": True,
+        "busy": is_busy,
+        "status": "busy" if is_busy else "online",
         "url": url,
-        "devices": []
+        "devices": devices
     }
 
 def get_system_stats(comfyui_url: str = "http://127.0.0.1:8188") -> Dict[str, Any]:

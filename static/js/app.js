@@ -1563,9 +1563,15 @@ async function fetchTelemetry() {
     const ind = document.getElementById("comfyIndicator");
     const statusText = document.getElementById("comfyStatus");
     if (comfy && comfy.online) {
-      ind.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]";
-      statusText.textContent = "Online :8188";
-      statusText.className = "text-emerald-400 font-semibold";
+      if (comfy.busy || comfy.status === "busy") {
+        ind.className = "w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-pulse";
+        statusText.textContent = "Busy (Generating) :8188";
+        statusText.className = "text-amber-400 font-semibold";
+      } else {
+        ind.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]";
+        statusText.textContent = "Online :8188";
+        statusText.className = "text-emerald-400 font-semibold";
+      }
     } else {
       ind.className = "w-2 h-2 rounded-full bg-slate-500";
       statusText.textContent = "Offline";

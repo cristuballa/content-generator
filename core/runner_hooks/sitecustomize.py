@@ -22,3 +22,27 @@ if sys.platform == "win32":
         return _orig_popen_init(self, *args, **kwargs)
 
     subprocess.Popen.__init__ = _silent_popen_init
+
+    # Fix Windows ProactorEventLoop WinError 10054 on client disconnect
+    try:
+        import asyncio.proactor_events
+        _orig_call_connection_lost = asyncio.proactor_events._ProactorBasePipeTransport._call_connection_lost
+
+        def _silenced_call_connection_lost(self, exc):
+            try:
+                _orig_call_connection_lost(self, exc)
+            except (ConnectionResetError, OSError):
+                try:
+                    if hasattr(self, "_sock") and self._sock is not None:
+                        self._sock.close()
+                        self._sock = None
+                    if hasattr(self, "_server") and self._server is not None:
+                        self._server._detach()
+                        self._server = None
+                    self._called_connection_lost = True
+                except Exception:
+                    pass
+
+        asyncio.proactor_events._ProactorBasePipeTransport._call_connection_lost = _silenced_call_connection_lost
+    except Exception:
+        pass
