@@ -911,7 +911,34 @@ function updateModalSocialCheckboxes(asset) {
   setCheck("checkSocmedX", "x");
 }
 
+let currentMetaRelPath = null;
+
+function closeMetaModal() {
+  const modal = document.getElementById("metaModal");
+  if (modal) modal.classList.add("hidden");
+}
+
 async function openMetadata(relPath) {
+  currentMetaRelPath = relPath;
+  const fileName = relPath.split("/").pop();
+
+  const modal = document.getElementById("metaModal");
+  const titleEl = document.getElementById("metaModalTitle");
+  const subEl = document.getElementById("metaModalSub");
+  const textarea = document.getElementById("metaModalTextarea");
+  const charCount = document.getElementById("metaModalCharCount");
+  const statusEl = document.getElementById("metaModalStatus");
+
+  if (titleEl) titleEl.textContent = `Metadata: ${fileName}`;
+  if (subEl) subEl.textContent = relPath;
+  if (textarea) {
+    textarea.value = "Loading metadata content...";
+    textarea.disabled = true;
+  }
+  if (statusEl) statusEl.textContent = "";
+  if (charCount) charCount.textContent = "-- characters";
+  if (modal) modal.classList.remove("hidden");
+
   try {
     const res = await fetch("/api/assets/open_metadata", {
       method: "POST",
@@ -920,13 +947,17 @@ async function openMetadata(relPath) {
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      showNotification({
-        title: "Metadata Opened",
-        message: `Opened <b>${escapeHtml(data.filename || 'metadata.txt')}</b> in editor`,
-        type: "info",
-        duration: 3500
-      });
+      if (textarea) {
+        textarea.value = data.content || "";
+        textarea.disabled = false;
+        if (charCount) charCount.textContent = `${textarea.value.length.toLocaleString()} characters`;
+      }
+      if (subEl) subEl.textContent = data.file_path || relPath;
     } else {
+      if (textarea) {
+        textarea.value = `Unable to load metadata: ${data.detail || "File not found"}`;
+        textarea.disabled = false;
+      }
       showNotification({
         title: "Metadata Error",
         message: data.detail || "Failed to open metadata file",
@@ -935,12 +966,114 @@ async function openMetadata(relPath) {
       });
     }
   } catch (err) {
+    if (textarea) {
+      textarea.value = `Error: ${err.message}`;
+      textarea.disabled = false;
+    }
     showNotification({
       title: "Metadata Error",
       message: err.message,
       type: "error"
     });
   }
+}
+
+async function saveMetadataContent() {
+  if (!currentMetaRelPath) return;
+  const textarea = document.getElementById("metaModalTextarea");
+  const statusEl = document.getElementById("metaModalStatus");
+  const btnSave = document.getElementById("btnSaveMetaModal");
+
+  if (!textarea) return;
+  const content = textarea.value;
+
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Saving...</span>`;
+    lucide.createIcons();
+  }
+
+  try {
+    const res = await fetch("/api/assets/save_metadata", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rel_path: currentMetaRelPath, content: content })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (statusEl) {
+        statusEl.textContent = "✔ Saved successfully";
+        statusEl.className = "text-[11px] font-mono text-emerald-400";
+        setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 3000);
+      }
+      showNotification({
+        title: "Metadata Saved",
+        message: `Successfully saved changes to <b>${escapeHtml(data.filename || 'metadata.txt')}</b>`,
+        type: "success",
+        duration: 3000
+      });
+    } else {
+      throw new Error(data.detail || "Failed to save file");
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.textContent = `✖ Error: ${err.message}`;
+      statusEl.className = "text-[11px] font-mono text-rose-400";
+    }
+    showNotification({
+      title: "Save Failed",
+      message: err.message,
+      type: "error"
+    });
+  } finally {
+    if (btnSave) {
+      btnSave.disabled = false;
+      btnSave.innerHTML = `<i data-lucide="save" class="w-3.5 h-3.5"></i><span>Save Changes</span>`;
+      lucide.createIcons();
+    }
+  }
+}
+
+function copyMetaSection(type) {
+  const textarea = document.getElementById("metaModalTextarea");
+  const statusEl = document.getElementById("metaModalStatus");
+  if (!textarea) return;
+  const text = textarea.value;
+  let copyVal = text;
+
+  if (type === "title") {
+    const m = text.match(/(?:TITLE|Title|EPISODE\s*\d*\s*[-—]\s*TITLE):\s*(.*)/i);
+    if (m && m[1].trim()) {
+      copyVal = m[1].trim();
+    } else {
+      const lines = text.split("\n").filter(l => l.trim() && !l.startsWith("=") && !l.startsWith("-"));
+      copyVal = lines[0] || text;
+    }
+  } else if (type === "desc") {
+    const m = text.match(/(?:DESCRIPTION|Description):\s*([\s\S]*?)(?=\n[A-Z\s]{3,}:|\n={3,}|\Z)/i);
+    if (m && m[1].trim()) {
+      copyVal = m[1].trim();
+    }
+  } else if (type === "tags") {
+    const m = text.match(/(?:HASHTAGS|Tags|TAGS):\s*(.*)/i);
+    if (m && m[1].trim()) {
+      copyVal = m[1].trim();
+    } else {
+      const tags = text.match(/#[\w]+/g);
+      copyVal = tags ? tags.join(" ") : text;
+    }
+  }
+
+  navigator.clipboard.writeText(copyVal).then(() => {
+    if (statusEl) {
+      statusEl.textContent = `✔ Copied ${type.toUpperCase()} to clipboard!`;
+      statusEl.className = "text-[11px] font-mono text-[#FFE614]";
+      setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 2500);
+    }
+    playChime("gold");
+  }).catch(e => {
+    console.warn("Clipboard copy failed:", e);
+  });
 }
 
 async function toggleSocialStatus(relPath, platform, newStatus) {
@@ -1951,7 +2084,7 @@ function renderAssets(assets) {
             <span class="text-[11px] px-2.5 py-0.5 rounded font-mono font-bold truncate ${isMaster ? "bg-[#FFE614]/20 text-[#FFE614] border border-[#FFE614]/40" : "bg-[#181e2b] text-cyan-400 border border-[#232a3b]"}">
               ${isMaster ? "★ MASTER FINAL STORY" : asset.chapter_tag}
             </span>
-            <button class="btn-open-meta px-2 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-[#FFE614] border border-slate-700 text-[11px] font-mono flex items-center gap-1 transition shadow-sm shrink-0 cursor-pointer" title="Open video metadata in Notepad" data-rel="${escapeHtml(asset.rel_path)}">
+            <button class="btn-open-meta px-2 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-[#FFE614] border border-slate-700 text-[11px] font-mono flex items-center gap-1 transition shadow-sm shrink-0 cursor-pointer" title="View & edit video metadata" data-rel="${escapeHtml(asset.rel_path)}">
               <i data-lucide="file-text" class="w-3 h-3 text-[#FFE614]"></i>
               <span>Meta</span>
             </button>
@@ -2670,6 +2803,132 @@ function setupEventListeners() {
       });
     }
   };
+
+  // Metadata Modal Event Listeners
+  const btnCloseMeta = document.getElementById("btnCloseMetaModal");
+  if (btnCloseMeta) btnCloseMeta.onclick = closeMetaModal;
+
+  const btnCancelMeta = document.getElementById("btnCancelMetaModal");
+  if (btnCancelMeta) btnCancelMeta.onclick = closeMetaModal;
+
+  const metaModalEl = document.getElementById("metaModal");
+  if (metaModalEl) {
+    metaModalEl.onclick = (e) => {
+      if (e.target.id === "metaModal") closeMetaModal();
+    };
+  }
+
+  const btnSaveMeta = document.getElementById("btnSaveMetaModal");
+  if (btnSaveMeta) btnSaveMeta.onclick = saveMetadataContent;
+
+  const btnCopyTitle = document.getElementById("metaBtnCopyTitle");
+  if (btnCopyTitle) btnCopyTitle.onclick = () => copyMetaSection("title");
+
+  const btnCopyDesc = document.getElementById("metaBtnCopyDesc");
+  if (btnCopyDesc) btnCopyDesc.onclick = () => copyMetaSection("desc");
+
+  const btnCopyTags = document.getElementById("metaBtnCopyTags");
+  if (btnCopyTags) btnCopyTags.onclick = () => copyMetaSection("tags");
+
+  const btnCopyAll = document.getElementById("metaBtnCopyAll");
+  if (btnCopyAll) btnCopyAll.onclick = () => copyMetaSection("all");
+
+  const metaTextarea = document.getElementById("metaModalTextarea");
+  if (metaTextarea) {
+    metaTextarea.oninput = () => {
+      const charCount = document.getElementById("metaModalCharCount");
+      if (charCount) charCount.textContent = `${metaTextarea.value.length.toLocaleString()} characters`;
+    };
+  }
+
+  const btnOpenNotepad = document.getElementById("metaBtnOpenNotepad");
+  if (btnOpenNotepad) {
+    btnOpenNotepad.onclick = async () => {
+      if (!currentMetaRelPath) return;
+      try {
+        const res = await fetch("/api/assets/open_metadata", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rel_path: currentMetaRelPath, launch_external: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification({
+            title: "Notepad Triggered",
+            message: `Requested external editor for <b>${escapeHtml(data.filename || 'metadata.txt')}</b>`,
+            type: "info",
+            duration: 3000
+          });
+        }
+      } catch (err) {
+        showNotification({
+          title: "Notepad Error",
+          message: err.message,
+          type: "error"
+        });
+      }
+    };
+  }
+
+  const btnRevealExplorer = document.getElementById("metaBtnRevealExplorer");
+  if (btnRevealExplorer) {
+    btnRevealExplorer.onclick = async () => {
+      if (!currentMetaRelPath) return;
+      try {
+        const res = await fetch("/api/assets/reveal_in_explorer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rel_path: currentMetaRelPath })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification({
+            title: "Explorer Opened",
+            message: `Highlighted metadata file in Windows Explorer folder`,
+            type: "success",
+            duration: 3000
+          });
+        }
+      } catch (err) {
+        showNotification({
+          title: "Explorer Error",
+          message: err.message,
+          type: "error"
+        });
+      }
+    };
+  }
+
+  // Global escape key handler to dismiss active modals
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const metaM = document.getElementById("metaModal");
+      if (metaM && !metaM.classList.contains("hidden")) {
+        closeMetaModal();
+        return;
+      }
+      const vidM = document.getElementById("videoModal");
+      if (vidM && !vidM.classList.contains("hidden")) {
+        closeVideoModal();
+        return;
+      }
+      const rejM = document.getElementById("rejectModal");
+      if (rejM && !rejM.classList.contains("hidden")) {
+        rejM.classList.add("hidden");
+        return;
+      }
+      const addM = document.getElementById("addProjectModal");
+      if (addM && !addM.classList.contains("hidden")) {
+        addM.classList.add("hidden");
+        return;
+      }
+      const socM = document.getElementById("socialModal");
+      if (socM && !socM.classList.contains("hidden")) {
+        socM.classList.add("hidden");
+        return;
+      }
+    }
+  });
 }
 
 function escapeHtml(str) {

@@ -8,6 +8,12 @@ import shlex
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+# Ensure stdout and stderr are available when running under pythonw.exe
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w", encoding="utf-8")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w", encoding="utf-8")
+
 import logging
 from contextlib import asynccontextmanager
 import uvicorn
@@ -155,6 +161,11 @@ class AssetSocialBatchRequest(BaseModel):
 
 class OpenMetadataRequest(BaseModel):
     rel_path: str
+    launch_external: Optional[bool] = False
+
+class SaveMetadataRequest(BaseModel):
+    rel_path: str
+    content: str
 
 class SocialPublishRequest(BaseModel):
     rel_path: str
@@ -454,24 +465,68 @@ async def open_metadata(req: OpenMetadataRequest):
     if not meta_path or not meta_path.exists():
         raise HTTPException(status_code=404, detail="Metadata file not found and could not be created")
 
+    # Read content for in-app modal viewer & editor
+    content = ""
     try:
-        resolved_file = str(meta_path.resolve())
-        if sys.platform == "win32":
-            os.startfile(resolved_file)
-        else:
-            subprocess.Popen(["xdg-open", resolved_file], shell=False)
-    except Exception as e:
-        # Fallback to direct notepad.exe if os.startfile fails for any reason
+        content = meta_path.read_text(encoding="utf-8")
+    except Exception:
         try:
-            subprocess.Popen(["notepad.exe", str(meta_path.resolve())], shell=False)
+            content = meta_path.read_text(encoding="cp1252", errors="replace")
         except Exception:
-            raise HTTPException(status_code=500, detail=f"Failed to open metadata file: {str(e)}")
+            pass
+
+    resolved_file = str(meta_path.resolve())
+
+    # Try launching editor on OS desktop if explicitly requested
+    if req.launch_external:
+        try:
+            if sys.platform == "win32":
+                try:
+                    os.startfile(resolved_file)
+                except Exception:
+                    subprocess.Popen(["notepad.exe", resolved_file], shell=False)
+            else:
+                subprocess.Popen(["xdg-open", resolved_file], shell=False)
+        except Exception as e:
+            logging.warning(f"Could not open external editor: {e}")
 
     return {
         "success": True,
         "file_path": str(meta_path),
-        "filename": meta_path.name
+        "filename": meta_path.name,
+        "content": content
     }
+
+@app.post("/api/assets/save_metadata")
+async def save_metadata(req: SaveMetadataRequest):
+    active_path = config_manager.get_active_project()
+    if not active_path:
+        raise HTTPException(status_code=400, detail="No active project")
+
+    meta_path = asset_manager.find_or_create_metadata_file(active_path, req.rel_path)
+    try:
+        meta_path.write_text(req.content, encoding="utf-8")
+        return {
+            "success": True,
+            "file_path": str(meta_path),
+            "filename": meta_path.name
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save metadata file: {str(e)}")
+
+@app.post("/api/assets/reveal_in_explorer")
+async def reveal_in_explorer(req: OpenMetadataRequest):
+    active_path = config_manager.get_active_project()
+    if not active_path:
+        raise HTTPException(status_code=400, detail="No active project")
+
+    meta_path = asset_manager.find_or_create_metadata_file(active_path, req.rel_path)
+    if sys.platform == "win32":
+        try:
+            subprocess.Popen(["explorer.exe", f"/select,{str(meta_path.resolve())}"], shell=False)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to reveal in explorer: {str(e)}")
+    return {"success": True, "file_path": str(meta_path)}
 
 @app.post("/api/assets/regenerate")
 async def regenerate_asset(req: AssetRegenerateRequest):
