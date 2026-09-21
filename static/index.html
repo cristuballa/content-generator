@@ -82,6 +82,12 @@
           <span id="comfyStatus" class="text-slate-400">Checking...</span>
         </div>
 
+        <!-- Desktop Notifications Toggle -->
+        <button id="btnToggleNotifications" title="Desktop Notifications: Alert when pipeline finishes" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+          <i id="iconNotification" data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
+          <span id="textNotification" class="hidden md:inline text-xs font-medium">Alerts</span>
+        </button>
+
         <!-- Social Settings Button -->
         <button id="btnSocialSettings" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
           <i data-lucide="share-2" class="w-4 h-4"></i>
@@ -816,6 +822,6 @@
   <div id="toastContainer" class="toast-container fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 sm:px-0"></div>
 
   <!-- App Script -->
-  <script src="/static/js/app.js?v=3.4"></script>
+  <script src="/static/js/app.js?v=3.5"></script>
 </body>
 </html>

@@ -455,9 +455,17 @@ async def open_metadata(req: OpenMetadataRequest):
         raise HTTPException(status_code=404, detail="Metadata file not found and could not be created")
 
     try:
-        subprocess.Popen(["notepad.exe", str(meta_path.resolve())], shell=False)
+        resolved_file = str(meta_path.resolve())
+        if sys.platform == "win32":
+            os.startfile(resolved_file)
+        else:
+            subprocess.Popen(["xdg-open", resolved_file], shell=False)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to open notepad: {str(e)}")
+        # Fallback to direct notepad.exe if os.startfile fails for any reason
+        try:
+            subprocess.Popen(["notepad.exe", str(meta_path.resolve())], shell=False)
+        except Exception:
+            raise HTTPException(status_code=500, detail=f"Failed to open metadata file: {str(e)}")
 
     return {
         "success": True,

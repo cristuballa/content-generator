@@ -369,9 +369,9 @@ class KCTStudioTrayApp:
 
     def view_logs(self, icon=None, item=None):
         if self.server_log.exists():
-            subprocess.Popen(["notepad.exe", str(self.server_log.resolve())])
+            os.startfile(str(self.server_log.resolve()))
         elif self.tray_log.exists():
-            subprocess.Popen(["notepad.exe", str(self.tray_log.resolve())])
+            os.startfile(str(self.tray_log.resolve()))
         else:
             if self.icon:
                 self.icon.notify("No server log file found yet.", "Server Logs")

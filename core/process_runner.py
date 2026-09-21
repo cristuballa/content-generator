@@ -229,6 +229,21 @@ class ProcessRunner:
             self.status = "error"
             self.log(f"=== [PROCESS EXECUTION ERROR]: {e} ===", stream="error")
         finally:
+            if self.current_job_info:
+                self.current_job_info["duration"] = round(time.time() - self.current_job_info.get("start_time", time.time()), 1)
+                self.current_job_info["exit_code"] = exit_code if 'exit_code' in locals() else -1
+
+            # System audio chime on Windows (rings even if browser is minimized)
+            if sys.platform == "win32":
+                try:
+                    import winsound
+                    if self.status == "completed":
+                        winsound.MessageBeep(winsound.MB_ICONASTERISK)
+                    elif self.status == "error":
+                        winsound.MessageBeep(winsound.MB_ICONHAND)
+                except Exception:
+                    pass
+
             self.current_process = None
             self.current_pid = None
             await self.broadcast({

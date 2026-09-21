@@ -110,7 +110,8 @@ class AssetManager:
     def find_or_create_metadata_file(self, project_path_str: str, rel_path: str) -> Path:
         """Locates or creates a metadata text/json file for a video asset to be opened in Notepad."""
         base_p = Path(project_path_str)
-        video_p = base_p / rel_path
+        clean_rel = rel_path.replace("\\", "/").lstrip("/")
+        video_p = base_p / clean_rel
         folder = video_p.parent if video_p.is_file() or video_p.suffix else video_p
 
         check_folders = [folder]
@@ -119,6 +120,8 @@ class AssetManager:
 
         # 1. Search for existing metadata / script files
         for fld in check_folders:
+            if not fld.exists():
+                continue
             for name in [
                 "metadata.json", "metadata.txt", "youtube_metadata.md", "youtube_metadata.txt",
                 "script.txt", "script.md", "script_35min.txt", "script_clean.txt", "scenes_prompts.json"
@@ -142,9 +145,10 @@ Timestamps:
 00:00 - Introduction
 """
         try:
+            target_file.parent.mkdir(parents=True, exist_ok=True)
             target_file.write_text(template, encoding="utf-8")
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[AssetManager] Error creating metadata template: {e}")
         return target_file
 
     def get_media_info(self, file_path: Path, rec: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:

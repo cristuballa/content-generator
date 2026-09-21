@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initWebSocket();
   loadProjects();
   initTelemetry();
+  initDesktopNotifications();
   setupEventListeners();
 });
 
@@ -36,6 +37,40 @@ function playChime(type) {
       audioCtx.resume();
     }
     const now = audioCtx.currentTime;
+
+    if (type === "job_completed") {
+      // Harmonic 3-tone finish chime (C5 -> E5 -> G5) resonant bell
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const osc3 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc1.type = "sine";
+      osc2.type = "sine";
+      osc3.type = "triangle";
+
+      osc1.frequency.setValueAtTime(523.25, now);
+      osc2.frequency.setValueAtTime(659.25, now + 0.12);
+      osc3.frequency.setValueAtTime(783.99, now + 0.24);
+
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      osc3.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc1.start(now);
+      osc2.start(now + 0.12);
+      osc3.start(now + 0.24);
+
+      osc1.stop(now + 1.2);
+      osc2.stop(now + 1.2);
+      osc3.stop(now + 1.2);
+      return;
+    }
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain);
@@ -68,6 +103,127 @@ function playChime(type) {
     }
   } catch (e) {
     // Non-blocking
+  }
+}
+
+// ================= DESKTOP NOTIFICATIONS & TAB ALERTS =================
+let originalDocTitle = document.title || "KCT Studio - AI Video Pipeline";
+let titleFlashInterval = null;
+
+function flashDocumentTitle(alertText) {
+  if (titleFlashInterval) clearInterval(titleFlashInterval);
+  let toggle = false;
+  titleFlashInterval = setInterval(() => {
+    document.title = toggle ? alertText : originalDocTitle;
+    toggle = !toggle;
+  }, 1000);
+}
+
+window.addEventListener("focus", () => {
+  if (titleFlashInterval) {
+    clearInterval(titleFlashInterval);
+    titleFlashInterval = null;
+    document.title = originalDocTitle;
+  }
+});
+
+function updateNotificationButtonState() {
+  const btn = document.getElementById("btnToggleNotifications");
+  const icon = document.getElementById("iconNotification");
+  const text = document.getElementById("textNotification");
+  if (!btn || !("Notification" in window)) return;
+
+  const perm = Notification.permission;
+  if (perm === "granted") {
+    btn.className = "bg-[#14261e] hover:bg-[#1a382b] text-emerald-300 px-2.5 py-1.5 rounded-lg border border-emerald-600/40 transition text-sm flex items-center gap-1.5";
+    btn.title = "Desktop Alerts Active (Click to send test alert)";
+    if (icon) icon.className = "w-4 h-4 text-emerald-400";
+    if (text) text.textContent = "Alerts On";
+  } else if (perm === "denied") {
+    btn.className = "bg-[#261616] hover:bg-[#381a1a] text-rose-300 px-2.5 py-1.5 rounded-lg border border-rose-700/40 transition text-sm flex items-center gap-1.5 opacity-75";
+    btn.title = "Notifications Blocked in Browser Settings (Click for info)";
+    if (icon) icon.className = "w-4 h-4 text-rose-400";
+    if (text) text.textContent = "Alerts Blocked";
+  } else {
+    btn.className = "bg-[#282114] hover:bg-[#3d3119] text-amber-300 px-2.5 py-1.5 rounded-lg border border-amber-600/40 transition text-sm flex items-center gap-1.5 animate-pulse";
+    btn.title = "Enable Desktop Notifications (Click to allow)";
+    if (icon) icon.className = "w-4 h-4 text-amber-400";
+    if (text) text.textContent = "Enable Alerts";
+  }
+}
+
+function initDesktopNotifications() {
+  const btn = document.getElementById("btnToggleNotifications");
+  if (!btn) return;
+
+  if (!("Notification" in window)) {
+    btn.style.display = "none";
+    return;
+  }
+
+  updateNotificationButtonState();
+
+  btn.onclick = async () => {
+    if (Notification.permission === "granted") {
+      triggerDesktopNotification(
+        "🔔 KCT Studio: Desktop Alerts Active",
+        "You will receive an alert like this when video pipelines finish execution.",
+        "info"
+      );
+      playChime("job_completed");
+      showNotification({
+        title: "Desktop Alerts Active",
+        message: "Desktop notifications and audio chimes are verified and working.",
+        type: "success",
+        duration: 3500
+      });
+    } else if (Notification.permission === "denied") {
+      showNotification({
+        title: "Notifications Blocked",
+        message: "Desktop notifications are blocked in your browser. Click the site settings lock icon in your URL bar to allow notifications.",
+        type: "warning",
+        duration: 7000
+      });
+    } else {
+      const res = await Notification.requestPermission();
+      updateNotificationButtonState();
+      if (res === "granted") {
+        triggerDesktopNotification(
+          "🔔 KCT Studio: Desktop Alerts Enabled!",
+          "Great! You will now be alerted when any job finishes even if you're working in another application.",
+          "success"
+        );
+        playChime("job_completed");
+        showNotification({
+          title: "Notifications Enabled",
+          message: "You will now be alerted when background jobs finish.",
+          type: "success"
+        });
+      }
+    }
+  };
+}
+
+function triggerDesktopNotification(title, body, type = "info") {
+  if (!("Notification" in window) || Notification.permission !== "granted") {
+    return;
+  }
+
+  try {
+    const cleanBody = (body || "").replace(/<[^>]*>?/gm, "");
+    const notif = new Notification(title, {
+      body: cleanBody,
+      icon: "/static/favicon.svg",
+      tag: "kct-studio-pipeline-job",
+      renotify: true
+    });
+
+    notif.onclick = () => {
+      window.focus();
+      try { notif.close(); } catch (e) {}
+    };
+  } catch (err) {
+    console.warn("[Notification] Error triggering desktop notification:", err);
   }
 }
 
@@ -170,19 +326,36 @@ function handleWsMessage(data) {
     appendLogLine(data.entry);
   } else if (data.type === "status") {
     if (lastProcessStatus === "running" && data.status === "completed") {
+      const scriptName = data.job?.script || "Pipeline Script";
+      const dur = data.job?.duration ? ` in ${data.job.duration}s` : "";
       showNotification({
         title: "Pipeline Completed",
-        message: `<b>${data.job?.script || "Pipeline"}</b> finished execution successfully with exit code 0.`,
+        message: `<b>${scriptName}</b> finished execution successfully${dur} with exit code 0.`,
         type: "success",
-        duration: 5000
+        duration: 6500
       });
+      triggerDesktopNotification(
+        "✅ Pipeline Completed - KCT Studio",
+        `${scriptName} finished execution successfully${dur} (Exit Code: 0). Click to view output.`,
+        "success"
+      );
+      flashDocumentTitle("✅ Job Finished! - KCT Studio");
+      playChime("job_completed");
     } else if (lastProcessStatus === "running" && data.status === "error") {
+      const scriptName = data.job?.script || "Pipeline Script";
       showNotification({
         title: "Pipeline Failed",
-        message: `<b>${data.job?.script || "Pipeline"}</b> encountered an error. Check console logs.`,
+        message: `<b>${scriptName}</b> encountered an error. Check console logs.`,
         type: "error",
-        duration: 6000
+        duration: 7500
       });
+      triggerDesktopNotification(
+        "❌ Pipeline Failed - KCT Studio",
+        `${scriptName} encountered an error. Click to view terminal logs.`,
+        "error"
+      );
+      flashDocumentTitle("❌ Job Failed! - KCT Studio");
+      playChime("error");
     } else if (lastProcessStatus === "running" && data.status === "stopped") {
       showNotification({
         title: "Process Terminated",
@@ -190,6 +363,11 @@ function handleWsMessage(data) {
         type: "warning",
         duration: 4500
       });
+      triggerDesktopNotification(
+        "⏹ Process Terminated",
+        "Pipeline process was stopped by user. Resources cleared.",
+        "warning"
+      );
     }
     lastProcessStatus = data.status;
     setProcessStatus(data.status, data.job);
@@ -744,14 +922,16 @@ async function openMetadata(relPath) {
     if (res.ok && data.success) {
       showNotification({
         title: "Metadata Opened",
-        message: `Opened ${data.filename || 'metadata'} in Notepad`,
-        type: "info"
+        message: `Opened <b>${escapeHtml(data.filename || 'metadata.txt')}</b> in editor`,
+        type: "info",
+        duration: 3500
       });
     } else {
       showNotification({
         title: "Metadata Error",
         message: data.detail || "Failed to open metadata file",
-        type: "error"
+        type: "error",
+        duration: 5000
       });
     }
   } catch (err) {
@@ -2168,6 +2348,10 @@ function setupEventListeners() {
   }
 
   document.getElementById("btnRunPipeline").onclick = () => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().then(() => updateNotificationButtonState());
+    }
+
     const cmdLine = document.getElementById("inputCommandLine");
     const rawCmd = cmdLine ? cmdLine.value.trim() : "";
     if (rawCmd) {
