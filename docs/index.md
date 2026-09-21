@@ -14,6 +14,7 @@ Welcome to the official technical documentation for **KCT Studio (v2.0)** — an
 | [**API Reference**](api_reference.md) | Complete documentation of FastAPI REST endpoints, WebSocket log streaming, and payloads. |
 | [**Frontend Guide**](frontend_guide.md) | Visual walkthrough of the UI: project switcher, episode list, command builder, social media toggles, and console. |
 | [**Troubleshooting & FAQ**](troubleshooting.md) | Solutions for common Windows issues, SSL certificate trust, `CREATE_NO_WINDOW`, and port resolution. |
+| [**Multi-GPU Roadmap**](multi_gpu_architecture_roadmap.md) | Architectural roadmap for multi-GPU worker pooling, ComfyUI load balancing, and eGPU scaling. |
 
 ---
 
