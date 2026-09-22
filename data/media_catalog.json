@@ -3990,7 +3990,22 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {},
+      "published": {
+        "facebook": {
+          "status": "published",
+          "time": 1789975473.9771218,
+          "details": {
+            "manual": true
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1789975475.3696132,
+          "details": {
+            "manual": true
+          }
+        }
+      },
       "duration": "2:41",
       "resolution": "768x1344",
       "probe_mtime": 1789207268.9674008
@@ -4018,11 +4033,11 @@
       "probe_mtime": 1786872404.101418
     },
     "reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790063075.0339136,
+      "reviewed_at": 1790063075.0339136,
       "published": {},
       "duration": "2:47",
       "resolution": "768x1344",
@@ -18452,11 +18467,11 @@
       "probe_mtime": 1789469608.680109
     },
     "5-The_Enigma_of_Melchizedek/05_the_mystery_of_melchizedek_35min_final_16x9.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790062148.7318497,
+      "reviewed_at": 1790062148.7318497,
       "published": {},
       "duration": "36:21",
       "resolution": "1920x1080",
@@ -35868,6 +35883,72 @@
       "duration": "3:13",
       "resolution": "768x1344",
       "probe_mtime": 1789956344.2874248
+    },
+    "reels/83_the_3_hours_of_darkness_werent_weather/83_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "3:06",
+      "resolution": "768x1344",
+      "probe_mtime": 1789973891.2875643
+    },
+    "reels/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "3:02",
+      "resolution": "768x1344",
+      "probe_mtime": 1789980065.6458075
+    },
+    "reels/85_jacobs_ladder_wasnt_a_ladder/85_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "3:04",
+      "resolution": "768x1344",
+      "probe_mtime": 1789984752.368598
+    },
+    "8-Jacobs_Midnight_Duel_Peniel/8-Jacobs_Midnight_Duel_Peniel_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "33:11",
+      "resolution": "1920x1080",
+      "probe_mtime": 1789998395.5405242
+    },
+    "9-The_Covenant_of_Pieces/9-The_Covenant_of_Pieces_final_16x9.mp4": {
+      "status": "approved",
+      "hidden": false,
+      "notes": "",
+      "approved_at": 1790062109.4858172,
+      "reviewed_at": 1790062109.4858172,
+      "published": {},
+      "duration": "33:15",
+      "resolution": "1920x1080",
+      "probe_mtime": 1790053086.2807226
+    },
+    "10-The_Seraph_and_the_Garden/10-The_Seraph_and_the_Garden_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "33:46",
+      "resolution": "1920x1080",
+      "probe_mtime": 1790058971.1512327
     }
   }
 }

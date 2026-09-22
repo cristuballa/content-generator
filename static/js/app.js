@@ -463,6 +463,7 @@ async function loadProjects(targetToSelect = null) {
       return;
     }
 
+    allConfiguredProjects = data.projects;
     const activeToUse = targetToSelect || data.active_project;
 
     data.projects.forEach(p => {
@@ -760,8 +761,27 @@ function applyProjectScan(scan) {
 }
 
 // ================= SOCIAL MEDIA & METADATA HELPERS =================
-function getSocialSvg(platform, sizeClass = "w-3.5 h-3.5") {
+function getSocialSvg(platform, sizeClass = "w-3.5 h-3.5", outline = false) {
   const p = (platform || "").toLowerCase();
+
+  if (outline) {
+    if (p === "facebook" || p === "fb") {
+      return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`;
+    }
+    if (p === "youtube" || p === "yt") {
+      return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>`;
+    }
+    if (p === "instagram" || p === "inst" || p === "ig") {
+      return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`;
+    }
+    if (p === "tiktok" || p === "tt") {
+      return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>`;
+    }
+    if (p === "x" || p === "twitter") {
+      return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/></svg>`;
+    }
+  }
+
   if (p === "facebook" || p === "fb") {
     return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
   }
@@ -831,23 +851,51 @@ function getEpisodeSocialStatus(ch) {
   return status;
 }
 
+function getActiveProjectPlatforms() {
+  if (currentProject && currentProject.social_platforms) {
+    return currentProject.social_platforms;
+  }
+  if (currentProject && currentProject.social) {
+    const s = currentProject.social;
+    return {
+      facebook: s.facebook?.enabled !== false,
+      youtube: s.youtube?.enabled !== false,
+      instagram: s.instagram?.enabled !== false,
+      tiktok: s.tiktok?.enabled !== false,
+      x: s.x?.enabled !== false
+    };
+  }
+  return {
+    facebook: true,
+    youtube: true,
+    instagram: true,
+    tiktok: true,
+    x: true
+  };
+}
+
 function renderEpisodeSocialIndicators(status) {
+  const activePlatforms = getActiveProjectPlatforms();
   const platforms = [
     { key: "facebook", name: "Facebook", activeCls: "text-[#1877F2]" },
     { key: "youtube", name: "YouTube", activeCls: "text-red-500" },
     { key: "instagram", name: "Instagram", activeCls: "text-rose-400" },
     { key: "tiktok", name: "TikTok", activeCls: "text-cyan-300" },
     { key: "x", name: "X", activeCls: "text-slate-100" }
-  ];
+  ].filter(p => activePlatforms[p.key] !== false);
+
+  if (platforms.length === 0) {
+    return "";
+  }
 
   const iconsHtml = platforms.map(p => {
     const posted = status[p.key];
-    const colorCls = posted ? `${p.activeCls} opacity-100 scale-105` : `text-slate-600 opacity-20`;
-    return `<span class="${colorCls} transition inline-flex items-center" title="${p.name}: ${posted ? 'Posted' : 'Not posted'}">${getSocialSvg(p.key, 'w-2.5 h-2.5')}</span>`;
+    const colorCls = posted ? `${p.activeCls} opacity-100` : `text-slate-500/50 hover:text-slate-300`;
+    return `<span class="${colorCls} hover:scale-110 transition shrink-0 inline-flex items-center" title="${p.name}: ${posted ? 'Posted' : 'Not posted'}">${getSocialSvg(p.key, 'w-3 h-3', true)}</span>`;
   }).join("");
 
   return `
-    <div class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-950/60 border border-slate-800/60 shadow-inner" title="Social media posting status for episode">
+    <div class="flex items-center gap-1.5 shrink-0" title="Social media posting status">
       ${iconsHtml}
     </div>
   `;
@@ -897,18 +945,49 @@ function renderSocialBadge(platform, isPosted, relPath = null) {
   `;
 }
 
+function renderProjectSocialBadges(asset, pub) {
+  const activePlatforms = getActiveProjectPlatforms();
+  const allPlatforms = [
+    { key: "facebook" },
+    { key: "youtube" },
+    { key: "instagram" },
+    { key: "tiktok" },
+    { key: "x" }
+  ];
+  const enabledPlatforms = allPlatforms.filter(p => activePlatforms[p.key] !== false);
+  if (enabledPlatforms.length === 0) {
+    return `<span class="text-[10px] text-slate-600 italic select-none">No socmed</span>`;
+  }
+  return enabledPlatforms.map(p =>
+    renderSocialBadge(p.key, isPlatformPosted(pub, p.key), asset.rel_path)
+  ).join("");
+}
+
 function updateModalSocialCheckboxes(asset) {
   if (!asset) return;
   const pub = asset.published || {};
-  const setCheck = (id, plat) => {
+  const activePlatforms = getActiveProjectPlatforms();
+
+  const setCheckAndVisibility = (id, plat) => {
     const el = document.getElementById(id);
-    if (el) el.checked = isPlatformPosted(pub, plat);
+    if (el) {
+      el.checked = isPlatformPosted(pub, plat);
+      const parentLabel = el.closest("label");
+      if (parentLabel) {
+        if (activePlatforms[plat] === false) {
+          parentLabel.style.display = "none";
+        } else {
+          parentLabel.style.display = "flex";
+        }
+      }
+    }
   };
-  setCheck("checkSocmedFb", "facebook");
-  setCheck("checkSocmedYt", "youtube");
-  setCheck("checkSocmedInst", "instagram");
-  setCheck("checkSocmedTt", "tiktok");
-  setCheck("checkSocmedX", "x");
+
+  setCheckAndVisibility("checkSocmedFb", "facebook");
+  setCheckAndVisibility("checkSocmedYt", "youtube");
+  setCheckAndVisibility("checkSocmedInst", "instagram");
+  setCheckAndVisibility("checkSocmedTt", "tiktok");
+  setCheckAndVisibility("checkSocmedX", "x");
 }
 
 let currentMetaRelPath = null;
@@ -1728,7 +1807,31 @@ function openEditProjectModal(path, name, type) {
   document.getElementById("editProjectName").value = name;
   document.getElementById("editProjectPath").value = path;
   document.getElementById("editProjectType").value = type || "custom";
+
+  // Find project in allConfiguredProjects or currentProject
+  const proj = (allConfiguredProjects && allConfiguredProjects.find(p => p.path.toLowerCase() === path.toLowerCase())) ||
+               (currentProject && currentProject.path.toLowerCase() === path.toLowerCase() ? currentProject : null);
+
+  let platforms = proj?.social_platforms;
+  if (!platforms && proj?.social) {
+    platforms = {
+      youtube: proj.social.youtube?.enabled !== false,
+      facebook: proj.social.facebook?.enabled !== false,
+      instagram: proj.social.instagram?.enabled !== false,
+      tiktok: proj.social.tiktok?.enabled !== false,
+      x: proj.social.x?.enabled !== false
+    };
+  }
+
+  // Populate checkboxes (default to true if not set)
+  document.getElementById("editSocialYt").checked = platforms ? platforms.youtube !== false : true;
+  document.getElementById("editSocialFb").checked = platforms ? platforms.facebook !== false : true;
+  document.getElementById("editSocialInst").checked = platforms ? platforms.instagram !== false : true;
+  document.getElementById("editSocialTt").checked = platforms ? platforms.tiktok !== false : true;
+  document.getElementById("editSocialX").checked = platforms ? platforms.x !== false : true;
+
   document.getElementById("editProjectModal").classList.remove("hidden");
+  if (window.lucide) lucide.createIcons();
 }
 
 function closeEditProjectModal() {
@@ -1741,6 +1844,13 @@ async function handleSaveEditProject(e) {
   const name = document.getElementById("editProjectName").value.trim();
   const newPath = document.getElementById("editProjectPath").value.trim();
   const type = document.getElementById("editProjectType").value;
+  const socialPlatforms = {
+    youtube: document.getElementById("editSocialYt").checked,
+    facebook: document.getElementById("editSocialFb").checked,
+    instagram: document.getElementById("editSocialInst").checked,
+    tiktok: document.getElementById("editSocialTt").checked,
+    x: document.getElementById("editSocialX").checked
+  };
 
   if (!name || !newPath) {
     showNotification({
@@ -1759,7 +1869,8 @@ async function handleSaveEditProject(e) {
         old_path: oldPath,
         name: name,
         new_path: newPath,
-        type: type
+        type: type,
+        social_platforms: socialPlatforms
       })
     });
     const data = await res.json();
@@ -1771,6 +1882,12 @@ async function handleSaveEditProject(e) {
         duration: 5000
       });
       return;
+    }
+
+    if (currentProject && (currentProject.path.toLowerCase() === oldPath.toLowerCase() || currentProject.path.toLowerCase() === newPath.toLowerCase())) {
+      currentProject.social_platforms = data.social_platforms || socialPlatforms;
+      if (allAssets) renderAssets(allAssets);
+      if (currentProject.chapters) renderEpisodesList(currentProject.chapters);
     }
 
     showNotification({
@@ -2154,11 +2271,7 @@ function renderAssets(assets) {
 
       <div class="pt-3 border-t border-[#212836] flex items-center justify-between gap-2">
         <div class="flex items-center gap-1" title="Social media posting status (click icon to toggle)">
-          ${renderSocialBadge('facebook', isPlatformPosted(pub, 'facebook'), asset.rel_path)}
-          ${renderSocialBadge('youtube', isPlatformPosted(pub, 'youtube'), asset.rel_path)}
-          ${renderSocialBadge('instagram', isPlatformPosted(pub, 'instagram'), asset.rel_path)}
-          ${renderSocialBadge('tiktok', isPlatformPosted(pub, 'tiktok'), asset.rel_path)}
-          ${renderSocialBadge('x', isPlatformPosted(pub, 'x'), asset.rel_path)}
+          ${renderProjectSocialBadges(asset, pub)}
         </div>
 
         <div class="flex items-center gap-1.5">
@@ -2174,9 +2287,15 @@ function renderAssets(assets) {
             <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
           </button>
 
-          <button class="btn-approve px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded text-xs font-bold transition flex items-center gap-1 shadow" title="Approve Video & Auto-Publish" data-rel="${asset.rel_path}">
-            <i data-lucide="check" class="w-3.5 h-3.5"></i>
-            <span>Approve</span>
+          <button class="btn-toggle-approve p-1.5 rounded transition cursor-pointer ${
+            asset.status === 'approved'
+              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30 shadow-sm shadow-emerald-950/50'
+              : 'text-slate-400 hover:text-emerald-400 hover:bg-slate-800 border border-transparent'
+          }" 
+            title="${asset.status === 'approved' ? 'Approved for posting (Click to unapprove)' : 'Approve for posting (Does not post directly to social media)'}" 
+            data-rel="${asset.rel_path}" 
+            data-status="${asset.status}">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 ${asset.status === 'approved' ? 'fill-emerald-400/20 text-emerald-400' : ''}"></i>
           </button>
         </div>
       </div>
@@ -2214,10 +2333,13 @@ function attachCardEvents() {
     };
   });
 
-  document.querySelectorAll(".btn-approve").forEach(btn => {
-    btn.onclick = async () => {
+  document.querySelectorAll(".btn-toggle-approve").forEach(btn => {
+    btn.onclick = async (e) => {
+      e.stopPropagation();
       const rel = btn.getAttribute("data-rel");
-      await updateAssetStatus(rel, "approved");
+      const currentStatus = btn.getAttribute("data-status");
+      const nextStatus = (currentStatus === "approved") ? "pending" : "approved";
+      await updateAssetStatus(rel, nextStatus);
     };
   });
 
@@ -2269,6 +2391,19 @@ function openVideoModal(relPath) {
 
   updateModalSocialCheckboxes(asset);
 
+  const btnApproveModal = document.getElementById("modalBtnApprove");
+  if (btnApproveModal) {
+    if (asset.status === "approved") {
+      btnApproveModal.className = "px-4 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer";
+      btnApproveModal.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i><span>Approved (Click to Unapprove)</span>`;
+      btnApproveModal.title = "Approved for posting (Click to remove approval)";
+    } else {
+      btnApproveModal.className = "px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-950 cursor-pointer";
+      btnApproveModal.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 fill-slate-950 text-emerald-500"></i><span>Mark Approved</span>`;
+      btnApproveModal.title = "Approve for posting (Does not post directly to social media)";
+    }
+  }
+
   document.getElementById("videoModal").classList.remove("hidden");
   lucide.createIcons();
 }
@@ -2291,7 +2426,7 @@ async function updateAssetStatus(relPath, status, notes = null) {
         rel_path: relPath,
         status: status,
         notes: notes,
-        auto_publish: true
+        auto_publish: false
       })
     });
     const data = await res.json();
@@ -2302,25 +2437,27 @@ async function updateAssetStatus(relPath, status, notes = null) {
         if (data.scheduled_entry) {
           const entry = data.scheduled_entry;
           showNotification({
-            title: "📅 Video Approved & Scheduled",
+            title: "✓ Video Approved & Scheduled",
             message: `<b>${fileName}</b> queued into Calendar Planner for <b>${entry.scheduled_date} at ${entry.scheduled_time}</b>`,
             type: "success",
-            duration: 6000,
+            duration: 5000,
             details: `Target Accounts: ${entry.platforms.map(p => p.toUpperCase()).join(", ")}`
           });
         } else {
-          const isDryRun = data.social_dispatch?.dry_run !== false;
           showNotification({
-            title: "✨ Video Approved & Dispatched",
-            message: `<b>${fileName}</b> has been approved.<br>
-              <span class="${isDryRun ? 'text-amber-300' : 'text-emerald-400'} font-semibold">
-                ${isDryRun ? '🟡 Sandbox Simulated Dispatch' : '🟢 Live Feed Dispatch'}
-              </span>`,
-            type: isDryRun ? "gold" : "success",
-            duration: 6000,
-            details: "Automated targets: YouTube, Facebook, TikTok, X"
+            title: "✓ Video Approved for Posting",
+            message: `<b>${fileName}</b> is approved for posting.<br><span class="text-xs text-slate-400">Ready in Calendar Planner queue.</span>`,
+            type: "success",
+            duration: 4000
           });
         }
+      } else if (status === "pending") {
+        showNotification({
+          title: "Approval Removed",
+          message: `<b>${fileName}</b> status set back to pending review.`,
+          type: "info",
+          duration: 3500
+        });
       } else if (status === "rejected") {
         showNotification({
           title: "Video Rejected",
@@ -2686,7 +2823,8 @@ function setupEventListeners() {
 
   document.getElementById("modalBtnApprove").onclick = async () => {
     if (targetAssetForModal) {
-      await updateAssetStatus(targetAssetForModal.rel_path, "approved");
+      const nextStatus = (targetAssetForModal.status === "approved") ? "pending" : "approved";
+      await updateAssetStatus(targetAssetForModal.rel_path, nextStatus);
       closeVideoModal();
     }
   };
@@ -2790,6 +2928,13 @@ function setupEventListeners() {
     const name = document.getElementById("newProjName").value.trim();
     const path = document.getElementById("newProjPath").value.trim();
     const type = document.getElementById("newProjType").value;
+    const socialPlatforms = {
+      youtube: document.getElementById("newSocialYt") ? document.getElementById("newSocialYt").checked : true,
+      facebook: document.getElementById("newSocialFb") ? document.getElementById("newSocialFb").checked : true,
+      instagram: document.getElementById("newSocialInst") ? document.getElementById("newSocialInst").checked : true,
+      tiktok: document.getElementById("newSocialTt") ? document.getElementById("newSocialTt").checked : true,
+      x: document.getElementById("newSocialX") ? document.getElementById("newSocialX").checked : true
+    };
 
     if (!name || !path) {
       showNotification({
@@ -2804,7 +2949,12 @@ function setupEventListeners() {
       const res = await fetch("/api/projects/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, path: path, type: type })
+        body: JSON.stringify({
+          name: name,
+          path: path,
+          type: type,
+          social_platforms: socialPlatforms
+        })
       });
       const data = await res.json();
       if (data.success) {
@@ -2955,6 +3105,20 @@ function setupEventListeners() {
       });
       const data = await res.json();
       document.getElementById("socialModal").classList.add("hidden");
+
+      if (currentProject && (!targetPath || currentProject.path.toLowerCase() === targetPath.toLowerCase())) {
+        currentProject.social_platforms = {
+          youtube: updateData.youtube.enabled,
+          facebook: updateData.facebook.enabled,
+          instagram: updateData.instagram.enabled,
+          tiktok: updateData.tiktok.enabled,
+          x: updateData.x.enabled
+        };
+        currentProject.social = data.social;
+        if (allAssets) renderAssets(allAssets);
+        if (currentProject.chapters) renderEpisodesList(currentProject.chapters);
+      }
+
       const projName = data.social?.project_name || "Project";
       showNotification({
         title: "Settings Saved",

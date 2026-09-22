@@ -81,6 +81,26 @@ class CalendarManager:
                 except Exception:
                     continue
 
+            # Ensure scheduled (unposted) items inherit current platforms from their project
+            if item.get("status") == "scheduled":
+                item_proj_path = item.get("project_path")
+                if item_proj_path:
+                    proj_plats = config_manager.get_project_platforms(item_proj_path)
+                    enabled_plats = [p for p in ["youtube", "facebook", "instagram", "tiktok", "x"] if proj_plats.get(p, False)]
+                    if enabled_plats:
+                        item["platforms"] = enabled_plats
+
+            # Backfill video duration if missing
+            if not item.get("duration"):
+                try:
+                    vid_p = Path(item.get("project_path", "")) / item.get("video_rel_path", "")
+                    if vid_p.exists():
+                        rec = asset_manager.get_asset_record(item.get("video_rel_path", ""))
+                        info = asset_manager.get_media_info(vid_p, rec)
+                        item["duration"] = info.get("duration") or ""
+                except Exception:
+                    pass
+
             filtered.append(item)
 
         # Sort chronologically by scheduled_datetime_iso
@@ -141,8 +161,8 @@ class CalendarManager:
         
         target_platforms = platforms
         if not target_platforms:
-            all_plats = ["youtube", "facebook", "instagram", "tiktok", "x"]
-            target_platforms = [p for p in all_plats if cfg.get(p, {}).get("enabled", True)]
+            proj_plats = config_manager.get_project_platforms(project_path)
+            target_platforms = [p for p in ["youtube", "facebook", "instagram", "tiktok", "x"] if proj_plats.get(p, False)]
             if not target_platforms:
                 target_platforms = ["youtube"]
 
@@ -205,15 +225,24 @@ class CalendarManager:
         proj_name = cfg.get("project_name") or Path(project_path).name
 
         all_plats = ["youtube", "facebook", "instagram", "tiktok", "x"]
-        target_platforms = platforms if platforms else [p for p in all_plats if cfg.get(p, {}).get("enabled", True)]
-        if not target_platforms:
-            target_platforms = ["youtube"]
+        if platforms:
+            target_platforms = platforms
+        else:
+            proj_plats = config_manager.get_project_platforms(project_path)
+            target_platforms = [p for p in all_plats if proj_plats.get(p, False)]
+            if not target_platforms:
+                target_platforms = ["youtube"]
 
         # Calculate slot if not fully specified
         if not date_str or not time_str:
             slot = self.find_next_available_slot(project_path, target_platforms, start_date_str=date_str)
             date_str = date_str or slot["date"]
             time_str = time_str or slot["time"]
+
+        # Validate date is not in the past
+        today_iso = datetime.date.today().isoformat()
+        if not force and date_str < today_iso:
+            raise ValueError(f"Cannot schedule post to a past date ({date_str}). Please select today or a future date.")
 
         # Validate 1-post-per-day rule
         if not force:
@@ -239,6 +268,33 @@ class CalendarManager:
                 except Exception:
                     pass
 
+        # Resolve episode number
+        ep_num = None
+        try:
+            for a in asset_manager.get_assets(project_path):
+                if a.get("rel_path", "").replace("\\", "/").lower() == video_rel_path.replace("\\", "/").lower():
+                    ep_num = a.get("episode_num")
+                    break
+        except Exception:
+            pass
+        if ep_num is None:
+            import re
+            m = re.search(r'(?:reels[/\\]|#|^|\/|_)(\d{1,4})(?:_|\s|-|\.|$)', video_rel_path, re.IGNORECASE)
+            if m:
+                try:
+                    ep_num = int(m.group(1))
+                except Exception:
+                    pass
+
+        # Resolve video duration
+        vid_duration = ""
+        try:
+            rec = asset_manager.get_asset_record(video_rel_path)
+            info = asset_manager.get_media_info(vid_path, rec)
+            vid_duration = info.get("duration") or ""
+        except Exception:
+            pass
+
         # Thumbnail URL
         thumb_url = f"/api/thumbnail/{video_rel_path.replace(os.sep, '/')}"
 
@@ -254,8 +310,10 @@ class CalendarManager:
             "project_name": proj_name,
             "video_rel_path": video_rel_path.replace("\\", "/"),
             "video_filename": vid_filename,
+            "episode_num": ep_num,
             "title": vid_title,
             "thumbnail_url": thumb_url,
+            "duration": vid_duration,
             "scheduled_date": date_str,
             "scheduled_time": time_str,
             "scheduled_datetime_iso": dt_iso,
@@ -288,6 +346,11 @@ class CalendarManager:
         if not target:
             raise KeyError(f"Post with ID {post_id} not found.")
 
+        # Validate date is not in the past
+        today_iso = datetime.date.today().isoformat()
+        if not force and date_str < today_iso:
+            raise ValueError(f"Cannot reschedule post to a past date ({date_str}). Please select today or a future date.")
+
         target_platforms = platforms if platforms is not None else target.get("platforms", ["youtube"])
 
         # Validate slot collision
@@ -296,6 +359,16 @@ class CalendarManager:
             if not val["valid"]:
                 c_names = ", ".join([f"{c['platform'].capitalize()}" for c in val["conflicts"]])
                 raise ValueError(f"Date {date_str} already has a post for: {c_names}. Only 1 post per account per day allowed.")
+
+        # Backfill episode_num if missing
+        if target.get("episode_num") is None:
+            import re
+            m = re.search(r'(?:reels[/\\]|#|^|\/|_)(\d{1,4})(?:_|\s|-|\.|$)', target.get("video_rel_path", ""), re.IGNORECASE)
+            if m:
+                try:
+                    target["episode_num"] = int(m.group(1))
+                except Exception:
+                    pass
 
         clean_time = time_str
         if len(clean_time) == 5:
@@ -321,6 +394,34 @@ class CalendarManager:
             self._save_all(items)
             return True
         return False
+
+    def remove_schedule_for_video(self, project_path: str, video_rel_path: str) -> int:
+        """Removes any pending (not yet posted) scheduled items for a video when unapproved."""
+        items = self._load_all()
+        norm_proj = ""
+        try:
+            norm_proj = str(Path(project_path).resolve()).lower()
+        except Exception:
+            norm_proj = str(project_path).lower()
+        norm_rel = video_rel_path.replace("\\", "/").lower()
+
+        kept = []
+        removed_count = 0
+        for it in items:
+            it_proj = ""
+            try:
+                it_proj = str(Path(it.get("project_path", "")).resolve()).lower()
+            except Exception:
+                it_proj = str(it.get("project_path", "")).lower()
+            it_rel = it.get("video_rel_path", "").replace("\\", "/").lower()
+            if it_proj == norm_proj and it_rel == norm_rel and it.get("status") == "scheduled":
+                removed_count += 1
+                continue
+            kept.append(it)
+
+        if removed_count > 0:
+            self._save_all(kept)
+        return removed_count
 
     def auto_schedule_approved_videos(self, project_path: Optional[str] = None) -> List[Dict[str, Any]]:
         """Finds all approved videos not yet scheduled/posted and assigns consecutive future daily slots."""
@@ -363,9 +464,8 @@ class CalendarManager:
         # Sort sequentially by chapter/filename
         approved_to_schedule.sort(key=lambda a: (a.get("chapter_tag", ""), a.get("filename", "")))
 
-        cfg = config_manager.get_project_social_config(target_path)
-        all_plats = ["youtube", "facebook", "instagram", "tiktok", "x"]
-        platforms = [p for p in all_plats if cfg.get(p, {}).get("enabled", True)]
+        proj_plats = config_manager.get_project_platforms(target_path)
+        platforms = [p for p in ["youtube", "facebook", "instagram", "tiktok", "x"] if proj_plats.get(p, False)]
         if not platforms:
             platforms = ["youtube"]
 

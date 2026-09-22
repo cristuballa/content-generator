@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "id": "sched_1790062109_b307bc",
+    "project_path": "C:\\Projects\\BHRS-Youtube",
+    "project_name": "BHRS - Youtube",
+    "video_rel_path": "9-The_Covenant_of_Pieces/9-The_Covenant_of_Pieces_final_16x9.mp4",
+    "video_filename": "9-The_Covenant_of_Pieces_final_16x9.mp4",
+    "title": "9-The Covenant Of Pieces Final 16X9",
+    "thumbnail_url": "/api/thumbnail/9-The_Covenant_of_Pieces/9-The_Covenant_of_Pieces_final_16x9.mp4",
+    "scheduled_date": "2026-09-24",
+    "scheduled_time": "19:15",
+    "scheduled_datetime_iso": "2026-09-24T19:15:00",
+    "platforms": [
+      "youtube"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-09-22T19:28:29.606162",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null,
+    "episode_num": 9
+  },
+  {
+    "id": "sched_1790062148_d36728",
+    "project_path": "C:\\Projects\\BHRS-Youtube",
+    "project_name": "BHRS - Youtube",
+    "video_rel_path": "5-The_Enigma_of_Melchizedek/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+    "video_filename": "05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+    "title": "05 The Mystery Of Melchizedek 35Min Final 16X9",
+    "thumbnail_url": "/api/thumbnail/5-The_Enigma_of_Melchizedek/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+    "scheduled_date": "2026-09-23",
+    "scheduled_time": "19:15",
+    "scheduled_datetime_iso": "2026-09-23T19:15:00",
+    "platforms": [
+      "youtube"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-09-22T19:29:08.862505",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null,
+    "episode_num": 5
+  },
+  {
+    "id": "sched_1790063075_239a4e",
+    "project_path": "C:\\Projects\\Bible Hidden Secrets Revealed",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+    "video_filename": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+    "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
+    "thumbnail_url": "/api/thumbnail/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+    "scheduled_date": "2026-09-23",
+    "scheduled_time": "18:00",
+    "scheduled_datetime_iso": "2026-09-23T18:00:00",
+    "platforms": [
+      "facebook",
+      "instagram"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-09-22T19:44:35.092353",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null
+  }
+]

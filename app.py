@@ -152,6 +152,8 @@ class AddProjectRequest(BaseModel):
     name: str
     path: str
     type: str = "custom"
+    social_platforms: Optional[Dict[str, bool]] = None
+    platforms: Optional[Dict[str, bool]] = None
 
 class RunPipelineRequest(BaseModel):
     script_name: Optional[str] = None
@@ -248,6 +250,8 @@ class UpdateProjectRequest(BaseModel):
     name: str
     new_path: str
     type: str = "custom"
+    social_platforms: Optional[Dict[str, bool]] = None
+    platforms: Optional[Dict[str, bool]] = None
 
 # ----------------- WebSocket Live Terminal -----------------
 @app.websocket("/ws/logs")
@@ -283,7 +287,8 @@ async def get_projects(include_hidden: bool = Query(False)):
             "type": p.get("type", "custom"),
             "hidden": is_hidden,
             "exists": p_path.exists(),
-            "is_active": p_norm == active_norm
+            "is_active": p_norm == active_norm,
+            "social_platforms": config_manager.get_project_platforms(p["path"])
         })
     return {
         "active_project": active_path,
@@ -311,6 +316,7 @@ async def select_project(req: SelectProjectRequest):
         except Exception:
             pass
 
+    scan_data["social_platforms"] = config_manager.get_project_platforms(str(p))
     return {"success": True, "active_project": str(p), "scan": scan_data}
 
 @app.post("/api/projects/add")
@@ -318,9 +324,14 @@ async def add_project(req: AddProjectRequest):
     p = Path(req.path)
     if not p.exists():
         raise HTTPException(status_code=400, detail=f"Directory does not exist: {req.path}")
-    new_proj = config_manager.add_project(req.name, str(p), req.type)
+    platforms = req.social_platforms or req.platforms
+    new_proj = config_manager.add_project(req.name, str(p), req.type, social_platforms=platforms)
     config_manager.set_active_project(str(p))
-    return {"success": True, "project": new_proj}
+    return {
+        "success": True,
+        "project": new_proj,
+        "social_platforms": config_manager.get_project_platforms(str(p))
+    }
 
 @app.post("/api/projects/remove")
 async def remove_project(req: RemoveProjectRequest):
@@ -342,14 +353,15 @@ async def toggle_hide_project(req: ToggleHideProjectRequest):
 
 @app.post("/api/projects/update")
 async def update_project(req: UpdateProjectRequest):
-    """Updates project display name, folder location directory, and type in config."""
+    """Updates project display name, folder location directory, type, and enabled social media platforms in config."""
     p = Path(req.new_path)
     if not p.exists():
         raise HTTPException(status_code=400, detail=f"Directory does not exist: {req.new_path}")
     if not p.is_dir():
         raise HTTPException(status_code=400, detail=f"Path is not a directory: {req.new_path}")
     
-    updated = config_manager.update_project(req.old_path, req.name, str(p), req.type)
+    platforms = req.social_platforms or req.platforms
+    updated = config_manager.update_project(req.old_path, req.name, str(p), req.type, social_platforms=platforms)
     if not updated:
         raise HTTPException(status_code=404, detail="Project not found in configuration list")
     
@@ -357,6 +369,7 @@ async def update_project(req: UpdateProjectRequest):
         "success": True,
         "message": f"Updated project '{req.name}' path to {req.new_path}",
         "project": updated,
+        "social_platforms": config_manager.get_project_platforms(str(p)),
         "active_project": config_manager.get_active_project()
     }
 
@@ -365,7 +378,9 @@ async def scan_active_project():
     active_path = config_manager.get_active_project()
     if not active_path or not Path(active_path).exists():
         return {"valid": False, "error": "No valid active project selected"}
-    return ProjectScanner.scan_project(active_path)
+    scan_data = ProjectScanner.scan_project(active_path)
+    scan_data["social_platforms"] = config_manager.get_project_platforms(active_path)
+    return scan_data
 
 # ----------------- Pipeline Execution APIs -----------------
 @app.post("/api/pipeline/run")
@@ -481,11 +496,17 @@ async def set_asset_status(req: AssetStatusRequest):
     social_result = None
     scheduled_entry = None
     cfg_social = config_manager.get_project_social_config(active_path)
-    auto_pub = req.auto_publish if req.auto_publish is not None else cfg_social.get("auto_publish_on_approve", True)
+    # Strictly do NOT auto-publish to live feeds on approval unless explicitly requested with auto_publish=True
+    auto_pub = req.auto_publish is True
     auto_sched = cfg_social.get("auto_schedule_on_approve", True)
 
     if req.status == "approved":
-        if auto_sched:
+        if auto_pub:
+            social_result = await social_dispatcher.publish_video(
+                project_path_str=active_path,
+                video_rel_path=req.rel_path
+            )
+        elif auto_sched:
             try:
                 slot = calendar_manager.find_next_available_slot(active_path)
                 scheduled_entry = calendar_manager.schedule_video(
@@ -497,11 +518,11 @@ async def set_asset_status(req: AssetStatusRequest):
                 )
             except Exception as e:
                 logging.warning(f"Could not auto-schedule approved video {req.rel_path}: {e}")
-        elif auto_pub:
-            social_result = await social_dispatcher.publish_video(
-                project_path_str=active_path,
-                video_rel_path=req.rel_path
-            )
+    elif req.status in ("pending", "rejected"):
+        try:
+            calendar_manager.remove_schedule_for_video(active_path, req.rel_path)
+        except Exception as e:
+            logging.warning(f"Could not remove calendar schedule for unapproved video: {e}")
 
     return {
         "success": True,

@@ -9,7 +9,7 @@
   "comfyui": {
     "url": "http://127.0.0.1:8188"
   },
-  "active_project_path": "E:\\Projects\\BHRS-Youtube",
+  "active_project_path": "c:\\Projects\\Bible Hidden Secrets Revealed",
   "projects": [
     {
       "name": "Manhwa Cinema Lab (Recap)",
@@ -19,16 +19,16 @@
     },
     {
       "name": "Manhwa Cinema Lab",
-      "path": "E:\\Projects\\Manhwa Cinema Lab",
+      "path": "c:\\Projects\\Manhwa Cinema Lab",
       "type": "manhwa"
     },
     {
       "name": "BHRS - Youtube",
-      "path": "E:\\Projects\\BHRS-Youtube",
+      "path": "c:\\Projects\\BHRS-Youtube",
       "type": "documentary",
       "social": {
         "dry_run": true,
-        "auto_publish_on_approve": true,
+        "auto_publish_on_approve": false,
         "auto_schedule_on_approve": true,
         "default_posting_time": "19:15",
         "webhook_url": "",
@@ -52,13 +52,36 @@
     },
     {
       "name": "Bible Hidden Secrets Revealed",
-      "path": "E:\\Projects\\Bible Hidden Secrets Revealed",
-      "type": "documentary"
+      "path": "c:\\Projects\\Bible Hidden Secrets Revealed",
+      "type": "documentary",
+      "social": {
+        "dry_run": true,
+        "auto_publish_on_approve": false,
+        "auto_schedule_on_approve": true,
+        "default_posting_time": "18:00",
+        "webhook_url": "",
+        "webhook_auth_header": "",
+        "youtube": {
+          "enabled": false
+        },
+        "facebook": {
+          "enabled": true
+        },
+        "tiktok": {
+          "enabled": false
+        },
+        "x": {
+          "enabled": false
+        },
+        "instagram": {
+          "enabled": true
+        }
+      }
     }
   ],
   "social": {
     "dry_run": true,
-    "auto_publish_on_approve": true,
+    "auto_publish_on_approve": false,
     "auto_schedule_on_approve": true,
     "default_posting_time": "18:00",
     "webhook_url": "",

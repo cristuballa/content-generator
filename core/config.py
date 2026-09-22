@@ -47,7 +47,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     ],
     "social": {
         "dry_run": True,
-        "auto_publish_on_approve": True,
+        "auto_publish_on_approve": False,
         "auto_schedule_on_approve": True,
         "default_posting_time": "18:00",
         "webhook_url": "",
@@ -138,22 +138,38 @@ class ConfigManager:
         self._config["active_project_path"] = project_path
         self._save_config(self._config)
 
-    def add_project(self, name: str, path: str, project_type: str = "custom") -> Dict[str, Any]:
+    def add_project(self, name: str, path: str, project_type: str = "custom", social_platforms: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
         projects = self._config.get("projects", [])
         for p in projects:
             if p["path"].lower() == path.lower():
                 p["name"] = name
                 p["type"] = project_type
+                if social_platforms:
+                    current_social = p.get("social")
+                    if not isinstance(current_social, dict):
+                        current_social = copy.deepcopy(self._config.get("social", DEFAULT_CONFIG["social"]))
+                    for plat, enabled in social_platforms.items():
+                        if plat not in current_social or not isinstance(current_social[plat], dict):
+                            current_social[plat] = {}
+                        current_social[plat]["enabled"] = bool(enabled)
+                    p["social"] = current_social
                 self._save_config(self._config)
                 return p
         new_proj = {"name": name, "path": path, "type": project_type}
+        if social_platforms:
+            proj_social = copy.deepcopy(self._config.get("social", DEFAULT_CONFIG["social"]))
+            for plat, enabled in social_platforms.items():
+                if plat not in proj_social or not isinstance(proj_social[plat], dict):
+                    proj_social[plat] = {}
+                proj_social[plat]["enabled"] = bool(enabled)
+            new_proj["social"] = proj_social
         projects.append(new_proj)
         self._config["projects"] = projects
         self._save_config(self._config)
         return new_proj
 
-    def update_project(self, old_path: str, name: str, new_path: str, project_type: str = "custom") -> Optional[Dict[str, Any]]:
-        """Updates project name, folder location (path) and type in configuration."""
+    def update_project(self, old_path: str, name: str, new_path: str, project_type: str = "custom", social_platforms: Optional[Dict[str, bool]] = None) -> Optional[Dict[str, Any]]:
+        """Updates project name, folder location (path), type, and enabled social media platforms in configuration."""
         projects = self._config.get("projects", [])
         target = None
         for p in projects:
@@ -162,6 +178,15 @@ class ConfigManager:
                 p["name"] = name
                 p["path"] = new_path
                 p["type"] = project_type
+                if social_platforms:
+                    current_social = p.get("social")
+                    if not isinstance(current_social, dict):
+                        current_social = copy.deepcopy(self._config.get("social", DEFAULT_CONFIG["social"]))
+                    for plat, enabled in social_platforms.items():
+                        if plat not in current_social or not isinstance(current_social[plat], dict):
+                            current_social[plat] = {}
+                        current_social[plat]["enabled"] = bool(enabled)
+                    p["social"] = current_social
                 break
         if target:
             if self._config.get("active_project_path", "").lower() == old_path.lower():
@@ -304,5 +329,13 @@ class ConfigManager:
             del project["social"]
             self._save_config(self._config)
         return self.get_project_social_config(target_path)
+
+    def get_project_platforms(self, project_path: Optional[str] = None) -> Dict[str, bool]:
+        """Returns map of platform -> is_enabled for the given project path."""
+        cfg = self.get_project_social_config(project_path)
+        return {
+            plat: cfg.get(plat, {}).get("enabled", True) if isinstance(cfg.get(plat), dict) else True
+            for plat in ["youtube", "facebook", "instagram", "tiktok", "x"]
+        }
 
 config_manager = ConfigManager()
