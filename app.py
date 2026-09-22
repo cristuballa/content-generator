@@ -30,6 +30,7 @@ from core.process_runner import process_runner
 from core.asset_manager import asset_manager
 from core.social_dispatcher import social_dispatcher
 from core.cert_manager import cert_manager
+from core.calendar_manager import calendar_manager
 
 # ----------------- Windows Asyncio & Logging Fixes -----------------
 # Fix 1: Windows ProactorEventLoop WinError 10054 on client disconnect
@@ -93,7 +94,30 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass
 
+    scheduler_task = None
+    async def scheduler_loop():
+        while True:
+            try:
+                await asyncio.sleep(30)
+                await calendar_manager.execute_due_posts(social_dispatcher)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logging.error(f"[Scheduler] Error executing due posts: {e}")
+
+    try:
+        scheduler_task = asyncio.create_task(scheduler_loop())
+    except Exception as e:
+        logging.warning(f"Could not start calendar scheduler task: {e}")
+
     yield
+
+    if scheduler_task:
+        scheduler_task.cancel()
+        try:
+            await scheduler_task
+        except asyncio.CancelledError:
+            pass
 
 app = FastAPI(
     title="KCT Studio - AI Video Pipeline Dashboard",
@@ -172,15 +196,45 @@ class SocialPublishRequest(BaseModel):
     platforms: Optional[List[str]] = None
     title: Optional[str] = None
     description: Optional[str] = None
+    tags: Optional[List[str]] = None
 
 class SocialConfigRequest(BaseModel):
+    project_path: Optional[str] = None
+    reset_to_default: Optional[bool] = False
     dry_run: Optional[bool] = None
     auto_publish_on_approve: Optional[bool] = None
+    auto_schedule_on_approve: Optional[bool] = None
+    default_posting_time: Optional[str] = None
     webhook_url: Optional[str] = None
+    webhook_auth_header: Optional[str] = None
     youtube: Optional[Dict[str, Any]] = None
     facebook: Optional[Dict[str, Any]] = None
+    instagram: Optional[Dict[str, Any]] = None
     tiktok: Optional[Dict[str, Any]] = None
     x: Optional[Dict[str, Any]] = None
+
+class SocialTestWebhookRequest(BaseModel):
+    webhook_url: Optional[str] = None
+    auth_header: Optional[str] = None
+    project_path: Optional[str] = None
+
+class CalendarScheduleRequest(BaseModel):
+    project_path: Optional[str] = None
+    video_rel_path: str
+    scheduled_date: Optional[str] = None
+    scheduled_time: Optional[str] = None
+    platforms: Optional[List[str]] = None
+    title: Optional[str] = None
+    force: Optional[bool] = False
+
+class CalendarUpdateRequest(BaseModel):
+    scheduled_date: str
+    scheduled_time: str
+    platforms: Optional[List[str]] = None
+    force: Optional[bool] = False
+
+class CalendarAutoScheduleRequest(BaseModel):
+    project_path: Optional[str] = None
 
 class RemoveProjectRequest(BaseModel):
     path: str
@@ -423,21 +477,37 @@ async def set_asset_status(req: AssetStatusRequest):
 
     updated = asset_manager.update_asset_status(req.rel_path, req.status, req.notes)
 
-    # Automated social media posting upon Approval
+    # Automated social media scheduling or posting upon Approval
     social_result = None
-    cfg_social = config_manager.get("social", {})
+    scheduled_entry = None
+    cfg_social = config_manager.get_project_social_config(active_path)
     auto_pub = req.auto_publish if req.auto_publish is not None else cfg_social.get("auto_publish_on_approve", True)
+    auto_sched = cfg_social.get("auto_schedule_on_approve", True)
 
-    if req.status == "approved" and auto_pub:
-        social_result = await social_dispatcher.publish_video(
-            project_path_str=active_path,
-            video_rel_path=req.rel_path
-        )
+    if req.status == "approved":
+        if auto_sched:
+            try:
+                slot = calendar_manager.find_next_available_slot(active_path)
+                scheduled_entry = calendar_manager.schedule_video(
+                    project_path=active_path,
+                    video_rel_path=req.rel_path,
+                    date_str=slot["date"],
+                    time_str=slot["time"],
+                    title=updated.get("clean_title") or updated.get("filename")
+                )
+            except Exception as e:
+                logging.warning(f"Could not auto-schedule approved video {req.rel_path}: {e}")
+        elif auto_pub:
+            social_result = await social_dispatcher.publish_video(
+                project_path_str=active_path,
+                video_rel_path=req.rel_path
+            )
 
     return {
         "success": True,
         "asset": updated,
-        "social_dispatch": social_result
+        "social_dispatch": social_result,
+        "scheduled_entry": scheduled_entry
     }
 
 @app.post("/api/assets/hide")
@@ -580,19 +650,159 @@ async def publish_social(req: SocialPublishRequest):
         video_rel_path=req.rel_path,
         platforms=req.platforms,
         custom_title=req.title,
-        custom_desc=req.description
+        custom_desc=req.description,
+        custom_tags=req.tags
     )
     return res
 
 @app.get("/api/social/config")
-async def get_social_config():
-    return config_manager.get("social", {})
+async def get_social_config(project_path: Optional[str] = Query(None)):
+    target_path = project_path or config_manager.get_active_project()
+    return config_manager.get_project_social_config(target_path)
 
 @app.post("/api/social/config")
 async def update_social_config(req: SocialConfigRequest):
+    target_path = req.project_path or config_manager.get_active_project()
+    if req.reset_to_default:
+        res = config_manager.reset_project_social_config(target_path)
+        return {"success": True, "reset": True, "social": res}
+
     data = req.model_dump(exclude_unset=True)
-    config_manager.update_social_config(data)
-    return {"success": True, "social": config_manager.get("social", {})}
+    data.pop("project_path", None)
+    data.pop("reset_to_default", None)
+    config_manager.update_project_social_config(target_path, data)
+    return {"success": True, "social": config_manager.get_project_social_config(target_path)}
+
+@app.post("/api/social/test_webhook")
+async def test_webhook_endpoint(req: SocialTestWebhookRequest):
+    return social_dispatcher.test_webhook(req.webhook_url, req.auth_header, req.project_path)
+
+# ----------------- Video Posting Calendar Planner APIs -----------------
+@app.get("/calendar")
+async def serve_calendar_page():
+    cal_file = Path(__file__).resolve().parent / "static" / "calendar.html"
+    if not cal_file.exists():
+        raise HTTPException(status_code=404, detail="Calendar page not found")
+    return FileResponse(str(cal_file))
+
+@app.get("/api/calendar/schedule")
+async def get_calendar_schedule(
+    project_path: Optional[str] = Query(None),
+    month: Optional[int] = Query(None),
+    year: Optional[int] = Query(None),
+    status: Optional[str] = Query(None)
+):
+    return calendar_manager.get_schedule(project_path=project_path, month=month, year=year, status=status)
+
+@app.post("/api/calendar/schedule")
+async def add_calendar_schedule(req: CalendarScheduleRequest):
+    proj_path = req.project_path or config_manager.get_active_project()
+    try:
+        entry = calendar_manager.schedule_video(
+            project_path=proj_path,
+            video_rel_path=req.video_rel_path,
+            date_str=req.scheduled_date,
+            time_str=req.scheduled_time,
+            platforms=req.platforms,
+            title=req.title,
+            force=req.force or False
+        )
+        return {"success": True, "entry": entry}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/calendar/schedule/{post_id}")
+async def update_calendar_schedule(post_id: str, req: CalendarUpdateRequest):
+    try:
+        updated = calendar_manager.update_post(
+            post_id=post_id,
+            date_str=req.scheduled_date,
+            time_str=req.scheduled_time,
+            platforms=req.platforms,
+            force=req.force or False
+        )
+        return {"success": True, "entry": updated}
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Schedule post not found")
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/calendar/schedule/{post_id}")
+async def delete_calendar_schedule(post_id: str):
+    removed = calendar_manager.delete_post(post_id)
+    if not removed:
+        raise HTTPException(status_code=404, detail="Schedule post not found")
+    return {"success": True, "deleted_id": post_id}
+
+@app.post("/api/calendar/schedule/{post_id}/post_now")
+async def trigger_post_now(post_id: str):
+    item = calendar_manager.get_post_by_id(post_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Schedule post not found")
+    res = await social_dispatcher.publish_video(
+        project_path_str=item["project_path"],
+        video_rel_path=item["video_rel_path"],
+        platforms=item["platforms"],
+        custom_title=item.get("title")
+    )
+    import datetime
+    now_iso = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    item["posted_at"] = now_iso
+    item["dispatch_result"] = res
+    if res.get("success", False) or res.get("simulated", False):
+        item["status"] = "posted"
+        asset_manager.update_social_posted_batch(item["video_rel_path"], item["platforms"])
+    else:
+        item["status"] = "failed"
+        item["error"] = res.get("error", "Dispatch failed")
+    calendar_manager._save_all(calendar_manager._load_all())
+    return {"success": item["status"] == "posted", "entry": item, "dispatch": res}
+
+@app.post("/api/calendar/auto_schedule")
+async def auto_schedule_posts(req: CalendarAutoScheduleRequest):
+    target_path = req.project_path or config_manager.get_active_project()
+    new_items = calendar_manager.auto_schedule_approved_videos(target_path)
+    return {"success": True, "scheduled_count": len(new_items), "items": new_items}
+
+@app.get("/api/calendar/next_slot")
+async def get_next_calendar_slot(project_path: Optional[str] = Query(None), platforms: Optional[str] = Query(None)):
+    target_path = project_path or config_manager.get_active_project()
+    plat_list = [p.strip() for p in platforms.split(",")] if platforms else None
+    slot = calendar_manager.find_next_available_slot(target_path, plat_list)
+    return slot
+
+@app.get("/api/calendar/unposted_approved_videos")
+async def get_unposted_approved_videos(project_path: Optional[str] = Query(None)):
+    target_path = project_path or config_manager.get_active_project()
+    all_assets = asset_manager.get_assets(target_path)
+    existing_items = calendar_manager.get_schedule(project_path=target_path)
+    scheduled_paths = {it["video_rel_path"].lower() for it in existing_items if it.get("status") in ("scheduled", "posted")}
+    approved_unposted = [
+        a for a in all_assets
+        if a.get("status") == "approved"
+        and not a.get("hidden", False)
+        and a.get("rel_path", "").lower() not in scheduled_paths
+    ]
+    return {"videos": approved_unposted}
+
+@app.get("/api/social/template/n8n")
+async def get_n8n_template():
+    template_file = Path(__file__).resolve().parent / "docs" / "n8n_social_posting_workflow.json"
+    if not template_file.exists():
+        raise HTTPException(status_code=404, detail="n8n workflow template not found")
+    try:
+        import json
+        data = json.loads(template_file.read_text(encoding="utf-8"))
+        return JSONResponse(
+            content=data,
+            headers={"Content-Disposition": "attachment; filename=n8n_social_posting_workflow.json"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------- Hardware & System APIs -----------------
 @app.get("/api/system/stats")

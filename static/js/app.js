@@ -1979,9 +1979,28 @@ async function loadAssets() {
     if (currentProject && currentProject.chapters) {
       renderEpisodesList(currentProject.chapters);
     }
+    updateCalendarBadge();
   } catch (e) {
     console.error("Failed to load assets:", e);
   }
+}
+
+async function updateCalendarBadge() {
+  try {
+    const q = currentProject ? `?project_path=${encodeURIComponent(currentProject.path)}&status=scheduled` : `?status=scheduled`;
+    const res = await fetch(`/api/calendar/schedule${q}`);
+    const data = await res.json();
+    const count = Array.isArray(data) ? data.length : 0;
+    const badge = document.getElementById("navCalBadge");
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+    }
+  } catch (e) {}
 }
 
 function renderAssets(assets) {
@@ -2280,17 +2299,28 @@ async function updateAssetStatus(relPath, status, notes = null) {
       const fileName = relPath.split("/").pop();
 
       if (status === "approved") {
-        const isDryRun = data.social_dispatch?.dry_run !== false;
-        showNotification({
-          title: "✨ Video Approved & Dispatched",
-          message: `<b>${fileName}</b> has been approved.<br>
-            <span class="${isDryRun ? 'text-amber-300' : 'text-emerald-400'} font-semibold">
-              ${isDryRun ? '🟡 Sandbox Simulated Dispatch' : '🟢 Live Feed Dispatch'}
-            </span>`,
-          type: isDryRun ? "gold" : "success",
-          duration: 6000,
-          details: "Automated targets: YouTube, Facebook, TikTok, X"
-        });
+        if (data.scheduled_entry) {
+          const entry = data.scheduled_entry;
+          showNotification({
+            title: "📅 Video Approved & Scheduled",
+            message: `<b>${fileName}</b> queued into Calendar Planner for <b>${entry.scheduled_date} at ${entry.scheduled_time}</b>`,
+            type: "success",
+            duration: 6000,
+            details: `Target Accounts: ${entry.platforms.map(p => p.toUpperCase()).join(", ")}`
+          });
+        } else {
+          const isDryRun = data.social_dispatch?.dry_run !== false;
+          showNotification({
+            title: "✨ Video Approved & Dispatched",
+            message: `<b>${fileName}</b> has been approved.<br>
+              <span class="${isDryRun ? 'text-amber-300' : 'text-emerald-400'} font-semibold">
+                ${isDryRun ? '🟡 Sandbox Simulated Dispatch' : '🟢 Live Feed Dispatch'}
+              </span>`,
+            type: isDryRun ? "gold" : "success",
+            duration: 6000,
+            details: "Automated targets: YouTube, Facebook, TikTok, X"
+          });
+        }
       } else if (status === "rejected") {
         showNotification({
           title: "Video Rejected",
@@ -2661,6 +2691,60 @@ function setupEventListeners() {
     }
   };
 
+  const btnModalPublishSocial = document.getElementById("modalBtnPublishSocial");
+  if (btnModalPublishSocial) {
+    btnModalPublishSocial.onclick = async () => {
+      if (!targetAssetForModal) return;
+      const rel = targetAssetForModal.rel_path;
+      const fileName = rel.split("/").pop();
+
+      try {
+        btnModalPublishSocial.disabled = true;
+        btnModalPublishSocial.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Publishing...</span>`;
+        if (window.lucide) lucide.createIcons();
+
+        const res = await fetch("/api/social/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rel_path: rel })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          const isDryRun = data.dry_run !== false;
+          showNotification({
+            title: isDryRun ? "🟡 Social Dispatch Simulated" : "🟢 Dispatched to Social Media",
+            message: `<b>${fileName}</b>: ${isDryRun ? 'Dry-run payload verified.' : 'Dispatched to active channels.'}`,
+            type: isDryRun ? "gold" : "success",
+            duration: 5000,
+            details: `Platforms: ${Object.keys(data.platforms || {}).join(', ').toUpperCase()}`
+          });
+          await loadAssets();
+          if (targetAssetForModal && targetAssetForModal.rel_path === rel) {
+            updateModalSocialCheckboxes(targetAssetForModal);
+          }
+        } else {
+          showNotification({
+            title: "Publish Failed",
+            message: data.error || "Could not publish video to social media.",
+            type: "error",
+            duration: 6000
+          });
+        }
+      } catch (err) {
+        showNotification({
+          title: "Publish Error",
+          message: `${err}`,
+          type: "error"
+        });
+      } finally {
+        btnModalPublishSocial.disabled = false;
+        btnModalPublishSocial.innerHTML = `<i data-lucide="share-2" class="w-4 h-4"></i><span>Publish</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+  }
+
   document.getElementById("modalBtnReject").onclick = () => {
     if (targetAssetForModal) {
       targetAssetForReject = targetAssetForModal.rel_path;
@@ -2747,23 +2831,98 @@ function setupEventListeners() {
     }
   };
 
-  document.getElementById("btnSocialSettings").onclick = async () => {
+  async function openSocialModal(projectPath = null) {
+    const targetPath = projectPath || (currentProject ? currentProject.path : null);
+    const sel = document.getElementById("socialProjectSelect");
+    const titleEl = document.getElementById("socialModalProjectTitle");
+    const badgeEl = document.getElementById("socialConfigStatusBadge");
+
+    if (sel && allProjects.length > 0) {
+      sel.innerHTML = "";
+      allProjects.forEach(p => {
+        if (!p.hidden) {
+          const opt = document.createElement("option");
+          opt.value = p.path;
+          opt.textContent = p.name;
+          sel.appendChild(opt);
+        }
+      });
+      if (targetPath) sel.value = targetPath;
+    }
+
     try {
-      const res = await fetch("/api/social/config");
+      const q = targetPath ? `?project_path=${encodeURIComponent(targetPath)}` : "";
+      const res = await fetch(`/api/social/config${q}`);
       const cfg = await res.json();
+
+      if (titleEl) titleEl.textContent = cfg.project_name || "Active Project";
+      if (badgeEl) {
+        badgeEl.textContent = cfg.is_custom ? "Custom Project Profile" : "Global Defaults";
+        badgeEl.className = cfg.is_custom 
+          ? "px-2 py-0.5 rounded font-mono text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800"
+          : "px-2 py-0.5 rounded font-mono text-[10px] bg-slate-800 text-slate-400 border border-slate-700";
+      }
+
+      document.getElementById("socialDefaultPostingTime").value = cfg.default_posting_time || "18:00";
+      document.getElementById("socialAutoSchedule").checked = cfg.auto_schedule_on_approve !== false;
       document.getElementById("socialDryRun").checked = cfg.dry_run !== false;
-      document.getElementById("socialAutoPublish").checked = cfg.auto_publish_on_approve !== false;
+      document.getElementById("socialAutoPublish").checked = cfg.auto_publish_on_approve === true;
       document.getElementById("socialWebhookUrl").value = cfg.webhook_url || "";
+      document.getElementById("socialWebhookAuth").value = cfg.webhook_auth_header || "";
       document.getElementById("enableYt").checked = cfg.youtube?.enabled !== false;
       document.getElementById("enableFb").checked = cfg.facebook?.enabled !== false;
+      document.getElementById("enableInstagram").checked = cfg.instagram?.enabled !== false;
       document.getElementById("enableTiktok").checked = cfg.tiktok?.enabled !== false;
       document.getElementById("enableX").checked = cfg.x?.enabled !== false;
 
+      const testResultEl = document.getElementById("webhookTestResult");
+      if (testResultEl) {
+        testResultEl.className = "hidden p-2.5 rounded-lg text-xs flex items-start gap-2";
+        testResultEl.innerHTML = "";
+      }
+
       document.getElementById("socialModal").classList.remove("hidden");
+      if (window.lucide) lucide.createIcons();
     } catch (e) {
-      console.error("Failed to load social config:", e);
+      console.error("Failed to load project social config:", e);
     }
+  }
+
+  document.getElementById("btnSocialSettings").onclick = () => {
+    openSocialModal(currentProject?.path);
   };
+
+  const selProjSocial = document.getElementById("socialProjectSelect");
+  if (selProjSocial) {
+    selProjSocial.onchange = (e) => openSocialModal(e.target.value);
+  }
+
+  const btnResetSocial = document.getElementById("btnResetSocialToDefault");
+  if (btnResetSocial) {
+    btnResetSocial.onclick = async () => {
+      const targetPath = document.getElementById("socialProjectSelect")?.value;
+      if (!confirm("Revert this project's social automation settings to global defaults?")) return;
+      try {
+        const res = await fetch("/api/social/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ project_path: targetPath, reset_to_default: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification({
+            title: "Settings Reset",
+            message: "Project social settings reverted to global defaults.",
+            type: "info",
+            duration: 3000
+          });
+          openSocialModal(targetPath);
+        }
+      } catch (e) {
+        showNotification({ title: "Reset Failed", message: `${e}`, type: "error" });
+      }
+    };
+  }
 
   document.getElementById("btnCloseSocialModal").onclick = () => {
     document.getElementById("socialModal").classList.add("hidden");
@@ -2772,26 +2931,34 @@ function setupEventListeners() {
     document.getElementById("socialModal").classList.add("hidden");
   };
   document.getElementById("btnSaveSocial").onclick = async () => {
+    const targetPath = document.getElementById("socialProjectSelect")?.value || (currentProject ? currentProject.path : null);
     const updateData = {
+      project_path: targetPath,
+      default_posting_time: document.getElementById("socialDefaultPostingTime").value.trim() || "18:00",
+      auto_schedule_on_approve: document.getElementById("socialAutoSchedule").checked,
       dry_run: document.getElementById("socialDryRun").checked,
       auto_publish_on_approve: document.getElementById("socialAutoPublish").checked,
       webhook_url: document.getElementById("socialWebhookUrl").value.trim(),
+      webhook_auth_header: document.getElementById("socialWebhookAuth").value.trim(),
       youtube: { enabled: document.getElementById("enableYt").checked },
       facebook: { enabled: document.getElementById("enableFb").checked },
+      instagram: { enabled: document.getElementById("enableInstagram").checked },
       tiktok: { enabled: document.getElementById("enableTiktok").checked },
       x: { enabled: document.getElementById("enableX").checked }
     };
 
     try {
-      await fetch("/api/social/config", {
+      const res = await fetch("/api/social/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData)
       });
+      const data = await res.json();
       document.getElementById("socialModal").classList.add("hidden");
+      const projName = data.social?.project_name || "Project";
       showNotification({
         title: "Settings Saved",
-        message: "Social automation presets & webhooks updated successfully.",
+        message: `Saved social automation settings for <b>${escapeHtml(projName)}</b>.`,
         type: "success",
         duration: 3500
       });
@@ -2803,6 +2970,107 @@ function setupEventListeners() {
       });
     }
   };
+
+  // Test Webhook button handler
+  const btnTestWebhook = document.getElementById("btnTestWebhook");
+  if (btnTestWebhook) {
+    btnTestWebhook.onclick = async () => {
+      const url = document.getElementById("socialWebhookUrl").value.trim();
+      const auth = document.getElementById("socialWebhookAuth").value.trim();
+      const resultEl = document.getElementById("webhookTestResult");
+
+      if (!url) {
+        showNotification({
+          title: "Missing Webhook URL",
+          message: "Please enter a valid webhook URL before running test.",
+          type: "error"
+        });
+        return;
+      }
+
+      btnTestWebhook.disabled = true;
+      btnTestWebhook.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i><span>Testing...</span>`;
+      if (window.lucide) lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/social/test_webhook", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ webhook_url: url, auth_header: auth })
+        });
+        const data = await res.json();
+
+        if (resultEl) {
+          resultEl.classList.remove("hidden");
+          if (data.success) {
+            resultEl.className = "p-2.5 rounded-lg text-xs flex items-start gap-2 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300";
+            resultEl.innerHTML = `
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <div>
+                <div class="font-bold">Webhook Connected (HTTP ${data.status_code}) — ${data.latency_ms}ms</div>
+                <div class="text-[11px] text-emerald-200/80 font-mono mt-0.5 break-all">${data.response_preview}</div>
+              </div>
+            `;
+            showNotification({
+              title: "Webhook Verified",
+              message: `Server returned HTTP ${data.status_code} in ${data.latency_ms}ms`,
+              type: "success"
+            });
+          } else {
+            resultEl.className = "p-2.5 rounded-lg text-xs flex items-start gap-2 bg-rose-500/15 border border-rose-500/30 text-rose-300";
+            resultEl.innerHTML = `
+              <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+              <div>
+                <div class="font-bold">Webhook Failed ${data.status_code ? `(HTTP ${data.status_code})` : ''} — ${data.latency_ms || 0}ms</div>
+                <div class="text-[11px] text-rose-200 font-mono mt-0.5 break-all">${data.error || data.response_preview || "Unknown error"}</div>
+              </div>
+            `;
+            showNotification({
+              title: "Webhook Test Failed",
+              message: data.error || `HTTP ${data.status_code}`,
+              type: "error"
+            });
+          }
+          if (window.lucide) lucide.createIcons();
+        }
+      } catch (err) {
+        if (resultEl) {
+          resultEl.classList.remove("hidden");
+          resultEl.className = "p-2.5 rounded-lg text-xs flex items-start gap-2 bg-rose-500/15 border border-rose-500/30 text-rose-300";
+          resultEl.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i><div>${err}</div>`;
+          if (window.lucide) lucide.createIcons();
+        }
+      } finally {
+        btnTestWebhook.disabled = false;
+        btnTestWebhook.innerHTML = `<i data-lucide="send" class="w-3 h-3"></i><span>Test Webhook</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+  }
+
+  // Copy n8n Workflow JSON handler
+  const btnCopyN8n = document.getElementById("btnCopyN8nTemplate");
+  if (btnCopyN8n) {
+    btnCopyN8n.onclick = async () => {
+      try {
+        const res = await fetch("/api/social/template/n8n");
+        const data = await res.json();
+        await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+        showNotification({
+          title: "Blueprint Copied!",
+          message: "n8n Social Publisher workflow JSON copied to clipboard. Paste into n8n canvas.",
+          type: "success",
+          duration: 4000
+        });
+      } catch (err) {
+        showNotification({
+          title: "Copy Failed",
+          message: `${err}`,
+          type: "error"
+        });
+      }
+    };
+  }
 
   // Metadata Modal Event Listeners
   const btnCloseMeta = document.getElementById("btnCloseMetaModal");

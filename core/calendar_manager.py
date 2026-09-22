@@ -1,0 +1,440 @@
+import json
+import time
+import os
+import uuid
+import datetime
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+from core.config import config_manager
+from core.asset_manager import asset_manager
+
+SCHEDULE_FILE = Path(__file__).resolve().parent.parent / "data" / "posting_schedule.json"
+
+class CalendarManager:
+    def __init__(self, schedule_file: Path = SCHEDULE_FILE):
+        self.schedule_file = schedule_file
+        self.schedule_file.parent.mkdir(parents=True, exist_ok=True)
+        self._ensure_file()
+
+    def _ensure_file(self):
+        if not self.schedule_file.exists():
+            try:
+                self.schedule_file.write_text("[]", encoding="utf-8")
+            except Exception as e:
+                print(f"[Calendar] Error creating {self.schedule_file}: {e}")
+
+    def _load_all(self) -> List[Dict[str, Any]]:
+        self._ensure_file()
+        try:
+            raw = self.schedule_file.read_text(encoding="utf-8")
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return data
+            return []
+        except Exception as e:
+            print(f"[Calendar] Error loading schedule file: {e}")
+            return []
+
+    def _save_all(self, items: List[Dict[str, Any]]):
+        try:
+            self.schedule_file.parent.mkdir(parents=True, exist_ok=True)
+            self.schedule_file.write_text(json.dumps(items, indent=2, ensure_ascii=False), encoding="utf-8")
+        except Exception as e:
+            print(f"[Calendar] Error saving schedule file: {e}")
+
+    def get_schedule(self, project_path: Optional[str] = None, month: Optional[int] = None, year: Optional[int] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Returns scheduled posts filtered by project, year, month, or status."""
+        items = self._load_all()
+        filtered = []
+
+        norm_project = None
+        if project_path and project_path != "all":
+            try:
+                norm_project = str(Path(project_path).resolve()).lower()
+            except Exception:
+                norm_project = str(project_path).lower()
+
+        for item in items:
+            # Project filter
+            if norm_project:
+                item_proj = ""
+                try:
+                    item_proj = str(Path(item.get("project_path", "")).resolve()).lower()
+                except Exception:
+                    item_proj = str(item.get("project_path", "")).lower()
+                if item_proj != norm_project:
+                    continue
+
+            # Status filter
+            if status and item.get("status") != status:
+                continue
+
+            # Date filter (YYYY-MM-DD)
+            sdate = item.get("scheduled_date", "")
+            if month or year:
+                try:
+                    dt = datetime.date.fromisoformat(sdate)
+                    if year and dt.year != year:
+                        continue
+                    if month and dt.month != month:
+                        continue
+                except Exception:
+                    continue
+
+            filtered.append(item)
+
+        # Sort chronologically by scheduled_datetime_iso
+        filtered.sort(key=lambda x: (x.get("scheduled_datetime_iso", ""), x.get("scheduled_date", ""), x.get("scheduled_time", "")))
+        return filtered
+
+    def get_post_by_id(self, post_id: str) -> Optional[Dict[str, Any]]:
+        items = self._load_all()
+        for it in items:
+            if it.get("id") == post_id:
+                return it
+        return None
+
+    def validate_slot(self, project_path: str, date_str: str, platforms: List[str], exclude_post_id: Optional[str] = None) -> Dict[str, Any]:
+        """Validates the 1 post per account/platform in a day rule for a project."""
+        items = self._load_all()
+        norm_proj = ""
+        try:
+            norm_proj = str(Path(project_path).resolve()).lower()
+        except Exception:
+            norm_proj = str(project_path).lower()
+
+        conflicts = []
+        for it in items:
+            if it.get("id") == exclude_post_id:
+                continue
+            if it.get("status") in ("cancelled", "failed"):
+                continue
+            if it.get("scheduled_date") != date_str:
+                continue
+
+            it_proj = ""
+            try:
+                it_proj = str(Path(it.get("project_path", "")).resolve()).lower()
+            except Exception:
+                it_proj = str(it.get("project_path", "")).lower()
+
+            if it_proj == norm_proj:
+                it_plats = it.get("platforms", [])
+                for p in platforms:
+                    if p in it_plats:
+                        conflicts.append({
+                            "platform": p,
+                            "existing_id": it.get("id"),
+                            "existing_title": it.get("title", ""),
+                            "scheduled_time": it.get("scheduled_time", "")
+                        })
+
+        return {
+            "valid": len(conflicts) == 0,
+            "conflicts": conflicts
+        }
+
+    def find_next_available_slot(self, project_path: str, platforms: Optional[List[str]] = None, start_date_str: Optional[str] = None) -> Dict[str, Any]:
+        """Finds the earliest available calendar day where none of the target platforms already have a post scheduled."""
+        cfg = config_manager.get_project_social_config(project_path)
+        default_time = cfg.get("default_posting_time", "18:00")
+        
+        target_platforms = platforms
+        if not target_platforms:
+            all_plats = ["youtube", "facebook", "instagram", "tiktok", "x"]
+            target_platforms = [p for p in all_plats if cfg.get(p, {}).get("enabled", True)]
+            if not target_platforms:
+                target_platforms = ["youtube"]
+
+        now = datetime.datetime.now()
+        start_date = now.date()
+        if start_date_str:
+            try:
+                start_date = datetime.date.fromisoformat(start_date_str)
+            except Exception:
+                start_date = now.date()
+
+        # Parse default time
+        try:
+            hour, minute = map(int, default_time.split(":")[:2])
+        except Exception:
+            hour, minute = 18, 0
+            default_time = "18:00"
+
+        # If starting from today, verify if default_time has already elapsed today
+        offset = 0
+        if start_date == now.date():
+            target_dt_today = datetime.datetime(now.year, now.month, now.day, hour, minute)
+            if now >= target_dt_today:
+                # Today's posting time has passed; start checking from tomorrow
+                offset = 1
+
+        for d in range(offset, 365):
+            candidate_date = start_date + datetime.timedelta(days=d)
+            cand_str = candidate_date.strftime("%Y-%m-%d")
+            res = self.validate_slot(project_path, cand_str, target_platforms)
+            if res["valid"]:
+                return {
+                    "date": cand_str,
+                    "time": default_time,
+                    "datetime_iso": f"{cand_str}T{default_time}:00",
+                    "platforms": target_platforms
+                }
+
+        # Fallback to tomorrow if somehow full
+        fallback_date = (now + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        return {
+            "date": fallback_date,
+            "time": default_time,
+            "datetime_iso": f"{fallback_date}T{default_time}:00",
+            "platforms": target_platforms
+        }
+
+    def schedule_video(
+        self,
+        project_path: str,
+        video_rel_path: str,
+        date_str: Optional[str] = None,
+        time_str: Optional[str] = None,
+        platforms: Optional[List[str]] = None,
+        title: Optional[str] = None,
+        force: bool = False
+    ) -> Dict[str, Any]:
+        """Schedules an approved video for posting on a specific date/time or auto-assigns next slot."""
+        cfg = config_manager.get_project_social_config(project_path)
+        proj_name = cfg.get("project_name") or Path(project_path).name
+
+        all_plats = ["youtube", "facebook", "instagram", "tiktok", "x"]
+        target_platforms = platforms if platforms else [p for p in all_plats if cfg.get(p, {}).get("enabled", True)]
+        if not target_platforms:
+            target_platforms = ["youtube"]
+
+        # Calculate slot if not fully specified
+        if not date_str or not time_str:
+            slot = self.find_next_available_slot(project_path, target_platforms, start_date_str=date_str)
+            date_str = date_str or slot["date"]
+            time_str = time_str or slot["time"]
+
+        # Validate 1-post-per-day rule
+        if not force:
+            val = self.validate_slot(project_path, date_str, target_platforms)
+            if not val["valid"]:
+                c_names = ", ".join([f"{c['platform'].capitalize()} (booked at {c['scheduled_time']})" for c in val["conflicts"]])
+                raise ValueError(f"Date {date_str} already has a scheduled post for: {c_names}. Only 1 post per account/platform per day is allowed.")
+
+        # Resolve video metadata
+        vid_path = Path(project_path) / video_rel_path
+        vid_filename = vid_path.name
+        vid_title = title
+        if not vid_title:
+            vid_title = vid_path.stem.replace("_", " ").title()
+            # Try to read metadata file
+            meta = asset_manager.find_or_create_metadata_file(project_path, video_rel_path)
+            if meta and meta.exists():
+                try:
+                    for line in meta.read_text(encoding="utf-8", errors="replace").splitlines()[:10]:
+                        if line.lower().startswith("title:"):
+                            vid_title = line.split(":", 1)[1].strip()
+                            break
+                except Exception:
+                    pass
+
+        # Thumbnail URL
+        thumb_url = f"/api/thumbnail/{video_rel_path.replace(os.sep, '/')}"
+
+        # Clean iso datetime
+        clean_time = time_str
+        if len(clean_time) == 5:
+            clean_time += ":00"
+        dt_iso = f"{date_str}T{clean_time}"
+
+        new_entry = {
+            "id": f"sched_{int(time.time())}_{uuid.uuid4().hex[:6]}",
+            "project_path": str(Path(project_path).resolve()),
+            "project_name": proj_name,
+            "video_rel_path": video_rel_path.replace("\\", "/"),
+            "video_filename": vid_filename,
+            "title": vid_title,
+            "thumbnail_url": thumb_url,
+            "scheduled_date": date_str,
+            "scheduled_time": time_str,
+            "scheduled_datetime_iso": dt_iso,
+            "platforms": target_platforms,
+            "status": "scheduled",
+            "created_at": datetime.datetime.now().isoformat(),
+            "posted_at": None,
+            "error": None,
+            "dispatch_result": None
+        }
+
+        items = self._load_all()
+        # If this video already had a scheduled entry for this project, replace or update it
+        norm_vrel = video_rel_path.replace("\\", "/").lower()
+        items = [it for it in items if not (it.get("status") == "scheduled" and it.get("video_rel_path", "").lower() == norm_vrel)]
+        items.append(new_entry)
+        self._save_all(items)
+
+        return new_entry
+
+    def update_post(self, post_id: str, date_str: str, time_str: str, platforms: Optional[List[str]] = None, force: bool = False) -> Dict[str, Any]:
+        """Reschedules an existing post."""
+        items = self._load_all()
+        target = None
+        for it in items:
+            if it.get("id") == post_id:
+                target = it
+                break
+
+        if not target:
+            raise KeyError(f"Post with ID {post_id} not found.")
+
+        target_platforms = platforms if platforms is not None else target.get("platforms", ["youtube"])
+
+        # Validate slot collision
+        if not force:
+            val = self.validate_slot(target["project_path"], date_str, target_platforms, exclude_post_id=post_id)
+            if not val["valid"]:
+                c_names = ", ".join([f"{c['platform'].capitalize()}" for c in val["conflicts"]])
+                raise ValueError(f"Date {date_str} already has a post for: {c_names}. Only 1 post per account per day allowed.")
+
+        clean_time = time_str
+        if len(clean_time) == 5:
+            clean_time += ":00"
+
+        target["scheduled_date"] = date_str
+        target["scheduled_time"] = time_str
+        target["scheduled_datetime_iso"] = f"{date_str}T{clean_time}"
+        target["platforms"] = target_platforms
+        if target["status"] == "failed":
+            target["status"] = "scheduled"
+            target["error"] = None
+
+        self._save_all(items)
+        return target
+
+    def delete_post(self, post_id: str) -> bool:
+        """Cancels/removes a scheduled post."""
+        items = self._load_all()
+        initial_len = len(items)
+        items = [it for it in items if it.get("id") != post_id]
+        if len(items) < initial_len:
+            self._save_all(items)
+            return True
+        return False
+
+    def auto_schedule_approved_videos(self, project_path: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Finds all approved videos not yet scheduled/posted and assigns consecutive future daily slots."""
+        target_path = project_path or config_manager.get_active_project()
+        if not target_path or not Path(target_path).exists():
+            return []
+
+        # Load project catalog
+        catalog = asset_manager.load_catalog(target_path)
+        all_assets = asset_manager.get_assets(target_path)
+
+        # Collect existing scheduled or posted rel_paths
+        existing_items = self._load_all()
+        scheduled_or_posted_paths = set()
+        for it in existing_items:
+            if it.get("status") in ("scheduled", "posted"):
+                scheduled_or_posted_paths.add(it.get("video_rel_path", "").replace("\\", "/").lower())
+
+        # Filter approved videos
+        approved_to_schedule = []
+        for asset in all_assets:
+            if asset.get("status") != "approved":
+                continue
+            if asset.get("hidden", False):
+                continue
+            rel = asset.get("rel_path", "").replace("\\", "/")
+            if rel.lower() in scheduled_or_posted_paths:
+                continue
+
+            # Check if already published across all platforms
+            pub = asset.get("published", {})
+            if any(pub.values()) and not asset.get("status") == "approved":
+                continue
+
+            approved_to_schedule.append(asset)
+
+        if not approved_to_schedule:
+            return []
+
+        # Sort sequentially by chapter/filename
+        approved_to_schedule.sort(key=lambda a: (a.get("chapter_tag", ""), a.get("filename", "")))
+
+        cfg = config_manager.get_project_social_config(target_path)
+        all_plats = ["youtube", "facebook", "instagram", "tiktok", "x"]
+        platforms = [p for p in all_plats if cfg.get(p, {}).get("enabled", True)]
+        if not platforms:
+            platforms = ["youtube"]
+
+        scheduled_results = []
+        for asset in approved_to_schedule:
+            rel = asset.get("rel_path", "").replace("\\", "/")
+            slot = self.find_next_available_slot(target_path, platforms)
+            new_item = self.schedule_video(
+                project_path=target_path,
+                video_rel_path=rel,
+                date_str=slot["date"],
+                time_str=slot["time"],
+                platforms=platforms,
+                title=asset.get("clean_title") or asset.get("filename")
+            )
+            scheduled_results.append(new_item)
+
+        return scheduled_results
+
+    async def execute_due_posts(self, social_dispatcher) -> List[Dict[str, Any]]:
+        """Scans for scheduled posts that are due now and dispatches them."""
+        items = self._load_all()
+        now_dt = datetime.datetime.now()
+        now_iso = now_dt.strftime("%Y-%m-%dT%H:%M:%S")
+
+        executed = []
+        changed = False
+
+        for it in items:
+            if it.get("status") != "scheduled":
+                continue
+
+            dt_iso = it.get("scheduled_datetime_iso") or f"{it.get('scheduled_date', '')}T{it.get('scheduled_time', '00:00')}:00"
+            if dt_iso <= now_iso:
+                # Post is due for publishing!
+                proj_path = it.get("project_path", "")
+                video_rel = it.get("video_rel_path", "")
+                platforms = it.get("platforms", [])
+
+                try:
+                    res = await social_dispatcher.publish_video(
+                        project_path_str=proj_path,
+                        video_rel_path=video_rel,
+                        platforms=platforms,
+                        custom_title=it.get("title")
+                    )
+
+                    it["posted_at"] = now_iso
+                    it["dispatch_result"] = res
+                    if res.get("success", False) or res.get("simulated", False):
+                        it["status"] = "posted"
+                        # Mark asset social published status
+                        asset_manager.update_social_posted_batch(video_rel, platforms)
+                    else:
+                        it["status"] = "failed"
+                        it["error"] = res.get("error", "Dispatch failed")
+
+                    executed.append(it)
+                    changed = True
+
+                except Exception as e:
+                    it["status"] = "failed"
+                    it["error"] = str(e)
+                    executed.append(it)
+                    changed = True
+
+        if changed:
+            self._save_all(items)
+
+        return executed
+
+calendar_manager = CalendarManager()

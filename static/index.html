@@ -89,10 +89,17 @@
         </button>
 
         <!-- Social Settings Button -->
-        <button id="btnSocialSettings" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+        <button id="btnSocialSettings" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5" title="Social Automation & Webhook Settings">
           <i data-lucide="share-2" class="w-4 h-4"></i>
           <span class="hidden md:inline">Social Automation</span>
         </button>
+
+        <!-- Calendar Planner Button -->
+        <a href="/calendar" target="_blank" id="btnOpenCalendar" title="Open Video Posting Calendar Planner in separate tab" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+          <i data-lucide="calendar" class="w-4 h-4 text-[#FFE614]"></i>
+          <span class="hidden md:inline font-semibold">Calendar</span>
+          <span id="navCalBadge" class="hidden text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">0</span>
+        </a>
       </div>
 
     </div>
@@ -517,6 +524,11 @@
               <span>Regenerate</span>
             </button>
 
+            <button id="modalBtnPublishSocial" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow" title="Publish directly to Social Media Automation Webhook">
+              <i data-lucide="share-2" class="w-4 h-4"></i>
+              <span>Publish</span>
+            </button>
+
             <button id="modalBtnApprove" class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-950">
               <i data-lucide="check-circle" class="w-4 h-4 fill-slate-950 text-emerald-500"></i>
               <span>Approve & Post</span>
@@ -680,11 +692,14 @@
   <!-- ================= SOCIAL AUTOMATION SETTINGS MODAL ================= -->
   <div id="socialModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
     <div class="studio-card w-full max-w-xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-4">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="share-2" class="w-5 h-5 text-[#FFE614]"></i>
-          <span>Social Media Automation Settings</span>
-        </h3>
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836] mb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="share-2" class="w-5 h-5 text-[#FFE614]"></i>
+            <span>Social Media Automation Settings</span>
+          </h3>
+          <p class="text-[11px] text-slate-400 font-mono mt-0.5">Project: <span id="socialModalProjectTitle" class="text-[#FFE614] font-bold">--</span></p>
+        </div>
         <button id="btnCloseSocialModal" class="text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
@@ -692,6 +707,42 @@
 
       <div class="flex flex-col gap-4 text-xs">
         
+        <!-- Project Selector & Profile Status Bar -->
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#161d2a] border border-[#232d3f]">
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 text-xs font-semibold">Configuring:</span>
+            <select id="socialProjectSelect" class="bg-[#0f141d] border border-[#2c364c] text-slate-100 rounded-lg px-2.5 py-1 text-xs font-bold focus:outline-none focus:border-[#FFE614] cursor-pointer">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="socialConfigStatusBadge" class="px-2 py-0.5 rounded font-mono text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800">Project Custom</span>
+            <button id="btnResetSocialToDefault" type="button" class="text-[11px] text-slate-400 hover:text-rose-400 underline font-mono transition" title="Revert this project to global defaults">Reset Defaults</button>
+          </div>
+        </div>
+
+        <!-- Default Publishing Time & Calendar Auto-Schedule -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-[#181e2b] border border-[#293246]">
+          <div>
+            <label class="block text-slate-200 font-bold text-xs mb-1 flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Default Posting Time</span>
+            </label>
+            <input type="time" id="socialDefaultPostingTime" value="18:00" class="w-full bg-[#0f141d] border border-[#293246] text-slate-100 rounded-lg px-3 py-1.5 font-mono text-xs focus:outline-none focus:border-[#FFE614]">
+            <p class="text-[10px] text-slate-500 mt-1">Default time applied when scheduling approved videos into calendar slots.</p>
+          </div>
+          <div class="flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <label class="text-slate-200 font-bold text-xs">Auto-Schedule to Calendar</label>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="socialAutoSchedule" checked class="sr-only peer">
+                <div class="w-10 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#FFE614]"></div>
+              </label>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-1">Automatically assigns consecutive free calendar days (1 post/account/day) upon approval.</p>
+          </div>
+        </div>
+
         <!-- Dry Run Toggle Banner -->
         <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
           <div>
@@ -707,45 +758,91 @@
         <!-- Auto Publish on Approve -->
         <div class="p-3 rounded-xl bg-[#181e2b] border border-[#293246] flex items-center justify-between">
           <div>
-            <div class="font-bold text-slate-200 text-xs">Auto-Publish on Video Approval</div>
-            <div class="text-[11px] text-slate-400">Trigger social posting dispatcher automatically whenever a video is marked "Approved".</div>
+            <div class="font-bold text-slate-200 text-xs">Immediate Auto-Publish on Approval</div>
+            <div class="text-[11px] text-slate-400">Trigger social posting dispatcher immediately when video is marked "Approved" (bypasses calendar queue).</div>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="socialAutoPublish" checked class="sr-only peer">
+            <input type="checkbox" id="socialAutoPublish" class="sr-only peer">
             <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
           </label>
         </div>
 
         <!-- Webhook Integration -->
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1.5">
-            <i data-lucide="webhook" class="w-3.5 h-3.5 text-cyan-400"></i>
-            <span>Automation Webhook URL (Make.com, Zapier, n8n)</span>
-          </label>
-          <input type="text" id="socialWebhookUrl" placeholder="https://hook.us1.make.com/..." class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-[#FFE614]">
-          <p class="text-[11px] text-slate-500 mt-1">Receives full video path, title, description, and metadata as JSON payload.</p>
+        <div class="space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-slate-300 font-semibold flex items-center gap-1.5">
+                <i data-lucide="webhook" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Automation Webhook URL (n8n, Make.com, Zapier)</span>
+              </label>
+              <button id="btnTestWebhook" type="button" class="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-[11px] font-bold transition flex items-center gap-1">
+                <i data-lucide="send" class="w-3 h-3"></i>
+                <span>Test Webhook</span>
+              </button>
+            </div>
+            <input type="text" id="socialWebhookUrl" placeholder="http://localhost:5678/webhook/kct-social-publish" class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 font-mono text-xs focus:outline-none focus:border-[#FFE614]">
+            <p class="text-[11px] text-slate-500 mt-1">Receives full video path, local URL, title, description, tags, and media specs.</p>
+          </div>
+
+          <!-- Webhook Secret / Auth Header -->
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1.5">
+              <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Webhook Authorization Header / Secret (Optional)</span>
+            </label>
+            <input type="text" id="socialWebhookAuth" placeholder="Bearer secret_token_xyz" class="w-full bg-[#181e2b] border border-[#293246] text-slate-100 rounded-lg px-3 py-2 font-mono text-xs focus:outline-none focus:border-[#FFE614]">
+            <p class="text-[11px] text-slate-500 mt-1">Sent as HTTP <code>Authorization: Bearer &lt;token&gt;</code> or custom header to verify caller.</p>
+          </div>
+
+          <!-- Live Webhook Test Result Banner -->
+          <div id="webhookTestResult" class="hidden p-2.5 rounded-lg text-xs flex items-start gap-2"></div>
         </div>
 
         <!-- Platforms Configuration -->
         <div class="border-t border-[#212836] pt-3">
-          <div class="font-bold text-slate-200 text-xs mb-2">Target Platforms</div>
-          <div class="grid grid-cols-2 gap-2">
-            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+          <div class="font-bold text-slate-200 text-xs mb-2">Target Platforms (5 Active)</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer hover:border-red-500/40 transition">
               <input type="checkbox" id="enableYt" checked class="rounded bg-slate-800 border-slate-700 text-red-500">
-              <span class="font-semibold text-slate-200">YouTube Video</span>
+              <span class="font-semibold text-slate-200 text-[11px]">YouTube Video/Shorts</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer hover:border-blue-500/40 transition">
               <input type="checkbox" id="enableFb" checked class="rounded bg-slate-800 border-slate-700 text-blue-500">
-              <span class="font-semibold text-slate-200">Facebook Page</span>
+              <span class="font-semibold text-slate-200 text-[11px]">Facebook Page/Reels</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer hover:border-pink-500/40 transition">
+              <input type="checkbox" id="enableInstagram" checked class="rounded bg-slate-800 border-slate-700 text-pink-500">
+              <span class="font-semibold text-slate-200 text-[11px]">Instagram Reels</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer hover:border-cyan-400/40 transition">
               <input type="checkbox" id="enableTiktok" checked class="rounded bg-slate-800 border-slate-700 text-cyan-400">
-              <span class="font-semibold text-slate-200">TikTok Shorts</span>
+              <span class="font-semibold text-slate-200 text-[11px]">TikTok Shorts</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-[#181e2b] border border-[#293246] cursor-pointer hover:border-slate-400 transition sm:col-span-2">
               <input type="checkbox" id="enableX" checked class="rounded bg-slate-800 border-slate-700 text-slate-100">
-              <span class="font-semibold text-slate-200">X (Twitter)</span>
+              <span class="font-semibold text-slate-200 text-[11px]">X (Twitter Video Tweet)</span>
             </label>
+          </div>
+        </div>
+
+        <!-- Workflow Blueprint & Docs -->
+        <div class="border-t border-[#212836] pt-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <div class="font-bold text-slate-200 text-xs flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>n8n Social Publisher Blueprint</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Pre-built 5-platform routing workflow ready to import.</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btnCopyN8nTemplate" type="button" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold transition border border-slate-700 flex items-center gap-1" title="Copy n8n workflow JSON to clipboard">
+              <i data-lucide="copy" class="w-3 h-3 text-[#FFE614]"></i>
+              <span>Copy JSON</span>
+            </button>
+            <a href="/api/social/template/n8n" download="n8n_social_posting_workflow.json" class="px-2.5 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold transition flex items-center gap-1" title="Download n8n JSON file">
+              <i data-lucide="download" class="w-3 h-3"></i>
+              <span>Download</span>
+            </a>
           </div>
         </div>
 
@@ -897,6 +994,6 @@
   <div id="toastContainer" class="toast-container fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 sm:px-0"></div>
 
   <!-- App Script -->
-  <script src="/static/js/app.js?v=3.7"></script>
+  <script src="/static/js/app.js?v=3.8"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@
   "comfyui": {
     "url": "http://127.0.0.1:8188"
   },
-  "active_project_path": "E:\\Projects\\Bible Hidden Secrets Revealed",
+  "active_project_path": "E:\\Projects\\BHRS-Youtube",
   "projects": [
     {
       "name": "Manhwa Cinema Lab (Recap)",
@@ -25,7 +25,30 @@
     {
       "name": "BHRS - Youtube",
       "path": "E:\\Projects\\BHRS-Youtube",
-      "type": "documentary"
+      "type": "documentary",
+      "social": {
+        "dry_run": true,
+        "auto_publish_on_approve": true,
+        "auto_schedule_on_approve": true,
+        "default_posting_time": "19:15",
+        "webhook_url": "",
+        "webhook_auth_header": "",
+        "youtube": {
+          "enabled": true
+        },
+        "facebook": {
+          "enabled": false
+        },
+        "tiktok": {
+          "enabled": false
+        },
+        "x": {
+          "enabled": false
+        },
+        "instagram": {
+          "enabled": false
+        }
+      }
     },
     {
       "name": "Bible Hidden Secrets Revealed",
@@ -36,12 +59,15 @@
   "social": {
     "dry_run": true,
     "auto_publish_on_approve": true,
+    "auto_schedule_on_approve": true,
+    "default_posting_time": "18:00",
     "webhook_url": "",
+    "webhook_auth_header": "",
     "youtube": {
-      "enabled": false
+      "enabled": true
     },
     "facebook": {
-      "enabled": true
+      "enabled": false
     },
     "tiktok": {
       "enabled": false

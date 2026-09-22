@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -47,7 +48,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "social": {
         "dry_run": True,
         "auto_publish_on_approve": True,
+        "auto_schedule_on_approve": True,
+        "default_posting_time": "18:00",
         "webhook_url": "",
+        "webhook_auth_header": "",
         "youtube": {
             "enabled": True,
             "privacy_status": "unlisted",
@@ -211,8 +215,94 @@ class ConfigManager:
 
     def update_social_config(self, social_data: Dict[str, Any]):
         current = self._config.get("social", {})
-        current.update(social_data)
+        for k, v in social_data.items():
+            if isinstance(v, dict) and isinstance(current.get(k), dict):
+                current[k].update(v)
+            else:
+                current[k] = v
         self._config["social"] = current
         self._save_config(self._config)
+
+    def _find_project(self, project_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        target_path = project_path or self.get_active_project()
+        if not target_path:
+            return None
+        norm_target = None
+        try:
+            norm_target = Path(target_path).resolve()
+        except Exception:
+            pass
+        for p in self._config.get("projects", []):
+            try:
+                if norm_target and Path(p.get("path", "")).resolve() == norm_target:
+                    return p
+            except Exception:
+                pass
+            if p.get("path", "").lower() == str(target_path).lower():
+                return p
+        return None
+
+    def get_project_social_config(self, project_path: Optional[str] = None) -> Dict[str, Any]:
+        """Returns social automation configuration for a specific project path,
+        merging project-specific settings with global defaults."""
+        target_path = project_path or self.get_active_project()
+        global_social = self._config.get("social", DEFAULT_CONFIG["social"]).copy()
+
+        project = self._find_project(target_path)
+
+        if not project:
+            res = copy.deepcopy(global_social)
+            res["project_name"] = "Global Defaults"
+            res["project_path"] = target_path or ""
+            res["is_custom"] = False
+            return res
+
+        proj_social = project.get("social")
+        is_custom = isinstance(proj_social, dict)
+
+        merged = copy.deepcopy(global_social)
+        if is_custom:
+            for k, v in proj_social.items():
+                if isinstance(v, dict) and isinstance(merged.get(k), dict):
+                    merged[k] = {**merged[k], **v}
+                else:
+                    merged[k] = v
+
+        merged["project_name"] = project.get("name", Path(project.get("path", "")).name)
+        merged["project_path"] = project.get("path", "")
+        merged["is_custom"] = is_custom
+        return merged
+
+    def update_project_social_config(self, project_path: Optional[str], social_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Updates social automation settings for a specific project, or global if not specified."""
+        target_path = project_path or self.get_active_project()
+        project = self._find_project(target_path) if target_path and target_path.lower() != "global" else None
+
+        if project is not None:
+            current_proj_social = project.get("social")
+            if not isinstance(current_proj_social, dict):
+                current_proj_social = copy.deepcopy(self._config.get("social", DEFAULT_CONFIG["social"]))
+
+            for k, v in social_data.items():
+                if isinstance(v, dict) and isinstance(current_proj_social.get(k), dict):
+                    current_proj_social[k].update(v)
+                else:
+                    current_proj_social[k] = v
+
+            project["social"] = current_proj_social
+            self._save_config(self._config)
+            return project["social"]
+        else:
+            self.update_social_config(social_data)
+            return self._config.get("social", {})
+
+    def reset_project_social_config(self, project_path: Optional[str]) -> Dict[str, Any]:
+        """Reverts a project to inheriting global social defaults."""
+        target_path = project_path or self.get_active_project()
+        project = self._find_project(target_path)
+        if project and "social" in project:
+            del project["social"]
+            self._save_config(self._config)
+        return self.get_project_social_config(target_path)
 
 config_manager = ConfigManager()

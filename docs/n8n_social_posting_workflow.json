@@ -1,0 +1,366 @@
+{
+  "name": "KCT Studio - Multi-Platform Social Media Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kct-social-publish",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-trigger",
+      "name": "KCT Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [180, 400],
+      "webhookId": "kct-social-publish"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.body.dry_run }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "node-check-dryrun",
+      "name": "Is Dry Run?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [420, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"mode\": \"dry_run\",\n  \"message\": \"Simulated dispatch received successfully by n8n.\",\n  \"video\": \"{{ $json.body.video.filename }}\",\n  \"platforms\": {{ JSON.stringify($json.body.target_platforms) }},\n  \"received_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "node-dryrun-response",
+      "name": "Dry Run Log & Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 260]
+    },
+    {
+      "parameters": {
+        "filePath": "={{ $json.body.video.abs_path }}",
+        "dataPropertyName": "video_data"
+      },
+      "id": "node-read-video-file",
+      "name": "Read Local Video Binary",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [680, 520]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $node[\"KCT Webhook Trigger\"].json.body.target_platforms.join(',') }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "youtube",
+              "output": 0
+            },
+            {
+              "value2": "facebook",
+              "output": 1
+            },
+            {
+              "value2": "instagram",
+              "output": 2
+            },
+            {
+              "value2": "tiktok",
+              "output": 3
+            },
+            {
+              "value2": "x",
+              "output": 4
+            }
+          ]
+        }
+      },
+      "id": "node-platform-router",
+      "name": "Platform Switch / Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [920, 520]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "title": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.title }}",
+        "description": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.description }}",
+        "binaryPropertyName": "video_data",
+        "options": {
+          "tags": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.tags.join(',') }}",
+          "privacyStatus": "={{ $node[\"KCT Webhook Trigger\"].json.body.platform_configs.youtube.privacy_status || 'unlisted' }}"
+        }
+      },
+      "id": "node-youtube-upload",
+      "name": "YouTube Video Upload",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [1220, 260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/me/videos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "video_data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.caption }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-facebook-upload",
+      "name": "Facebook Page Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1220, 390]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/me/media",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "REELS"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.video.local_url }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.caption }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-instagram-upload",
+      "name": "Instagram Reels Container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1220, 520]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+        "sendBinaryData": false,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.title }}"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.video.local_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-tiktok-upload",
+      "name": "TikTok Creator Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1220, 650]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.caption.substring(0, 275) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-x-tweet",
+      "name": "X (Twitter) Tweet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1220, 780]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Video successfully processed by n8n multi-platform pipeline.\",\n  \"video\": \"{{ $node[\"KCT Webhook Trigger\"].json.body.video.filename }}\",\n  \"target_platforms\": {{ JSON.stringify($node[\"KCT Webhook Trigger\"].json.body.target_platforms) }}\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "node-live-response",
+      "name": "Live Dispatch Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1520, 520]
+    }
+  ],
+  "connections": {
+    "KCT Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Dry Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Dry Run?": {
+      "main": [
+        [
+          {
+            "node": "Dry Run Log & Respond",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Local Video Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Local Video Binary": {
+      "main": [
+        [
+          {
+            "node": "Platform Switch / Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Platform Switch / Router": {
+      "main": [
+        [
+          {
+            "node": "YouTube Video Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Facebook Page Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Instagram Reels Container",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TikTok Creator Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "X (Twitter) Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube Video Upload": {
+      "main": [
+        [
+          {
+            "node": "Live Dispatch Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Page Video": {
+      "main": [
+        [
+          {
+            "node": "Live Dispatch Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Reels Container": {
+      "main": [
+        [
+          {
+            "node": "Live Dispatch Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok Creator Post": {
+      "main": [
+        [
+          {
+            "node": "Live Dispatch Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X (Twitter) Tweet": {
+      "main": [
+        [
+          {
+            "node": "Live Dispatch Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
