@@ -155,24 +155,80 @@ Subscribes to real-time console output. Upon connection, re-plays buffered histo
 
 ## 5. Media & Social Dispatch
 
-### `POST /api/metadata/open`
-Opens a video's metadata JSON file in Windows Notepad for instant inspection.
-
-**Request Body:**
-```json
-{
-  "episode_id": "reel76"
-}
-```
+### `POST /api/assets/open_metadata`
+Opens or loads a video's metadata file for in-app viewing, editing, or external Notepad launch.
 
 ### `POST /api/social/publish`
-Toggles social media publication status flags (Facebook, YouTube, TikTok, X, Instagram) and optionally dispatches webhooks.
+Dispatches social media publication across active platforms (YouTube, Facebook, Instagram, TikTok, X) and triggers the automation webhook.
 
 **Request Body:**
 ```json
 {
-  "episode_id": "reel76",
-  "platform": "facebook",
-  "posted": true
+  "rel_path": "chapter_1/slideshow/chapter_1_full.mp4",
+  "platforms": ["youtube", "facebook", "instagram", "tiktok", "x"],
+  "title": "Solo Leveling Episode 1 Recap",
+  "description": "Full story recap...",
+  "tags": ["anime", "manhwa"]
 }
 ```
+
+### `GET /api/social/config`
+Returns the active social media configuration, including target platform enable flags, dry-run mode, and webhook settings.
+
+### `POST /api/social/config`
+Updates social media configuration presets, target platforms, and webhook authorization headers.
+
+### `POST /api/social/test_webhook`
+Tests connectivity to the configured or supplied webhook URL, returning HTTP status code, latency (ms), and response preview.
+
+**Request Body:**
+```json
+{
+  "webhook_url": "https://n8n.yourdomain.com/webhook/kct-social-publish",
+  "auth_header": "Bearer secret_token_xyz"
+}
+```
+
+### `GET /api/social/template/n8n`
+Downloads the official pre-built n8n social media distribution workflow JSON.
+
+---
+
+## 6. Video Posting Calendar Planner
+
+### `GET /calendar`
+Serves the full-screen standalone Video Posting Calendar Planner webpage.
+
+### `GET /api/calendar/schedule`
+Returns scheduled, posted, and queued videos with optional filtering by `project_path`, `month`, `year`, or `status`.
+
+### `POST /api/calendar/schedule`
+Enqueues an approved video for posting. Strictly validates the **1 post per account per day** rule across all target platforms.
+
+**Request Body:**
+```json
+{
+  "project_path": "E:\\Projects\\BHRS-Youtube",
+  "video_rel_path": "reels/75_the_jewish_feasts_are_a_timeline/75_final_reel.mp4",
+  "scheduled_date": "2026-09-24",
+  "scheduled_time": "18:00",
+  "platforms": ["youtube", "facebook", "instagram", "tiktok", "x"],
+  "title": "The Jewish Feasts Are a Timeline"
+}
+```
+
+### `PUT /api/calendar/schedule/{post_id}`
+Reschedules a queued post to a new date or time.
+
+### `DELETE /api/calendar/schedule/{post_id}`
+Cancels and removes a scheduled post from the calendar.
+
+### `POST /api/calendar/schedule/{post_id}/post_now`
+Triggers immediate dispatch of a scheduled post ahead of its queue time.
+
+### `POST /api/calendar/auto_schedule`
+Scans approved unposted videos for the project and sequences them into consecutive future calendar days at the project's default posting time.
+
+### `GET /api/calendar/next_slot`
+Calculates the earliest upcoming available date & time slot that is free for the specified platforms.
+
