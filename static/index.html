@@ -49,9 +49,9 @@
           <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono border border-slate-700">v2.0</span>
         </div>
 
-        <!-- Project Switcher -->
-        <div class="flex items-center gap-2">
-          <select id="projectSelect" class="bg-[#181e2b] border border-[#2c364c] text-sm text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#FFE614] transition font-medium min-w-[240px]">
+        <!-- Project Switcher & Navigation Actions -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <select id="projectSelect" class="bg-[#181e2b] border border-[#2c364c] text-sm text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#FFE614] transition font-medium min-w-[200px] sm:min-w-[240px]">
             <option value="" disabled selected>Loading projects...</option>
           </select>
           <button id="btnAddProject" title="Add / Browse Project Folder" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
@@ -62,10 +62,29 @@
             <i data-lucide="folder-cog" class="w-4 h-4 text-cyan-400"></i>
             <span class="hidden sm:inline">Manage</span>
           </button>
+
+          <!-- Desktop Notifications Toggle -->
+          <button id="btnToggleNotifications" title="Desktop Notifications: Alert when pipeline finishes" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+            <i id="iconNotification" data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
+            <span id="textNotification" class="hidden sm:inline text-xs font-medium">Alerts</span>
+          </button>
+
+          <!-- Social Settings Button -->
+          <button id="btnSocialSettings" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5" title="Social Automation & Webhook Settings">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Social Automation</span>
+          </button>
+
+          <!-- Calendar Planner Button -->
+          <a href="/calendar" target="_blank" id="btnOpenCalendar" title="Open Video Posting Calendar Planner in separate tab" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-4 h-4 text-[#FFE614]"></i>
+            <span class="hidden sm:inline font-semibold">Calendar</span>
+            <span id="navCalBadge" class="hidden text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">0</span>
+          </a>
         </div>
       </div>
 
-      <!-- Hardware Telemetry & Quick Settings -->
+      <!-- Hardware Telemetry -->
       <div class="flex items-center gap-3">
         <!-- GPU Status -->
         <div id="gpuTelemetry" class="hidden sm:flex items-center gap-2 bg-[#141924] border border-[#222a3b] px-3 py-1 rounded-lg text-xs font-mono">
@@ -81,25 +100,6 @@
           <span class="text-slate-400">ComfyUI:</span>
           <span id="comfyStatus" class="text-slate-400">Checking...</span>
         </div>
-
-        <!-- Desktop Notifications Toggle -->
-        <button id="btnToggleNotifications" title="Desktop Notifications: Alert when pipeline finishes" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
-          <i id="iconNotification" data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
-          <span id="textNotification" class="hidden md:inline text-xs font-medium">Alerts</span>
-        </button>
-
-        <!-- Social Settings Button -->
-        <button id="btnSocialSettings" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5" title="Social Automation & Webhook Settings">
-          <i data-lucide="share-2" class="w-4 h-4"></i>
-          <span class="hidden md:inline">Social Automation</span>
-        </button>
-
-        <!-- Calendar Planner Button -->
-        <a href="/calendar" target="_blank" id="btnOpenCalendar" title="Open Video Posting Calendar Planner in separate tab" class="bg-[#1e2638] hover:bg-[#2c364c] text-slate-300 hover:text-[#FFE614] px-3 py-1.5 rounded-lg border border-[#2c364c] transition text-sm flex items-center gap-1.5">
-          <i data-lucide="calendar" class="w-4 h-4 text-[#FFE614]"></i>
-          <span class="hidden md:inline font-semibold">Calendar</span>
-          <span id="navCalBadge" class="hidden text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">0</span>
-        </a>
       </div>
 
     </div>
@@ -1128,6 +1128,6 @@
   <div id="toastContainer" class="toast-container fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 sm:px-0"></div>
 
   <!-- App Script -->
-  <script src="/static/js/app.js?v=4.2"></script>
+  <script src="/static/js/app.js?v=4.4"></script>
 </body>
 </html>
