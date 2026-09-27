@@ -203,27 +203,41 @@ class ProjectScanner:
         has_root_chapters = len(root_chapters) > 0
 
         chapter_dirs = []
-        # Check direct subdirectories first
+        seen_dir_paths = set()
+        ignored_root_names = {"reels", "episodes", "chapters", "stories", "shared_assets", "demucs_stems", "scratch", "temp", "images", "logs"}
+
+        # 1. Check direct subdirectories first (excluding dedicated sub-collections & utility folders)
         for d in project_path.iterdir():
-            if d.is_dir() and not d.name.startswith("."):
+            if d.is_dir() and not d.name.startswith(".") and d.name.lower() not in ignored_root_names:
                 parsed = parse_numbered_folder(d.name)
                 if parsed:
                     rel_p = str(d.relative_to(project_path)).replace("\\", "/")
                     chapter_dirs.append((d, parsed, rel_p))
+                    seen_dir_paths.add(d.resolve())
 
-        # If root has no numbered folders, inspect common subdirectories like reels, episodes, chapters, stories
+        # 2. Inspect dedicated subdirectories (reels, episodes, chapters)
+        for sub_name in ["reels", "episodes", "chapters"]:
+            sub_dir = project_path / sub_name
+            if sub_dir.exists() and sub_dir.is_dir():
+                for d in sub_dir.iterdir():
+                    if d.is_dir() and not d.name.startswith(".") and d.resolve() not in seen_dir_paths:
+                        parsed = parse_numbered_folder(d.name)
+                        if parsed:
+                            rel_p = str(d.relative_to(project_path)).replace("\\", "/")
+                            chapter_dirs.append((d, parsed, rel_p))
+                            seen_dir_paths.add(d.resolve())
+
+        # 3. Fallback to stories if no chapters/reels found yet
         if not chapter_dirs:
-            for sub_name in ["reels", "episodes", "chapters", "stories"]:
-                sub_dir = project_path / sub_name
-                if sub_dir.exists() and sub_dir.is_dir():
-                    for d in sub_dir.iterdir():
-                        if d.is_dir() and not d.name.startswith("."):
-                            parsed = parse_numbered_folder(d.name)
-                            if parsed:
-                                rel_p = str(d.relative_to(project_path)).replace("\\", "/")
-                                chapter_dirs.append((d, parsed, rel_p))
-                    if chapter_dirs:
-                        break
+            sub_dir = project_path / "stories"
+            if sub_dir.exists() and sub_dir.is_dir():
+                for d in sub_dir.iterdir():
+                    if d.is_dir() and not d.name.startswith(".") and d.resolve() not in seen_dir_paths:
+                        parsed = parse_numbered_folder(d.name)
+                        if parsed:
+                            rel_p = str(d.relative_to(project_path)).replace("\\", "/")
+                            chapter_dirs.append((d, parsed, rel_p))
+                            seen_dir_paths.add(d.resolve())
 
         # Sort chapters naturally by episode number
         chapter_dirs.sort(key=lambda x: x[1]["episode_num"])

@@ -27,14 +27,16 @@
       "path": "c:\\Projects\\BHRS-Youtube",
       "type": "documentary",
       "social": {
-        "dry_run": true,
+        "dry_run": false,
         "auto_publish_on_approve": false,
         "auto_schedule_on_approve": true,
         "default_posting_time": "19:15",
-        "webhook_url": "",
+        "webhook_url": "http://localhost:5678/webhook/kct-social-publish",
         "webhook_auth_header": "",
         "youtube": {
-          "enabled": true
+          "enabled": true,
+          "privacy_status": "public",
+          "made_for_kids": false
         },
         "facebook": {
           "enabled": false
@@ -55,14 +57,16 @@
       "path": "c:\\Projects\\Bible Hidden Secrets Revealed",
       "type": "documentary",
       "social": {
-        "dry_run": true,
+        "dry_run": false,
         "auto_publish_on_approve": false,
         "auto_schedule_on_approve": true,
-        "default_posting_time": "18:00",
-        "webhook_url": "",
+        "default_posting_time": "16:00",
+        "webhook_url": "http://localhost:5678/webhook/kct-social-publish",
         "webhook_auth_header": "",
         "youtube": {
-          "enabled": false
+          "enabled": true,
+          "privacy_status": "public",
+          "made_for_kids": false
         },
         "facebook": {
           "enabled": true
@@ -77,6 +81,36 @@
           "enabled": true
         }
       }
+    },
+    {
+      "name": "Bible Mysteries Unveiled",
+      "path": "C:\\Projects\\Bible-Mysteries",
+      "type": "manhwa",
+      "social": {
+        "dry_run": true,
+        "auto_publish_on_approve": false,
+        "auto_schedule_on_approve": true,
+        "default_posting_time": "18:00",
+        "webhook_url": "",
+        "webhook_auth_header": "",
+        "youtube": {
+          "enabled": true,
+          "privacy_status": "public",
+          "made_for_kids": false
+        },
+        "facebook": {
+          "enabled": false
+        },
+        "tiktok": {
+          "enabled": false
+        },
+        "x": {
+          "enabled": false
+        },
+        "instagram": {
+          "enabled": false
+        }
+      }
     }
   ],
   "social": {
@@ -87,7 +121,9 @@
     "webhook_url": "",
     "webhook_auth_header": "",
     "youtube": {
-      "enabled": true
+      "enabled": true,
+      "privacy_status": "public",
+      "made_for_kids": false
     },
     "facebook": {
       "enabled": false

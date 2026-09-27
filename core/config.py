@@ -54,7 +54,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "webhook_auth_header": "",
         "youtube": {
             "enabled": True,
-            "privacy_status": "unlisted",
+            "privacy_status": "public",
+            "made_for_kids": False,
             "client_secrets_file": "",
             "credentials_file": ""
         },

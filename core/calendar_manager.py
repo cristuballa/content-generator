@@ -81,14 +81,22 @@ class CalendarManager:
                 except Exception:
                     continue
 
-            # Ensure scheduled (unposted) items inherit current platforms from their project
-            if item.get("status") == "scheduled":
+            # Ensure scheduled (unposted) items inherit current platforms from their project if not set
+            if item.get("status") == "scheduled" and not item.get("platforms"):
                 item_proj_path = item.get("project_path")
                 if item_proj_path:
                     proj_plats = config_manager.get_project_platforms(item_proj_path)
                     enabled_plats = [p for p in ["youtube", "facebook", "instagram", "tiktok", "x"] if proj_plats.get(p, False)]
                     if enabled_plats:
                         item["platforms"] = enabled_plats
+
+            # Attach published platforms from asset_manager
+            try:
+                rec = asset_manager.get_asset_record(item.get("video_rel_path", ""))
+                pub = rec.get("published", {})
+                item["published_platforms"] = [p for p, pd in pub.items() if isinstance(pd, dict) and pd.get("status") == "published"]
+            except Exception:
+                item["published_platforms"] = []
 
             # Backfill video duration if missing
             if not item.get("duration"):
@@ -100,6 +108,21 @@ class CalendarManager:
                         item["duration"] = info.get("duration") or ""
                 except Exception:
                     pass
+
+            # Auto-heal title if missing or matching generic filename stem
+            item_vrel = item.get("video_rel_path", "")
+            item_proj = item.get("project_path", "")
+            if item_vrel and item_proj:
+                vid_stem = Path(item_vrel).stem.replace("_", " ").title()
+                cur_title = item.get("title", "")
+                if not cur_title or cur_title == vid_stem:
+                    try:
+                        from core.social_dispatcher import social_dispatcher
+                        mdata = social_dispatcher.extract_metadata_for_video(Path(item_proj), item_vrel)
+                        if mdata.get("title"):
+                            item["title"] = mdata["title"]
+                    except Exception:
+                        pass
 
             filtered.append(item)
 
@@ -244,29 +267,23 @@ class CalendarManager:
         if not force and date_str < today_iso:
             raise ValueError(f"Cannot schedule post to a past date ({date_str}). Please select today or a future date.")
 
-        # Validate 1-post-per-day rule
-        if not force:
-            val = self.validate_slot(project_path, date_str, target_platforms)
-            if not val["valid"]:
-                c_names = ", ".join([f"{c['platform'].capitalize()} (booked at {c['scheduled_time']})" for c in val["conflicts"]])
-                raise ValueError(f"Date {date_str} already has a scheduled post for: {c_names}. Only 1 post per account/platform per day is allowed.")
+        # Multi-post per day enabled: allow multiple videos/images per day per project.
+        # Sequential daily slot assignment is still maintained on approval via find_next_available_slot.
 
         # Resolve video metadata
         vid_path = Path(project_path) / video_rel_path
         vid_filename = vid_path.name
         vid_title = title
         if not vid_title:
-            vid_title = vid_path.stem.replace("_", " ").title()
-            # Try to read metadata file
-            meta = asset_manager.find_or_create_metadata_file(project_path, video_rel_path)
-            if meta and meta.exists():
-                try:
-                    for line in meta.read_text(encoding="utf-8", errors="replace").splitlines()[:10]:
-                        if line.lower().startswith("title:"):
-                            vid_title = line.split(":", 1)[1].strip()
-                            break
-                except Exception:
-                    pass
+            try:
+                from core.social_dispatcher import social_dispatcher
+                mdata = social_dispatcher.extract_metadata_for_video(Path(project_path), video_rel_path)
+                if mdata.get("title") and mdata["title"] != vid_path.stem.replace("_", " ").title():
+                    vid_title = mdata["title"]
+            except Exception:
+                pass
+            if not vid_title:
+                vid_title = vid_path.stem.replace("_", " ").title()
 
         # Resolve episode number
         ep_num = None
@@ -334,8 +351,8 @@ class CalendarManager:
 
         return new_entry
 
-    def update_post(self, post_id: str, date_str: str, time_str: str, platforms: Optional[List[str]] = None, force: bool = False) -> Dict[str, Any]:
-        """Reschedules an existing post."""
+    def update_post(self, post_id: str, date_str: str, time_str: str, platforms: Optional[List[str]] = None, force: bool = False, status: Optional[str] = None) -> Dict[str, Any]:
+        """Reschedules an existing post or updates status."""
         items = self._load_all()
         target = None
         for it in items:
@@ -353,12 +370,7 @@ class CalendarManager:
 
         target_platforms = platforms if platforms is not None else target.get("platforms", ["youtube"])
 
-        # Validate slot collision
-        if not force:
-            val = self.validate_slot(target["project_path"], date_str, target_platforms, exclude_post_id=post_id)
-            if not val["valid"]:
-                c_names = ", ".join([f"{c['platform'].capitalize()}" for c in val["conflicts"]])
-                raise ValueError(f"Date {date_str} already has a post for: {c_names}. Only 1 post per account per day allowed.")
+        # Multi-post per day enabled: allow rescheduling without collision error.
 
         # Backfill episode_num if missing
         if target.get("episode_num") is None:
@@ -378,9 +390,32 @@ class CalendarManager:
         target["scheduled_time"] = time_str
         target["scheduled_datetime_iso"] = f"{date_str}T{clean_time}"
         target["platforms"] = target_platforms
-        if target["status"] == "failed":
+
+        if status:
+            target["status"] = status
+            if status == "posted":
+                target["error"] = None
+                target["posted_at"] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                asset_manager.update_social_posted_batch(target["video_rel_path"], target_platforms)
+            elif status == "scheduled":
+                target["error"] = None
+                target["posted_at"] = None
+                target["dispatch_result"] = None
+                for p in target_platforms:
+                    asset_manager.set_social_posted(target["video_rel_path"], p, False)
+        elif target["status"] in ("failed", "posted"):
             target["status"] = "scheduled"
             target["error"] = None
+            target["posted_at"] = None
+            target["dispatch_result"] = None
+            for p in target_platforms:
+                asset_manager.set_social_posted(target["video_rel_path"], p, False)
+        elif target.get("status") == "scheduled":
+            target["error"] = None
+            target["posted_at"] = None
+            target["dispatch_result"] = None
+            for p in target_platforms:
+                asset_manager.set_social_posted(target["video_rel_path"], p, False)
 
         self._save_all(items)
         return target
@@ -510,18 +545,19 @@ class CalendarManager:
                         project_path_str=proj_path,
                         video_rel_path=video_rel,
                         platforms=platforms,
-                        custom_title=it.get("title")
+                        custom_title=it.get("title"),
+                        force_republish=True
                     )
 
                     it["posted_at"] = now_iso
                     it["dispatch_result"] = res
-                    if res.get("success", False) or res.get("simulated", False):
+                    if (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False):
                         it["status"] = "posted"
                         # Mark asset social published status
                         asset_manager.update_social_posted_batch(video_rel, platforms)
                     else:
                         it["status"] = "failed"
-                        it["error"] = res.get("error", "Dispatch failed")
+                        it["error"] = res.get("message") or res.get("error", "Dispatch failed or skipped")
 
                     executed.append(it)
                     changed = True

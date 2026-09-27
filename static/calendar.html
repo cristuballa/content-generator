@@ -407,7 +407,9 @@
       <!-- Header -->
       <div class="flex items-center justify-between pb-3 border-b border-[#212836]">
         <div class="flex items-center gap-2.5 min-w-0">
-          <span id="detailStatusBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase bg-cyan-950 text-cyan-400 border border-cyan-800">SCHEDULED</span>
+          <button type="button" id="btnHeaderStatusToggle" class="cursor-pointer group flex items-center" title="Click to toggle status (Posted / Scheduled)">
+            <span id="detailStatusBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase bg-cyan-950 text-cyan-400 border border-cyan-800 group-hover:brightness-125 transition">SCHEDULED</span>
+          </button>
           <span id="detailProjectBadge" class="text-xs font-mono text-slate-400 truncate">Project Name</span>
         </div>
         <button id="btnCloseDetailModal" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
@@ -447,13 +449,24 @@
       </div>
 
       <!-- Actions -->
-      <div class="pt-3 border-t border-[#212836] flex items-center justify-between">
-        <button type="button" id="btnDeletePost" class="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span>Delete</span>
-        </button>
+      <div class="pt-3 border-t border-[#212836] flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btnDeletePost" class="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1 shrink-0" title="Remove video from posting schedule">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>Remove</span>
+          </button>
+          <button type="button" id="btnMarkStatus" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center gap-1 shrink-0" title="Manually mark video as POSTED or SCHEDULED">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+            <span id="btnMarkStatusLabel">Mark Posted</span>
+          </button>
+        </div>
 
-        <div class="flex items-center gap-2">
+        <!-- Social Media Platform Toggles (Enable-with-check / Disable to Post/Repost) -->
+        <div id="detailPlatformToggles" class="flex items-center gap-1.5 bg-[#181e2b] px-2 py-1 rounded-xl border border-[#2b3548]">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
           <button type="button" id="btnPostNow" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
             <span>Post Now</span>
@@ -471,6 +484,6 @@
   <div id="calToastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
   <!-- Calendar Script -->
-  <script src="/static/js/calendar.js?v=2.3"></script>
+  <script src="/static/js/calendar.js?v=2.8"></script>
 </body>
 </html>

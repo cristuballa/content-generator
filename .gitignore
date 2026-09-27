@@ -15,6 +15,11 @@ certs/*.pem
 certs/*.crt
 certs/*.key
 
+# OAuth secrets & credentials
+docs/*client_secret*.json
+docs/*ClientID_ClientSecret*.txt
+*client_secret*.json
+
 # Virtual environments
 .venv/
 venv/

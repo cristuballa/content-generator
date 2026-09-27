@@ -145,6 +145,9 @@ KCT Studio provides a complete, pre-configured workflow template located in:
 ## 5. Platform API Setup & Credentials
 
 ### 1. YouTube Data API v3
+> [!TIP]
+> For the complete step-by-step walkthrough covering Google Cloud Console, Scopes, Test Users, and n8n custom credentials, see: [**Google OAuth & YouTube Setup Guide**](google_oauth_setup_guide.md).
+
 - **Google Cloud Console**: Enable **YouTube Data API v3**.
 - **OAuth 2.0 Credentials**: Create an OAuth Client ID (type: Web Application or Desktop).
 - Add scope: `https://www.googleapis.com/auth/youtube.upload`.

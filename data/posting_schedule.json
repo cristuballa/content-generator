@@ -5,11 +5,11 @@
     "project_name": "BHRS - Youtube",
     "video_rel_path": "9-The_Covenant_of_Pieces/9-The_Covenant_of_Pieces_final_16x9.mp4",
     "video_filename": "9-The_Covenant_of_Pieces_final_16x9.mp4",
-    "title": "9-The Covenant Of Pieces Final 16X9",
+    "title": "The Terrifying Ritual of Genesis 15: When God Walked Through Fire and Blood",
     "thumbnail_url": "/api/thumbnail/9-The_Covenant_of_Pieces/9-The_Covenant_of_Pieces_final_16x9.mp4",
-    "scheduled_date": "2026-09-24",
-    "scheduled_time": "19:15",
-    "scheduled_datetime_iso": "2026-09-24T19:15:00",
+    "scheduled_date": "2026-09-27",
+    "scheduled_time": "18:00",
+    "scheduled_datetime_iso": "2026-09-27T18:00:00",
     "platforms": [
       "youtube"
     ],
@@ -26,17 +26,17 @@
     "project_name": "BHRS - Youtube",
     "video_rel_path": "5-The_Enigma_of_Melchizedek/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
     "video_filename": "05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
-    "title": "05 The Mystery Of Melchizedek 35Min Final 16X9",
+    "title": "The Ageless Priest-King: The Terrifying Secrets of Melchizedek Hidden in Genesis 14",
     "thumbnail_url": "/api/thumbnail/5-The_Enigma_of_Melchizedek/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
-    "scheduled_date": "2026-09-23",
-    "scheduled_time": "19:15",
-    "scheduled_datetime_iso": "2026-09-23T19:15:00",
+    "scheduled_date": "2026-09-25",
+    "scheduled_time": "18:45",
+    "scheduled_datetime_iso": "2026-09-25T18:45:00",
     "platforms": [
       "youtube"
     ],
-    "status": "scheduled",
+    "status": "posted",
     "created_at": "2026-09-22T19:29:08.862505",
-    "posted_at": null,
+    "posted_at": "2026-09-25T22:44:17",
     "error": null,
     "dispatch_result": null,
     "episode_num": 5
@@ -49,15 +49,210 @@
     "video_filename": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
     "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
     "thumbnail_url": "/api/thumbnail/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-    "scheduled_date": "2026-09-23",
-    "scheduled_time": "18:00",
-    "scheduled_datetime_iso": "2026-09-23T18:00:00",
+    "scheduled_date": "2026-09-25",
+    "scheduled_time": "22:52",
+    "scheduled_datetime_iso": "2026-09-25T22:52:00",
+    "platforms": [
+      "youtube"
+    ],
+    "status": "posted",
+    "created_at": "2026-09-22T19:44:35.092353",
+    "posted_at": "2026-09-25T23:01:50",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
+      "video": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+      "webhook_result": {
+        "status_code": 200,
+        "latency_ms": 126264.2,
+        "response": {
+          "success": true,
+          "message": "Video successfully processed by n8n.",
+          "video": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+          "youtube_id": "TeNOOUKvLqg",
+          "youtube_url": "https://youtu.be/TeNOOUKvLqg",
+          "target_platforms": [
+            "youtube"
+          ]
+        }
+      },
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "message": "Published to YouTube: https://youtu.be/TeNOOUKvLqg",
+          "privacy": "public",
+          "url": "https://youtu.be/TeNOOUKvLqg",
+          "id": "TeNOOUKvLqg"
+        }
+      }
+    },
+    "episode_num": 75
+  },
+  {
+    "id": "sched_1790174164_e628c9",
+    "project_path": "C:\\Projects\\Bible Hidden Secrets Revealed",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "reels/03_stones_of_jericho/reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+    "video_filename": "reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+    "episode_num": 3,
+    "title": "The Stones of Jericho Fell Outward",
+    "thumbnail_url": "/api/thumbnail/reels/03_stones_of_jericho/reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+    "duration": "1:03",
+    "scheduled_date": "2026-09-28",
+    "scheduled_time": "16:00",
+    "scheduled_datetime_iso": "2026-09-28T16:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "posted",
+    "created_at": "2026-09-24T02:36:04.161034",
+    "posted_at": "2026-09-27T04:48:01",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "The Stones of Jericho Fell Outward",
+      "video": "reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+      "webhook_result": {
+        "status_code": 200,
+        "latency_ms": 51362,
+        "response": {
+          "success": true,
+          "message": "Video processed by n8n.",
+          "video": "reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+          "youtube_id": "ReTzzbeQU_c",
+          "youtube_url": "https://youtu.be/ReTzzbeQU_c",
+          "facebook_id": "2088983931706271",
+          "facebook_url": "https://www.facebook.com/watch/?v=2088983931706271",
+          "target_platforms": [
+            "youtube",
+            "facebook",
+            "instagram"
+          ],
+          "instagram_id": "18133068205581581",
+          "instagram_url": "https://www.instagram.com/reel/DdxyRnnFVZl/"
+        }
+      },
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "message": "Published to YouTube: https://youtu.be/ReTzzbeQU_c",
+          "privacy": "public",
+          "url": "https://youtu.be/ReTzzbeQU_c",
+          "id": "ReTzzbeQU_c"
+        },
+        "facebook": {
+          "status": "published",
+          "platform": "Facebook",
+          "message": "Published to Facebook: https://www.facebook.com/watch/?v=2088983931706271",
+          "id": "2088983931706271",
+          "url": "https://www.facebook.com/watch/?v=2088983931706271"
+        },
+        "instagram": {
+          "status": "published",
+          "platform": "Instagram",
+          "message": "Published to Instagram: https://www.instagram.com/reel/DdxyRnnFVZl/",
+          "id": "18133068205581581",
+          "url": "https://www.instagram.com/reel/DdxyRnnFVZl/"
+        }
+      }
+    }
+  },
+  {
+    "id": "sched_1790226267_58c963",
+    "project_path": "C:\\Projects\\BHRS-Youtube",
+    "project_name": "BHRS - Youtube",
+    "video_rel_path": "6-The_Stargate_of_Babel_Nimrod/06_the_babel_stargate_35min_final_16x9.mp4",
+    "video_filename": "06_the_babel_stargate_35min_final_16x9.mp4",
+    "episode_num": 6,
+    "title": "The Babel Stargate: The Terrifying Secrets of Nimrod and the Tower of Shinar",
+    "thumbnail_url": "/api/thumbnail/6-The_Stargate_of_Babel_Nimrod/06_the_babel_stargate_35min_final_16x9.mp4",
+    "duration": "34:54",
+    "scheduled_date": "2026-09-29",
+    "scheduled_time": "19:15",
+    "scheduled_datetime_iso": "2026-09-29T19:15:00",
+    "platforms": [
+      "youtube"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-09-24T17:04:27.951096",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null
+  },
+  {
+    "id": "sched_1790246833_eab6e2",
+    "project_path": "C:\\Projects\\Bible Hidden Secrets Revealed",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+    "video_filename": "76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+    "episode_num": 76,
+    "title": "The First Death in the Bible Was GOD Killing an Animal — For Clothing",
+    "thumbnail_url": "/api/thumbnail/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+    "duration": "3:11",
+    "scheduled_date": "2026-09-27",
+    "scheduled_time": "21:40",
+    "scheduled_datetime_iso": "2026-09-27T21:40:00",
     "platforms": [
       "facebook",
       "instagram"
     ],
     "status": "scheduled",
-    "created_at": "2026-09-22T19:44:35.092353",
+    "created_at": "2026-09-24T22:47:13.906994",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null
+  },
+  {
+    "id": "sched_1790247207_923824",
+    "project_path": "C:\\Projects\\Bible Hidden Secrets Revealed",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+    "video_filename": "78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+    "episode_num": 78,
+    "title": "Jesus's Last Words Weren't Despair — They Were a CITATION (And It Changes Everything)",
+    "thumbnail_url": "/api/thumbnail/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+    "duration": "3:02",
+    "scheduled_date": "2026-09-30",
+    "scheduled_time": "16:00",
+    "scheduled_datetime_iso": "2026-09-30T16:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-09-24T22:53:27.353702",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null
+  },
+  {
+    "id": "sched_1790247459_05ada0",
+    "project_path": "C:\\Projects\\Bible Hidden Secrets Revealed",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+    "video_filename": "79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+    "episode_num": 79,
+    "title": "Joseph's Life Matches Jesus in 30+ Details — And Joseph Didn't Know",
+    "thumbnail_url": "/api/thumbnail/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+    "duration": "3:57",
+    "scheduled_date": "2026-10-01",
+    "scheduled_time": "16:00",
+    "scheduled_datetime_iso": "2026-10-01T16:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-09-24T22:57:39.611610",
     "posted_at": null,
     "error": null,
     "dispatch_result": null

@@ -2910,24 +2910,40 @@
       "probe_mtime": 1786893791.2247949
     },
     "reels/03_stones_of_jericho/reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790174164.0024345,
+      "reviewed_at": 1790174164.0024345,
       "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1790435618.1244912,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "message": "Published to YouTube: https://youtu.be/ReTzzbeQU_c",
+            "privacy": "public",
+            "url": "https://youtu.be/ReTzzbeQU_c",
+            "id": "ReTzzbeQU_c"
+          }
+        },
         "facebook": {
           "status": "published",
-          "time": 1789884487.030528,
+          "time": 1790435618.2486272,
           "details": {
-            "manual": true
+            "status": "published",
+            "platform": "Facebook",
+            "message": "Published to Facebook via n8n"
           }
         },
         "instagram": {
           "status": "published",
-          "time": 1789884489.058026,
+          "time": 1790435618.3669515,
           "details": {
-            "manual": true
+            "status": "published",
+            "platform": "Instagram",
+            "message": "Published to Instagram via n8n"
           }
         }
       },
@@ -4038,7 +4054,34 @@
       "notes": "",
       "approved_at": 1790063075.0339136,
       "reviewed_at": 1790063075.0339136,
-      "published": {},
+      "published": {
+        "facebook": {
+          "status": "published",
+          "time": 1790334091.0685055,
+          "details": {
+            "manual": true
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1790334091.0685055,
+          "details": {
+            "manual": true
+          }
+        },
+        "youtube": {
+          "status": "published",
+          "time": 1790334237.1882272,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "message": "Published to YouTube: https://youtu.be/TeNOOUKvLqg",
+            "privacy": "public",
+            "url": "https://youtu.be/TeNOOUKvLqg",
+            "id": "TeNOOUKvLqg"
+          }
+        }
+      },
       "duration": "2:47",
       "resolution": "768x1344",
       "probe_mtime": 1789214637.0627387
@@ -4077,11 +4120,11 @@
       "probe_mtime": 1786872409.4090917
     },
     "reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790247207.2276235,
+      "reviewed_at": 1790247207.2276235,
       "published": {},
       "duration": "3:02",
       "resolution": "768x1344",
@@ -4110,11 +4153,11 @@
       "probe_mtime": 1786872411.6956666
     },
     "reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790247459.502285,
+      "reviewed_at": 1790247459.502285,
       "published": {},
       "duration": "3:57",
       "resolution": "768x1344",
@@ -4214,7 +4257,20 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {},
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1790170873.767201,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "message": "Published to YouTube: https://youtu.be/lcRI-M20jjw",
+            "privacy": "unlisted",
+            "url": "https://youtu.be/lcRI-M20jjw",
+            "id": "lcRI-M20jjw"
+          }
+        }
+      },
       "duration": "0:20",
       "resolution": "768x1376",
       "probe_mtime": 1788516046.9439325
@@ -18472,17 +18528,25 @@
       "notes": "",
       "approved_at": 1790062148.7318497,
       "reviewed_at": 1790062148.7318497,
-      "published": {},
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1790333057.1634216,
+          "details": {
+            "manual": true
+          }
+        }
+      },
       "duration": "36:21",
       "resolution": "1920x1080",
       "probe_mtime": 1789452152.1063893
     },
     "6-The_Stargate_of_Babel_Nimrod/06_the_babel_stargate_35min_final_16x9.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790226267.8163164,
+      "reviewed_at": 1790226267.8163164,
       "published": {},
       "duration": "34:54",
       "resolution": "1920x1080",
@@ -35775,11 +35839,11 @@
       "probe_mtime": 1789716412.3819187
     },
     "reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4": {
-      "status": "pending",
+      "status": "approved",
       "hidden": false,
       "notes": "",
-      "approved_at": null,
-      "reviewed_at": null,
+      "approved_at": 1790246833.631508,
+      "reviewed_at": 1790246833.631508,
       "published": {},
       "duration": "3:11",
       "resolution": "768x1344",
@@ -35948,7 +36012,192 @@
       "published": {},
       "duration": "33:46",
       "resolution": "1920x1080",
-      "probe_mtime": 1790058971.1512327
+      "probe_mtime": 1790156482.533089
+    },
+    "reels/86_the_tabernacle_layout_is_a_map/86_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "3:14",
+      "resolution": "768x1344",
+      "probe_mtime": 1790141988.0977778
+    },
+    "dummy/test.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "reels/87_the_virgin_birth_debate/87_the_virgin_birth_debate_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "2:38",
+      "resolution": "768x1344",
+      "probe_mtime": 1790224087.555423
+    },
+    "1-David_and_Goliath/temp/1-David_and_Goliath_part_0.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "1-David_and_Goliath/temp/1-David_and_Goliath_part_1.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "1-David_and_Goliath/temp/1-David_and_Goliath_part_2.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "11-The_Red_Heifer_Third_Temple/11-The_Red_Heifer_Third_Temple_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "41:48",
+      "resolution": "1920x1080",
+      "probe_mtime": 1790251781.4630668
+    },
+    "reels/87_the_virgin_birth_debate/87_the_virgin_birth_debate_with_ads_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "2:56",
+      "resolution": "768x1344",
+      "probe_mtime": 1790308913.1341243
+    },
+    "reels/88_god_put_adam_to_sleep_to_create_eve/88_god_put_adam_to_sleep_to_create_eve_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "2:29",
+      "resolution": "768x1344",
+      "probe_mtime": 1790314032.7441468
+    },
+    "02-How_Did_The_Watchers_Fall_Nephilim/temp/04_the_watchers_and_nephilim_35min_part_0.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "5:13",
+      "resolution": "1920x1080",
+      "probe_mtime": 1789458530.3010464
+    },
+    "02-How_Did_The_Watchers_Fall_Nephilim/temp/04_the_watchers_and_nephilim_35min_part_1.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "5:16",
+      "resolution": "1920x1080",
+      "probe_mtime": 1789458530.7446792
+    },
+    "02-How_Did_The_Watchers_Fall_Nephilim/temp/04_the_watchers_and_nephilim_35min_part_2.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "5:13",
+      "resolution": "1920x1080",
+      "probe_mtime": 1789458530.7426572
+    },
+    "02-How_Did_The_Watchers_Fall_Nephilim/temp/04_the_watchers_and_nephilim_35min_part_3.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "5:12",
+      "resolution": "1920x1080",
+      "probe_mtime": 1789458530.3030648
+    },
+    "01-What_Happened_Before_Genesis/temp/01-What_Happened_Before_Genesis_part_0.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "01-What_Happened_Before_Genesis/temp/01-What_Happened_Before_Genesis_part_1.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "01-What_Happened_Before_Genesis/temp/01-What_Happened_Before_Genesis_part_2.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "01-What_Happened_Before_Genesis/temp/01-What_Happened_Before_Genesis_part_3.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "01-What_Happened_Before_Genesis/01-What_Happened_Before_Genesis_final_16x9.mp4": {
+      "status": "regenerating",
+      "hidden": false,
+      "notes": "Regeneration triggered from UI",
+      "approved_at": null,
+      "reviewed_at": 1790407199.1733491,
+      "published": {},
+      "duration": "32:22",
+      "resolution": "1920x1080",
+      "probe_mtime": 1790414506.270255
+    },
+    "03-Where_Did_Melchizedek_Come_From/03-Where_Did_Melchizedek_Come_From_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "36:21",
+      "resolution": "1920x1080",
+      "probe_mtime": 1790435849.4167607
     }
   }
 }

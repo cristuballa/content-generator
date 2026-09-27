@@ -24,15 +24,28 @@ class AssetManager:
                 print(f"[AssetManager] Error loading {self.data_file}: {e}")
         return {"assets": {}}
 
+    def reload_if_needed(self):
+        if self.data_file.exists():
+            try:
+                mtime = self.data_file.stat().st_mtime
+                if not hasattr(self, '_last_mtime') or mtime > self._last_mtime:
+                    with open(self.data_file, "r", encoding="utf-8") as f:
+                        self._data = json.load(f)
+                    self._last_mtime = mtime
+            except Exception as e:
+                print(f"[AssetManager] Error reloading {self.data_file}: {e}")
+
     def _save_data(self):
         try:
             self.data_file.parent.mkdir(parents=True, exist_ok=True)
             with open(self.data_file, "w", encoding="utf-8") as f:
                 json.dump(self._data, f, indent=2)
+            self._last_mtime = self.data_file.stat().st_mtime
         except Exception as e:
             print(f"[AssetManager] Error saving data: {e}")
 
     def get_asset_record(self, rel_path: str) -> Dict[str, Any]:
+        self.reload_if_needed()
         norm = rel_path.replace("\\", "/")
         return self._data.setdefault("assets", {}).setdefault(norm, {
             "status": "pending",  # pending, approved, rejected
@@ -89,11 +102,18 @@ class AssetManager:
         self._save_data()
         return rec
 
-    def update_social_posted_batch(self, rel_path: str, platforms: Dict[str, bool]) -> Dict[str, Any]:
+    def update_social_posted_batch(self, rel_path: str, platforms: Any) -> Dict[str, Any]:
         rec = self.get_asset_record(rel_path)
         published = rec.setdefault("published", {})
         aliases = {"fb": "facebook", "yt": "youtube", "tt": "tiktok", "inst": "instagram", "twitter": "x"}
-        for plat, posted in platforms.items():
+        
+        items_to_process = []
+        if isinstance(platforms, dict):
+            items_to_process = list(platforms.items())
+        elif isinstance(platforms, (list, set, tuple)):
+            items_to_process = [(p, True) for p in platforms if isinstance(p, str)]
+
+        for plat, posted in items_to_process:
             key = aliases.get(plat.lower(), plat.lower())
             if posted:
                 if key not in published:
@@ -134,7 +154,9 @@ class AssetManager:
                 if cand.is_file():
                     return cand
 
-        # 2. If none found, create a template metadata.txt in the video's folder
+        # 2. If none found, create a template metadata.txt only if folder or video exists
+        if not folder.exists() and not video_p.exists():
+            return None
         target_file = folder / "metadata.txt"
         clean_title = video_p.stem.replace("_", " ").title()
         template = f"""Title: {clean_title}

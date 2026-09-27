@@ -2836,6 +2836,18 @@ function setupEventListeners() {
       const rel = targetAssetForModal.rel_path;
       const fileName = rel.split("/").pop();
 
+      // Check if this video has already been published
+      const alreadyPublished = targetAssetForModal.published || {};
+      const publishedPlats = Object.keys(alreadyPublished).filter(p => alreadyPublished[p]?.status === 'published');
+      let forceRepublish = false;
+      if (publishedPlats.length > 0) {
+        const confirmRepublish = confirm(`⚠️ Warning: "${fileName}" has already been published to [${publishedPlats.join(', ').toUpperCase()}].\n\nDo you want to re-publish it anyway?`);
+        if (!confirmRepublish) {
+          return;
+        }
+        forceRepublish = true;
+      }
+
       try {
         btnModalPublishSocial.disabled = true;
         btnModalPublishSocial.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Publishing...</span>`;
@@ -2844,11 +2856,24 @@ function setupEventListeners() {
         const res = await fetch("/api/social/publish", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rel_path: rel })
+          body: JSON.stringify({ 
+            rel_path: rel,
+            project_path: currentProject ? currentProject.path : undefined,
+            force_republish: forceRepublish
+          })
         });
         const data = await res.json();
         
         if (data.success) {
+          if (data.already_posted) {
+            showNotification({
+              title: "🟡 Already Published",
+              message: `<b>${fileName}</b>: ${data.message || 'Video already posted. Duplicate upload prevented.'}`,
+              type: "gold",
+              duration: 6000
+            });
+            return;
+          }
           const isDryRun = data.dry_run !== false;
           showNotification({
             title: isDryRun ? "🟡 Social Dispatch Simulated" : "🟢 Dispatched to Social Media",
@@ -2982,27 +3007,39 @@ function setupEventListeners() {
   };
 
   async function openSocialModal(projectPath = null) {
+    const modalEl = document.getElementById("socialModal");
+    if (modalEl) modalEl.classList.remove("hidden");
+    if (window.lucide) lucide.createIcons();
+
     const targetPath = projectPath || (currentProject ? currentProject.path : null);
     const sel = document.getElementById("socialProjectSelect");
     const titleEl = document.getElementById("socialModalProjectTitle");
     const badgeEl = document.getElementById("socialConfigStatusBadge");
 
-    if (sel && allProjects.length > 0) {
-      sel.innerHTML = "";
-      allProjects.forEach(p => {
-        if (!p.hidden) {
-          const opt = document.createElement("option");
-          opt.value = p.path;
-          opt.textContent = p.name;
-          sel.appendChild(opt);
-        }
-      });
-      if (targetPath) sel.value = targetPath;
+    // Populate project select if projects are loaded
+    if (sel) {
+      const projList = (allConfiguredProjects && allConfiguredProjects.length > 0)
+        ? allConfiguredProjects
+        : (currentProject ? [currentProject] : []);
+
+      if (projList.length > 0) {
+        sel.innerHTML = "";
+        projList.forEach(p => {
+          if (!p.hidden) {
+            const opt = document.createElement("option");
+            opt.value = p.path;
+            opt.textContent = p.name;
+            sel.appendChild(opt);
+          }
+        });
+        if (targetPath) sel.value = targetPath;
+      }
     }
 
     try {
       const q = targetPath ? `?project_path=${encodeURIComponent(targetPath)}` : "";
       const res = await fetch(`/api/social/config${q}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       const cfg = await res.json();
 
       if (titleEl) titleEl.textContent = cfg.project_name || "Active Project";
@@ -3013,17 +3050,38 @@ function setupEventListeners() {
           : "px-2 py-0.5 rounded font-mono text-[10px] bg-slate-800 text-slate-400 border border-slate-700";
       }
 
-      document.getElementById("socialDefaultPostingTime").value = cfg.default_posting_time || "18:00";
-      document.getElementById("socialAutoSchedule").checked = cfg.auto_schedule_on_approve !== false;
-      document.getElementById("socialDryRun").checked = cfg.dry_run !== false;
-      document.getElementById("socialAutoPublish").checked = cfg.auto_publish_on_approve === true;
-      document.getElementById("socialWebhookUrl").value = cfg.webhook_url || "";
-      document.getElementById("socialWebhookAuth").value = cfg.webhook_auth_header || "";
-      document.getElementById("enableYt").checked = cfg.youtube?.enabled !== false;
-      document.getElementById("enableFb").checked = cfg.facebook?.enabled !== false;
-      document.getElementById("enableInstagram").checked = cfg.instagram?.enabled !== false;
-      document.getElementById("enableTiktok").checked = cfg.tiktok?.enabled !== false;
-      document.getElementById("enableX").checked = cfg.x?.enabled !== false;
+      const timeEl = document.getElementById("socialDefaultPostingTime");
+      if (timeEl) timeEl.value = cfg.default_posting_time || "18:00";
+
+      const autoSchedEl = document.getElementById("socialAutoSchedule");
+      if (autoSchedEl) autoSchedEl.checked = cfg.auto_schedule_on_approve !== false;
+
+      const dryRunEl = document.getElementById("socialDryRun");
+      if (dryRunEl) dryRunEl.checked = cfg.dry_run !== false;
+
+      const autoPubEl = document.getElementById("socialAutoPublish");
+      if (autoPubEl) autoPubEl.checked = cfg.auto_publish_on_approve === true;
+
+      const whUrlEl = document.getElementById("socialWebhookUrl");
+      if (whUrlEl) whUrlEl.value = cfg.webhook_url || "";
+
+      const whAuthEl = document.getElementById("socialWebhookAuth");
+      if (whAuthEl) whAuthEl.value = cfg.webhook_auth_header || "";
+
+      const ytEl = document.getElementById("enableYt");
+      if (ytEl) ytEl.checked = cfg.youtube?.enabled !== false;
+
+      const fbEl = document.getElementById("enableFb");
+      if (fbEl) fbEl.checked = cfg.facebook?.enabled !== false;
+
+      const igEl = document.getElementById("enableInstagram");
+      if (igEl) igEl.checked = cfg.instagram?.enabled !== false;
+
+      const ttEl = document.getElementById("enableTiktok");
+      if (ttEl) ttEl.checked = cfg.tiktok?.enabled !== false;
+
+      const xEl = document.getElementById("enableX");
+      if (xEl) xEl.checked = cfg.x?.enabled !== false;
 
       const testResultEl = document.getElementById("webhookTestResult");
       if (testResultEl) {
@@ -3031,16 +3089,24 @@ function setupEventListeners() {
         testResultEl.innerHTML = "";
       }
 
-      document.getElementById("socialModal").classList.remove("hidden");
       if (window.lucide) lucide.createIcons();
     } catch (e) {
       console.error("Failed to load project social config:", e);
+      showNotification({
+        title: "Social Config Warning",
+        message: `Could not load settings from server: ${e.message || e}`,
+        type: "warning",
+        duration: 4000
+      });
     }
   }
 
-  document.getElementById("btnSocialSettings").onclick = () => {
-    openSocialModal(currentProject?.path);
-  };
+  const btnSocial = document.getElementById("btnSocialSettings");
+  if (btnSocial) {
+    btnSocial.onclick = () => {
+      openSocialModal(currentProject?.path);
+    };
+  }
 
   const selProjSocial = document.getElementById("socialProjectSelect");
   if (selProjSocial) {
@@ -3074,28 +3140,46 @@ function setupEventListeners() {
     };
   }
 
-  document.getElementById("btnCloseSocialModal").onclick = () => {
-    document.getElementById("socialModal").classList.add("hidden");
-  };
-  document.getElementById("btnCancelSocial").onclick = () => {
-    document.getElementById("socialModal").classList.add("hidden");
-  };
-  document.getElementById("btnSaveSocial").onclick = async () => {
-    const targetPath = document.getElementById("socialProjectSelect")?.value || (currentProject ? currentProject.path : null);
-    const updateData = {
-      project_path: targetPath,
-      default_posting_time: document.getElementById("socialDefaultPostingTime").value.trim() || "18:00",
-      auto_schedule_on_approve: document.getElementById("socialAutoSchedule").checked,
-      dry_run: document.getElementById("socialDryRun").checked,
-      auto_publish_on_approve: document.getElementById("socialAutoPublish").checked,
-      webhook_url: document.getElementById("socialWebhookUrl").value.trim(),
-      webhook_auth_header: document.getElementById("socialWebhookAuth").value.trim(),
-      youtube: { enabled: document.getElementById("enableYt").checked },
-      facebook: { enabled: document.getElementById("enableFb").checked },
-      instagram: { enabled: document.getElementById("enableInstagram").checked },
-      tiktok: { enabled: document.getElementById("enableTiktok").checked },
-      x: { enabled: document.getElementById("enableX").checked }
+  const btnCloseSocial = document.getElementById("btnCloseSocialModal");
+  if (btnCloseSocial) {
+    btnCloseSocial.onclick = () => {
+      document.getElementById("socialModal")?.classList.add("hidden");
     };
+  }
+
+  const btnCancelSoc = document.getElementById("btnCancelSocial");
+  if (btnCancelSoc) {
+    btnCancelSoc.onclick = () => {
+      document.getElementById("socialModal")?.classList.add("hidden");
+    };
+  }
+
+  const socialModalOverlay = document.getElementById("socialModal");
+  if (socialModalOverlay) {
+    socialModalOverlay.onclick = (e) => {
+      if (e.target.id === "socialModal") {
+        socialModalOverlay.classList.add("hidden");
+      }
+    };
+  }
+  const btnSaveSocialEl = document.getElementById("btnSaveSocial");
+  if (btnSaveSocialEl) {
+    btnSaveSocialEl.onclick = async () => {
+      const targetPath = document.getElementById("socialProjectSelect")?.value || (currentProject ? currentProject.path : null);
+      const updateData = {
+        project_path: targetPath,
+        default_posting_time: document.getElementById("socialDefaultPostingTime")?.value?.trim() || "18:00",
+        auto_schedule_on_approve: document.getElementById("socialAutoSchedule") ? document.getElementById("socialAutoSchedule").checked : true,
+        dry_run: document.getElementById("socialDryRun") ? document.getElementById("socialDryRun").checked : true,
+        auto_publish_on_approve: document.getElementById("socialAutoPublish") ? document.getElementById("socialAutoPublish").checked : false,
+        webhook_url: document.getElementById("socialWebhookUrl")?.value?.trim() || "",
+        webhook_auth_header: document.getElementById("socialWebhookAuth")?.value?.trim() || "",
+        youtube: { enabled: document.getElementById("enableYt") ? document.getElementById("enableYt").checked : true },
+        facebook: { enabled: document.getElementById("enableFb") ? document.getElementById("enableFb").checked : true },
+        instagram: { enabled: document.getElementById("enableInstagram") ? document.getElementById("enableInstagram").checked : true },
+        tiktok: { enabled: document.getElementById("enableTiktok") ? document.getElementById("enableTiktok").checked : true },
+        x: { enabled: document.getElementById("enableX") ? document.getElementById("enableX").checked : true }
+      };
 
     try {
       const res = await fetch("/api/social/config", {
@@ -3134,6 +3218,7 @@ function setupEventListeners() {
       });
     }
   };
+  }
 
   // Test Webhook button handler
   const btnTestWebhook = document.getElementById("btnTestWebhook");

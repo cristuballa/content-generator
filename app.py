@@ -199,6 +199,8 @@ class SocialPublishRequest(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     tags: Optional[List[str]] = None
+    project_path: Optional[str] = None
+    force_republish: Optional[bool] = False
 
 class SocialConfigRequest(BaseModel):
     project_path: Optional[str] = None
@@ -234,6 +236,7 @@ class CalendarUpdateRequest(BaseModel):
     scheduled_time: str
     platforms: Optional[List[str]] = None
     force: Optional[bool] = False
+    status: Optional[str] = None
 
 class CalendarAutoScheduleRequest(BaseModel):
     project_path: Optional[str] = None
@@ -662,7 +665,7 @@ async def regenerate_asset(req: AssetRegenerateRequest):
 # ----------------- Social Media APIs -----------------
 @app.post("/api/social/publish")
 async def publish_social(req: SocialPublishRequest):
-    active_path = config_manager.get_active_project()
+    active_path = req.project_path or config_manager.get_active_project()
     if not active_path:
         raise HTTPException(status_code=400, detail="No active project")
 
@@ -672,7 +675,8 @@ async def publish_social(req: SocialPublishRequest):
         platforms=req.platforms,
         custom_title=req.title,
         custom_desc=req.description,
-        custom_tags=req.tags
+        custom_tags=req.tags,
+        force_republish=req.force_republish or False
     )
     return res
 
@@ -742,7 +746,8 @@ async def update_calendar_schedule(post_id: str, req: CalendarUpdateRequest):
             date_str=req.scheduled_date,
             time_str=req.scheduled_time,
             platforms=req.platforms,
-            force=req.force or False
+            force=req.force or False,
+            status=req.status
         )
         return {"success": True, "entry": updated}
     except KeyError:
@@ -760,27 +765,44 @@ async def delete_calendar_schedule(post_id: str):
     return {"success": True, "deleted_id": post_id}
 
 @app.post("/api/calendar/schedule/{post_id}/post_now")
-async def trigger_post_now(post_id: str):
-    item = calendar_manager.get_post_by_id(post_id)
+async def trigger_post_now(
+    post_id: str, 
+    force_republish: bool = Query(False),
+    platforms: Optional[str] = Query(None)
+):
+    items = calendar_manager._load_all()
+    item = next((it for it in items if it.get("id") == post_id), None)
     if not item:
         raise HTTPException(status_code=404, detail="Schedule post not found")
+    # If item["title"] is just the filename stem, allow extract_metadata_for_video to supply the true title
+    passed_title = item.get("title")
+    vid_stem_title = Path(item["video_rel_path"]).stem.replace("_", " ").title()
+    if passed_title == vid_stem_title:
+        passed_title = None
+
+    target_platforms = [p.strip().lower() for p in platforms.split(",") if p.strip()] if platforms else item.get("platforms", ["youtube"])
+    item["platforms"] = target_platforms
+
     res = await social_dispatcher.publish_video(
         project_path_str=item["project_path"],
         video_rel_path=item["video_rel_path"],
-        platforms=item["platforms"],
-        custom_title=item.get("title")
+        platforms=target_platforms,
+        custom_title=passed_title,
+        force_republish=force_republish
     )
     import datetime
     now_iso = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     item["posted_at"] = now_iso
     item["dispatch_result"] = res
-    if res.get("success", False) or res.get("simulated", False):
+    if res.get("title"):
+        item["title"] = res["title"]
+    if (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False):
         item["status"] = "posted"
-        asset_manager.update_social_posted_batch(item["video_rel_path"], item["platforms"])
+        asset_manager.update_social_posted_batch(item["video_rel_path"], target_platforms)
     else:
         item["status"] = "failed"
-        item["error"] = res.get("error", "Dispatch failed")
-    calendar_manager._save_all(calendar_manager._load_all())
+        item["error"] = res.get("message") or res.get("error", "Dispatch failed or skipped")
+    calendar_manager._save_all(items)
     return {"success": item["status"] == "posted", "entry": item, "dispatch": res}
 
 @app.post("/api/calendar/auto_schedule")
@@ -855,6 +877,10 @@ async def stream_media(file_path: str, request: Request):
         mime_type = "application/octet-stream"
 
     return FileResponse(target, media_type=mime_type, filename=target.name)
+ 
+@app.get("/api/video/{file_path:path}")
+async def stream_video_alias(file_path: str, request: Request):
+    return await stream_media(file_path, request)
 
 @app.get("/api/thumbnail/{file_path:path}")
 async def get_thumbnail(file_path: str):
@@ -881,8 +907,19 @@ async def get_thumbnail(file_path: str):
             headers={"Cache-Control": "public, max-age=86400"}
         )
 
-    # If video, extract or fetch cached initial frame
+    # If video, first check for custom thumbnail file in folder (e.g. thumbnail_option_1.jpg)
     if target.suffix.lower() in [".mp4", ".mov", ".webm", ".mkv"]:
+        from core.social_dispatcher import social_dispatcher
+        custom_thumb = social_dispatcher.find_custom_thumbnail(target.parent, target.name)
+        if custom_thumb and custom_thumb.exists():
+            mime_type, _ = mimetypes.guess_type(str(custom_thumb))
+            return FileResponse(
+                custom_thumb,
+                media_type=mime_type or "image/jpeg",
+                headers={"Cache-Control": "public, max-age=86400"}
+            )
+
+        # Fallback to extracted frame thumbnail
         thumb = await asyncio.to_thread(asset_manager.get_or_create_thumbnail, target)
         if thumb and thumb.exists():
             return FileResponse(

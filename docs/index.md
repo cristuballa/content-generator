@@ -14,6 +14,7 @@ Welcome to the official technical documentation for **KCT Studio (v2.0)** — an
 | [**API Reference**](api_reference.md) | Complete documentation of FastAPI REST endpoints, WebSocket log streaming, and payloads. |
 | [**Frontend Guide**](frontend_guide.md) | Visual walkthrough of the UI: project switcher, episode list, command builder, social media toggles, and console. |
 | [**Social Automation Guide**](social_automation_guide.md) | Multi-platform publishing setup (YouTube, Facebook, Instagram, TikTok, X) with n8n/Make webhooks. |
+| [**Google OAuth & YouTube Setup**](google_oauth_setup_guide.md) | Step-by-step Google Cloud OAuth 2.0 configuration, consent screen, n8n credential setup, and thumbnail upload. |
 | [**Troubleshooting & FAQ**](troubleshooting.md) | Solutions for common Windows issues, SSL certificate trust, `CREATE_NO_WINDOW`, and port resolution. |
 | [**Multi-GPU Roadmap**](multi_gpu_architecture_roadmap.md) | Architectural roadmap for multi-GPU worker pooling, ComfyUI load balancing, and eGPU scaling. |
 

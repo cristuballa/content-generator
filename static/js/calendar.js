@@ -714,15 +714,15 @@ function renderPostCard(post, isExpanded = false) {
   const card = document.createElement("div");
   const isPosted = post.status === "posted";
   const isFailed = post.status === "failed";
-  const isDraggable = !isPosted;
+  const isDraggable = true;
   const projTheme = getProjectTheme(post.project_name || post.project_path);
 
-  card.className = `cal-card p-2 rounded-xl border text-[11px] select-none ${
+  card.className = `cal-card p-2 rounded-xl border text-[11px] select-none cursor-grab active:cursor-grabbing ${
     isPosted 
-      ? 'bg-emerald-950/40 border-emerald-800/50 text-emerald-200 cursor-pointer' 
+      ? 'bg-emerald-950/40 border-emerald-800/50 text-emerald-200 hover:border-emerald-600' 
       : isFailed 
-      ? 'bg-rose-950/40 border-rose-800/50 text-rose-200 cursor-grab active:cursor-grabbing' 
-      : 'bg-[#151c2a] border-[#253248] text-slate-200 hover:border-[#FFE614]/60 cursor-grab active:cursor-grabbing'
+      ? 'bg-rose-950/40 border-rose-800/50 text-rose-200 hover:border-rose-600' 
+      : 'bg-[#151c2a] border-[#253248] text-slate-200 hover:border-[#FFE614]/60'
   }`;
 
   card.setAttribute("data-id", post.id);
@@ -876,20 +876,22 @@ function renderPlatformBadges(platforms, post = null) {
     };
 
     let isSuccess = false;
-    if (isPostPosted) {
-      if (post.dispatch_result?.platforms?.[key]) {
-        const pStat = post.dispatch_result.platforms[key].status;
-        isSuccess = pStat === "success" || pStat === "queued" || pStat === "simulated";
-      } else {
-        isSuccess = true;
+    const pubList = post?.published_platforms || [];
+    if (pubList.includes(key)) {
+      isSuccess = true;
+    } else if (isPostPosted) {
+      if (post?.dispatch_result?.platforms?.[key]) {
+        const pStat = (post.dispatch_result.platforms[key].status || '').toLowerCase();
+        isSuccess = pStat === "published" || pStat === "success" || (post.dispatch_result?.dry_run && pStat === "simulated");
       }
     }
 
     const badgeBg = isSuccess ? cfg.activeBg : cfg.disabledBg;
     const badgeColor = isSuccess ? cfg.activeColor : cfg.disabledColor;
+    const statusText = post?.dispatch_result?.platforms?.[key]?.status || (isSuccess ? "posted" : "scheduled");
     const title = isSuccess
-      ? `${cfg.name}: Posted successfully`
-      : `${cfg.name}: Scheduled (disabled until posted successfully)`;
+      ? `${cfg.name}: Successfully posted`
+      : `${cfg.name}: ${statusText === 'queued' ? 'Queued / Not yet posted' : 'Not posted'}`;
 
     return `
       <span class="inline-flex items-center justify-center w-6 h-6 rounded-md border ${badgeBg} ${badgeColor} transition-all duration-200 shrink-0" title="${title}">
@@ -1041,10 +1043,10 @@ function checkCollisionLive() {
 
   if (conflicts.length > 0) {
     alertEl.classList.remove("hidden");
-    alertText.innerHTML = `<b>Daily Limit Conflict:</b> ${inputDate} already has scheduled posts for: ${conflicts.join(", ")}. Only 1 post per account per day is allowed.`;
+    alertText.innerHTML = `<b>Same-Day Schedule:</b> ${inputDate} already has scheduled posts for: ${conflicts.join(", ")}. This video will be scheduled as an additional post on this date.`;
     if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+      submitBtn.disabled = false;
+      submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
     }
   } else {
     alertEl.classList.add("hidden");
@@ -1108,10 +1110,39 @@ async function submitAddPost() {
 }
 
 // ----------------- MODAL: POST DETAIL / EDIT -----------------
+let activeModalPlatforms = new Set();
+
 function openDetailModal(postId) {
   const post = scheduleData.find(p => p.id === postId);
   if (!post) return;
   activePostDetail = post;
+
+  // Published platforms for this post
+  const publishedPlatforms = post.published_platforms || [];
+  if (post.dispatch_result && post.dispatch_result.platforms) {
+    for (const [k, v] of Object.entries(post.dispatch_result.platforms)) {
+      const st = (v.status || '').toLowerCase();
+      if ((st === 'published' || st === 'success') && !publishedPlatforms.includes(k)) {
+        publishedPlatforms.push(k);
+      }
+    }
+  }
+
+  // Candidate platforms for this post
+  let candidatePlatforms = post.platforms && post.platforms.length > 0 ? [...post.platforms] : [];
+  if (candidatePlatforms.length === 0 && post.project_path) {
+    const proj = allProjects.find(p => p.path === post.project_path || (p.path && p.path.toLowerCase() === post.project_path.toLowerCase()));
+    if (proj && proj.social_platforms) {
+      candidatePlatforms = Object.entries(proj.social_platforms).filter(([k, v]) => v === true).map(([k]) => k);
+    }
+  }
+  if (candidatePlatforms.length === 0) {
+    candidatePlatforms = ["youtube"];
+  }
+
+  // Rule: Socmed icons outlined should ONLY be enabled by default if NOT posted to that platform
+  const unpostedPlatforms = candidatePlatforms.filter(p => !publishedPlatforms.includes(p));
+  activeModalPlatforms = new Set(unpostedPlatforms);
 
   const modal = document.getElementById("modalPostDetail");
   const badgeStatus = document.getElementById("detailStatusBadge");
@@ -1161,7 +1192,10 @@ function openDetailModal(postId) {
       </div>
     `;
   }
-  if (elPlatforms) elPlatforms.innerHTML = renderPlatformBadges(post.platforms, post);
+  if (elPlatforms) {
+    const displayList = activeModalPlatforms.size > 0 ? Array.from(activeModalPlatforms) : (post.platforms || ["youtube"]);
+    elPlatforms.innerHTML = renderPlatformBadges(displayList, post);
+  }
   if (inputDate) {
     inputDate.value = post.scheduled_date;
     const today = new Date();
@@ -1178,25 +1212,169 @@ function openDetailModal(postId) {
     }
   }
 
+  const btnMarkStatus = document.getElementById("btnMarkStatus");
+  if (btnMarkStatus) {
+    if (post.status === "posted") {
+      btnMarkStatus.className = "px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold transition flex items-center gap-1 shrink-0";
+      btnMarkStatus.title = "Mark this video as Scheduled (Unposted)";
+      btnMarkStatus.innerHTML = `<i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span id="btnMarkStatusLabel">Mark Scheduled</span>`;
+    } else {
+      btnMarkStatus.className = "px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center gap-1 shrink-0";
+      btnMarkStatus.title = "Manually mark this video as Posted";
+      btnMarkStatus.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i><span id="btnMarkStatusLabel">Mark Posted</span>`;
+    }
+  }
+
+  renderDetailPlatformToggles();
+
   modal.classList.remove("hidden");
   lucide.createIcons();
+}
+
+function renderDetailPlatformToggles() {
+  const container = document.getElementById("detailPlatformToggles");
+  if (!container || !activePostDetail) return;
+
+  const publishedPlatforms = activePostDetail.published_platforms || [];
+
+  const platformsList = [
+    { 
+      key: "youtube", 
+      name: "YouTube", 
+      activeBg: "bg-red-500/20 border-red-500/60 shadow-[0_0_8px_rgba(239,68,68,0.25)]", 
+      svg: (act) => getSocialSvg("youtube", act ? "w-4 h-4 text-red-500" : "w-4 h-4 text-slate-400", true) 
+    },
+    { 
+      key: "facebook", 
+      name: "Facebook", 
+      activeBg: "bg-[#1877F2]/20 border-[#1877F2]/60 shadow-[0_0_8px_rgba(24,119,242,0.25)]", 
+      svg: (act) => getSocialSvg("facebook", act ? "w-4 h-4 text-[#1877F2]" : "w-4 h-4 text-slate-400", true) 
+    },
+    { 
+      key: "instagram", 
+      name: "Instagram", 
+      activeBg: "bg-rose-500/20 border-rose-500/60 shadow-[0_0_8px_rgba(244,63,94,0.25)]", 
+      svg: (act) => getSocialSvg("instagram", act ? "w-4 h-4 text-rose-400" : "w-4 h-4 text-slate-400", true) 
+    },
+    { 
+      key: "tiktok", 
+      name: "TikTok", 
+      activeBg: "bg-cyan-500/20 border-cyan-500/60 shadow-[0_0_8px_rgba(6,182,212,0.25)]", 
+      svg: (act) => getSocialSvg("tiktok", act ? "w-4 h-4 text-cyan-300" : "w-4 h-4 text-slate-400", true) 
+    },
+    { 
+      key: "x", 
+      name: "X", 
+      activeBg: "bg-white/20 border-white/60 shadow-[0_0_8px_rgba(255,255,255,0.25)]", 
+      svg: (act) => getSocialSvg("x", act ? "w-3.5 h-3.5 text-slate-100" : "w-3.5 h-3.5 text-slate-400", true) 
+    },
+  ];
+
+  container.innerHTML = platformsList.map(p => {
+    const isSelected = activeModalPlatforms.has(p.key);
+    const isPublished = publishedPlatforms.includes(p.key);
+
+    const btnClass = isSelected
+      ? `relative p-1.5 rounded-lg border cursor-pointer transition ${p.activeBg} hover:brightness-110`
+      : isPublished
+      ? `relative p-1.5 rounded-lg border border-slate-700/80 bg-slate-900/80 text-slate-400 opacity-60 hover:opacity-100 hover:border-slate-500 cursor-pointer transition`
+      : `relative p-1.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 opacity-40 hover:opacity-80 hover:border-slate-600 cursor-pointer transition`;
+
+    const checkmarkHtml = isSelected
+      ? `<span class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[9px] font-black shadow-sm leading-none select-none">✓</span>`
+      : ``;
+
+    const statusBadgeHtml = isPublished
+      ? `<span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-slate-950" title="Already posted on ${p.name}"></span>`
+      : ``;
+
+    const tooltip = isPublished 
+      ? `${p.name}: Already published. ${isSelected ? 'Selected to REPOST (Click to disable)' : 'Not selected (Click to enable repost)'}`
+      : `${p.name}: ${isSelected ? 'Selected to post (Click to disable)' : 'Not selected (Click to enable)'}`;
+
+    return `
+      <button type="button" data-plat="${p.key}" class="detail-plat-toggle-btn ${btnClass}" title="${tooltip}">
+        ${p.svg(isSelected)}
+        ${checkmarkHtml}
+        ${statusBadgeHtml}
+      </button>
+    `;
+  }).join('');
+
+  container.querySelectorAll(".detail-plat-toggle-btn").forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const platKey = btn.getAttribute("data-plat");
+      if (activeModalPlatforms.has(platKey)) {
+        activeModalPlatforms.delete(platKey);
+      } else {
+        activeModalPlatforms.add(platKey);
+      }
+      renderDetailPlatformToggles();
+    };
+  });
+
+  updateDetailModalUI();
+}
+
+function updateDetailModalUI() {
+  if (!activePostDetail) return;
+  const publishedPlatforms = activePostDetail.published_platforms || [];
+  const selectedList = Array.from(activeModalPlatforms);
+
+  const elPlatforms = document.getElementById("detailPlatforms");
+  if (elPlatforms) {
+    const displayList = selectedList.length > 0 ? selectedList : (activePostDetail.platforms || ["youtube"]);
+    elPlatforms.innerHTML = renderPlatformBadges(displayList, activePostDetail);
+  }
+
+  const btnPostNow = document.getElementById("btnPostNow");
+  if (btnPostNow) {
+    if (selectedList.length === 0) {
+      btnPostNow.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Post Now</span>`;
+      btnPostNow.className = "px-3.5 py-1.5 bg-slate-800/80 text-slate-500 border border-slate-700/50 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-not-allowed opacity-60";
+      btnPostNow.title = "Select one or more platforms above to post or repost";
+      btnPostNow.disabled = true;
+    } else {
+      btnPostNow.disabled = false;
+      const isAllPublished = selectedList.length > 0 && selectedList.every(p => publishedPlatforms.includes(p));
+      const isRepost = isAllPublished;
+
+      if (isRepost) {
+        btnPostNow.innerHTML = `<i data-lucide="repeat" class="w-3.5 h-3.5"></i><span>Repost Now</span>`;
+        btnPostNow.className = "px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow cursor-pointer";
+        btnPostNow.title = `Re-publish video to selected platform(s): ${selectedList.join(', ')}`;
+      } else {
+        btnPostNow.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Post Now</span>`;
+        btnPostNow.className = "px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow cursor-pointer";
+        btnPostNow.title = `Publish video to unposted platform(s): ${selectedList.filter(p => !publishedPlatforms.includes(p)).join(', ')}`;
+      }
+    }
+    lucide.createIcons();
+  }
 }
 
 async function saveDetailChanges() {
   if (!activePostDetail) return;
   const newDate = document.getElementById("detailEditDate")?.value;
   const newTime = document.getElementById("detailEditTime")?.value;
+  const platforms = Array.from(activeModalPlatforms);
+  const finalPlatforms = platforms.length > 0 ? platforms : (activePostDetail.platforms || ["youtube"]);
 
   try {
     const res = await fetch(`/api/calendar/schedule/${activePostDetail.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ scheduled_date: newDate, scheduled_time: newTime })
+      body: JSON.stringify({ 
+        scheduled_date: newDate, 
+        scheduled_time: newTime,
+        platforms: finalPlatforms
+      })
     });
     const data = await res.json();
     if (res.ok && data.success) {
       document.getElementById("modalPostDetail").classList.add("hidden");
-      showCalToast("Schedule updated successfully.", "success");
+      showCalToast("Schedule and platforms updated successfully.", "success");
       await refreshSchedule();
     } else {
       showCalToast(data.detail || "Failed to update schedule.", "error");
@@ -1206,20 +1384,97 @@ async function saveDetailChanges() {
   }
 }
 
+async function togglePostStatusManual() {
+  if (!activePostDetail) return;
+  const currentStatus = activePostDetail.status;
+  const targetStatus = currentStatus === "posted" ? "scheduled" : "posted";
+  const newDate = document.getElementById("detailEditDate")?.value || activePostDetail.scheduled_date;
+  const newTime = document.getElementById("detailEditTime")?.value || activePostDetail.scheduled_time || "18:00";
+  const platforms = Array.from(activeModalPlatforms && activeModalPlatforms.size > 0 ? activeModalPlatforms : (activePostDetail.platforms || ["youtube"]));
+
+  try {
+    const res = await fetch(`/api/calendar/schedule/${activePostDetail.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scheduled_date: newDate,
+        scheduled_time: newTime,
+        platforms: platforms,
+        status: targetStatus
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showCalToast(`Card marked as ${targetStatus.toUpperCase()} successfully.`, "success");
+      document.getElementById("modalPostDetail")?.classList.add("hidden");
+      await refreshSchedule();
+    } else {
+      showCalToast(data.detail || "Failed to update status", "error");
+    }
+  } catch (err) {
+    showCalToast(`Error: ${err.message}`, "error");
+  }
+}
+
 async function executePostNow(postId) {
   const targetId = postId || (activePostDetail ? activePostDetail.id : null);
   if (!targetId) return;
 
+  const targetPost = scheduleData.find(p => p.id === targetId) || activePostDetail;
+  const publishedPlatforms = targetPost?.published_platforms || [];
+
+  let platforms = [];
+  if (activePostDetail && activePostDetail.id === targetId) {
+    if (!activeModalPlatforms || activeModalPlatforms.size === 0) {
+      showCalToast("Please select at least one platform above to post or repost.", "warning");
+      return;
+    }
+    platforms = Array.from(activeModalPlatforms);
+  } else if (targetPost?.platforms && targetPost.platforms.length > 0) {
+    const unposted = targetPost.platforms.filter(p => !publishedPlatforms.includes(p));
+    platforms = unposted.length > 0 ? unposted : targetPost.platforms;
+  } else {
+    platforms = ["youtube"];
+  }
+
+  const isAllPublished = platforms.length > 0 && platforms.every(p => publishedPlatforms.includes(p));
+  const isRepost = isAllPublished || platforms.some(p => publishedPlatforms.includes(p));
+
   try {
-    showCalToast("Triggering social media dispatch...", "info");
-    const res = await fetch(`/api/calendar/schedule/${targetId}/post_now`, { method: "POST" });
-    const data = await res.json();
+    showCalToast(isRepost ? "Triggering social media re-publish..." : "Triggering social media dispatch...", "info");
+    const platQuery = encodeURIComponent(platforms.join(","));
+    const url = `/api/calendar/schedule/${targetId}/post_now?force_republish=true&platforms=${platQuery}`;
+    const res = await fetch(url, { method: "POST" });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseErr) {
+      throw new Error(`Server returned error (${res.status}): ${text || res.statusText}`);
+    }
     if (res.ok && data.success) {
-      showCalToast("Video successfully published to social feeds!", "success");
+      const successMsg = isRepost 
+        ? "Video successfully re-posted to social feeds!" 
+        : "Video successfully published to social feeds!";
+      showCalToast(successMsg, "success");
+
+      // Trigger browser desktop notification if supported
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          const { epPrefix, title } = formatPostTitle(targetPost);
+          const fullTitle = `${epPrefix ? epPrefix + ' ' : ''}${title}`;
+          new Notification(isRepost ? "KCT Studio - Video Re-posted!" : "KCT Studio - Video Published!", {
+            body: `"${fullTitle}" has been posted to ${platforms.join(', ').toUpperCase()}.`,
+            icon: targetPost.thumbnail_url || "/static/favicon.png"
+          });
+        } catch (_) {}
+      }
+
       document.getElementById("modalPostDetail")?.classList.add("hidden");
       await refreshSchedule();
     } else {
-      showCalToast(data.entry?.error || "Publishing failed.", "error");
+      const errMsg = data.entry?.error || data.detail || (data.dispatch?.platforms?.youtube?.message) || "Publishing failed.";
+      showCalToast(errMsg, "error");
       await refreshSchedule();
     }
   } catch (e) {
@@ -1241,7 +1496,7 @@ async function executeDeletePost(postId) {
       document.getElementById("modalPostDetail")?.classList.add("hidden");
       await refreshSchedule();
     } else {
-      showCalToast(data.detail || "Failed to delete post", "error");
+      showCalToast(data.detail || "Failed to remove post", "error");
     }
   } catch (e) {
     showCalToast(`${e.message}`, "error");
@@ -1378,6 +1633,15 @@ function updatePlatformFilterUI() {
   document.getElementById("btnSaveDetailChanges").onclick = saveDetailChanges;
   document.getElementById("btnPostNow").onclick = () => executePostNow();
   document.getElementById("btnDeletePost").onclick = () => executeDeletePost();
+  const btnMark = document.getElementById("btnMarkStatus");
+  if (btnMark) btnMark.onclick = togglePostStatusManual;
+  const btnHdrStatus = document.getElementById("btnHeaderStatusToggle");
+  if (btnHdrStatus) btnHdrStatus.onclick = togglePostStatusManual;
+
+  // Desktop notification permission
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
 
   // Keyboard navigation
   window.addEventListener("keydown", (e) => {
