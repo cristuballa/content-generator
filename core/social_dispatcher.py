@@ -122,15 +122,15 @@ class SocialDispatcher:
         if body_clean:
             blocks.append(body_clean)
 
-        # 3. Timestamps (if long-form video)
+        # 3. Timestamps (if long-form video or chapters provided)
         ts_clean = (timestamps or "").strip()
-        if ts_clean and (not is_short_or_reel or platform.lower() == "youtube_long"):
+        if ts_clean:
             blocks.append(ts_clean)
 
         # 4. Merch Block
         mb_clean = (merch_block or "").strip()
         if mb_clean:
-            if platform.lower() == "youtube" and is_short_or_reel:
+            if "youtube" in platform.lower():
                 mb_formatted = cls.sanitize_urls_for_youtube(mb_clean)
             else:
                 mb_formatted = mb_clean
@@ -141,7 +141,11 @@ class SocialDispatcher:
         if ht_clean:
             blocks.append(ht_clean)
 
-        return "\n\n".join(blocks).strip()
+        res = "\n\n".join(blocks).strip()
+        # Strictly guarantee NO URLs exist anywhere in YouTube descriptions
+        if "youtube" in platform.lower():
+            res = cls.sanitize_urls_for_youtube(res)
+        return res
 
     def extract_metadata_for_video(self, project_path: Path, video_rel_path: str) -> Dict[str, Any]:
         """Looks for adjacent metadata.json, metadata.txt, or youtube_metadata.md to build title, rich description, tags, custom thumbnail and platform captions."""
@@ -428,7 +432,7 @@ class SocialDispatcher:
 
         final_fb_caption = facebook_caption if is_full_fb else standard_full_description
         final_ig_caption = instagram_caption if is_full_ig else standard_full_description
-        final_yt_description = youtube_description if is_full_yt else standard_youtube_description
+        final_yt_description = self.sanitize_urls_for_youtube(youtube_description) if is_full_yt else standard_youtube_description
         final_description = standard_full_description or body_description
 
         caption = f"{top_hook or title}\n\n{hashtags_string}".strip()
@@ -464,11 +468,11 @@ class SocialDispatcher:
 
     @staticmethod
     def sanitize_urls_for_youtube(text: str) -> str:
-        """Replaces raw http/https and www links with '🔗 (Link in channel bio)' for YouTube Shorts compliance."""
+        """Replaces all raw http/https and www links with '🔗 (Link in channel bio)' for YouTube compliance (no raw external URLs)."""
         if not text:
             return ""
-        t = re.sub(r':?\s*https?://\S+', ' 🔗 (Link in channel bio)', text)
-        t = re.sub(r':?\s*www\.\S+', ' 🔗 (Link in channel bio)', t)
+        t = re.sub(r'[-–—:|]?\s*https?://\S+', ' 🔗 (Link in channel bio)', text)
+        t = re.sub(r'[-–—:|]?\s*www\.\S+', ' 🔗 (Link in channel bio)', t)
         return t
 
     def _build_auth_headers(self, auth_header: Optional[str]) -> Dict[str, str]:
@@ -648,15 +652,12 @@ class SocialDispatcher:
             desc = custom_desc
             fb_desc = custom_desc
             ig_desc = custom_desc
-            yt_desc = self.sanitize_urls_for_youtube(custom_desc) if is_short_or_reel else custom_desc
+            yt_desc = self.sanitize_urls_for_youtube(custom_desc)
         else:
             desc = meta.get("description") or ""
             fb_desc = meta.get("facebook_caption") or desc
             ig_desc = meta.get("instagram_caption") or desc
-            if is_short_or_reel:
-                yt_desc = meta.get("youtube_description") or self.sanitize_urls_for_youtube(desc)
-            else:
-                yt_desc = meta.get("youtube_description") or desc
+            yt_desc = self.sanitize_urls_for_youtube(meta.get("youtube_description") or desc)
 
         content_spec = {
             "title": title,
