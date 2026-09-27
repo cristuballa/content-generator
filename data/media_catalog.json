@@ -36001,6 +36001,20 @@
             "platform": "YouTube",
             "message": "Published to YouTube channel"
           }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1790500528.159711,
+          "details": {
+            "manual": true
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1790500528.159711,
+          "details": {
+            "manual": true
+          }
         }
       },
       "duration": "33:15",

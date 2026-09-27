@@ -78,48 +78,6 @@
       },
       {
         "parameters": {
-          "dataType": "string",
-          "value1": "={{ $node[\"KCT Webhook Trigger\"].json.body.target_platforms ? $node[\"KCT Webhook Trigger\"].json.body.target_platforms.join(',') : '' }}",
-          "rules": {
-            "rules": [
-              {
-                "operation": "contains",
-                "value2": "youtube"
-              },
-              {
-                "operation": "contains",
-                "value2": "facebook",
-                "output": 1
-              },
-              {
-                "operation": "contains",
-                "value2": "instagram",
-                "output": 2
-              },
-              {
-                "operation": "contains",
-                "value2": "tiktok",
-                "output": 3
-              },
-              {
-                "operation": "contains",
-                "value2": "x",
-                "output": 4
-              }
-            ]
-          }
-        },
-        "id": "232572f5-859a-4023-901b-92ebe4911031",
-        "name": "Platform Switch / Router",
-        "type": "n8n-nodes-base.switch",
-        "typeVersion": 1,
-        "position": [
-          128,
-          160
-        ]
-      },
-      {
-        "parameters": {
           "method": "POST",
           "url": "https://graph-video.facebook.com/v20.0/1095048317029830/videos",
           "sendHeaders": true,
@@ -510,45 +468,6 @@
           [
             {
               "node": "Post to YouTube?",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Platform Switch / Router": {
-        "main": [
-          [
-            {
-              "node": "Post to YouTube?",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Post to Facebook?",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Post to Instagram?",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Post to TikTok?",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Post to X?",
               "type": "main",
               "index": 0
             }

@@ -528,33 +528,8 @@ class CalendarManager:
 
         return scheduled_results
 
-    RETRY_INTERVALS_MINUTES = [5, 10, 15]
-
-    def _apply_retry_backoff(self, it: Dict[str, Any], current_retries: int, err_msg: str, now_dt: datetime.datetime):
-        """Applies retry schedule: 1st retry in 5m, 2nd in 10m, 3rd in 15m. Marks failed after 3 retries."""
-        now_iso = now_dt.strftime("%Y-%m-%dT%H:%M:%S")
-        history = it.setdefault("retry_history", [])
-        history.append({
-            "attempt": current_retries + 1,
-            "timestamp": now_iso,
-            "error": err_msg
-        })
-
-        if current_retries < len(self.RETRY_INTERVALS_MINUTES):
-            delay_mins = self.RETRY_INTERVALS_MINUTES[current_retries]
-            next_retry_dt = now_dt + datetime.timedelta(minutes=delay_mins)
-            it["retry_count"] = current_retries + 1
-            it["status"] = "retrying"
-            it["next_retry_at"] = next_retry_dt.strftime("%Y-%m-%dT%H:%M:%S")
-            it["error"] = f"Attempt {current_retries + 1} failed: {err_msg}. Retrying {current_retries + 1}/3 in {delay_mins}m (at {next_retry_dt.strftime('%H:%M:%S')})."
-        else:
-            it["status"] = "failed"
-            it["retry_count"] = current_retries + 1
-            it["next_retry_at"] = None
-            it["error"] = f"Permanently failed after 3 retries: {err_msg}"
-
     async def execute_due_posts(self, social_dispatcher) -> List[Dict[str, Any]]:
-        """Scans for scheduled posts that are due now (or retrying) and dispatches them."""
+        """Scans for scheduled posts that are due now and dispatches them. On failure, cleanly marks as failed for manual reposting."""
         items = self._load_all()
         now_dt = datetime.datetime.now()
         now_iso = now_dt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -564,15 +539,10 @@ class CalendarManager:
 
         for it in items:
             status = it.get("status")
-            if status not in ("scheduled", "retrying"):
+            if status != "scheduled":
                 continue
 
-            # Determine whether this item is due
-            if status == "retrying":
-                due_iso = it.get("next_retry_at")
-            else:
-                due_iso = it.get("scheduled_datetime_iso") or f"{it.get('scheduled_date', '')}T{it.get('scheduled_time', '00:00')}:00"
-
+            due_iso = it.get("scheduled_datetime_iso") or f"{it.get('scheduled_date', '')}T{it.get('scheduled_time', '00:00')}:00"
             if not due_iso or due_iso > now_iso:
                 continue
 
@@ -580,7 +550,6 @@ class CalendarManager:
             proj_path = it.get("project_path", "")
             video_rel = it.get("video_rel_path", "")
             platforms = it.get("platforms", [])
-            current_retries = int(it.get("retry_count", 0))
 
             it["last_attempt_at"] = now_iso
 
@@ -678,15 +647,22 @@ class CalendarManager:
                     it["next_retry_at"] = None
                     asset_manager.update_social_posted_batch(video_rel, platforms)
                 else:
+                    # Cleanly mark failed for manual user reposting (no background auto-retry loop)
                     err_msg = res.get("message") or res.get("error", f"Platforms failed: {', '.join(unposted)}")
-                    self._apply_retry_backoff(it, current_retries, f"Unpublished [{', '.join(unposted)}]: {err_msg}", now_dt)
+                    it["status"] = "failed"
+                    it["retry_count"] = 0
+                    it["next_retry_at"] = None
+                    it["error"] = f"Failed to publish to [{', '.join(unposted)}]: {err_msg}"
 
                 executed.append(it)
                 changed = True
 
             except Exception as e:
                 err_msg = str(e)
-                self._apply_retry_backoff(it, current_retries, err_msg, now_dt)
+                it["status"] = "failed"
+                it["retry_count"] = 0
+                it["next_retry_at"] = None
+                it["error"] = f"Dispatch error: {err_msg}"
                 executed.append(it)
                 changed = True
 
