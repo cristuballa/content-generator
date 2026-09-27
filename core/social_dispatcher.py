@@ -547,7 +547,7 @@ class SocialDispatcher:
                 "target_url": target_url
             }
 
-    async def publish_video(self, project_path_str: str, video_rel_path: str, platforms: Optional[List[str]] = None, custom_title: Optional[str] = None, custom_desc: Optional[str] = None, custom_tags: Optional[List[str]] = None, force_republish: bool = False) -> Dict[str, Any]:
+    async def publish_video(self, project_path_str: str, video_rel_path: str, platforms: Optional[List[str]] = None, custom_title: Optional[str] = None, custom_desc: Optional[str] = None, custom_tags: Optional[List[str]] = None, force_republish: bool = False, scheduled_datetime_iso: Optional[str] = None, publish_mode: str = "immediate") -> Dict[str, Any]:
         project_path = Path(project_path_str)
         video_abs_path = project_path / video_rel_path
         if not video_abs_path.exists():
@@ -558,6 +558,25 @@ class SocialDispatcher:
         webhook_url = cfg.get("webhook_url", "").strip()
         auth_header = cfg.get("webhook_auth_header", "").strip()
 
+        # Parse scheduled_datetime_iso into UTC ISO 8601 string and UNIX timestamp
+        import datetime
+        scheduled_timestamp = None
+        publish_at_iso = None
+        if scheduled_datetime_iso:
+            try:
+                clean_dt_str = scheduled_datetime_iso.strip()
+                if clean_dt_str.endswith("Z"):
+                    clean_dt_str = clean_dt_str[:-1] + "+00:00"
+                dt_obj = datetime.datetime.fromisoformat(clean_dt_str)
+                if dt_obj.tzinfo is None:
+                    dt_obj = dt_obj.astimezone()
+                dt_utc = dt_obj.astimezone(datetime.timezone.utc)
+                publish_at_iso = dt_utc.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+                scheduled_timestamp = int(dt_utc.timestamp())
+            except Exception as e:
+                import logging
+                logging.warning(f"[SocialDispatcher] Failed to parse scheduled_datetime_iso '{scheduled_datetime_iso}': {e}")
+
         all_platforms = ["youtube", "facebook", "instagram", "tiktok", "x"]
         target_platforms = platforms if platforms else [p for p in all_platforms if cfg.get(p, {}).get("enabled", True)]
 
@@ -566,7 +585,7 @@ class SocialDispatcher:
         existing_published = rec.get("published", {})
         already_published_platforms = [
             p for p, pdata in existing_published.items() 
-            if pdata.get("status") == "published"
+            if pdata.get("status") in ("published", "scheduled")
         ]
 
         if not force_republish:
@@ -740,6 +759,9 @@ class SocialDispatcher:
                 "is_already_posted": is_already_posted and not force_republish,
                 "force_republish": force_republish,
                 "platform_configs": platform_configs,
+                "scheduled_datetime_iso": publish_at_iso,
+                "scheduled_timestamp": scheduled_timestamp,
+                "publish_mode": publish_mode or ("schedule" if publish_at_iso else "immediate"),
                 "timestamp": time.time(),
                 "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
             }
@@ -809,7 +831,9 @@ class SocialDispatcher:
                             "platform": "YouTube",
                             "id": yt_id,
                             "url": yt_url,
-                            "message": f"Published to YouTube: {yt_url}"
+                            "scheduled": bool(publish_at_iso),
+                            "scheduled_for": publish_at_iso,
+                            "message": f"{'Scheduled on' if publish_at_iso else 'Published to'} YouTube: {yt_url}"
                         }
                         asset_manager.mark_published(video_rel_path, "youtube", fail_results["youtube"])
                         partial_success = True
@@ -823,7 +847,9 @@ class SocialDispatcher:
                             "platform": "Facebook",
                             "id": fb_id,
                             "url": fb_url,
-                            "message": f"Published to Facebook: {fb_url}"
+                            "scheduled": bool(scheduled_timestamp),
+                            "scheduled_timestamp": scheduled_timestamp,
+                            "message": f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook: {fb_url}"
                         }
                         asset_manager.mark_published(video_rel_path, "facebook", fail_results["facebook"])
                         partial_success = True
@@ -908,11 +934,14 @@ class SocialDispatcher:
                     results[plat]["url"] = resp_json["youtube_url"]
                     results[plat]["id"] = resp_json.get("youtube_id")
                     results[plat]["status"] = "published"
-                    results[plat]["message"] = f"Published to YouTube: {resp_json['youtube_url']}"
+                    results[plat]["scheduled"] = bool(publish_at_iso)
+                    results[plat]["scheduled_for"] = publish_at_iso
+                    results[plat]["message"] = f"{'Scheduled on' if publish_at_iso else 'Published to'} YouTube: {resp_json['youtube_url']}"
                 elif isinstance(resp_json, dict) and resp_json.get("success"):
                     results[plat]["status"] = "published"
                     results[plat]["url"] = resp_json.get("youtube_url", "")
-                    results[plat]["message"] = "Published to YouTube via n8n"
+                    results[plat]["scheduled"] = bool(publish_at_iso)
+                    results[plat]["message"] = f"{'Scheduled on' if publish_at_iso else 'Published to'} YouTube via n8n"
                 else:
                     results[plat]["status"] = "failed"
                     results[plat]["error"] = "YouTube upload did not return a confirmed video URL"
@@ -923,10 +952,13 @@ class SocialDispatcher:
                     results[plat]["url"] = resp_json.get("facebook_url") or f"https://www.facebook.com/watch/?v={fb_id}"
                     results[plat]["id"] = fb_id
                     results[plat]["status"] = "published"
-                    results[plat]["message"] = f"Published to Facebook: {results[plat]['url']}"
+                    results[plat]["scheduled"] = bool(scheduled_timestamp)
+                    results[plat]["scheduled_timestamp"] = scheduled_timestamp
+                    results[plat]["message"] = f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook: {results[plat]['url']}"
                 elif isinstance(resp_json, dict) and resp_json.get("success"):
                     results[plat]["status"] = "published"
-                    results[plat]["message"] = "Published to Facebook via n8n"
+                    results[plat]["scheduled"] = bool(scheduled_timestamp)
+                    results[plat]["message"] = f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook via n8n"
             elif not dry_run and plat == "instagram" and isinstance(webhook_status, dict):
                 resp_json = webhook_status.get("response")
                 if isinstance(resp_json, dict) and (resp_json.get("instagram_id") or resp_json.get("instagram_url")):
@@ -962,7 +994,10 @@ class SocialDispatcher:
             from core.notifier import notify_desktop
             pub_plats = [p.upper() for p, r in results.items() if dry_run or r.get("status") == "published"]
             plat_names = ", ".join(pub_plats) if pub_plats else ", ".join([p.upper() for p in target_platforms])
-            action_word = "Reposted" if force_republish else "Published"
+            if publish_at_iso or scheduled_timestamp:
+                action_word = "Scheduled in Cloud"
+            else:
+                action_word = "Reposted" if force_republish else "Published"
             mode_prefix = "[Simulated] " if dry_run else ""
             notify_desktop(
                 f"{mode_prefix}Video {action_word}: {plat_names}",

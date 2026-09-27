@@ -1,7 +1,7 @@
 [
   {
-    "updatedAt": "2026-09-27 04:48:23",
-    "createdAt": "2026-09-22 04:47:08.576",
+    "updatedAt": "2026-09-27T09:12:40.723Z",
+    "createdAt": "2026-09-22T04:47:08.576Z",
     "id": "YCJAtMTxSP0qm3mt",
     "name": "KCT Studio - Multi-Platform Social Media Publisher - BHSR",
     "description": null,
@@ -21,7 +21,7 @@
         "typeVersion": 1.1,
         "position": [
           -544,
-          0
+          -96
         ],
         "webhookId": "kct-social-publish"
       },
@@ -42,7 +42,7 @@
         "typeVersion": 1,
         "position": [
           -320,
-          0
+          -96
         ]
       },
       {
@@ -59,7 +59,7 @@
         "typeVersion": 1,
         "position": [
           -96,
-          0
+          -176
         ]
       },
       {
@@ -73,19 +73,19 @@
         "typeVersion": 1,
         "position": [
           -96,
-          192
+          16
         ]
       },
       {
         "parameters": {
           "method": "POST",
-          "url": "https://graph-video.facebook.com/v20.0/1095048317029830/videos",
+          "url": "={{ \"https://graph-video.facebook.com/v20.0/1095048317029830/videos\" + ($node[\"KCT Webhook Trigger\"].json.body.scheduled_timestamp ? (\"?scheduled_publish_time=\" + $node[\"KCT Webhook Trigger\"].json.body.scheduled_timestamp) : \"\") }}",
           "sendHeaders": true,
           "headerParameters": {
             "parameters": [
               {
                 "name": "Authorization",
-                "value": "Bearer EAAPLBqWnsIUBSpICwZBaEBdiHfr3kqm7jhrUIQG0tvnogfiNZBMfPcZBskZBpWBHyDHoxybUstk3a5qj35hJsWdBWYjnTtT2DXwINsCnsIKXKlkZBZBpf0WuMu6RrZCcjwMOR6r1c2WxO9Ui3EuZCuoZCc4MDyPBWymPwXPhzWke3ZAILgaCgFN1ZBzHEFv8hqqwwZDZD"
+                "value": "Bearer EAAPLBqWnsIUBSgIZALnrrsYQyl247OjpB8yuAkZAFqiMqqJdhfQ7IwxtX5rK6QLDXxewhnzex0glFzLoNftr1uo5tEVmyFOWoteZBOZCrg1vPcmldoZBDqFKwXSxGKKbcGzZBnzgv4sXXaVtKs1a6ZAZAMryXwyDWU6ug8WWzzVBXZAmqgHDomEXqnZBQUAeFuzyOrAFqZB"
               }
             ]
           },
@@ -108,7 +108,7 @@
               },
               {
                 "name": "published",
-                "value": "true"
+                "value": "={{ $node[\"KCT Webhook Trigger\"].json.body.scheduled_timestamp ? \"false\" : \"true\" }}"
               }
             ]
           },
@@ -121,8 +121,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          576,
-          240
+          352,
+          400
         ],
         "continueOnFail": true
       },
@@ -137,8 +137,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.1,
         "position": [
-          576,
-          432
+          352,
+          592
         ],
         "continueOnFail": true
       },
@@ -153,8 +153,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.1,
         "position": [
-          576,
-          624
+          352,
+          784
         ]
       },
       {
@@ -168,14 +168,14 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.1,
         "position": [
-          576,
-          816
+          352,
+          976
         ]
       },
       {
         "parameters": {
           "respondWith": "json",
-          "responseBody": "={{\n  (() => {\n    let ytId = '';\n    try {\n      const ytNode = $('YouTube Video Upload');\n      if (ytNode) {\n        const item = ytNode.first();\n        ytId = (item && item.json && (item.json.uploadId || item.json.id)) || '';\n      }\n    } catch (e) {}\n\n    let fbId = '';\n    let fbUrl = '';\n    let igId = '';\n    let igUrl = '';\n\n    try {\n      const metaNode = $('Publish to Meta (FB & IG)');\n      if (metaNode) {\n        const item = metaNode.first();\n        let parsed = null;\n        if (item && item.json) {\n          if (item.json.stdout) {\n            try { parsed = JSON.parse(item.json.stdout.trim()); } catch(e) {}\n          } else if (item.json.facebook_id || item.json.instagram_id) {\n            parsed = item.json;\n          }\n        }\n        if (parsed) {\n          fbId = parsed.facebook_id || '';\n          fbUrl = parsed.facebook_url || (fbId ? 'https://www.facebook.com/watch/?v=' + fbId : '');\n          igId = parsed.instagram_id || '';\n          igUrl = parsed.instagram_url || '';\n        }\n      }\n    } catch (e) {}\n\n    let videoName = '';\n    let platforms = [];\n    try {\n      const trigger = $('KCT Webhook Trigger');\n      if (trigger) {\n        const item = trigger.first();\n        videoName = (item && item.json && item.json.body && item.json.body.video && item.json.body.video.filename) || '';\n        platforms = (item && item.json && item.json.body && item.json.body.target_platforms) || [];\n      }\n    } catch (e) {}\n\n    return JSON.stringify({\n      success: true,\n      message: \"Video processed by n8n.\",\n      video: videoName,\n      youtube_id: ytId,\n      youtube_url: ytId ? 'https://youtu.be/' + ytId : '',\n      facebook_id: fbId,\n      facebook_url: fbUrl,\n      instagram_id: igId,\n      instagram_url: igUrl,\n      target_platforms: platforms\n    });\n  })()\n}}",
+          "responseBody": "={{\n  (() => {\n    let ytId = '';\n    try {\n      if ($('YouTube Scheduled Upload').isExecuted) {\n        const item = $('YouTube Scheduled Upload').first();\n        ytId = (item && item.json && (item.json.uploadId || item.json.id)) || '';\n      } else if ($('YouTube Video Upload').isExecuted) {\n        const item = $('YouTube Video Upload').first();\n        ytId = (item && item.json && (item.json.uploadId || item.json.id)) || '';\n      }\n    } catch (e) {}\n\n    let fbId = '';\n    try {\n      const fbNode = $('Facebook Page Video');\n      if (fbNode) {\n        const item = fbNode.first();\n        fbId = (item && item.json && (item.json.id || item.json.video_id)) || '';\n      }\n    } catch (e) {}\n\n    let videoName = '';\n    let platforms = [];\n    try {\n      const trigger = $('KCT Webhook Trigger');\n      if (trigger) {\n        const item = trigger.first();\n        videoName = (item && item.json && item.json.body && item.json.body.video && item.json.body.video.filename) || '';\n        platforms = (item && item.json && item.json.body && item.json.body.target_platforms) || [];\n      }\n    } catch (e) {}\n\n    return JSON.stringify({\n      success: true,\n      message: \"Video processed by n8n.\",\n      video: videoName,\n      youtube_id: ytId,\n      youtube_url: ytId ? 'https://youtu.be/' + ytId : '',\n      facebook_id: fbId,\n      facebook_url: fbId ? 'https://www.facebook.com/watch/?v=' + fbId : '',\n      target_platforms: platforms\n    });\n  })()\n}}",
           "options": {
             "responseCode": 200
           }
@@ -185,8 +185,8 @@
         "type": "n8n-nodes-base.respondToWebhook",
         "typeVersion": 1,
         "position": [
-          900,
-          200
+          1248,
+          672
         ]
       },
       {
@@ -210,7 +210,7 @@
         "typeVersion": 1,
         "position": [
           576,
-          16
+          -100
         ],
         "credentials": {
           "youTubeOAuth2Api": {
@@ -236,8 +236,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 1,
         "position": [
-          352,
-          -80
+          128,
+          -176
         ]
       },
       {
@@ -256,8 +256,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 1,
         "position": [
-          352,
-          192
+          128,
+          96
         ]
       },
       {
@@ -276,8 +276,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 1,
         "position": [
-          352,
-          384
+          128,
+          288
         ]
       },
       {
@@ -296,8 +296,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 1,
         "position": [
-          352,
-          576
+          128,
+          624
         ]
       },
       {
@@ -316,8 +316,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 1,
         "position": [
-          352,
-          784
+          128,
+          976
         ]
       },
       {
@@ -333,8 +333,8 @@
         "type": "n8n-nodes-base.respondToWebhook",
         "typeVersion": 1,
         "position": [
-          576,
-          -176
+          352,
+          16
         ]
       },
       {
@@ -353,8 +353,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 1,
         "position": [
-          800,
-          16
+          576,
+          208
         ]
       },
       {
@@ -367,14 +367,14 @@
         "type": "n8n-nodes-base.readBinaryFile",
         "typeVersion": 1,
         "position": [
-          1024,
-          -48
+          800,
+          64
         ]
       },
       {
         "parameters": {
           "method": "POST",
-          "url": "=https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={{ $node[\"YouTube Video Upload\"].json.uploadId || $node[\"YouTube Video Upload\"].json.id || $json.uploadId || $json.id }}&uploadType=media",
+          "url": "=https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={{ $(\"YouTube Scheduled Upload\").isExecuted ? ($(\"YouTube Scheduled Upload\").json.uploadId || $(\"YouTube Scheduled Upload\").json.id) : ($(\"YouTube Video Upload\").json.uploadId || $(\"YouTube Video Upload\").json.id || $json.uploadId || $json.id) }}&uploadType=media",
           "authentication": "predefinedCredentialType",
           "nodeCredentialType": "youTubeOAuth2Api",
           "sendBody": true,
@@ -387,8 +387,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.1,
         "position": [
-          1248,
-          -48
+          1024,
+          64
         ],
         "credentials": {
           "youTubeOAuth2Api": {
@@ -399,38 +399,56 @@
         "continueOnFail": true
       },
       {
-        "id": "fd591532-0cd9-4fad-b4ae-b3e55282f958",
-        "name": "Post to Meta?",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 1,
-        "position": [
-          400,
-          200
-        ],
         "parameters": {
           "conditions": {
             "boolean": [
               {
-                "value1": "={{\n  const plats = $node[\"KCT Webhook Trigger\"].json.body.target_platforms || [];\n  plats.includes(\"facebook\") || plats.includes(\"instagram\")\n}}",
+                "value1": "={{ Boolean($node[\"KCT Webhook Trigger\"].json.body.scheduled_datetime_iso) }}",
                 "value2": true
               }
             ]
           }
-        }
+        },
+        "id": "yt-is-scheduled-if",
+        "name": "Is YouTube Scheduled?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [
+          352,
+          -176
+        ]
       },
       {
-        "id": "f3eec39f-5b72-475f-b421-ebba120fd7b9",
-        "name": "Publish to Meta (FB & IG)",
-        "type": "n8n-nodes-base.executeCommand",
-        "typeVersion": 1,
-        "continueOnFail": true,
-        "position": [
-          650,
-          150
-        ],
         "parameters": {
-          "command": "={{\n  const trigger = $node[\"KCT Webhook Trigger\"].json.body;\n  const projectPath = trigger.project && trigger.project.path ? trigger.project.path.replace(/\\\\/g, '/').split('/').filter(Boolean).pop() : 'Bible Hidden Secrets Revealed';\n  const filePath = trigger.video && trigger.video.docker_path ? trigger.video.docker_path : ('/data/projects/' + projectPath + '/' + trigger.video.rel_path);\n  \n  const payload = {\n    filePath: filePath,\n    title: trigger.content && trigger.content.title || '',\n    facebookCaption: (trigger.content && (trigger.content.facebook_caption || trigger.content.description)) || '',\n    instagramCaption: (trigger.content && (trigger.content.instagram_caption || trigger.content.description)) || '',\n    targetPlatforms: trigger.target_platforms || ['facebook', 'instagram']\n  };\n\n  'node /data/projects/AI-Content-Generation-Pipeline/scripts/publish_meta.js ' + Buffer.from(JSON.stringify(payload)).toString('base64');\n}}"
-        }
+          "resource": "video",
+          "operation": "upload",
+          "title": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.title }}",
+          "regionCode": "NZ",
+          "categoryId": "27",
+          "binaryProperty": "video_data",
+          "options": {
+            "description": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.youtube_description || $node[\"KCT Webhook Trigger\"].json.body.content.description || \"\" }}",
+            "privacyStatus": "private",
+            "publishAt": "={{ $node[\"KCT Webhook Trigger\"].json.body.scheduled_datetime_iso }}",
+            "selfDeclaredMadeForKids": false,
+            "tags": "={{ $node[\"KCT Webhook Trigger\"].json.body.content.tags ? $node[\"KCT Webhook Trigger\"].json.body.content.tags.join(\",\") : \"\" }}"
+          }
+        },
+        "id": "yt-scheduled-upload-01",
+        "name": "YouTube Scheduled Upload",
+        "type": "n8n-nodes-base.youTube",
+        "typeVersion": 1,
+        "position": [
+          576,
+          -260
+        ],
+        "credentials": {
+          "youTubeOAuth2Api": {
+            "id": "zKTSb5kFkzMhCn0w",
+            "name": "YouTube account"
+          }
+        },
+        "continueOnFail": true
       }
     ],
     "connections": {
@@ -470,6 +488,26 @@
               "node": "Post to YouTube?",
               "type": "main",
               "index": 0
+            },
+            {
+              "node": "Post to Facebook?",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post to Instagram?",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post to TikTok?",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post to X?",
+              "type": "main",
+              "index": 0
             }
           ]
         ]
@@ -478,14 +516,14 @@
         "main": [
           [
             {
-              "node": "YouTube Video Upload",
+              "node": "Is YouTube Scheduled?",
               "type": "main",
               "index": 0
             }
           ],
           [
             {
-              "node": "Post to Meta?",
+              "node": "Already Posted Skip & Respond",
               "type": "main",
               "index": 0
             }
@@ -630,7 +668,7 @@
           ],
           [
             {
-              "node": "Post to Meta?",
+              "node": "Live Dispatch Response",
               "type": "main",
               "index": 0
             }
@@ -652,36 +690,36 @@
         "main": [
           [
             {
-              "node": "Post to Meta?",
+              "node": "Live Dispatch Response",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Post to Meta?": {
+      "Is YouTube Scheduled?": {
         "main": [
           [
             {
-              "node": "Publish to Meta (FB & IG)",
+              "node": "YouTube Scheduled Upload",
               "type": "main",
               "index": 0
             }
           ],
           [
             {
-              "node": "Live Dispatch Response",
+              "node": "YouTube Video Upload",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Publish to Meta (FB & IG)": {
+      "YouTube Scheduled Upload": {
         "main": [
           [
             {
-              "node": "Live Dispatch Response",
+              "node": "Has YouTube Thumbnail?",
               "type": "main",
               "index": 0
             }
@@ -697,8 +735,37 @@
     "meta": {
       "templateCredsSetupCompleted": true
     },
+    "nodeGroups": [],
     "pinData": {},
-    "versionId": "f7499450-e108-423c-9299-9d945db3f61a",
-    "triggerCount": 1
+    "versionId": "b84eeb85-366e-43c4-8d02-8e9a4ab7b052",
+    "activeVersionId": "427f2a0b-fa92-4654-a9a7-ec2179923c69",
+    "versionCounter": 60,
+    "triggerCount": 1,
+    "sourceWorkflowId": null,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-09-22T04:47:08.580Z",
+        "createdAt": "2026-09-22T04:47:08.580Z",
+        "role": "workflow:owner",
+        "workflowId": "YCJAtMTxSP0qm3mt",
+        "projectId": "ICjxJF4AXV7D6Yg5",
+        "project": {
+          "updatedAt": "2026-09-22T04:32:34.329Z",
+          "createdAt": "2026-09-22T04:31:18.441Z",
+          "id": "ICjxJF4AXV7D6Yg5",
+          "name": "Crispin Tuballa <cristuballa@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "customTelemetryTags": [],
+          "creatorId": "decfcb61-c394-4ba8-950d-51a27c2dd9ed"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": null,
+      "description": null
+    }
   }
 ]

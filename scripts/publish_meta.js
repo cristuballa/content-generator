@@ -24,8 +24,12 @@ async function main() {
       title,
       facebookCaption,
       instagramCaption,
-      targetPlatforms = ['facebook', 'instagram']
+      targetPlatforms = ['facebook', 'instagram'],
+      scheduledPublishTime = null,
+      scheduled_publish_time = null
     } = payload;
+
+    const targetScheduledTime = scheduledPublishTime || scheduled_publish_time || null;
 
     if (!filePath || !fs.existsSync(filePath)) {
       console.log(JSON.stringify({ success: false, error: `Video file not found at path: ${filePath}` }));
@@ -34,6 +38,9 @@ async function main() {
 
     console.error(`[publish_meta] Dispatching for: ${filePath}`);
     console.error(`[publish_meta] Target platforms:`, targetPlatforms);
+    if (targetScheduledTime) {
+      console.error(`[publish_meta] Native scheduled publish time: ${targetScheduledTime}`);
+    }
 
     const results = {
       success: true,
@@ -51,7 +58,7 @@ async function main() {
       tasks.push((async () => {
         try {
           console.error('[publish_meta] Starting Facebook upload...');
-          const fbRes = await publishFacebookVideo(filePath, title, facebookCaption);
+          const fbRes = await publishFacebookVideo(filePath, title, facebookCaption, targetScheduledTime);
           results.facebook_id = fbRes.id;
           results.facebook_url = fbRes.url;
           console.error('[publish_meta] Facebook upload complete:', fbRes);

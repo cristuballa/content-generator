@@ -805,6 +805,26 @@ async def trigger_post_now(
     calendar_manager._save_all(items)
     return {"success": item["status"] == "posted", "entry": item, "dispatch": res}
 
+@app.post("/api/calendar/schedule/{post_id}/pre_upload")
+async def trigger_pre_upload(
+    post_id: str,
+    platforms: Optional[str] = Query(None)
+):
+    target_platforms = [p.strip().lower() for p in platforms.split(",") if p.strip()] if platforms else None
+    try:
+        res = await calendar_manager.pre_upload_post(
+            post_id=post_id,
+            platforms=target_platforms,
+            social_dispatcher=social_dispatcher
+        )
+        return res
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Schedule post not found")
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/calendar/auto_schedule")
 async def auto_schedule_posts(req: CalendarAutoScheduleRequest):
     target_path = req.project_path or config_manager.get_active_project()

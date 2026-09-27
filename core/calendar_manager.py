@@ -428,6 +428,98 @@ class CalendarManager:
         self._save_all(items)
         return target
 
+    async def pre_upload_post(self, post_id: str, platforms: Optional[List[str]] = None, social_dispatcher = None) -> Dict[str, Any]:
+        """Pre-uploads and stages a scheduled post to YouTube and Facebook ahead of time in the cloud."""
+        items = self._load_all()
+        item = next((it for it in items if it.get("id") == post_id), None)
+        if not item:
+            raise KeyError(f"Scheduled post with ID {post_id} not found.")
+
+        # Determine target platforms: only YouTube and Facebook support native cloud scheduling
+        raw_plats = platforms if platforms else item.get("platforms", ["youtube"])
+        schedulable_platforms = [p for p in raw_plats if p in ("youtube", "facebook")]
+        if not schedulable_platforms:
+            raise ValueError(f"Selected platforms ({', '.join(raw_plats)}) do not support native cloud staging. Only YouTube and Facebook support ahead-of-time cloud scheduling.")
+
+        # Title
+        passed_title = item.get("title")
+        vid_stem_title = Path(item["video_rel_path"]).stem.replace("_", " ").title()
+        if passed_title == vid_stem_title:
+            passed_title = None
+
+        due_iso = item.get("scheduled_datetime_iso") or f"{item.get('scheduled_date', '')}T{item.get('scheduled_time', '00:00')}:00"
+
+        # Dispatch with publish_mode="schedule" and scheduled_datetime_iso
+        res = await social_dispatcher.publish_video(
+            project_path_str=item["project_path"],
+            video_rel_path=item["video_rel_path"],
+            platforms=schedulable_platforms,
+            custom_title=passed_title,
+            force_republish=False,
+            scheduled_datetime_iso=due_iso,
+            publish_mode="schedule"
+        )
+
+        now_iso = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        item["last_attempt_at"] = now_iso
+        item["dispatch_result"] = res
+
+        # Track successfully staged platforms
+        if "staged_platforms" not in item:
+            item["staged_platforms"] = []
+        if "published_platforms" not in item:
+            item["published_platforms"] = []
+
+        dispatched_plats = res.get("platforms", {})
+        for plat, pinfo in dispatched_plats.items():
+            if isinstance(pinfo, dict) and (pinfo.get("status") in ("published", "success") or pinfo.get("scheduled")):
+                asset_manager.mark_published(item["video_rel_path"], plat, pinfo)
+                if plat not in item["staged_platforms"]:
+                    item["staged_platforms"].append(plat)
+                if plat not in item["published_platforms"]:
+                    item["published_platforms"].append(plat)
+
+        wb_resp = res.get("webhook_result", {}).get("response", {})
+        if isinstance(wb_resp, dict):
+            if wb_resp.get("youtube_id") or wb_resp.get("youtube_url"):
+                yt_info = {
+                    "status": "published",
+                    "platform": "YouTube",
+                    "id": wb_resp.get("youtube_id"),
+                    "url": wb_resp.get("youtube_url") or f"https://youtu.be/{wb_resp.get('youtube_id')}",
+                    "scheduled": True
+                }
+                asset_manager.mark_published(item["video_rel_path"], "youtube", yt_info)
+                if "youtube" not in item["staged_platforms"]:
+                    item["staged_platforms"].append("youtube")
+                if "youtube" not in item["published_platforms"]:
+                    item["published_platforms"].append("youtube")
+
+            if wb_resp.get("facebook_id") or wb_resp.get("facebook_url"):
+                fb_info = {
+                    "status": "published",
+                    "platform": "Facebook",
+                    "id": wb_resp.get("facebook_id"),
+                    "url": wb_resp.get("facebook_url") or f"https://www.facebook.com/watch/?v={wb_resp.get('facebook_id')}",
+                    "scheduled": True
+                }
+                asset_manager.mark_published(item["video_rel_path"], "facebook", fb_info)
+                if "facebook" not in item["staged_platforms"]:
+                    item["staged_platforms"].append("facebook")
+                if "facebook" not in item["published_platforms"]:
+                    item["published_platforms"].append("facebook")
+
+        if item["staged_platforms"]:
+            item["staged"] = True
+            item["pre_uploaded"] = True
+            item["pre_uploaded_at"] = now_iso
+            item["error"] = None
+        else:
+            item["error"] = res.get("message") or res.get("error", "Failed to stage video to cloud platforms")
+
+        self._save_all(items)
+        return {"success": bool(item.get("staged")), "entry": item, "dispatch": res}
+
     def delete_post(self, post_id: str) -> bool:
         """Cancels/removes a scheduled post."""
         items = self._load_all()
@@ -558,11 +650,12 @@ class CalendarManager:
             existing_published = rec.get("published", {})
             already_published = set(
                 plat for plat, pinfo in existing_published.items()
-                if isinstance(pinfo, dict) and pinfo.get("status") == "published"
+                if isinstance(pinfo, dict) and pinfo.get("status") in ("published", "scheduled")
             )
             already_published.update(it.get("published_platforms", []))
+            already_published.update(it.get("staged_platforms", []))
 
-            # Filter out platforms that have already succeeded
+            # Filter out platforms that have already succeeded or been staged in the cloud
             target_platforms = [p for p in platforms if p not in already_published]
 
             # If all selected platforms are already published, mark posted immediately

@@ -563,9 +563,10 @@ function renderQueueView() {
               isPosted ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700/50' :
               isFailed ? 'bg-rose-900/60 text-rose-300 border border-rose-700/50' :
               isRetrying ? 'bg-amber-900/60 text-amber-300 border border-amber-700/50 animate-pulse' :
+              (post.staged || post.pre_uploaded) ? 'bg-sky-950 text-sky-300 border border-sky-700/60 shadow-xs' :
               'bg-cyan-950 text-cyan-300 border border-cyan-800'
             }">
-              ${isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : post.status.toUpperCase()}
+              ${isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : (post.staged || post.pre_uploaded) ? '☁️ STAGED IN CLOUD' : post.status.toUpperCase()}
             </span>
             <span class="inline-flex items-center justify-center w-5 h-5 rounded-md border ${qTheme.badgeCls} shrink-0 select-none shadow-xs" title="Project: ${qTheme.name}">
               <i data-lucide="${qTheme.icon}" class="w-3 h-3 ${qTheme.iconCls}"></i>
@@ -602,6 +603,10 @@ function renderQueueView() {
         </div>
         <div class="flex items-center gap-1.5">
           ${!isPosted ? `
+            <button class="btn-stage-queue px-2.5 py-1 rounded-lg ${post.staged ? 'bg-cyan-600/40 text-cyan-200 border-cyan-500/60' : 'bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white border-cyan-500/30'} border text-xs font-bold transition flex items-center gap-1" data-id="${post.id}" title="${post.staged ? 'Re-Stage in Cloud (YouTube, Facebook)' : 'Pre-Upload & Stage to Cloud (YouTube, Facebook)'}">
+              <i data-lucide="${post.staged ? 'cloud-check' : 'cloud-upload'}" class="w-3 h-3"></i>
+              <span>${post.staged ? 'Staged' : 'Stage'}</span>
+            </button>
             <button class="btn-post-now-queue px-2.5 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/40 text-xs font-bold transition flex items-center gap-1" data-id="${post.id}" title="Publish Now">
               <i data-lucide="send" class="w-3 h-3"></i>
               <span>Post Now</span>
@@ -629,6 +634,12 @@ function attachQueueActions() {
     btn.onclick = () => {
       const id = btn.getAttribute("data-id");
       openDetailModal(id);
+    };
+  });
+  document.querySelectorAll(".btn-stage-queue").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute("data-id");
+      await executePreUpload(id);
     };
   });
   document.querySelectorAll(".btn-post-now-queue").forEach(btn => {
@@ -777,9 +788,10 @@ function renderPostCard(post, isExpanded = false) {
         isPosted ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
         isFailed ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' :
         isRetrying ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse' :
+        (post.staged || post.pre_uploaded) ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-xs' :
         'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
       }">
-        ${isPosted ? 'POSTED' : isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : isFailed ? 'FAILED' : 'QUEUED'}
+        ${isPosted ? 'POSTED' : isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : isFailed ? 'FAILED' : (post.staged || post.pre_uploaded) ? '☁️ STAGED' : 'QUEUED'}
       </span>
     </div>
 
@@ -1164,11 +1176,13 @@ function openDetailModal(postId) {
 
   if (badgeStatus) {
     const isRetrying = post.status === 'retrying';
-    badgeStatus.textContent = isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : (post.status || 'scheduled').toUpperCase();
+    const isStaged = post.staged || post.pre_uploaded;
+    badgeStatus.textContent = isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : isStaged ? '☁️ STAGED IN CLOUD' : (post.status || 'scheduled').toUpperCase();
     badgeStatus.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${
       post.status === 'posted' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
       post.status === 'failed' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
       isRetrying ? 'bg-amber-950 text-amber-300 border border-amber-800 animate-pulse' :
+      isStaged ? 'bg-sky-950 text-sky-300 border border-sky-700/80 shadow-xs' :
       'bg-cyan-950 text-cyan-400 border border-cyan-800'
     }`;
   }
@@ -1366,8 +1380,38 @@ function updateDetailModalUI() {
         btnPostNow.title = `Publish video to unposted platform(s): ${selectedList.filter(p => !publishedPlatforms.includes(p)).join(', ')}`;
       }
     }
-    lucide.createIcons();
   }
+
+  const btnPreUpload = document.getElementById("btnPreUpload");
+  if (btnPreUpload) {
+    const isPosted = activePostDetail.status === "posted";
+    const schedulableSelected = selectedList.filter(p => ["youtube", "facebook"].includes(p));
+
+    if (isPosted) {
+      btnPreUpload.classList.add("hidden");
+    } else {
+      btnPreUpload.classList.remove("hidden");
+      if (schedulableSelected.length === 0) {
+        btnPreUpload.innerHTML = `<i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i><span>Stage in Cloud</span>`;
+        btnPreUpload.className = "px-3.5 py-1.5 bg-slate-800/80 text-slate-500 border border-slate-700/50 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-not-allowed opacity-60";
+        btnPreUpload.title = "Select YouTube or Facebook above to pre-upload and stage in the cloud";
+        btnPreUpload.disabled = true;
+      } else {
+        btnPreUpload.disabled = false;
+        const isStaged = activePostDetail.staged || activePostDetail.pre_uploaded;
+        if (isStaged) {
+          btnPreUpload.innerHTML = `<i data-lucide="cloud-check" class="w-3.5 h-3.5 text-cyan-300"></i><span>Re-Stage Cloud</span>`;
+          btnPreUpload.className = "px-3.5 py-1.5 bg-cyan-700 hover:bg-cyan-600 text-cyan-100 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow cursor-pointer border border-cyan-500/50";
+          btnPreUpload.title = `Pre-upload and re-stage video to: ${schedulableSelected.join(', ').toUpperCase()}`;
+        } else {
+          btnPreUpload.innerHTML = `<i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i><span>Stage in Cloud</span>`;
+          btnPreUpload.className = "px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow cursor-pointer";
+          btnPreUpload.title = `Pre-upload video now and stage natively for scheduled release on: ${schedulableSelected.join(', ').toUpperCase()}`;
+        }
+      }
+    }
+  }
+  lucide.createIcons();
 }
 
 async function saveDetailChanges() {
@@ -1490,6 +1534,70 @@ async function executePostNow(postId) {
       await refreshSchedule();
     } else {
       const errMsg = data.entry?.error || data.detail || (data.dispatch?.platforms?.youtube?.message) || "Publishing failed.";
+      showCalToast(errMsg, "error");
+      await refreshSchedule();
+    }
+  } catch (e) {
+    showCalToast(`${e.message}`, "error");
+  }
+}
+
+async function executePreUpload(postId) {
+  const targetId = postId || (activePostDetail ? activePostDetail.id : null);
+  if (!targetId) return;
+
+  const targetPost = scheduleData.find(p => p.id === targetId) || activePostDetail;
+  let platforms = [];
+  if (activePostDetail && activePostDetail.id === targetId) {
+    if (!activeModalPlatforms || activeModalPlatforms.size === 0) {
+      showCalToast("Please select at least one platform above to stage in the cloud.", "warning");
+      return;
+    }
+    platforms = Array.from(activeModalPlatforms);
+  } else if (targetPost?.platforms && targetPost.platforms.length > 0) {
+    platforms = targetPost.platforms;
+  } else {
+    platforms = ["youtube"];
+  }
+
+  const cloudPlatforms = platforms.filter(p => ["youtube", "facebook"].includes(p));
+  if (cloudPlatforms.length === 0) {
+    showCalToast("Only YouTube and Facebook support native cloud staging. For other platforms, use Post Now.", "warning");
+    return;
+  }
+
+  try {
+    showCalToast(`☁️ Pre-uploading & staging to ${cloudPlatforms.join(', ').toUpperCase()} in the cloud...`, "info");
+    const platQuery = encodeURIComponent(cloudPlatforms.join(","));
+    const url = `/api/calendar/schedule/${targetId}/pre_upload?platforms=${platQuery}`;
+    const res = await fetch(url, { method: "POST" });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseErr) {
+      throw new Error(`Server returned error (${res.status}): ${text || res.statusText}`);
+    }
+
+    if (res.ok && data.success) {
+      showCalToast("☁️ Video successfully uploaded & staged in the cloud! Platform will publish on scheduled release.", "success");
+
+      // Desktop notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          const { epPrefix, title } = formatPostTitle(targetPost);
+          const fullTitle = `${epPrefix ? epPrefix + ' ' : ''}${title}`;
+          new Notification("KCT Studio - Staged in Cloud!", {
+            body: `"${fullTitle}" is now pre-uploaded and staged on ${cloudPlatforms.join(', ').toUpperCase()}.`,
+            icon: targetPost.thumbnail_url || "/static/favicon.png"
+          });
+        } catch (_) {}
+      }
+
+      document.getElementById("modalPostDetail")?.classList.add("hidden");
+      await refreshSchedule();
+    } else {
+      const errMsg = data.entry?.error || data.detail || (data.dispatch?.message) || "Pre-upload staging failed.";
       showCalToast(errMsg, "error");
       await refreshSchedule();
     }
@@ -1647,6 +1755,8 @@ function updatePlatformFilterUI() {
   // Detail modal
   document.getElementById("btnCloseDetailModal").onclick = () => document.getElementById("modalPostDetail").classList.add("hidden");
   document.getElementById("btnSaveDetailChanges").onclick = saveDetailChanges;
+  const btnPreUploadEl = document.getElementById("btnPreUpload");
+  if (btnPreUploadEl) btnPreUploadEl.onclick = () => executePreUpload();
   document.getElementById("btnPostNow").onclick = () => executePostNow();
   document.getElementById("btnDeletePost").onclick = () => executeDeletePost();
   const btnMark = document.getElementById("btnMarkStatus");

@@ -4,7 +4,7 @@ const path = require('path');
 const PAGE_ID = '1095048317029830';
 const TOKEN = process.env.META_PAGE_ACCESS_TOKEN || 'EAAPLBqWnsIUBSgIZALnrrsYQyl247OjpB8yuAkZAFqiMqqJdhfQ7IwxtX5rK6QLDXxewhnzex0glFzLoNftr1uo5tEVmyFOWoteZBOZCrg1vPcmldoZBDqFKwXSxGKKbcGzZBnzgv4sXXaVtKs1a6ZAZAMryXwyDWU6ug8WWzzVBXZAmqgHDomEXqnZBQUAeFuzyOrAFqZB';
 
-async function publishFacebookVideo(filePath, title, description) {
+async function publishFacebookVideo(filePath, title, description, scheduledPublishTime = null) {
   console.log(`[FB] Publishing video ${filePath} to Facebook Page ${PAGE_ID}...`);
   const blob = await openAsBlob(filePath);
   const filename = path.basename(filePath);
@@ -13,7 +13,17 @@ async function publishFacebookVideo(filePath, title, description) {
   form.append('source', blob, filename);
   form.append('title', title || '');
   form.append('description', description || '');
-  form.append('published', 'true');
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const schedTime = Number(scheduledPublishTime);
+  // Facebook requires scheduled_publish_time to be between 10 minutes (600s) and 75 days in the future
+  if (schedTime && schedTime > (nowSec + 600)) {
+    console.log(`[FB] Setting native scheduled publish time: ${schedTime} (in ${Math.round((schedTime - nowSec) / 60)} minutes)`);
+    form.append('published', 'false');
+    form.append('scheduled_publish_time', String(schedTime));
+  } else {
+    form.append('published', 'true');
+  }
 
   const url = `https://graph-video.facebook.com/v20.0/${PAGE_ID}/videos`;
   console.log(`[FB] Sending POST request to ${url}...`);
