@@ -2,7 +2,7 @@ const fs = require('fs');
 const https = require('https');
 const { URL } = require('url');
 
-const TOKEN = 'EAAPLBqWnsIUBSlFk9W3RMjlFVQZBYTT7wtsKXwGhGE9SNpRwGlGs3VqKlMsHF8XK6o7WSNF7P3UqDltbOPsiFNFHQwgQ6U9N4m0pOM0SzOJQh48upbZAMCPBgpK6L0qFlbCoPC2S7VTd84fOIRmnTQIhWMRkm5ZBhGTgsaWW5B5ZBVq5bxaIsEQl9O4Kh3lucX5a';
+const TOKEN = process.env.META_PAGE_ACCESS_TOKEN || 'EAAPLBqWnsIUBSgIZALnrrsYQyl247OjpB8yuAkZAFqiMqqJdhfQ7IwxtX5rK6QLDXxewhnzex0glFzLoNftr1uo5tEVmyFOWoteZBOZCrg1vPcmldoZBDqFKwXSxGKKbcGzZBnzgv4sXXaVtKs1a6ZAZAMryXwyDWU6ug8WWzzVBXZAmqgHDomEXqnZBQUAeFuzyOrAFqZB';
 const IG_USER_ID = '17841429371050878';
 
 function httpRequest(urlStr, options = {}, bodyData = null) {

@@ -584,29 +584,102 @@ class CalendarManager:
 
             it["last_attempt_at"] = now_iso
 
+            # Fetch publication records from asset_manager and schedule item
+            rec = asset_manager.get_asset_record(video_rel)
+            existing_published = rec.get("published", {})
+            already_published = set(
+                plat for plat, pinfo in existing_published.items()
+                if isinstance(pinfo, dict) and pinfo.get("status") == "published"
+            )
+            already_published.update(it.get("published_platforms", []))
+
+            # Filter out platforms that have already succeeded
+            target_platforms = [p for p in platforms if p not in already_published]
+
+            # If all selected platforms are already published, mark posted immediately
+            if not target_platforms:
+                it["status"] = "posted"
+                it["error"] = None
+                it["retry_count"] = 0
+                it["next_retry_at"] = None
+                it["posted_at"] = it.get("posted_at") or now_iso
+                asset_manager.update_social_posted_batch(video_rel, platforms)
+                executed.append(it)
+                changed = True
+                continue
+
             try:
                 res = await social_dispatcher.publish_video(
                     project_path_str=proj_path,
                     video_rel_path=video_rel,
-                    platforms=platforms,
+                    platforms=target_platforms,
                     custom_title=it.get("title"),
-                    force_republish=True
+                    force_republish=False
                 )
 
                 it["posted_at"] = now_iso
                 it["dispatch_result"] = res
-                is_success = (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False)
 
-                if is_success:
+                # Track any platforms that succeeded in this dispatch
+                if "published_platforms" not in it:
+                    it["published_platforms"] = list(already_published)
+
+                dispatched_plats = res.get("platforms", {})
+                for plat, pinfo in dispatched_plats.items():
+                    if isinstance(pinfo, dict) and pinfo.get("status") == "published":
+                        asset_manager.mark_published(video_rel, plat, pinfo)
+                        if plat not in it["published_platforms"]:
+                            it["published_platforms"].append(plat)
+
+                # Also inspect webhook payload response directly for confirmed platform IDs
+                wb_resp = res.get("webhook_result", {}).get("response", {})
+                if isinstance(wb_resp, dict):
+                    if wb_resp.get("youtube_id") or wb_resp.get("youtube_url"):
+                        yt_info = {
+                            "status": "published",
+                            "platform": "YouTube",
+                            "id": wb_resp.get("youtube_id"),
+                            "url": wb_resp.get("youtube_url") or f"https://youtu.be/{wb_resp.get('youtube_id')}"
+                        }
+                        asset_manager.mark_published(video_rel, "youtube", yt_info)
+                        if "youtube" not in it["published_platforms"]:
+                            it["published_platforms"].append("youtube")
+
+                    if wb_resp.get("facebook_id") or wb_resp.get("facebook_url"):
+                        fb_info = {
+                            "status": "published",
+                            "platform": "Facebook",
+                            "id": wb_resp.get("facebook_id"),
+                            "url": wb_resp.get("facebook_url") or f"https://www.facebook.com/watch/?v={wb_resp.get('facebook_id')}"
+                        }
+                        asset_manager.mark_published(video_rel, "facebook", fb_info)
+                        if "facebook" not in it["published_platforms"]:
+                            it["published_platforms"].append("facebook")
+
+                    if wb_resp.get("instagram_id") or wb_resp.get("instagram_url"):
+                        ig_info = {
+                            "status": "published",
+                            "platform": "Instagram",
+                            "id": wb_resp.get("instagram_id"),
+                            "url": wb_resp.get("instagram_url") or ""
+                        }
+                        asset_manager.mark_published(video_rel, "instagram", ig_info)
+                        if "instagram" not in it["published_platforms"]:
+                            it["published_platforms"].append("instagram")
+
+                # Verify whether all platforms are now published
+                current_pub = set(it.get("published_platforms", []))
+                unposted = [p for p in platforms if p not in current_pub]
+
+                if not unposted:
                     it["status"] = "posted"
                     it["error"] = None
                     it["retry_count"] = 0
                     it["next_retry_at"] = None
-                    # Mark asset social published status
                     asset_manager.update_social_posted_batch(video_rel, platforms)
                 else:
-                    err_msg = res.get("message") or res.get("error", "Dispatch failed or skipped")
-                    self._apply_retry_backoff(it, current_retries, err_msg, now_dt)
+                    err_msg = res.get("message") or res.get("error", f"Platforms failed: {', '.join(unposted)}")
+                    self._apply_retry_backoff(it, current_retries, f"Unpublished [{', '.join(unposted)}]: {err_msg}", now_dt)
 
                 executed.append(it)
                 changed = True

@@ -8,41 +8,32 @@
     "title": "The Terrifying Ritual of Genesis 15: When God Walked Through Fire and Blood",
     "thumbnail_url": "/api/thumbnail/9-The_Covenant_of_Pieces/9-The_Covenant_of_Pieces_final_16x9.mp4",
     "scheduled_date": "2026-09-27",
-    "scheduled_time": "18:00",
-    "scheduled_datetime_iso": "2026-09-27T18:00:00",
+    "scheduled_time": "20:50",
+    "scheduled_datetime_iso": "2026-09-27T20:50:00",
     "platforms": [
       "youtube"
     ],
-    "status": "failed",
+    "status": "posted",
     "created_at": "2026-09-22T19:28:29.606162",
-    "posted_at": "2026-09-27T19:12:57",
-    "error": "Permanently failed after 3 retries: Webhook returned HTTP 500: Error in workflow",
+    "posted_at": "2026-09-27T21:11:34",
+    "error": null,
     "dispatch_result": {
-      "success": false,
-      "error": "Webhook returned HTTP 500: Error in workflow",
+      "success": true,
       "dry_run": false,
       "title": "The Terrifying Ritual of Genesis 15: When God Walked Through Fire and Blood",
       "video": "9-The_Covenant_of_Pieces_final_16x9.mp4",
-      "webhook_result": {
-        "status_code": 500,
-        "latency_ms": 1138107.5,
-        "response": {
-          "message": "Error in workflow"
-        },
-        "error": "Webhook returned HTTP 500"
-      },
       "platforms": {
         "youtube": {
-          "status": "failed",
-          "platform": "youtube",
-          "error": "Webhook returned HTTP 500: Error in workflow"
+          "status": "published",
+          "platform": "YouTube",
+          "message": "Published to YouTube"
         }
       }
     },
     "episode_num": 9,
-    "retry_count": 4,
+    "retry_count": 0,
     "next_retry_at": null,
-    "last_attempt_at": "2026-09-27T19:12:57",
+    "last_attempt_at": "2026-09-27T21:32:34",
     "retry_history": [
       {
         "attempt": 1,
@@ -62,6 +53,26 @@
       {
         "attempt": 4,
         "timestamp": "2026-09-27T19:12:57",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 1,
+        "timestamp": "2026-09-27T20:10:10",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 1,
+        "timestamp": "2026-09-27T20:50:12",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 2,
+        "timestamp": "2026-09-27T21:11:34",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 3,
+        "timestamp": "2026-09-27T21:32:34",
         "error": "Webhook returned HTTP 500: Error in workflow"
       }
     ]
@@ -93,7 +104,7 @@
     "project_name": "Bible Hidden Secrets Revealed",
     "video_rel_path": "reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
     "video_filename": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-    "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
+    "title": "The Jewish Feasts Are a TIMELINE \u2014 And Jesus Hit Every One on Schedule",
     "thumbnail_url": "/api/thumbnail/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
     "scheduled_date": "2026-10-01",
     "scheduled_time": "22:52",
@@ -210,7 +221,7 @@
     "video_rel_path": "reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
     "video_filename": "76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
     "episode_num": 76,
-    "title": "The First Death in the Bible Was GOD Killing an Animal — For Clothing",
+    "title": "The First Death in the Bible Was GOD Killing an Animal \u2014 For Clothing",
     "thumbnail_url": "/api/thumbnail/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
     "duration": "3:11",
     "scheduled_date": "2026-09-27",
@@ -220,11 +231,13 @@
       "facebook",
       "instagram"
     ],
-    "status": "scheduled",
+    "status": "posted",
     "created_at": "2026-09-24T22:47:13.906994",
-    "posted_at": null,
+    "posted_at": "2026-09-27T20:07:43",
     "error": null,
-    "dispatch_result": null
+    "dispatch_result": null,
+    "retry_count": 0,
+    "next_retry_at": null
   },
   {
     "id": "sched_1790247207_923824",
@@ -233,7 +246,7 @@
     "video_rel_path": "reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
     "video_filename": "78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
     "episode_num": 78,
-    "title": "Jesus's Last Words Weren't Despair — They Were a CITATION (And It Changes Everything)",
+    "title": "Jesus's Last Words Weren't Despair \u2014 They Were a CITATION (And It Changes Everything)",
     "thumbnail_url": "/api/thumbnail/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
     "duration": "3:02",
     "scheduled_date": "2026-09-30",
@@ -257,7 +270,7 @@
     "video_rel_path": "reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
     "video_filename": "79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
     "episode_num": 79,
-    "title": "Joseph's Life Matches Jesus in 30+ Details — And Joseph Didn't Know",
+    "title": "Joseph's Life Matches Jesus in 30+ Details \u2014 And Joseph Didn't Know",
     "thumbnail_url": "/api/thumbnail/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
     "duration": "3:57",
     "scheduled_date": "2026-10-02",

@@ -576,8 +576,25 @@ class SocialDispatcher:
                 target_platforms = unposted
                 is_already_posted = False
             else:
-                # All selected platforms are already published
+                # All selected platforms are already published!
                 is_already_posted = True
+                return {
+                    "success": True,
+                    "already_posted": True,
+                    "skipped": True,
+                    "title": custom_title or video_abs_path.stem.replace("_", " ").title(),
+                    "video": video_abs_path.name,
+                    "message": f"All target platforms ({', '.join(platforms or target_platforms)}) have already been published. Dispatch skipped to prevent duplicates.",
+                    "platforms": {
+                        p: {
+                            "status": "published",
+                            "platform": p,
+                            "message": "Already published",
+                            "url": existing_published.get(p, {}).get("details", {}).get("url")
+                        }
+                        for p in (platforms or target_platforms)
+                    }
+                }
         else:
             is_already_posted = False
 
@@ -618,6 +635,31 @@ class SocialDispatcher:
                     is_short_or_reel = True
             except Exception:
                 pass
+
+        # Instagram Reels constraint guard:
+        # Reels API only supports up to 15 min (900s) vertical/square video.
+        # Long-form 16:9 documentaries (e.g. 33-minute BHRS episodes) must NOT be dispatched to Instagram.
+        if "instagram" in target_platforms:
+            if duration_sec > 900 or (aspect_ratio == "16:9" and duration_sec > 180 and not is_short_or_reel):
+                import logging
+                logging.info(f"[SocialDispatcher] Skipping Instagram for {video_rel_path}: Video is {duration_str} ({aspect_ratio}), exceeding Instagram Reels API limit.")
+                target_platforms = [p for p in target_platforms if p != "instagram"]
+                if not target_platforms:
+                    return {
+                        "success": True,
+                        "already_posted": False,
+                        "skipped": True,
+                        "title": title,
+                        "video": video_abs_path.name,
+                        "message": f"Video ({duration_str} {aspect_ratio}) is not eligible for Instagram Reels (exceeds 15m limit) and no other platforms were targeted.",
+                        "platforms": {
+                            "instagram": {
+                                "status": "skipped",
+                                "platform": "Instagram",
+                                "message": f"Skipped: duration {duration_str} exceeds Instagram Reels limit."
+                            }
+                        }
+                    }
 
         has_custom_thumb = meta.get("has_custom_thumbnail", False)
         thumb_abs = meta.get("thumbnail_abs_path", "")
@@ -729,16 +771,26 @@ class SocialDispatcher:
             except Exception as e:
                 webhook_status = {"error": str(e)}
 
-        # Check if webhook dispatch failed
+        # Check if webhook dispatch returned errors or partial results
         if not dry_run and webhook_url and isinstance(webhook_status, dict):
-            if webhook_status.get("error") or webhook_status.get("status_code", 200) >= 400:
+            resp_val = webhook_status.get("response")
+            if isinstance(resp_val, str):
+                try:
+                    resp_val = json.loads(resp_val)
+                except Exception:
+                    pass
+
+            is_error_code = bool(webhook_status.get("error") or webhook_status.get("status_code", 200) >= 400)
+            is_json_fail = isinstance(resp_val, dict) and resp_val.get("success") is False
+
+            if is_error_code or is_json_fail:
                 err_detail = webhook_status.get("error") or f"Webhook returned HTTP {webhook_status.get('status_code')}"
-                resp_val = webhook_status.get("response")
                 if isinstance(resp_val, dict) and resp_val.get("message"):
                     err_detail = f"{err_detail}: {resp_val.get('message')}"
                 elif isinstance(resp_val, str) and resp_val.strip():
                     err_detail = f"{err_detail}: {resp_val.strip()[:200]}"
 
+                partial_success = False
                 fail_results = {}
                 for plat in target_platforms:
                     fail_results[plat] = {
@@ -747,29 +799,62 @@ class SocialDispatcher:
                         "error": err_detail
                     }
 
-                return {
-                    "success": False,
-                    "error": err_detail,
-                    "dry_run": False,
-                    "title": title,
-                    "video": video_abs_path.name,
-                    "webhook_result": webhook_status,
-                    "platforms": fail_results
-                }
+                if isinstance(resp_val, dict):
+                    # Check YouTube
+                    if "youtube" in target_platforms and (resp_val.get("youtube_id") or resp_val.get("youtube_url")):
+                        yt_id = resp_val.get("youtube_id")
+                        yt_url = resp_val.get("youtube_url") or f"https://youtu.be/{yt_id}"
+                        fail_results["youtube"] = {
+                            "status": "published",
+                            "platform": "YouTube",
+                            "id": yt_id,
+                            "url": yt_url,
+                            "message": f"Published to YouTube: {yt_url}"
+                        }
+                        asset_manager.mark_published(video_rel_path, "youtube", fail_results["youtube"])
+                        partial_success = True
 
-            # Check if webhook responded with an explicit error in JSON
-            resp_json = webhook_status.get("response")
-            if isinstance(resp_json, dict) and resp_json.get("success") is False:
-                err_detail = resp_json.get("message") or resp_json.get("error") or "Webhook workflow reported failure"
-                fail_results = {}
-                for plat in target_platforms:
-                    fail_results[plat] = {
-                        "status": "failed",
-                        "platform": plat,
-                        "error": err_detail
+                    # Check Facebook
+                    if "facebook" in target_platforms and (resp_val.get("facebook_id") or resp_val.get("facebook_url")):
+                        fb_id = resp_val.get("facebook_id")
+                        fb_url = resp_val.get("facebook_url") or f"https://www.facebook.com/watch/?v={fb_id}"
+                        fail_results["facebook"] = {
+                            "status": "published",
+                            "platform": "Facebook",
+                            "id": fb_id,
+                            "url": fb_url,
+                            "message": f"Published to Facebook: {fb_url}"
+                        }
+                        asset_manager.mark_published(video_rel_path, "facebook", fail_results["facebook"])
+                        partial_success = True
+
+                    # Check Instagram
+                    if "instagram" in target_platforms and (resp_val.get("instagram_id") or resp_val.get("instagram_url")):
+                        ig_id = resp_val.get("instagram_id")
+                        ig_url = resp_val.get("instagram_url") or ""
+                        fail_results["instagram"] = {
+                            "status": "published",
+                            "platform": "Instagram",
+                            "id": ig_id,
+                            "url": ig_url,
+                            "message": "Published to Instagram"
+                        }
+                        asset_manager.mark_published(video_rel_path, "instagram", fail_results["instagram"])
+                        partial_success = True
+
+                # If all requested platforms actually succeeded despite non-200 code
+                if partial_success and all(r.get("status") == "published" for r in fail_results.values()):
+                    return {
+                        "success": True,
+                        "dry_run": False,
+                        "title": title,
+                        "video": video_abs_path.name,
+                        "webhook_result": webhook_status,
+                        "platforms": fail_results
                     }
+
                 return {
-                    "success": False,
+                    "success": partial_success,
                     "error": err_detail,
                     "dry_run": False,
                     "title": title,

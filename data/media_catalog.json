@@ -35824,7 +35824,22 @@
       "notes": "",
       "approved_at": 1790246833.631508,
       "reviewed_at": 1790246833.631508,
-      "published": {},
+      "published": {
+        "facebook": {
+          "status": "published",
+          "time": 1790492863.6367133,
+          "details": {
+            "manual": true
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1790492863.6367133,
+          "details": {
+            "manual": true
+          }
+        }
+      },
       "duration": "3:11",
       "resolution": "768x1344",
       "probe_mtime": 1789810503.6451259
@@ -35978,7 +35993,16 @@
       "notes": "",
       "approved_at": 1790062109.4858172,
       "reviewed_at": 1790062109.4858172,
-      "published": {},
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1790499856.1804736,
+          "details": {
+            "platform": "YouTube",
+            "message": "Published to YouTube channel"
+          }
+        }
+      },
       "duration": "33:15",
       "resolution": "1920x1080",
       "probe_mtime": 1790053086.2807226
