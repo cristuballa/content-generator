@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import asyncio
 import requests
 import re
 import urllib.parse
@@ -599,8 +600,9 @@ class SocialDispatcher:
                 headers = self._build_auth_headers(auth_header)
                 if not dry_run:
                     start_t = time.perf_counter()
-                    import asyncio
-                    resp = await asyncio.to_thread(requests.post, webhook_url, json=payload, headers=headers, timeout=900)
+                    video_mb = video_spec.get("size_mb", 50)
+                    calc_timeout = max(3600, int(video_mb * 10))
+                    resp = await asyncio.to_thread(requests.post, webhook_url, json=payload, headers=headers, timeout=calc_timeout)
                     latency = round((time.perf_counter() - start_t) * 1000, 1)
                     try:
                         resp_data = resp.json()

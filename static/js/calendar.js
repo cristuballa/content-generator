@@ -553,6 +553,7 @@ function renderQueueView() {
     } catch (e) {}
 
     const qTheme = getProjectTheme(post.project_name || post.project_path);
+    const isRetrying = post.status === "retrying";
     item.innerHTML = `
       <div class="flex items-center gap-3.5 min-w-0 flex-1">
         <img src="${post.thumbnail_url}" alt="Thumbnail" class="w-16 h-10 object-cover rounded-lg bg-black border border-slate-800 shrink-0" onerror="this.src='/static/favicon.png';">
@@ -561,9 +562,10 @@ function renderQueueView() {
             <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
               isPosted ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700/50' :
               isFailed ? 'bg-rose-900/60 text-rose-300 border border-rose-700/50' :
+              isRetrying ? 'bg-amber-900/60 text-amber-300 border border-amber-700/50 animate-pulse' :
               'bg-cyan-950 text-cyan-300 border border-cyan-800'
             }">
-              ${post.status.toUpperCase()}
+              ${isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : post.status.toUpperCase()}
             </span>
             <span class="inline-flex items-center justify-center w-5 h-5 rounded-md border ${qTheme.badgeCls} shrink-0 select-none shadow-xs" title="Project: ${qTheme.name}">
               <i data-lucide="${qTheme.icon}" class="w-3 h-3 ${qTheme.iconCls}"></i>
@@ -714,6 +716,7 @@ function renderPostCard(post, isExpanded = false) {
   const card = document.createElement("div");
   const isPosted = post.status === "posted";
   const isFailed = post.status === "failed";
+  const isRetrying = post.status === "retrying";
   const isDraggable = true;
   const projTheme = getProjectTheme(post.project_name || post.project_path);
 
@@ -722,6 +725,8 @@ function renderPostCard(post, isExpanded = false) {
       ? 'bg-emerald-950/40 border-emerald-800/50 text-emerald-200 hover:border-emerald-600' 
       : isFailed 
       ? 'bg-rose-950/40 border-rose-800/50 text-rose-200 hover:border-rose-600' 
+      : isRetrying
+      ? 'bg-amber-950/40 border-amber-800/50 text-amber-200 hover:border-amber-600'
       : 'bg-[#151c2a] border-[#253248] text-slate-200 hover:border-[#FFE614]/60'
   }`;
 
@@ -771,9 +776,10 @@ function renderPostCard(post, isExpanded = false) {
       <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shrink-0 ${
         isPosted ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
         isFailed ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' :
+        isRetrying ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse' :
         'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
       }">
-        ${isPosted ? 'POSTED' : isFailed ? 'FAILED' : 'QUEUED'}
+        ${isPosted ? 'POSTED' : isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : isFailed ? 'FAILED' : 'QUEUED'}
       </span>
     </div>
 
@@ -1157,10 +1163,12 @@ function openDetailModal(postId) {
   const textResult = document.getElementById("detailResultText");
 
   if (badgeStatus) {
-    badgeStatus.textContent = post.status.toUpperCase();
+    const isRetrying = post.status === 'retrying';
+    badgeStatus.textContent = isRetrying ? `RETRYING (${post.retry_count || 1}/3)` : (post.status || 'scheduled').toUpperCase();
     badgeStatus.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${
       post.status === 'posted' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
       post.status === 'failed' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
+      isRetrying ? 'bg-amber-950 text-amber-300 border border-amber-800 animate-pulse' :
       'bg-cyan-950 text-cyan-400 border border-cyan-800'
     }`;
   }
@@ -1204,9 +1212,17 @@ function openDetailModal(postId) {
   if (inputTime) inputTime.value = post.scheduled_time;
 
   if (boxResult && textResult) {
-    if (post.dispatch_result || post.error) {
+    if (post.dispatch_result || post.error || post.next_retry_at) {
       boxResult.classList.remove("hidden");
-      textResult.textContent = JSON.stringify(post.dispatch_result || { error: post.error }, null, 2);
+      const details = {};
+      if (post.status === "retrying") {
+        details.retry_status = `Retrying (Attempt ${post.retry_count || 1}/3)`;
+        details.next_retry_at = post.next_retry_at;
+      }
+      if (post.error) details.error = post.error;
+      if (post.retry_history && post.retry_history.length > 0) details.retry_history = post.retry_history;
+      if (post.dispatch_result) details.dispatch_result = post.dispatch_result;
+      textResult.textContent = JSON.stringify(details, null, 2);
     } else {
       boxResult.classList.add("hidden");
     }

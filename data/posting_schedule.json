@@ -13,12 +13,48 @@
     "platforms": [
       "youtube"
     ],
-    "status": "scheduled",
+    "status": "retrying",
     "created_at": "2026-09-22T19:28:29.606162",
-    "posted_at": null,
-    "error": null,
-    "dispatch_result": null,
-    "episode_num": 9
+    "posted_at": "2026-09-27T19:11:24",
+    "error": "Attempt 3 failed: name 'asyncio' is not defined. Retrying 3/3 in 15m (at 19:26:24).",
+    "dispatch_result": {
+      "success": false,
+      "error": "name 'asyncio' is not defined",
+      "dry_run": false,
+      "title": "The Terrifying Ritual of Genesis 15: When God Walked Through Fire and Blood",
+      "video": "9-The_Covenant_of_Pieces_final_16x9.mp4",
+      "webhook_result": {
+        "error": "name 'asyncio' is not defined"
+      },
+      "platforms": {
+        "youtube": {
+          "status": "failed",
+          "platform": "youtube",
+          "error": "name 'asyncio' is not defined"
+        }
+      }
+    },
+    "episode_num": 9,
+    "retry_count": 3,
+    "next_retry_at": "2026-09-27T19:12:00",
+    "last_attempt_at": "2026-09-27T19:11:24",
+    "retry_history": [
+      {
+        "attempt": 1,
+        "timestamp": "2026-09-27T18:45:28",
+        "error": "HTTPConnectionPool(host='localhost', port=5678): Read timed out. (read timeout=900)"
+      },
+      {
+        "attempt": 2,
+        "timestamp": "2026-09-27T19:01:08",
+        "error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+      },
+      {
+        "attempt": 3,
+        "timestamp": "2026-09-27T19:11:24",
+        "error": "name 'asyncio' is not defined"
+      }
+    ]
   },
   {
     "id": "sched_1790062148_d36728",
@@ -28,15 +64,15 @@
     "video_filename": "05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
     "title": "The Ageless Priest-King: The Terrifying Secrets of Melchizedek Hidden in Genesis 14",
     "thumbnail_url": "/api/thumbnail/5-The_Enigma_of_Melchizedek/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
-    "scheduled_date": "2026-09-25",
+    "scheduled_date": "2026-09-28",
     "scheduled_time": "18:45",
-    "scheduled_datetime_iso": "2026-09-25T18:45:00",
+    "scheduled_datetime_iso": "2026-09-28T18:45:00",
     "platforms": [
       "youtube"
     ],
-    "status": "posted",
+    "status": "scheduled",
     "created_at": "2026-09-22T19:29:08.862505",
-    "posted_at": "2026-09-25T22:44:17",
+    "posted_at": null,
     "error": null,
     "dispatch_result": null,
     "episode_num": 5
@@ -49,46 +85,17 @@
     "video_filename": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
     "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
     "thumbnail_url": "/api/thumbnail/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-    "scheduled_date": "2026-09-25",
+    "scheduled_date": "2026-10-01",
     "scheduled_time": "22:52",
-    "scheduled_datetime_iso": "2026-09-25T22:52:00",
+    "scheduled_datetime_iso": "2026-10-01T22:52:00",
     "platforms": [
       "youtube"
     ],
-    "status": "posted",
+    "status": "scheduled",
     "created_at": "2026-09-22T19:44:35.092353",
-    "posted_at": "2026-09-25T23:01:50",
+    "posted_at": null,
     "error": null,
-    "dispatch_result": {
-      "success": true,
-      "dry_run": false,
-      "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
-      "video": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-      "webhook_result": {
-        "status_code": 200,
-        "latency_ms": 126264.2,
-        "response": {
-          "success": true,
-          "message": "Video successfully processed by n8n.",
-          "video": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-          "youtube_id": "TeNOOUKvLqg",
-          "youtube_url": "https://youtu.be/TeNOOUKvLqg",
-          "target_platforms": [
-            "youtube"
-          ]
-        }
-      },
-      "platforms": {
-        "youtube": {
-          "status": "published",
-          "platform": "YouTube",
-          "message": "Published to YouTube: https://youtu.be/TeNOOUKvLqg",
-          "privacy": "public",
-          "url": "https://youtu.be/TeNOOUKvLqg",
-          "id": "TeNOOUKvLqg"
-        }
-      }
-    },
+    "dispatch_result": null,
     "episode_num": 75
   },
   {
@@ -243,9 +250,9 @@
     "title": "Joseph's Life Matches Jesus in 30+ Details — And Joseph Didn't Know",
     "thumbnail_url": "/api/thumbnail/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
     "duration": "3:57",
-    "scheduled_date": "2026-10-01",
+    "scheduled_date": "2026-10-02",
     "scheduled_time": "16:00",
-    "scheduled_datetime_iso": "2026-10-01T16:00:00",
+    "scheduled_datetime_iso": "2026-10-02T16:00:00",
     "platforms": [
       "youtube",
       "facebook",

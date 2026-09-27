@@ -396,24 +396,32 @@ class CalendarManager:
             if status == "posted":
                 target["error"] = None
                 target["posted_at"] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                target["retry_count"] = 0
+                target["next_retry_at"] = None
                 asset_manager.update_social_posted_batch(target["video_rel_path"], target_platforms)
-            elif status == "scheduled":
+            elif status in ("scheduled", "retrying"):
                 target["error"] = None
                 target["posted_at"] = None
                 target["dispatch_result"] = None
+                target["retry_count"] = 0
+                target["next_retry_at"] = None
                 for p in target_platforms:
                     asset_manager.set_social_posted(target["video_rel_path"], p, False)
-        elif target["status"] in ("failed", "posted"):
+        elif target["status"] in ("failed", "posted", "retrying"):
             target["status"] = "scheduled"
             target["error"] = None
             target["posted_at"] = None
             target["dispatch_result"] = None
+            target["retry_count"] = 0
+            target["next_retry_at"] = None
             for p in target_platforms:
                 asset_manager.set_social_posted(target["video_rel_path"], p, False)
         elif target.get("status") == "scheduled":
             target["error"] = None
             target["posted_at"] = None
             target["dispatch_result"] = None
+            target["retry_count"] = 0
+            target["next_retry_at"] = None
             for p in target_platforms:
                 asset_manager.set_social_posted(target["video_rel_path"], p, False)
 
@@ -520,8 +528,33 @@ class CalendarManager:
 
         return scheduled_results
 
+    RETRY_INTERVALS_MINUTES = [5, 10, 15]
+
+    def _apply_retry_backoff(self, it: Dict[str, Any], current_retries: int, err_msg: str, now_dt: datetime.datetime):
+        """Applies retry schedule: 1st retry in 5m, 2nd in 10m, 3rd in 15m. Marks failed after 3 retries."""
+        now_iso = now_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        history = it.setdefault("retry_history", [])
+        history.append({
+            "attempt": current_retries + 1,
+            "timestamp": now_iso,
+            "error": err_msg
+        })
+
+        if current_retries < len(self.RETRY_INTERVALS_MINUTES):
+            delay_mins = self.RETRY_INTERVALS_MINUTES[current_retries]
+            next_retry_dt = now_dt + datetime.timedelta(minutes=delay_mins)
+            it["retry_count"] = current_retries + 1
+            it["status"] = "retrying"
+            it["next_retry_at"] = next_retry_dt.strftime("%Y-%m-%dT%H:%M:%S")
+            it["error"] = f"Attempt {current_retries + 1} failed: {err_msg}. Retrying {current_retries + 1}/3 in {delay_mins}m (at {next_retry_dt.strftime('%H:%M:%S')})."
+        else:
+            it["status"] = "failed"
+            it["retry_count"] = current_retries + 1
+            it["next_retry_at"] = None
+            it["error"] = f"Permanently failed after 3 retries: {err_msg}"
+
     async def execute_due_posts(self, social_dispatcher) -> List[Dict[str, Any]]:
-        """Scans for scheduled posts that are due now and dispatches them."""
+        """Scans for scheduled posts that are due now (or retrying) and dispatches them."""
         items = self._load_all()
         now_dt = datetime.datetime.now()
         now_iso = now_dt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -530,43 +563,59 @@ class CalendarManager:
         changed = False
 
         for it in items:
-            if it.get("status") != "scheduled":
+            status = it.get("status")
+            if status not in ("scheduled", "retrying"):
                 continue
 
-            dt_iso = it.get("scheduled_datetime_iso") or f"{it.get('scheduled_date', '')}T{it.get('scheduled_time', '00:00')}:00"
-            if dt_iso <= now_iso:
-                # Post is due for publishing!
-                proj_path = it.get("project_path", "")
-                video_rel = it.get("video_rel_path", "")
-                platforms = it.get("platforms", [])
+            # Determine whether this item is due
+            if status == "retrying":
+                due_iso = it.get("next_retry_at")
+            else:
+                due_iso = it.get("scheduled_datetime_iso") or f"{it.get('scheduled_date', '')}T{it.get('scheduled_time', '00:00')}:00"
 
-                try:
-                    res = await social_dispatcher.publish_video(
-                        project_path_str=proj_path,
-                        video_rel_path=video_rel,
-                        platforms=platforms,
-                        custom_title=it.get("title"),
-                        force_republish=True
-                    )
+            if not due_iso or due_iso > now_iso:
+                continue
 
-                    it["posted_at"] = now_iso
-                    it["dispatch_result"] = res
-                    if (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False):
-                        it["status"] = "posted"
-                        # Mark asset social published status
-                        asset_manager.update_social_posted_batch(video_rel, platforms)
-                    else:
-                        it["status"] = "failed"
-                        it["error"] = res.get("message") or res.get("error", "Dispatch failed or skipped")
+            # Post is due for publishing!
+            proj_path = it.get("project_path", "")
+            video_rel = it.get("video_rel_path", "")
+            platforms = it.get("platforms", [])
+            current_retries = int(it.get("retry_count", 0))
 
-                    executed.append(it)
-                    changed = True
+            it["last_attempt_at"] = now_iso
 
-                except Exception as e:
-                    it["status"] = "failed"
-                    it["error"] = str(e)
-                    executed.append(it)
-                    changed = True
+            try:
+                res = await social_dispatcher.publish_video(
+                    project_path_str=proj_path,
+                    video_rel_path=video_rel,
+                    platforms=platforms,
+                    custom_title=it.get("title"),
+                    force_republish=True
+                )
+
+                it["posted_at"] = now_iso
+                it["dispatch_result"] = res
+                is_success = (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False)
+
+                if is_success:
+                    it["status"] = "posted"
+                    it["error"] = None
+                    it["retry_count"] = 0
+                    it["next_retry_at"] = None
+                    # Mark asset social published status
+                    asset_manager.update_social_posted_batch(video_rel, platforms)
+                else:
+                    err_msg = res.get("message") or res.get("error", "Dispatch failed or skipped")
+                    self._apply_retry_backoff(it, current_retries, err_msg, now_dt)
+
+                executed.append(it)
+                changed = True
+
+            except Exception as e:
+                err_msg = str(e)
+                self._apply_retry_backoff(it, current_retries, err_msg, now_dt)
+                executed.append(it)
+                changed = True
 
         if changed:
             self._save_all(items)

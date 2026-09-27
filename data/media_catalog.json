@@ -4068,18 +4068,6 @@
           "details": {
             "manual": true
           }
-        },
-        "youtube": {
-          "status": "published",
-          "time": 1790334237.1882272,
-          "details": {
-            "status": "published",
-            "platform": "YouTube",
-            "message": "Published to YouTube: https://youtu.be/TeNOOUKvLqg",
-            "privacy": "public",
-            "url": "https://youtu.be/TeNOOUKvLqg",
-            "id": "TeNOOUKvLqg"
-          }
         }
       },
       "duration": "2:47",
@@ -18528,15 +18516,7 @@
       "notes": "",
       "approved_at": 1790062148.7318497,
       "reviewed_at": 1790062148.7318497,
-      "published": {
-        "youtube": {
-          "status": "published",
-          "time": 1790333057.1634216,
-          "details": {
-            "manual": true
-          }
-        }
-      },
+      "published": {},
       "duration": "36:21",
       "resolution": "1920x1080",
       "probe_mtime": 1789452152.1063893
