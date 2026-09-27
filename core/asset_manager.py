@@ -160,8 +160,17 @@ class AssetManager:
         target_file = folder / "metadata.txt"
         clean_title = video_p.stem.replace("_", " ").title()
         template = f"""Title: {clean_title}
+Hook: {clean_title}
 Video File: {video_p.name}
 Description: 
+
+============================================================
+🛒 OFFICIAL MERCH & BOOKS:
+✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems
+📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2
+📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG
+============================================================
+
 Tags: 
 Timestamps:
 00:00 - Introduction
