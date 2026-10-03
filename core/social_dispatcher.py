@@ -9,13 +9,42 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from core.config import config_manager
 from core.asset_manager import asset_manager
+from core.meta_uploader import meta_uploader
+from core.youtube_uploader import youtube_uploader
+from core.threads_uploader import threads_uploader
+from core.tiktok_uploader import tiktok_uploader
+from core.hashtags import find_hashtags, normalize_tags, split_tags, strip_hashtags
 
-DEFAULT_BHRS_MERCH_BLOCK = """============================================================
+# Posted as the first comment right after every upload (captions themselves carry no links)
+DEFAULT_BHRS_PINNED_COMMENT = """🛒 OFFICIAL MERCH & SACRED BOOKS:
+✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems
+📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2
+📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG
+
+👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"""
+DEFAULT_BHRS_FIRST_COMMENT = DEFAULT_BHRS_PINNED_COMMENT
+
+# Legacy caption blocks. No longer added to captions (and stripped from old ones); kept only so the older
+# one-off scripts in scripts/ still import.
+DEFAULT_BHRS_MERCH_BLOCK = """=======================================================
 🛒 OFFICIAL MERCH & BOOKS:
 ✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems
 📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2
 📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG
-============================================================"""
+======================================================="""
+DEFAULT_BHRS_FB_CALLOUT = "📖 Official Books & Sacred Art collection linked in the pinned comment below 👇"
+DEFAULT_BHRS_YT_MERCH_BLOCK = DEFAULT_BHRS_MERCH_BLOCK
+DEFAULT_BHRS_IG_MERCH_BLOCK = DEFAULT_BHRS_MERCH_BLOCK
+
+# Promo text that must not appear in captions: store/book lines, link-in-bio pointers, raw URLs
+PROMO_LINE_RE = re.compile(
+    r"^[ \t]*(?:🛒|✨\s*Etsy|📖\s*Book|📚\s*Books?|•\s*Book|👉\s*(?:Tap|Find all|Subscribe)|📖\s*(?:Official Books|Check our books)|🔗\s*Link in bio)[^\n]*(?:\n|$)",
+    re.IGNORECASE | re.MULTILINE
+)
+INLINE_PROMO_RE = re.compile(r"[ \t]*(?:Follow for more!\s*)?🔗\s*Link in bio[^\n]*|[ \t]*📖\s*Books? & Merch in bio!?", re.IGNORECASE)
+CHAPTER_HEADER_RE = re.compile(r"^[ \t]*(?:TIMESTAMPS|CHAPTERS)\b[^\n]*:[ \t]*$\n?", re.IGNORECASE | re.MULTILINE)
+CHAPTER_LINE_RE = re.compile(r"^[ \t]*\d{1,2}:\d{2}(?::\d{2})?[ \t]*[-–—][^\n]*$\n?", re.MULTILINE)
+URL_RE = re.compile(r"(?:https?://|www\.)\S+|\b(?:etsy|amazon)\.com/\S+", re.IGNORECASE)
 
 class SocialDispatcher:
     def __init__(self):
@@ -93,6 +122,410 @@ class SocialDispatcher:
 
         return None
 
+    # ------------------------------------------------------------------------------------------------
+    # House caption format (every platform), matching the Facebook post the channel standardised on:
+    #
+    #   HOOK IN CAPITALS
+    #
+    #   Scripture references
+    #
+    #   Description paragraph(s)
+    #
+    #   #Hashtags
+    #
+    # Captions carry no merch blocks, "link in bio" lines or URLs: the store & book links are posted as the
+    # first comment right after publishing (DEFAULT_BHRS_PINNED_COMMENT).
+    # ------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def strip_promo_text(text: str) -> str:
+        """Removes legacy merch blocks, store/book/link-in-bio lines and raw URLs from caption text."""
+        if not text:
+            return ""
+        clean = re.sub(r"={10,}[\s\S]*?={10,}", "", text)
+        clean = re.sub(r"={10,}", "", clean)
+        clean = PROMO_LINE_RE.sub("", clean)
+        clean = INLINE_PROMO_RE.sub("", clean)
+        clean = URL_RE.sub("", clean)
+        clean = re.sub(r"\((?:Link in (?:Channel )?Bio[^)]*)\)", "", clean, flags=re.IGNORECASE)
+        clean = re.sub(r"[ \t]+\n", "\n", clean)
+        clean = re.sub(r"[ \t]{2,}", " ", clean)
+        return re.sub(r"\n{3,}", "\n\n", clean).strip()
+
+    @classmethod
+    def caption_parts(cls, meta: Dict[str, Any], fallback_title: str = "") -> Dict[str, Any]:
+        """Pulls hook, scriptures, description, hashtags and timestamps out of any of the project's metadata schemas."""
+        meta = meta or {}
+
+        def text(*keys: str) -> str:
+            for key in keys:
+                val = meta.get(key)
+                if isinstance(val, list):
+                    val = ", ".join(str(v).strip() for v in val if str(v).strip())
+                if isinstance(val, str) and val.strip():
+                    return val.strip()
+            return ""
+
+        title = text("title", "episode_title") or fallback_title
+        hook = re.sub(r"\s*\|\s*Bible Secrets\s*#\d+\s*$", "", text("hook", "hook_text") or title, flags=re.IGNORECASE)
+
+        body, inline_tags = strip_hashtags(cls.strip_promo_text(text("description") or text("caption")))
+        first, _, rest = body.partition("\n")
+        if first.strip().lower() in (title.lower(), hook.lower()):
+            body = rest.strip()  # caption that repeats the title as its first line
+
+        # Chapter lists written into the description belong only in the YouTube description
+        chapter_lines = CHAPTER_LINE_RE.findall(body)
+        body = CHAPTER_LINE_RE.sub("", CHAPTER_HEADER_RE.sub("", body))
+        body = re.sub(r"\n{3,}", "\n\n", body).strip()
+
+        raw_tags = meta.get("hashtags") or meta.get("tags") or []
+        tags = (list(raw_tags) if isinstance(raw_tags, (list, tuple)) else split_tags(raw_tags)) + inline_tags
+
+        raw_ts = meta.get("timestamps") or [line.strip() for line in chapter_lines]
+        if isinstance(raw_ts, str):
+            timestamps = raw_ts.strip()
+        else:
+            lines = [
+                f"{ts.get('time', '')} - {ts.get('title', '')}".strip(" -") if isinstance(ts, dict) else str(ts).strip()
+                for ts in raw_ts
+            ]
+            timestamps = "\n".join(line for line in lines if line)
+
+        return {
+            "title": title,
+            "hook": hook.strip().upper(),
+            "scriptures": text("scriptures", "scripture", "reference"),
+            "body": body,
+            "tags": tags,
+            "timestamps": f"TIMESTAMPS:\n{timestamps}" if timestamps else ""
+        }
+
+    @classmethod
+    def build_platform_captions(cls, meta: Dict[str, Any], fallback_title: str = "", include_timestamps: bool = True) -> Dict[str, Any]:
+        """Every platform caption for one video, built from its metadata in the house format."""
+        p = cls.caption_parts(meta, fallback_title)
+        hook, scriptures, body, tags = p["hook"], p["scriptures"], p["body"], p["tags"]
+        return {
+            "hook": hook,
+            "scriptures": scriptures,
+            "body": body,
+            "hashtags_string": normalize_tags(tags, "facebook"),
+            "facebook_caption": cls.build_facebook_caption(hook, body, hashtags=tags, scriptures=scriptures),
+            "youtube_description": cls.build_youtube_description(
+                hook, body, timestamps=p["timestamps"] if include_timestamps else "", hashtags=tags, scriptures=scriptures
+            ),
+            "instagram_caption": cls.build_instagram_caption(hook, body, hashtags=tags, scriptures=scriptures),
+            "tiktok_caption": cls.build_tiktok_caption(hook, body, hashtags=tags, scriptures=scriptures),
+            "threads_caption": cls.build_threads_caption(hook, body, hashtags=tags, scriptures=scriptures),
+            "x_post": cls.build_x_post(hook, body, hashtags=tags),
+            "pinned_comment": DEFAULT_BHRS_PINNED_COMMENT
+        }
+
+    @classmethod
+    def _compose_caption(
+        cls,
+        platform: str,
+        hook: str,
+        body: str,
+        hashtags: Any = "",
+        scriptures: str = "",
+        extra: str = "",
+        max_chars: Optional[int] = None
+    ) -> str:
+        """HOOK / scriptures / body / extra / hashtags, trimming the body (never the hook or tags) to fit max_chars."""
+        tags = normalize_tags(hashtags, platform) if hashtags else ""
+        body = cls.strip_promo_text(body)
+
+        def assemble(b: str) -> str:
+            parts = [(hook or "").strip(), (scriptures or "").strip(), b, (extra or "").strip(), tags]
+            return "\n\n".join(x for x in parts if x).strip()
+
+        caption = assemble(body)
+        if max_chars and len(caption) > max_chars and body:
+            keep = max(0, len(body) - (len(caption) - max_chars) - 3)
+            caption = assemble(body[:keep].rsplit(" ", 1)[0].rstrip(" ,;:—-") + "..." if keep else "")
+        if max_chars and len(caption) > max_chars:
+            caption = caption[:max_chars - 3].rstrip() + "..."
+        return caption
+
+    @classmethod
+    def _finalize_caption(cls, text: str, platform: str, explicit_tags: Any = None, max_chars: Optional[int] = None) -> str:
+        """Cleans an existing caption: drops promo text/URLs and puts one normalized tag line at the end."""
+        clean, found = strip_hashtags(cls.strip_promo_text(text))
+        tags = normalize_tags(split_tags(explicit_tags) + found, platform)
+        caption = f"{clean}\n\n{tags}".strip() if tags else clean
+        if max_chars and len(caption) > max_chars:
+            room = max(0, max_chars - len(tags) - 5)
+            clean = clean[:room].rsplit(" ", 1)[0].rstrip(" ,;:—-") + "..."
+            caption = f"{clean}\n\n{tags}".strip() if tags else clean
+        return caption
+
+    @classmethod
+    def build_facebook_caption(
+        cls,
+        hook: str,
+        body: str,
+        merch_block: str = "",
+        hashtags: Any = "",
+        scriptures: str = ""
+    ) -> str:
+        """Facebook post in the house format (merch_block is ignored: links go in the first comment)."""
+        return cls._compose_caption("facebook", hook, body, hashtags, scriptures)
+
+    @classmethod
+    def sanitize_title_for_youtube(cls, title: str) -> str:
+        """
+        Enforces YouTube 100-character limit on titles and platform policy rules.
+        Removes invalid characters (<, >, \r, \n) that cause YouTube API 400 errors.
+        Trims smoothly at word boundaries or separator if exceeding 100 chars.
+        """
+        if not title:
+            return ""
+        # Remove forbidden YouTube characters (< and > are blocked by YouTube API to prevent XSS)
+        clean = title.replace("<", "").replace(">", "").replace("\r", " ").replace("\n", " ")
+        clean = re.sub(r'\s+', ' ', clean).strip()
+
+        if len(clean) <= 100:
+            return clean
+
+        # If suffix like ' | Bible Secrets #78' pushed it over, try trimming suffix
+        if " | " in clean:
+            prefix, suffix = clean.rsplit(" | ", 1)
+            if len(prefix) <= 100:
+                return prefix.strip()
+
+        # Otherwise truncate at last word before 97 chars
+        truncated = clean[:97].rsplit(" ", 1)[0].rstrip(" -–—,:") + "..."
+        return truncated if len(truncated) <= 100 else clean[:100]
+
+    @classmethod
+    def sanitize_hashtags_for_platform(
+        cls,
+        hashtags: Any,
+        platform: str = "instagram",
+        max_tags: Optional[int] = None
+    ) -> str:
+        """
+        Filters out sensitive/shadowban-trigger tags (e.g. #Lucifer, #FallOfSatan, #Demons, #SpiritualWarfare)
+        and caps the count at the platform limit (see core.hashtags.PLATFORM_HASHTAG_LIMITS).
+        """
+        return normalize_tags(hashtags, platform, max_tags)
+
+    @classmethod
+    def sanitize_urls_for_youtube(cls, text: str, hashtags: Any = None) -> str:
+        """YouTube description: no URLs or merch blocks, no '<' '>', hashtags capped at the YouTube limit."""
+        if not text:
+            return ""
+        return cls._finalize_caption(text.replace("<", "").replace(">", ""), "youtube", hashtags, max_chars=5000)
+
+    @classmethod
+    def sanitize_urls_for_instagram(cls, text: str, hashtags: Any = None) -> str:
+        """Instagram caption: no URLs or merch blocks, safe hashtags capped at the Instagram limit, 2,200 chars."""
+        if not text:
+            return ""
+        return cls._finalize_caption(text, "instagram", hashtags, max_chars=2200)
+
+    @classmethod
+    def sanitize_caption_for_facebook(
+        cls,
+        text: str,
+        hook: str = "",
+        body: str = "",
+        hashtags: Any = ""
+    ) -> str:
+        """Facebook caption: no URLs or merch blocks (links go in the first comment), explicit hashtags first."""
+        if not text and not hook and not body:
+            return ""
+        return cls._finalize_caption(text or cls.build_facebook_caption(hook, body), "facebook", hashtags)
+
+    @classmethod
+    def sanitize_caption_for_threads(
+        cls,
+        caption: str,
+        hook: str = "",
+        body: str = "",
+        hashtags: Any = ""
+    ) -> str:
+        """Threads: 500 characters max and one safe hashtag (Threads turns only one tag per post into a topic)."""
+        if not caption and not hook and not body:
+            return ""
+        cleaned = cls._finalize_caption(caption or "", "threads", hashtags)
+        if caption and len(cleaned) <= 500:
+            return cleaned
+
+        # Too long: rebuild from the hook + body so the hook and tag survive the cut
+        text, found = strip_hashtags(cls.strip_promo_text(caption or ""))
+        first, _, rest = text.partition("\n")
+        return cls.build_threads_caption(hook or first, body or rest, hashtags=split_tags(hashtags) + found)
+
+    @classmethod
+    def sanitize_caption_for_tiktok(
+        cls,
+        caption: str,
+        hook: str = "",
+        body: str = "",
+        hashtags: Any = ""
+    ) -> str:
+        """TikTok: softens trigger words, no URLs or merch blocks, safe hashtags, 2,200 characters max."""
+        if not caption and not hook and not body:
+            return ""
+        return cls._finalize_caption(cls._soften_for_tiktok(caption or ""), "tiktok", hashtags, max_chars=2200)
+
+    @staticmethod
+    def _soften_for_tiktok(text: str) -> str:
+        text = re.sub(r'\bmurder\b', 'violence', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bslaughter\b', 'destruction', text, flags=re.IGNORECASE)
+        return re.sub(r'\bsuicide\b', 'tragedy', text, flags=re.IGNORECASE)
+
+    @classmethod
+    def sanitize_post_for_x(
+        cls,
+        post: str,
+        hook: str = "",
+        body: str = "",
+        url: str = "",
+        hashtags: Any = ""
+    ) -> str:
+        """
+        Enforces X (Twitter) standard account 280-character limit.
+        If given a full script, intelligently composes hook + punchy takeaway + 2 safe hashtags.
+        """
+        if not post and not hook and not body:
+            return ""
+
+        # Explicit tags first, then the ones found in the post
+        safe_tags = normalize_tags(split_tags(hashtags) + find_hashtags(post or ""), "x")
+
+        # If already <= 280 characters and contains no huge merch block
+        if post and "====" not in post and "http://" not in post and "https://" not in post:
+            text, _ = strip_hashtags(post.strip())
+            candidate = f"{text}\n\n{safe_tags}".strip() if safe_tags else text
+            if len(candidate) <= 280:
+                return candidate
+
+        # Parse hook and body if not provided
+        if not hook and post:
+            lines = [l.strip() for l in post.split("\n") if l.strip()]
+            if lines:
+                hook = lines[0]
+
+        if not body and post:
+            clean_text = post
+            if hook and clean_text.startswith(hook):
+                clean_text = clean_text[len(hook):].strip()
+            clean_text = re.sub(r"={20,}[\s\S]*?={20,}", "", clean_text).strip()
+            clean_text, _ = strip_hashtags(clean_text)
+            body = clean_text
+
+        return cls.build_x_post(hook, body, url=url, hashtags=safe_tags)
+
+    @classmethod
+    def build_youtube_description(
+        cls,
+        hook: str,
+        body: str,
+        timestamps: str = "",
+        merch_block: str = "",
+        hashtags: Any = "",
+        scriptures: str = ""
+    ) -> str:
+        """YouTube description (Shorts & long-form) in the house format, with chapters for long-form. No URLs."""
+        caption = cls._compose_caption("youtube", hook, body, hashtags, scriptures, extra=timestamps, max_chars=5000)
+        return caption.replace("<", "").replace(">", "")
+
+    @classmethod
+    def build_instagram_caption(
+        cls,
+        hook: str,
+        body: str,
+        merch_block: str = "",
+        hashtags: Any = "",
+        scriptures: str = ""
+    ) -> str:
+        """Instagram caption in the house format (2,200 characters max, safe hashtags)."""
+        return cls._compose_caption("instagram", hook, body, hashtags, scriptures, max_chars=2200)
+
+    @classmethod
+    def build_tiktok_caption(
+        cls,
+        hook: str,
+        body: str,
+        hashtags: Any = "",
+        scriptures: str = ""
+    ) -> str:
+        """TikTok caption in the house format (2,200 characters max, trigger words softened)."""
+        return cls._compose_caption("tiktok", hook, cls._soften_for_tiktok(body or ""), hashtags, scriptures, max_chars=2200)
+
+    @classmethod
+    def build_threads_caption(
+        cls,
+        hook: str,
+        body: str,
+        hashtags: Any = "",
+        scriptures: str = ""
+    ) -> str:
+        """Threads post in the house format, trimmed to 500 characters."""
+        flat_body = re.sub(r"\s*\n\s*", " ", body or "").strip()
+        return cls._compose_caption("threads", hook, flat_body, hashtags, scriptures, max_chars=500)
+
+    @classmethod
+    def build_x_post(
+        cls,
+        hook: str,
+        body: str,
+        url: str = "",
+        hashtags: Any = ""
+    ) -> str:
+        """
+        Builds X (Twitter) post strictly <= 280 characters for standard accounts.
+        Hook + core insight + optional link + top hashtags.
+        """
+        ht_str = normalize_tags(hashtags, "x")
+        clean_url = (url or "").strip()
+
+        reserved = (len(clean_url) + 2 if clean_url else 0) + (len(ht_str) + 2 if ht_str else 0) + 4
+        budget = max(40, 280 - reserved)
+
+        clean_hook = (hook or "").strip()
+        clean_body = (body or "").strip()
+
+        # Build candidate text fitting within budget
+        if clean_hook and clean_body:
+            sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', clean_body) if s.strip()]
+            candidate = clean_hook
+            for s in sentences:
+                test_cand = f"{candidate}\n\n{s}"
+                if len(test_cand) <= budget:
+                    candidate = test_cand
+                else:
+                    if candidate == clean_hook:
+                        avail = budget - len(clean_hook) - 4
+                        if avail > 20:
+                            short_s = s[:avail].rsplit(" ", 1)[0].rstrip(" -–—,:;") + "..."
+                            candidate = f"{clean_hook}\n\n{short_s}"
+                    break
+        elif clean_hook:
+            candidate = clean_hook if len(clean_hook) <= budget else clean_hook[:budget - 3].rsplit(" ", 1)[0] + "..."
+        else:
+            candidate = clean_body if len(clean_body) <= budget else clean_body[:budget - 3].rsplit(" ", 1)[0] + "..."
+
+        parts = [candidate]
+        if clean_url:
+            parts.append(clean_url)
+        if ht_str:
+            parts.append(ht_str)
+        res = "\n\n".join(parts).strip()
+        while len(res) > 280 and len(candidate) > 20:
+            candidate = candidate[:-5].rsplit(" ", 1)[0].rstrip(" -–—,:;") + "..."
+            parts = [candidate]
+            if clean_url:
+                parts.append(clean_url)
+            if ht_str:
+                parts.append(ht_str)
+            res = "\n\n".join(parts).strip()
+        return res
+
     @classmethod
     def format_social_description(
         cls,
@@ -104,376 +537,145 @@ class SocialDispatcher:
         platform: str = "facebook",
         is_short_or_reel: bool = True
     ) -> str:
+        """Builds the house-format caption for one platform."""
+        p_low = platform.lower()
+        if p_low == "youtube":
+            return cls.build_youtube_description(hook, body, timestamps, hashtags=hashtags)
+        elif p_low == "instagram":
+            return cls.build_instagram_caption(hook, body, hashtags=hashtags)
+        elif p_low == "tiktok":
+            return cls.build_tiktok_caption(hook, body, hashtags)
+        elif p_low == "threads":
+            return cls.build_threads_caption(hook, body, hashtags)
+        elif p_low in ("x", "twitter"):
+            return cls.build_x_post(hook, body, hashtags=hashtags)
+        return cls.build_facebook_caption(hook, body, hashtags=hashtags)
+
+    @staticmethod
+    def parse_metadata_txt(content: str) -> Dict[str, Any]:
         """
-        Builds the unified standardized description for Facebook, Instagram, and YouTube.
-        - Facebook & Instagram (Images 1 & 2): [Hook/Title] + [Body] + [Full Merch Block with Direct URLs] + [Hashtags]
-        - YouTube Shorts (Image 3): [Hook/Title] + [Body] + [Merch Block with bio links] + [Hashtags]
-        - YouTube Long-Form: [Hook/Title] + [Body] + [Timestamps] + [Full Merch Block with Direct URLs] + [Hashtags]
+        Parses the older metadata.txt layout ('HOOK:', 'DESCRIPTION:', 'HASHTAGS:', 'FACEBOOK CAPTION:', ...)
+        into the same keys metadata.json uses. Merch blocks and EDITING notes are skipped.
         """
-        blocks = []
+        headers = {
+            "title": r"title", "hook": r"hook", "scriptures": r"scriptures?|references?",
+            "thumbnail_text": r"thumbnail(?:\s+text)?", "description": r"description",
+            "pinned_comment": r"pinned(?:\s+comment)?", "hashtags": r"hashtags?", "tags": r"tags",
+            "youtube_shorts_title": r"youtube\s+shorts\s+title", "youtube_description": r"youtube\s+description",
+            "facebook_caption": r"facebook\s+caption", "instagram_caption": r"instagram\s+caption",
+            "threads_caption": r"threads\s+caption", "tiktok_caption": r"tiktok\s+caption", "x_post": r"x\s+post",
+            "editing": r"editing", "timestamps": r"timestamps"
+        }
+        header_res = [(key, re.compile(rf"^(?:#\s*)?(?:{pattern})\s*:\s*(.*)$", re.IGNORECASE)) for key, pattern in headers.items()]
+        sections: Dict[str, List[str]] = {}
+        current = None
+        lines = (content or "").splitlines()
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            clean = line.strip()
+            # Merch & books block between '=====' rulers
+            if clean.startswith("===") and i + 1 < len(lines) and "merch" in lines[i + 1].lower():
+                i += 1
+                while i < len(lines) and not lines[i].strip().startswith("==="):
+                    i += 1
+                i += 1
+                current = None
+                continue
+            match = next(((key, m) for key, rx in header_res for m in [rx.match(clean)] if m), None)
+            if match:
+                current = match[0]
+                sections.setdefault(current, [])
+                if match[1].group(1).strip():
+                    sections[current].append(match[1].group(1).strip())
+            elif current and current != "editing":
+                sections[current].append(line.rstrip())
+            elif not current and clean and not clean.startswith(("===", "EPISODE")) and "description" not in sections:
+                sections["description"] = [clean]
+            i += 1
 
-        # 1. Top Hook or Title
-        top_line = (hook or "").strip()
-        if top_line:
-            blocks.append(top_line)
+        def joined(key: str) -> str:
+            return re.sub(r"\n{3,}", "\n\n", "\n".join(sections.get(key, []))).strip().strip('"').strip()
 
-        # 2. Body / Story description
-        body_clean = (body or "").strip()
-        if body_clean:
-            blocks.append(body_clean)
+        meta: Dict[str, Any] = {key: joined(key) for key in sections if key not in ("editing", "hashtags", "tags")}
+        tag_text = " ".join(sections.get("hashtags", []) + sections.get("tags", []))
+        meta["hashtags"] = find_hashtags(tag_text) or [t.strip().lstrip("#") for t in tag_text.split(",") if t.strip()]
+        meta["title"] = meta.get("title") or meta.get("youtube_shorts_title", "")
+        meta["description"] = SocialDispatcher.strip_promo_text(meta.get("description", ""))
+        if not meta.get("description"):
+            # Older reels keep the narrative only inside the platform captions
+            meta["description"] = SocialDispatcher.strip_promo_text(
+                meta.get("facebook_caption") or meta.get("instagram_caption") or meta.get("tiktok_caption") or ""
+            )
+        return meta
 
-        # 3. Timestamps (if long-form video or chapters provided)
-        ts_clean = (timestamps or "").strip()
-        if ts_clean:
-            blocks.append(ts_clean)
-
-        # 4. Merch Block
-        mb_clean = (merch_block or "").strip()
-        if mb_clean:
-            if "youtube" in platform.lower():
-                mb_formatted = cls.sanitize_urls_for_youtube(mb_clean)
-            else:
-                mb_formatted = mb_clean
-            blocks.append(mb_formatted)
-
-        # 5. Hashtags
-        ht_clean = (hashtags or "").strip()
-        if ht_clean:
-            blocks.append(ht_clean)
-
-        res = "\n\n".join(blocks).strip()
-        # Strictly guarantee NO URLs exist anywhere in YouTube descriptions
-        if "youtube" in platform.lower():
-            res = cls.sanitize_urls_for_youtube(res)
-        return res
-
-    def extract_metadata_for_video(self, project_path: Path, video_rel_path: str) -> Dict[str, Any]:
-        """Looks for adjacent metadata.json, metadata.txt, or youtube_metadata.md to build title, rich description, tags, custom thumbnail and platform captions."""
+    def extract_metadata_for_video(self, project_path: Any, video_rel_path: str) -> Dict[str, Any]:
+        """Reads the video's metadata.json (or older metadata.txt) and builds every platform caption in the house format."""
+        project_path = Path(project_path)
         base_name = Path(video_rel_path).stem.replace("_", " ").title()
-        title = base_name
-        hook_text = ""
-        description = f"Generated by AI Content Generation Pipeline.\nStory chapter: {base_name}"
-        tags = ["anime", "manhwa", "recap", "ai-video", "flux", "vibevoice", "story"]
-        thumbnail_text = ""
-        merch_block = ""
-        pinned_comment = ""
-        youtube_shorts_title = ""
-        youtube_description = ""
-        facebook_caption = ""
-        instagram_caption = ""
-        tiktok_caption = ""
-        timestamps_block = ""
-        body_description = ""
+        meta: Dict[str, Any] = {}
+        from_json = False
 
-        # 1. Search for existing metadata via asset_manager
         meta_file = asset_manager.find_or_create_metadata_file(str(project_path), video_rel_path)
         if meta_file and meta_file.exists() and meta_file.is_file():
             try:
                 content = meta_file.read_text(encoding="utf-8")
             except Exception:
+                content = meta_file.read_text(encoding="cp1252", errors="replace")
+            if meta_file.suffix.lower() == ".json":
                 try:
-                    content = meta_file.read_text(encoding="cp1252", errors="replace")
+                    jdata = json.loads(content)
+                    if isinstance(jdata, dict):
+                        meta, from_json = jdata, True
                 except Exception:
-                    content = ""
+                    pass
+            else:
+                meta = self.parse_metadata_txt(content)
 
-            if content:
-                # If JSON metadata (standard for BHRS long-form videos)
-                if meta_file.suffix.lower() == ".json":
-                    try:
-                        jdata = json.loads(content)
-                        if isinstance(jdata, dict):
-                            title = jdata.get("title") or title
-                            hook_text = (jdata.get("hook") or "").strip()
-                            body_description = (jdata.get("description") or "").strip()
-                            if isinstance(jdata.get("tags"), list):
-                                tags = [str(t).strip().lstrip("#") for t in jdata.get("tags") if str(t).strip()]
-                            elif isinstance(jdata.get("tags"), str):
-                                tags = [t.strip().lstrip("#") for t in jdata.get("tags").split(",") if t.strip()]
-                            thumbnail_text = jdata.get("thumbnail_text", "").strip()
-                            merch_block = jdata.get("merch_block", "").strip()
-                            pinned_comment = jdata.get("pinned_comment", "").strip()
-                            youtube_shorts_title = jdata.get("youtube_shorts_title", "").strip()
-                            youtube_description = jdata.get("youtube_description", "").strip()
-                            facebook_caption = jdata.get("facebook_caption", "").strip()
-                            instagram_caption = jdata.get("instagram_caption", "").strip()
-                            tiktok_caption = jdata.get("tiktok_caption", "").strip()
+        title = str(meta.get("title") or meta.get("episode_title") or base_name).strip()
+        captions = self.build_platform_captions(meta, fallback_title=title, include_timestamps=True)
 
-                            # Timestamps / Chapters
-                            raw_timestamps = jdata.get("timestamps", [])
-                            if isinstance(raw_timestamps, list) and raw_timestamps:
-                                timestamps_block = "TIMESTAMPS:\n" + "\n".join(str(ts).strip() for ts in raw_timestamps if str(ts).strip())
-                            elif isinstance(raw_timestamps, str) and raw_timestamps.strip():
-                                timestamps_block = "TIMESTAMPS:\n" + raw_timestamps.strip()
-                    except Exception:
-                        pass
-                else:
-                    # Markdown / TXT parsing (standard for Shorts)
-                    lines = content.splitlines()
-                    body_desc_lines = []
-                    hashtags_lines = []
-                    current_section = None
-                    has_explicit_tags = False
-                    i = 0
-                    
-                    while i < len(lines):
-                        line = lines[i]
-                        clean = line.strip()
+        # YouTube tags field: the metadata's tags, else the hashtag words
+        raw_tags = meta.get("tags")
+        if isinstance(raw_tags, str):
+            raw_tags = [t for t in raw_tags.split(",")]
+        tags = [str(t).strip().lstrip("#") for t in (raw_tags or []) if str(t).strip()]
+        if not tags:
+            tags = [t.lstrip("#") for t in captions["hashtags_string"].split()]
 
-                        # Check for Merch & Books block
-                        if clean.startswith("===") and i + 1 < len(lines) and ("official merch" in lines[i+1].lower() or "merch & books" in lines[i+1].lower()):
-                            # If we are inside an explicit platform caption, allow continuation to capture it
-                            if current_section in ("facebook_caption", "instagram_caption", "youtube_description", "tiktok_caption"):
-                                pass
-                            else:
-                                current_section = None
-                                merch_lines = [line]
-                                i += 1
-                                while i < len(lines):
-                                    merch_lines.append(lines[i])
-                                    if lines[i].strip().startswith("===") and len(merch_lines) > 2:
-                                        break
-                                    i += 1
-                                parsed_mb = "\n".join(merch_lines).strip()
-                                # Keep the block with direct clickable URLs
-                                if not merch_block or ("http" in parsed_mb and "http" not in merch_block):
-                                    merch_block = parsed_mb
-                                i += 1
-                                continue
+        # The links comment posted after publishing: metadata.json may override it; legacy '=====' blocks and
+        # metadata.txt comments are replaced by the house comment
+        stored_comment = str(meta.get("pinned_comment") or "").strip() if from_json else ""
+        pinned_comment = stored_comment if stored_comment and "=====" not in stored_comment else DEFAULT_BHRS_PINNED_COMMENT
 
-                        # Check key headers
-                        m_title = re.match(r'^(?:#\s*)?title\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_hook = re.match(r'^(?:#\s*)?hook\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_thumb = re.match(r'^(?:#\s*)?thumbnail(?:\s+text)?\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_desc = re.match(r'^(?:#\s*)?description\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_pinned = re.match(r'^(?:#\s*)?pinned(?:\s+comment)?\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_hash = re.match(r'^(?:#\s*)?hashtags?\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_tags = re.match(r'^(?:#\s*)?tags\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_yt = re.match(r'^(?:#\s*)?youtube\s+shorts\s+title\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_ytd = re.match(r'^(?:#\s*)?youtube\s+description\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_fb = re.match(r'^(?:#\s*)?facebook\s+caption\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_ig = re.match(r'^(?:#\s*)?instagram\s+caption\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_tt = re.match(r'^(?:#\s*)?tiktok\s+caption\s*:\s*(.*)', clean, re.IGNORECASE)
-                        m_edit = re.match(r'^(?:#\s*)?editing\s*:', clean, re.IGNORECASE)
-
-                        if m_title:
-                            current_section = "title"
-                            val = m_title.group(1).strip()
-                            if val:
-                                title = val
-                        elif m_hook:
-                            current_section = "hook"
-                            val = m_hook.group(1).strip()
-                            if val:
-                                hook_text = val
-                        elif m_thumb:
-                            current_section = "thumbnail_text"
-                            val = m_thumb.group(1).strip()
-                            if val:
-                                thumbnail_text = val
-                        elif m_desc:
-                            current_section = "description"
-                            val = m_desc.group(1).strip()
-                            if val:
-                                body_desc_lines.append(val)
-                        elif m_pinned:
-                            current_section = "pinned_comment"
-                            val = m_pinned.group(1).strip()
-                            if val:
-                                pinned_comment = val
-                        elif m_hash:
-                            current_section = "hashtags"
-                            val = m_hash.group(1).strip()
-                            if val:
-                                hashtags_lines.append(val)
-                        elif m_tags:
-                            current_section = "tags"
-                            val = m_tags.group(1).strip()
-                            if val:
-                                parsed_tags = [t.strip().lstrip("#") for t in val.split(",") if t.strip()]
-                                if parsed_tags:
-                                    tags = parsed_tags
-                                    has_explicit_tags = True
-                        elif m_yt:
-                            current_section = "youtube_shorts_title"
-                            val = m_yt.group(1).strip()
-                            if val:
-                                youtube_shorts_title = val
-                        elif m_ytd:
-                            current_section = "youtube_description"
-                            val = m_ytd.group(1).strip()
-                            if val:
-                                youtube_description = val
-                        elif m_fb:
-                            current_section = "facebook_caption"
-                            val = m_fb.group(1).strip()
-                            if val:
-                                facebook_caption = val
-                        elif m_ig:
-                            current_section = "instagram_caption"
-                            val = m_ig.group(1).strip()
-                            if val:
-                                instagram_caption = val
-                        elif m_tt:
-                            current_section = "tiktok_caption"
-                            val = m_tt.group(1).strip()
-                            if val:
-                                tiktok_caption = val
-                        elif m_edit:
-                            current_section = "editing"
-                        else:
-                            # Continuation of previous multi-line section
-                            if current_section == "description":
-                                if clean.startswith("==="):
-                                    current_section = None
-                                elif clean:
-                                    body_desc_lines.append(clean)
-                            elif current_section == "hook":
-                                if clean:
-                                    hook_text = (hook_text + " " + clean).strip()
-                            elif current_section == "pinned_comment":
-                                if clean.startswith("===") or clean.startswith("#") or clean.startswith("HASHTAGS"):
-                                    current_section = None
-                                elif clean:
-                                    pinned_comment = (pinned_comment + "\n" + clean).strip()
-                            elif current_section == "hashtags":
-                                if clean.startswith("#") or clean:
-                                    hashtags_lines.append(clean)
-                            elif current_section == "youtube_description":
-                                youtube_description = (youtube_description + "\n" + line.strip()) if youtube_description else line.strip()
-                            elif current_section == "facebook_caption":
-                                facebook_caption = (facebook_caption + "\n" + line.strip()) if facebook_caption else line.strip()
-                            elif current_section == "instagram_caption":
-                                instagram_caption = (instagram_caption + "\n" + line.strip()) if instagram_caption else line.strip()
-                            elif current_section == "tiktok_caption":
-                                tiktok_caption = (tiktok_caption + "\n" + line.strip()) if tiktok_caption else line.strip()
-                            elif not current_section:
-                                if clean.startswith("# ") and not title:
-                                    title = clean.lstrip("#").strip()
-                                elif not clean.startswith("===") and not clean.startswith("EPISODE") and clean:
-                                    if not body_desc_lines:
-                                        body_desc_lines.append(clean)
-
-                        i += 1
-
-                    # Parse tags from hashtags if found
-                    all_hashtags_str = " ".join(hashtags_lines).strip()
-                    if all_hashtags_str and not has_explicit_tags:
-                        extracted_tags = [t.lstrip("#") for t in re.findall(r'#(\w+)', all_hashtags_str)]
-                        if extracted_tags:
-                            tags = extracted_tags
-
-                    body_description = "\n\n".join(body_desc_lines).strip()
-
-        # Check default merch block if none is explicitly specified
-        if not merch_block:
-            proj_str = f"{project_path.name} {video_rel_path}".lower()
-            if "bhrs" in proj_str or "bible" in proj_str or "covenant" in proj_str:
-                merch_block = DEFAULT_BHRS_MERCH_BLOCK
-
-        # Format hashtags string
-        hashtags_list = [f"#{t.replace(' ', '').lstrip('#')}" for t in tags if t]
-        hashtags_string = " ".join(hashtags_list)
-
-        # Check if video is short/reel vs long-form
-        v_low = str(video_rel_path).lower()
-        is_reel_or_short = "reel" in v_low or "short" in v_low
-        if not is_reel_or_short:
-            try:
-                minfo = asset_manager.get_media_info(project_path / video_rel_path)
-                dur = minfo.get("duration_sec", 0.0)
-                res = minfo.get("resolution", "")
-                if ("x" in res and int(res.split("x")[1]) > int(res.split("x")[0])) or (0 < dur <= 60):
-                    is_reel_or_short = True
-            except Exception:
-                pass
-
-        # Determine top hook / headline line:
-        # 1. Explicit hook_text from metadata if present
-        # 2. Thumbnail text ONLY if it is short, uppercase, and does not contain "=" or ":" (e.g. "JERICHO — WALLS FELL OUTWARD")
-        # 3. Video title (standard headline, e.g. "The First Death in the Bible Was GOD Killing an Animal — For Clothing")
-        top_hook = ""
-        if hook_text:
-            top_hook = hook_text
-        elif thumbnail_text and ("=" not in thumbnail_text) and (":" not in thumbnail_text) and len(thumbnail_text) <= 80 and thumbnail_text == thumbnail_text.upper():
-            top_hook = thumbnail_text
-        elif title:
-            top_hook = title
-        elif thumbnail_text:
-            top_hook = thumbnail_text
-
-        # Build standardized descriptions for each platform
-        # Standard full description with direct URLs (Format for Facebook & Instagram)
-        standard_full_description = self.format_social_description(
-            hook=top_hook,
-            body=body_description,
-            merch_block=merch_block,
-            hashtags=hashtags_string,
-            timestamps=timestamps_block,
-            platform="facebook",
-            is_short_or_reel=is_reel_or_short
-        )
-
-        # YouTube description (Sanitized bio links for Shorts, direct URLs for long-form)
-        standard_youtube_description = self.format_social_description(
-            hook=top_hook,
-            body=body_description,
-            merch_block=merch_block,
-            hashtags=hashtags_string,
-            timestamps=timestamps_block,
-            platform="youtube",
-            is_short_or_reel=is_reel_or_short
-        )
-
-        # Check if parsed captions already have the full multi-section layout (contains merch block divider or official merch & books header)
-        # If not, use the standardized full description to prevent legacy single-paragraph snippets
-        is_full_fb = bool(facebook_caption and ("====" in facebook_caption or "official merch & books" in facebook_caption.lower()))
-        is_full_ig = bool(instagram_caption and ("====" in instagram_caption or "official merch & books" in instagram_caption.lower()))
-        is_full_yt = bool(youtube_description and ("====" in youtube_description or "official merch & books" in youtube_description.lower()))
-
-        final_fb_caption = facebook_caption if is_full_fb else standard_full_description
-        final_ig_caption = instagram_caption if is_full_ig else standard_full_description
-        final_yt_description = self.sanitize_urls_for_youtube(youtube_description) if is_full_yt else standard_youtube_description
-        final_description = standard_full_description or body_description
-
-        caption = f"{top_hook or title}\n\n{hashtags_string}".strip()
-
-        # 2. Check for custom thumbnail in video folder
         thumb_file = self.find_custom_thumbnail(project_path, video_rel_path)
         has_custom_thumb = bool(thumb_file and thumb_file.exists())
-        thumbnail_abs_path = str(thumb_file.resolve()) if has_custom_thumb else ""
-        thumbnail_rel_path = str(thumb_file.relative_to(project_path)).replace("\\", "/") if has_custom_thumb else ""
-        thumbnail_docker_path = self.get_docker_path(thumb_file) if has_custom_thumb else ""
+        hashtags_string = captions["hashtags_string"]
 
         return {
             "title": title,
-            "hook": top_hook,
-            "description": final_description,
-            "youtube_description": final_yt_description,
+            "hook": captions["hook"],
+            "scriptures": captions["scriptures"],
+            "description": captions["facebook_caption"],
+            "youtube_description": captions["youtube_description"],
             "tags": tags,
             "hashtags_string": hashtags_string,
-            "caption": caption,
-            "thumbnail_text": thumbnail_text,
-            "merch_block": merch_block,
+            "caption": f"{captions['hook'] or title}\n\n{hashtags_string}".strip(),
+            "thumbnail_text": str(meta.get("thumbnail_text") or "").strip(),
+            "merch_block": "",
             "pinned_comment": pinned_comment,
-            "youtube_shorts_title": youtube_shorts_title,
-            "facebook_caption": final_fb_caption,
-            "instagram_caption": final_ig_caption,
-            "tiktok_caption": tiktok_caption or final_description,
+            "youtube_shorts_title": self.sanitize_title_for_youtube(str(meta.get("youtube_shorts_title") or title)),
+            "facebook_caption": captions["facebook_caption"],
+            "instagram_caption": captions["instagram_caption"],
+            "threads_caption": captions["threads_caption"],
+            "tiktok_caption": captions["tiktok_caption"],
+            "x_post": captions["x_post"],
             "has_custom_thumbnail": has_custom_thumb,
             "thumbnail_filename": thumb_file.name if has_custom_thumb else "",
-            "thumbnail_rel_path": thumbnail_rel_path,
-            "thumbnail_abs_path": thumbnail_abs_path,
-            "thumbnail_docker_path": thumbnail_docker_path
+            "thumbnail_rel_path": str(thumb_file.relative_to(project_path)).replace("\\", "/") if has_custom_thumb else "",
+            "thumbnail_abs_path": str(thumb_file.resolve()) if has_custom_thumb else "",
+            "thumbnail_docker_path": self.get_docker_path(thumb_file) if has_custom_thumb else ""
         }
-
-    @staticmethod
-    def sanitize_urls_for_youtube(text: str) -> str:
-        """Replaces all raw http/https and www links with '🔗 (Link in channel bio)' for YouTube compliance (no raw external URLs)."""
-        if not text:
-            return ""
-        t = re.sub(r'[-–—:|]?\s*https?://\S+', ' 🔗 (Link in channel bio)', text)
-        t = re.sub(r'[-–—:|]?\s*www\.\S+', ' 🔗 (Link in channel bio)', t)
-        return t
 
     def _build_auth_headers(self, auth_header: Optional[str]) -> Dict[str, str]:
         """Constructs headers dictionary with authentication if provided."""
@@ -547,7 +749,90 @@ class SocialDispatcher:
                 "target_url": target_url
             }
 
-    async def publish_video(self, project_path_str: str, video_rel_path: str, platforms: Optional[List[str]] = None, custom_title: Optional[str] = None, custom_desc: Optional[str] = None, custom_tags: Optional[List[str]] = None, force_republish: bool = False, scheduled_datetime_iso: Optional[str] = None, publish_mode: str = "immediate") -> Dict[str, Any]:
+    SUPPORTED_PLATFORMS = ("youtube", "facebook", "instagram", "threads", "tiktok", "x")
+
+    @staticmethod
+    def classify_video_format(resolution: Optional[str], duration_sec: float, rel_path: str) -> Dict[str, str]:
+        """
+        Classifies a video as "story", "short" or "long_form".
+        The probed aspect ratio decides first: vertical -> short, landscape -> long_form,
+        square -> short if <= 180s. Path hints are only used when the resolution is unknown.
+        Videos under a 'stories' folder are stories unless they are landscape.
+        """
+        parts = [x.lower() for x in str(rel_path).replace("\\", "/").split("/")]
+        in_stories = "stories" in parts[:-1]
+        name = parts[-1] if parts else ""
+        reel_hint = "reels" in parts[:-1] or "shorts" in parts[:-1] or "reel" in name or "short" in name
+
+        w = h = 0
+        try:
+            w, h = map(int, str(resolution or "").lower().split("x"))
+        except Exception:
+            pass
+
+        if w > 0 and h > 0:
+            if h > w:
+                aspect_ratio, vertical_ok = "9:16", True
+            elif h == w:
+                aspect_ratio, vertical_ok = "1:1", 0 < duration_sec <= 180
+            else:
+                aspect_ratio, vertical_ok = "16:9", False
+        else:
+            aspect_ratio = "unknown"
+            vertical_ok = in_stories or reel_hint or (0 < duration_sec <= 180)
+
+        if not vertical_ok:
+            video_format = "long_form"
+        elif in_stories:
+            video_format = "story"
+        else:
+            video_format = "short"
+        return {"format": video_format, "aspect_ratio": aspect_ratio}
+
+    @classmethod
+    def get_platform_routing(cls, video_format: str, duration_sec: float, cfg: Dict[str, Any], duration_str: str = "") -> Dict[str, Dict[str, Any]]:
+        """Per-platform label + eligibility for a video format. Disabled platforms in project settings are ineligible."""
+        dur = duration_str or f"{int(duration_sec // 60)}m {int(duration_sec % 60)}s"
+        short = video_format in ("short", "story")
+        story = video_format == "story"
+        routes = {
+            "youtube": {"label": "YouTube Shorts" if short else "YouTube Standard", "eligible": True, "reason": ""},
+            "facebook": {"label": "Facebook Story" if story else ("Facebook Reels" if short else "Facebook Long Video"), "eligible": True, "reason": ""},
+            "instagram": {"label": "Instagram Story" if story else "Instagram Reels", "eligible": True, "reason": ""},
+            "threads": {"label": "Threads Video", "eligible": True, "reason": ""},
+            "tiktok": {"label": "TikTok" if short else "TikTok Long Video", "eligible": True, "reason": ""},
+            "x": {"label": "X (not supported yet)", "eligible": False, "reason": "X posting is not implemented yet (no X API uploader)."},
+        }
+        if not short:
+            routes["instagram"].update(eligible=False, reason="Instagram only accepts vertical Reels/Stories; this is a landscape long-form video.")
+            routes["threads"].update(eligible=False, reason="Threads is limited to short vertical videos.")
+        if story and duration_sec > 60:
+            routes["instagram"].update(eligible=False, reason=f"Instagram Stories are limited to 60s (video is {dur}).")
+        elif short and duration_sec > 900:
+            routes["instagram"].update(eligible=False, reason=f"Instagram Reels are limited to 15 minutes (video is {dur}).")
+        if short and duration_sec > 300:
+            routes["threads"].update(eligible=False, reason=f"Threads videos are limited to 5 minutes (video is {dur}).")
+        if duration_sec > 1800:
+            routes["tiktok"].update(label="TikTok (>30m limit)", eligible=False, reason=f"TikTok is limited to 30 minutes (video is {dur}).")
+        for p, route in routes.items():
+            if route["eligible"] and not cfg.get(p, {}).get("enabled", True):
+                route.update(eligible=False, reason=f"{route['label']} is disabled in this project's social settings.")
+        return routes
+
+    async def publish_video(
+        self,
+        project_path_str: str,
+        video_rel_path: str,
+        platforms: Optional[List[str]] = None,
+        custom_title: Optional[str] = None,
+        custom_desc: Optional[str] = None,
+        custom_tags: Optional[List[str]] = None,
+        force_republish: bool = False,
+        scheduled_datetime_iso: Optional[str] = None,
+        publish_mode: str = "immediate",
+        platform_captions: Optional[Dict[str, str]] = None,
+        custom_pinned_comment: Optional[str] = None
+    ) -> Dict[str, Any]:
         project_path = Path(project_path_str)
         video_abs_path = project_path / video_rel_path
         if not video_abs_path.exists():
@@ -555,8 +840,6 @@ class SocialDispatcher:
 
         cfg = config_manager.get_project_social_config(project_path_str)
         dry_run = cfg.get("dry_run", True)
-        webhook_url = cfg.get("webhook_url", "").strip()
-        auth_header = cfg.get("webhook_auth_header", "").strip()
 
         # Parse scheduled_datetime_iso into UTC ISO 8601 string and UNIX timestamp
         import datetime
@@ -577,7 +860,7 @@ class SocialDispatcher:
                 import logging
                 logging.warning(f"[SocialDispatcher] Failed to parse scheduled_datetime_iso '{scheduled_datetime_iso}': {e}")
 
-        all_platforms = ["youtube", "facebook", "instagram", "tiktok", "x"]
+        all_platforms = list(self.SUPPORTED_PLATFORMS)
         target_platforms = platforms if platforms else [p for p in all_platforms if cfg.get(p, {}).get("enabled", True)]
 
         # Check existing publication records in asset manager
@@ -588,7 +871,22 @@ class SocialDispatcher:
             if pdata.get("status") in ("published", "scheduled")
         ]
 
+        already_published_results = {}
         if not force_republish:
+            for p in target_platforms:
+                if p in already_published_platforms:
+                    pdata = existing_published.get(p, {})
+                    pdetails = pdata.get("details", {})
+                    purl = pdetails.get("url") or pdata.get("url") or ""
+                    pid = pdetails.get("id") or pdata.get("id") or ""
+                    already_published_results[p] = {
+                        "status": "published",
+                        "platform": p.capitalize(),
+                        "already_published": True,
+                        "url": purl,
+                        "id": pid,
+                        "message": f"Already published on {p.capitalize()} (skipped duplicate upload)."
+                    }
             unposted = [p for p in target_platforms if p not in already_published_platforms]
             if unposted:
                 # Target only unposted platforms
@@ -604,15 +902,7 @@ class SocialDispatcher:
                     "title": custom_title or video_abs_path.stem.replace("_", " ").title(),
                     "video": video_abs_path.name,
                     "message": f"All target platforms ({', '.join(platforms or target_platforms)}) have already been published. Dispatch skipped to prevent duplicates.",
-                    "platforms": {
-                        p: {
-                            "status": "published",
-                            "platform": p,
-                            "message": "Already published",
-                            "url": existing_published.get(p, {}).get("details", {}).get("url")
-                        }
-                        for p in (platforms or target_platforms)
-                    }
+                    "platforms": already_published_results
                 }
         else:
             is_already_posted = False
@@ -639,415 +929,371 @@ class SocialDispatcher:
         media_info = asset_manager.get_media_info(video_abs_path)
         duration_str = media_info.get("duration") or "N/A"
         duration_sec = media_info.get("duration_sec") or 0.0
-        resolution = media_info.get("resolution") or "1920x1080"
-        
-        # Check aspect ratio
-        is_short_or_reel = False
-        aspect_ratio = "16:9"
-        if "x" in resolution:
-            try:
-                w, h = map(int, resolution.split("x"))
-                if h > w:
-                    aspect_ratio = "9:16"
-                    is_short_or_reel = True
-                elif duration_sec > 0 and duration_sec <= 60:
-                    is_short_or_reel = True
-            except Exception:
-                pass
+        fmt = self.classify_video_format(media_info.get("resolution"), duration_sec, video_rel_path)
+        video_format = fmt["format"]
+        aspect_ratio = fmt["aspect_ratio"]
+        is_short_or_reel = video_format in ("short", "story")
+        is_story = video_format == "story"
 
-        # Instagram Reels constraint guard:
-        # Reels API only supports up to 15 min (900s) vertical/square video.
-        # Long-form 16:9 documentaries (e.g. 33-minute BHRS episodes) must NOT be dispatched to Instagram.
-        if "instagram" in target_platforms:
-            if duration_sec > 900 or (aspect_ratio == "16:9" and duration_sec > 180 and not is_short_or_reel):
+        # Single routing rule shared with the publish modal (/api/social/format)
+        routing = self.get_platform_routing(video_format, duration_sec, cfg, duration_str)
+        format_skipped_platforms = {}
+        for p in list(target_platforms):
+            route = routing.get(p) or {"eligible": False, "label": p, "reason": f"Unsupported platform '{p}'."}
+            skip_reason = None if route["eligible"] else route["reason"]
+            if not skip_reason and is_story and scheduled_timestamp and p in ("facebook", "instagram"):
+                skip_reason = "Stories can't be cloud-scheduled; they are published when the post is due."
+            if skip_reason:
                 import logging
-                logging.info(f"[SocialDispatcher] Skipping Instagram for {video_rel_path}: Video is {duration_str} ({aspect_ratio}), exceeding Instagram Reels API limit.")
-                target_platforms = [p for p in target_platforms if p != "instagram"]
-                if not target_platforms:
-                    return {
-                        "success": True,
-                        "already_posted": False,
-                        "skipped": True,
-                        "title": title,
-                        "video": video_abs_path.name,
-                        "message": f"Video ({duration_str} {aspect_ratio}) is not eligible for Instagram Reels (exceeds 15m limit) and no other platforms were targeted.",
-                        "platforms": {
-                            "instagram": {
-                                "status": "skipped",
-                                "platform": "Instagram",
-                                "message": f"Skipped: duration {duration_str} exceeds Instagram Reels limit."
-                            }
-                        }
-                    }
+                logging.info(f"[SocialDispatcher] Skipping {p} for {video_rel_path}: {skip_reason}")
+                target_platforms = [t for t in target_platforms if t != p]
+                format_skipped_platforms[p] = {
+                    "status": "skipped",
+                    "platform": route["label"],
+                    "message": f"Skipped: {skip_reason}"
+                }
 
-        has_custom_thumb = meta.get("has_custom_thumbnail", False)
+        if not target_platforms and format_skipped_platforms:
+            return {
+                "success": True,
+                "already_posted": False,
+                "skipped": True,
+                "title": title,
+                "video": video_abs_path.name,
+                "message": f"Video ({duration_str} {aspect_ratio}) was skipped on selected platforms due to format/duration limits.",
+                "platforms": format_skipped_platforms
+            }
+
         thumb_abs = meta.get("thumbnail_abs_path", "")
-        thumb_rel = meta.get("thumbnail_rel_path", "")
-        thumb_docker = meta.get("thumbnail_docker_path", "")
-
-        video_spec = {
-            "filename": video_abs_path.name,
-            "rel_path": video_rel_path.replace("\\", "/"),
-            "abs_path": str(video_abs_path.resolve()),
-            "docker_path": self.get_docker_path(video_abs_path),
-            "size_bytes": stat.st_size,
-            "size_mb": round(stat.st_size / (1024 * 1024), 2),
-            "duration": duration_str,
-            "duration_sec": duration_sec,
-            "resolution": resolution,
-            "aspect_ratio": aspect_ratio,
-            "is_short_or_reel": is_short_or_reel,
-            "has_custom_thumbnail": has_custom_thumb,
-            "thumbnail_filename": Path(thumb_abs).name if thumb_abs else "",
-            "thumbnail_rel_path": thumb_rel,
-            "thumbnail_abs_path": thumb_abs,
-            "thumbnail_docker_path": thumb_docker,
-            "thumbnail_path": thumb_docker,
-            "local_url": f"/api/media/{urllib.parse.quote(video_rel_path.replace('\\', '/'), safe='/')}",
-            "already_published_platforms": already_published_platforms,
-            "is_already_posted": is_already_posted and not force_republish,
-            "published_history": existing_published
-        }
 
         if custom_desc and not custom_desc.startswith("Generated by AI Content Generation Pipeline"):
             desc = custom_desc
             fb_desc = custom_desc
             ig_desc = custom_desc
-            yt_desc = self.sanitize_urls_for_youtube(custom_desc)
+            th_desc = custom_desc if len(custom_desc) <= 500 else self.build_threads_caption(title, custom_desc, hashtags_string)
+            yt_desc = custom_desc
+            tt_desc = custom_desc if len(custom_desc) <= 2000 else self.build_tiktok_caption(title, custom_desc, hashtags_string)
+            x_desc = self.build_x_post(title, custom_desc, hashtags=hashtags_string)
         else:
             desc = meta.get("description") or ""
             fb_desc = meta.get("facebook_caption") or desc
             ig_desc = meta.get("instagram_caption") or desc
-            yt_desc = self.sanitize_urls_for_youtube(meta.get("youtube_description") or desc)
+            th_desc = meta.get("threads_caption") or self.build_threads_caption(title, desc, hashtags=hashtags_string)
+            yt_desc = meta.get("youtube_description") or desc
+            tt_desc = meta.get("tiktok_caption") or desc
+            x_desc = meta.get("x_post") or self.build_x_post(title, desc, hashtags=hashtags_string)
 
-        content_spec = {
-            "title": title,
-            "description": desc,
-            "youtube_description": yt_desc,
-            "tags": tags,
-            "hashtags_string": hashtags_string,
-            "caption": caption,
-            "thumbnail_text": meta.get("thumbnail_text", ""),
-            "merch_block": meta.get("merch_block", ""),
-            "pinned_comment": meta.get("pinned_comment", ""),
-            "youtube_shorts_title": meta.get("youtube_shorts_title", ""),
-            "facebook_caption": fb_desc,
-            "instagram_caption": ig_desc,
-            "tiktok_caption": meta.get("tiktok_caption") or desc
-        }
+        # Allow granular per-platform caption overrides if explicitly provided
+        if platform_captions and isinstance(platform_captions, dict):
+            if platform_captions.get("facebook"):
+                fb_desc = platform_captions["facebook"]
+            if platform_captions.get("youtube"):
+                yt_desc = platform_captions["youtube"]
+            if platform_captions.get("instagram"):
+                ig_desc = platform_captions["instagram"]
+            if platform_captions.get("threads"):
+                th_desc = platform_captions["threads"]
+            if platform_captions.get("tiktok"):
+                tt_desc = platform_captions["tiktok"]
+            if platform_captions.get("x"):
+                x_desc = platform_captions["x"]
 
-        project_spec = {
-            "name": project_path.name,
-            "path": str(project_path.resolve())
-        }
+        # Universal Policy & Compliance Sanitizer Guard:
+        # Ensures no platform receives policy-violating text (URLs, merch blocks, length, sensitive tags).
+        # Hashtags edited in the publish modal come first, then the caption's own.
+        explicit_tags = custom_tags or []
+        yt_desc = self.sanitize_urls_for_youtube(yt_desc, hashtags=explicit_tags)
+        title = self.sanitize_title_for_youtube(title)
+        fb_desc = self.sanitize_caption_for_facebook(fb_desc, hook=title, body=desc, hashtags=explicit_tags)
+        ig_desc = self.sanitize_urls_for_instagram(ig_desc, hashtags=explicit_tags)
+        th_desc = self.sanitize_caption_for_threads(th_desc, title, desc, hashtags=explicit_tags)
+        tt_desc = self.sanitize_caption_for_tiktok(tt_desc, hashtags=explicit_tags)
+        x_desc = self.sanitize_post_for_x(x_desc)
 
-        platform_configs = {p: cfg.get(p, {}) for p in all_platforms}
+        effective_pinned_comment = custom_pinned_comment or meta.get("pinned_comment") or DEFAULT_BHRS_PINNED_COMMENT
 
         results = {}
 
-        # 1. External Webhook Dispatch (Zapier, Make, n8n)
-        webhook_status = None
-        if webhook_url:
-            payload = {
-                "event": "video_approved_and_publish",
-                "dry_run": dry_run,
-                "project": project_spec,
-                "video": video_spec,
-                "content": content_spec,
-                "target_platforms": target_platforms,
-                "already_published_platforms": already_published_platforms,
-                "is_already_posted": is_already_posted and not force_republish,
-                "force_republish": force_republish,
-                "platform_configs": platform_configs,
-                "scheduled_datetime_iso": publish_at_iso,
-                "scheduled_timestamp": scheduled_timestamp,
-                "publish_mode": publish_mode or ("schedule" if publish_at_iso else "immediate"),
-                "timestamp": time.time(),
-                "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            }
-            try:
-                headers = self._build_auth_headers(auth_header)
-                if not dry_run:
-                    start_t = time.perf_counter()
-                    video_mb = video_spec.get("size_mb", 50)
-                    calc_timeout = max(3600, int(video_mb * 10))
-                    resp = await asyncio.to_thread(requests.post, webhook_url, json=payload, headers=headers, timeout=calc_timeout)
-                    latency = round((time.perf_counter() - start_t) * 1000, 1)
-                    try:
-                        resp_data = resp.json()
-                    except Exception:
-                        resp_data = resp.text[:300]
-                    webhook_status = {
-                        "status_code": resp.status_code,
-                        "latency_ms": latency,
-                        "response": resp_data
-                    }
-                    if resp.status_code >= 400:
-                        webhook_status["error"] = f"Webhook returned HTTP {resp.status_code}"
-                else:
-                    webhook_status = {
-                        "status_code": 200,
-                        "simulated": True,
-                        "payload": payload
-                    }
-            except Exception as e:
-                webhook_status = {"error": str(e)}
-
-        # Check if webhook dispatch returned errors or partial results
-        if not dry_run and webhook_url and isinstance(webhook_status, dict):
-            resp_val = webhook_status.get("response")
-            if isinstance(resp_val, str):
-                try:
-                    resp_val = json.loads(resp_val)
-                except Exception:
-                    pass
-
-            is_error_code = bool(webhook_status.get("error") or webhook_status.get("status_code", 200) >= 400)
-            is_json_fail = isinstance(resp_val, dict) and resp_val.get("success") is False
-
-            if is_error_code or is_json_fail:
-                err_detail = webhook_status.get("error") or f"Webhook returned HTTP {webhook_status.get('status_code')}"
-                if isinstance(resp_val, dict) and resp_val.get("message"):
-                    err_detail = f"{err_detail}: {resp_val.get('message')}"
-                elif isinstance(resp_val, str) and resp_val.strip():
-                    err_detail = f"{err_detail}: {resp_val.strip()[:200]}"
-
-                partial_success = False
-                fail_results = {}
-                for plat in target_platforms:
-                    fail_results[plat] = {
-                        "status": "failed",
-                        "platform": plat,
-                        "error": err_detail
-                    }
-
-                if isinstance(resp_val, dict):
-                    # Check YouTube
-                    if "youtube" in target_platforms and (resp_val.get("youtube_id") or resp_val.get("youtube_url")):
-                        yt_id = resp_val.get("youtube_id")
-                        yt_url = resp_val.get("youtube_url") or f"https://youtu.be/{yt_id}"
-                        fail_results["youtube"] = {
-                            "status": "published",
-                            "platform": "YouTube",
-                            "id": yt_id,
-                            "url": yt_url,
-                            "scheduled": bool(publish_at_iso),
-                            "scheduled_for": publish_at_iso,
-                            "message": f"{'Scheduled on' if publish_at_iso else 'Published to'} YouTube: {yt_url}"
-                        }
-                        asset_manager.mark_published(video_rel_path, "youtube", fail_results["youtube"])
-                        partial_success = True
-
-                    # Check Facebook
-                    if "facebook" in target_platforms and (resp_val.get("facebook_id") or resp_val.get("facebook_url")):
-                        fb_id = resp_val.get("facebook_id")
-                        fb_url = resp_val.get("facebook_url") or f"https://www.facebook.com/watch/?v={fb_id}"
-                        fail_results["facebook"] = {
-                            "status": "published",
-                            "platform": "Facebook",
-                            "id": fb_id,
-                            "url": fb_url,
-                            "scheduled": bool(scheduled_timestamp),
-                            "scheduled_timestamp": scheduled_timestamp,
-                            "message": f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook: {fb_url}"
-                        }
-                        asset_manager.mark_published(video_rel_path, "facebook", fail_results["facebook"])
-                        partial_success = True
-
-                    # Check Instagram
-                    if "instagram" in target_platforms and (resp_val.get("instagram_id") or resp_val.get("instagram_url")):
-                        ig_id = resp_val.get("instagram_id")
-                        ig_url = resp_val.get("instagram_url") or ""
-                        fail_results["instagram"] = {
-                            "status": "published",
-                            "platform": "Instagram",
-                            "id": ig_id,
-                            "url": ig_url,
-                            "message": "Published to Instagram"
-                        }
-                        asset_manager.mark_published(video_rel_path, "instagram", fail_results["instagram"])
-                        partial_success = True
-
-                # If all requested platforms actually succeeded despite non-200 code
-                if partial_success and all(r.get("status") == "published" for r in fail_results.values()):
-                    return {
-                        "success": True,
-                        "dry_run": False,
-                        "title": title,
-                        "video": video_abs_path.name,
-                        "webhook_result": webhook_status,
-                        "platforms": fail_results
-                    }
-
-                return {
-                    "success": partial_success,
-                    "error": err_detail,
-                    "dry_run": False,
-                    "title": title,
-                    "video": video_abs_path.name,
-                    "webhook_result": webhook_status,
-                    "platforms": fail_results
-                }
-
-        # If webhook indicates the video was already posted, return immediately without re-marking
-        if isinstance(webhook_status, dict):
-            resp_json = webhook_status.get("response")
-            if isinstance(resp_json, dict) and resp_json.get("already_posted"):
-                return {
-                    "success": False,
-                    "already_posted": True,
-                    "skipped": True,
-                    "title": title,
-                    "video": video_abs_path.name,
-                    "message": resp_json.get("message") or "Video/image is already posted to target platform. Dispatch halted to prevent duplicate.",
-                    "webhook_result": webhook_status,
-                    "platforms": {
-                        p: {
-                            "status": "skipped",
-                            "message": "Already posted",
-                            "url": existing_published.get(p, {}).get("details", {}).get("url")
-                        }
-                        for p in target_platforms
-                    }
-                }
-
-        # 2. Individual Platform Handlers & Status Tracking
+        # Individual Platform Handlers (Direct Native Upload)
         for plat in target_platforms:
             plat_cfg = cfg.get(plat, {})
             if dry_run:
-                # Simulated dispatch
+                # Simulated dispatch: never reported as "published" so nothing records it as a real post
                 res = {
-                    "status": "success",
+                    "status": "simulated",
+                    "simulated": True,
                     "mode": "DRY_RUN (Simulated)",
                     "message": f"Simulated posting to {plat.upper()} with title '{title}'",
                     "video": video_abs_path.name,
                     "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
                 }
             else:
-                # Live dispatch handlers
-                res = self._dispatch_to_platform(plat, plat_cfg, video_abs_path, title, desc, tags)
+                # Live direct native dispatch handlers (blocking HTTP/uploads run off the event loop)
+                res = await asyncio.to_thread(
+                    self._dispatch_to_platform,
+                    platform=plat,
+                    config=plat_cfg,
+                    video_path=video_abs_path,
+                    title=title,
+                    description=(
+                        yt_desc if plat == "youtube"
+                        else (fb_desc if plat == "facebook"
+                        else (ig_desc if plat == "instagram"
+                        else (th_desc if plat == "threads"
+                        else (x_desc if plat == "x"
+                        else (tt_desc if plat == "tiktok" else desc)))))
+                    ),
+                    tags=tags,
+                    scheduled_timestamp=scheduled_timestamp,
+                    publish_at_iso=publish_at_iso,
+                    is_short=is_short_or_reel,
+                    is_story=is_story,
+                    thumbnail_path=Path(thumb_abs) if thumb_abs else None,
+                    pinned_comment=effective_pinned_comment
+                )
 
             results[plat] = res
-            if not dry_run and plat == "youtube" and isinstance(webhook_status, dict):
-                resp_json = webhook_status.get("response")
-                if isinstance(resp_json, dict) and resp_json.get("youtube_url"):
-                    results[plat]["url"] = resp_json["youtube_url"]
-                    results[plat]["id"] = resp_json.get("youtube_id")
-                    results[plat]["status"] = "published"
-                    results[plat]["scheduled"] = bool(publish_at_iso)
-                    results[plat]["scheduled_for"] = publish_at_iso
-                    results[plat]["message"] = f"{'Scheduled on' if publish_at_iso else 'Published to'} YouTube: {resp_json['youtube_url']}"
-                elif isinstance(resp_json, dict) and resp_json.get("success"):
-                    results[plat]["status"] = "published"
-                    results[plat]["url"] = resp_json.get("youtube_url", "")
-                    results[plat]["scheduled"] = bool(publish_at_iso)
-                    results[plat]["message"] = f"{'Scheduled on' if publish_at_iso else 'Published to'} YouTube via n8n"
-                else:
-                    results[plat]["status"] = "failed"
-                    results[plat]["error"] = "YouTube upload did not return a confirmed video URL"
-            elif not dry_run and plat == "facebook" and isinstance(webhook_status, dict):
-                resp_json = webhook_status.get("response")
-                if isinstance(resp_json, dict) and (resp_json.get("facebook_id") or resp_json.get("facebook_url")):
-                    fb_id = resp_json.get("facebook_id")
-                    results[plat]["url"] = resp_json.get("facebook_url") or f"https://www.facebook.com/watch/?v={fb_id}"
-                    results[plat]["id"] = fb_id
-                    results[plat]["status"] = "published"
-                    results[plat]["scheduled"] = bool(scheduled_timestamp)
-                    results[plat]["scheduled_timestamp"] = scheduled_timestamp
-                    results[plat]["message"] = f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook: {results[plat]['url']}"
-                elif isinstance(resp_json, dict) and resp_json.get("success"):
-                    results[plat]["status"] = "published"
-                    results[plat]["scheduled"] = bool(scheduled_timestamp)
-                    results[plat]["message"] = f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook via n8n"
-            elif not dry_run and plat == "instagram" and isinstance(webhook_status, dict):
-                resp_json = webhook_status.get("response")
-                if isinstance(resp_json, dict) and (resp_json.get("instagram_id") or resp_json.get("instagram_url")):
-                    results[plat]["url"] = resp_json.get("instagram_url") or ""
-                    results[plat]["id"] = resp_json.get("instagram_id")
-                    results[plat]["status"] = "published"
-                    results[plat]["message"] = f"Published to Instagram"
-                elif isinstance(resp_json, dict) and resp_json.get("success"):
-                    results[plat]["status"] = "published"
-                    results[plat]["message"] = "Published to Instagram via n8n"
 
-        # Determine overall success
-        overall_success = dry_run or any(r.get("status") == "published" for r in results.values())
-        if not overall_success:
-            err_msg = next((r.get("error") for r in results.values() if r.get("error")), "Social media dispatch failed.")
+        # Check if newly attempted platforms succeeded
+        newly_published = [p for p in target_platforms if results.get(p, {}).get("status") == "published"]
+
+        # Merge already-published and format-skipped platforms into results for full visibility in the UI modal
+        results.update(already_published_results)
+        results.update(format_skipped_platforms)
+
+        if not dry_run and not newly_published and target_platforms:
+            err_msg = next((results[p].get("error") for p in target_platforms if results.get(p, {}).get("error")), "Social media dispatch failed.")
             return {
                 "success": False,
                 "error": err_msg,
                 "dry_run": dry_run,
                 "title": title,
                 "video": video_abs_path.name,
-                "webhook_result": webhook_status,
                 "platforms": results
             }
 
-        # Mark successfully published platforms in asset manager
-        for plat in target_platforms:
-            if dry_run or results[plat].get("status") == "published":
+        # Record real uploads only: a dry run must never touch publish history
+        if not dry_run:
+            for plat in newly_published:
                 asset_manager.mark_published(video_rel_path, plat, results[plat])
 
-        # Send native desktop notification only on verified success
-        try:
-            from core.notifier import notify_desktop
-            pub_plats = [p.upper() for p, r in results.items() if dry_run or r.get("status") == "published"]
-            plat_names = ", ".join(pub_plats) if pub_plats else ", ".join([p.upper() for p in target_platforms])
-            if publish_at_iso or scheduled_timestamp:
-                action_word = "Scheduled in Cloud"
-            else:
-                action_word = "Reposted" if force_republish else "Published"
-            mode_prefix = "[Simulated] " if dry_run else ""
-            notify_desktop(
-                f"{mode_prefix}Video {action_word}: {plat_names}",
-                f"'{title}' was {action_word.lower()} to {plat_names} successfully."
-            )
-        except Exception:
-            pass
+        # Send native desktop notification only on verified (or explicitly simulated) dispatch
+        done_plats = target_platforms if dry_run else newly_published
+        if done_plats:
+            try:
+                from core.notifier import notify_desktop
+                plat_names = ", ".join(p.upper() for p in done_plats)
+                if publish_at_iso or scheduled_timestamp:
+                    action_word = "Scheduled in Cloud"
+                else:
+                    action_word = "Reposted" if force_republish else "Published"
+                mode_prefix = "[Simulated] " if dry_run else ""
+                notify_desktop(
+                    f"{mode_prefix}Video {action_word}: {plat_names}",
+                    f"Dry run for '{title}': nothing was uploaded to {plat_names}." if dry_run
+                    else f"'{title}' was {action_word.lower()} to {plat_names} successfully."
+                )
+            except Exception:
+                pass
 
-        return {
+        response = {
             "success": True,
             "dry_run": dry_run,
             "title": title,
             "video": video_abs_path.name,
-            "webhook_result": webhook_status,
             "platforms": results
         }
+        if dry_run:
+            response["message"] = "Dry run: nothing was uploaded and publish history was not changed."
+        return response
 
-    def _dispatch_to_platform(self, platform: str, config: Dict[str, Any], video_path: Path, title: str, description: str, tags: List[str]) -> Dict[str, Any]:
-        """Modular execution handlers for social platforms."""
+    MAX_COMMENT_ATTEMPTS = 8
+
+    async def post_due_comments(self) -> int:
+        """
+        Posts the queued links comment on scheduled YouTube/Facebook posts once they have gone live.
+        Called by the scheduler loop; failed attempts back off (1, 2, 3... minutes) up to MAX_COMMENT_ATTEMPTS.
+        Record bookkeeping stays on the event loop thread; only the API call runs in a worker thread.
+        """
+        now = time.time()
+        due = [
+            (rel_path, platform, details) for rel_path, platform, details in asset_manager.iter_published()
+            if details.get("pending_comment") and details.get("id")
+            and float(details.get("comment_due_at") or 0) <= now
+            and int(details.get("comment_attempts") or 0) < self.MAX_COMMENT_ATTEMPTS
+        ]
+        posted = 0
+        for rel_path, platform, details in due:
+            res = await asyncio.to_thread(self._post_comment, platform, str(details["id"]), details["pending_comment"])
+            # Re-read the record: the catalog may have been reloaded while the API call ran
+            entry = asset_manager.get_asset_record(rel_path).get("published", {}).get(platform) or {}
+            if isinstance(entry.get("details"), dict):
+                details = entry["details"]
+            attempts = int(details.get("comment_attempts") or 0) + 1
+            details["comment_attempts"] = attempts
+            if res.get("success"):
+                posted += 1
+                details["comment_posted"] = True
+                details["comment_id"] = res.get("id")
+                details.pop("pending_comment", None)
+                details.pop("comment_error", None)
+            else:
+                details["comment_error"] = res.get("error")
+                details["comment_due_at"] = now + 60 * attempts
+        if due:
+            asset_manager.save()
+        return posted
+
+    def _post_comment(self, platform: str, object_id: str, text: str) -> Dict[str, Any]:
         if platform == "youtube":
-            return {
-                "status": "queued",
-                "platform": "YouTube",
-                "message": f"Dispatched '{title}' to YouTube uploader queue.",
-                "privacy": config.get("privacy_status", "public")
-            }
+            return youtube_uploader.post_comment(object_id, text)
+        if platform in ("facebook", "instagram"):
+            return meta_uploader.post_comment(object_id, text)
+        if platform == "threads":
+            return threads_uploader.post_reply(object_id, text)
+        return {"success": False, "error": f"Comments are not supported on {platform}"}
+
+    def _dispatch_to_platform(
+        self,
+        platform: str,
+        config: Dict[str, Any],
+        video_path: Path,
+        title: str,
+        description: str,
+        tags: List[str],
+        scheduled_timestamp: Optional[int] = None,
+        publish_at_iso: Optional[str] = None,
+        is_short: bool = False,
+        thumbnail_path: Optional[Path] = None,
+        pinned_comment: Optional[str] = None,
+        is_story: bool = False
+    ) -> Dict[str, Any]:
+        """Direct native execution handlers for social platforms with format-aware routing."""
+        import logging
+
+        if platform == "youtube":
+            if youtube_uploader.is_authenticated():
+                yt_mode = "YouTube Shorts" if is_short else "YouTube Standard"
+                logging.info(f"[SocialDispatcher] Executing Direct Native Upload to {yt_mode}: {video_path.name}")
+                clean_yt_desc = self.sanitize_urls_for_youtube(description)
+                res = youtube_uploader.upload_video(
+                    video_path=video_path,
+                    title=title,
+                    description=clean_yt_desc,
+                    tags=tags,
+                    privacy_status=config.get("privacy_status", "public"),
+                    scheduled_publish_iso=publish_at_iso,
+                    is_short=is_short,
+                    thumbnail_path=thumbnail_path,
+                    pinned_comment=pinned_comment
+                )
+                if res.get("status") == "published":
+                    res["mode"] = yt_mode
+                return res
+            else:
+                logging.info(f"[SocialDispatcher] YouTube OAuth not yet authenticated.")
+                return {
+                    "status": "failed",
+                    "platform": "YouTube",
+                    "error": "YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup."
+                }
+
         elif platform == "facebook":
-            return {
-                "status": "queued",
-                "platform": "Facebook",
-                "message": f"Posted video '{title}' to Facebook Page."
-            }
+            if meta_uploader.page_token:
+                clean_fb_desc = self.sanitize_caption_for_facebook(description, hook=title)
+                fb_comment = pinned_comment or DEFAULT_BHRS_PINNED_COMMENT
+                if is_story:
+                    logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Facebook Story: {video_path.name}")
+                    return meta_uploader.upload_facebook_story(video_path=video_path)
+                if is_short:
+                    logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Facebook Reels: {video_path.name}")
+                    return meta_uploader.upload_facebook_reel(
+                        video_path=video_path,
+                        title=title,
+                        description=clean_fb_desc,
+                        tags=tags,
+                        scheduled_timestamp=scheduled_timestamp,
+                        pinned_comment=fb_comment
+                    )
+                else:
+                    logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Facebook Long Video (Watch): {video_path.name}")
+                    return meta_uploader.upload_facebook_video(
+                        video_path=video_path,
+                        title=title,
+                        description=clean_fb_desc,
+                        tags=tags,
+                        scheduled_timestamp=scheduled_timestamp,
+                        pinned_comment=fb_comment
+                    )
+            else:
+                return {
+                    "status": "failed",
+                    "platform": "Facebook",
+                    "error": "Facebook Page access token is not configured."
+                }
+
         elif platform == "instagram":
-            return {
-                "status": "queued",
-                "platform": "Instagram",
-                "message": f"Dispatched Reel '{title}' to Instagram Media Publishing API."
-            }
+            if meta_uploader.page_token and meta_uploader.ig_user_id:
+                if is_story:
+                    logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Instagram Story: {video_path.name}")
+                    return meta_uploader.upload_instagram_reel(video_path=video_path, caption="", media_type="STORIES")
+                logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Instagram Reels: {video_path.name}")
+                return meta_uploader.upload_instagram_reel(
+                    video_path=video_path,
+                    caption=description or title,
+                    tags=tags,
+                    pinned_comment=pinned_comment or DEFAULT_BHRS_PINNED_COMMENT
+                )
+            else:
+                return {
+                    "status": "failed",
+                    "platform": "Instagram",
+                    "error": "Instagram Business account is not connected to Facebook Page."
+                }
+
+        elif platform == "threads":
+            if threads_uploader.is_authenticated():
+                logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Threads: {video_path.name}")
+                return threads_uploader.upload_threads_video(
+                    video_path=video_path,
+                    caption=description or title,
+                    tags=tags,
+                    pinned_comment=pinned_comment
+                )
+            else:
+                return {
+                    "status": "failed",
+                    "platform": "Threads",
+                    "error": "Threads is not authenticated. Please connect your Threads account (Log In with Instagram) in Studio Settings."
+                }
+
         elif platform == "tiktok":
-            return {
-                "status": "queued",
-                "platform": "TikTok",
-                "message": f"Dispatched video '{title}' to TikTok Content Creator API."
-            }
+            if tiktok_uploader.is_authenticated():
+                tt_mode = "TikTok Reels" if is_short else "TikTok Long Video"
+                logging.info(f"[SocialDispatcher] Executing Direct Native Upload to {tt_mode}: {video_path.name}")
+                clean_tt_caption = self.sanitize_caption_for_tiktok(description)
+                res = tiktok_uploader.upload_video(
+                    video_path=video_path,
+                    caption=clean_tt_caption or title,
+                    tags=tags
+                )
+                if res.get("status") == "published":
+                    res["mode"] = tt_mode
+                return res
+            else:
+                return {
+                    "status": "failed",
+                    "platform": "TikTok",
+                    "error": "TikTok is not authenticated. Please provide your sessionid or cookies in Studio Settings."
+                }
+
         elif platform == "x":
             return {
-                "status": "queued",
+                "status": "skipped",
                 "platform": "X (Twitter)",
-                "message": f"Published video tweet: '{title[:100]}'."
+                "message": "Skipped: X posting is not implemented yet (no X API uploader)."
             }
+
         return {"status": "unsupported", "platform": platform}
 
 social_dispatcher = SocialDispatcher()

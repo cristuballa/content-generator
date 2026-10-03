@@ -141,6 +141,15 @@ def parse_numbered_folder(folder_name: str) -> Optional[Dict[str, Any]]:
         title = f"Episode {num}" + (f" - {' '.join(w.capitalize() for w in clean.split())}" if clean else "")
         return {"episode_num": num, "clean_title": title, "raw_prefix": f"ep{num}", "is_chapter": False}
 
+    # 4. Matches W01, W02, Week_01, Week-02, W156, etc.
+    mW = re.match(r"^w(?:eek)?[_\s.-]?(\d+)(?:[_\s.-]+(.*)|$)", folder_name, re.IGNORECASE)
+    if mW:
+        num = int(mW.group(1))
+        suffix = (mW.group(2) or "").strip()
+        clean = suffix.replace("_", " ").replace("-", " ").strip()
+        title = f"Week {num}" + (f" - {' '.join(w.capitalize() for w in clean.split())}" if clean else "")
+        return {"episode_num": num, "clean_title": title, "raw_prefix": f"W{num:02d}", "is_chapter": False}
+
     return None
 
 class ProjectScanner:
@@ -249,28 +258,59 @@ class ProjectScanner:
                 len(list(ch_dir.glob("*script*.*"))) > 0 or
                 len(list(ch_dir.glob("*transcript*.*"))) > 0 or
                 (ch_dir / "metadata.json").exists() or
-                (ch_dir / "metadata.txt").exists()
+                (ch_dir / "metadata.txt").exists() or
+                (ch_dir / "long_form" / "metadata.json").exists() or
+                len(list(ch_dir.glob("long_form/*script*.*"))) > 0
             )
 
-            # Check Images
+            # Enrich title from metadata.json if available
+            meta_file = ch_dir / "metadata.json"
+            if not meta_file.exists():
+                meta_file = ch_dir / "long_form" / "metadata.json"
+            if meta_file.exists():
+                try:
+                    meta_obj = json.loads(meta_file.read_text(encoding="utf-8"))
+                    doc_title = meta_obj.get("documentary", {}).get("title")
+                    if doc_title:
+                        parsed["clean_title"] = f"Week {parsed['episode_num']} - {doc_title}"
+                except Exception:
+                    pass
+
+            # Check Images across folder and sub-assets
             img_count = 0
             for ext in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
                 img_count += len(list(ch_dir.glob(ext)))
-            img_dir = ch_dir / "images"
-            if img_dir.exists():
-                for ext in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
-                    img_count += len(list(img_dir.glob(ext)))
+            for sub_name in ["images", "long_form", "long_form/images", "reels", "stories"]:
+                s_img = ch_dir / sub_name
+                if s_img.exists() and s_img.is_dir():
+                    for ext in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
+                        img_count += len(list(s_img.glob(ext)))
 
-            # Check Videos (Direct mp4s, reels, slideshows, output)
+            # Check Videos (Direct mp4s, long_form, reels, stories, slideshow, output)
             video_candidates = []
             video_candidates.extend(list(ch_dir.glob("*.mp4")))
-            for sub in ["slideshow", "reels", "output"]:
+            for sub in ["long_form", "reels", "stories", "slideshow", "output"]:
                 s_dir = ch_dir / sub
                 if s_dir.exists() and s_dir.is_dir():
                     video_candidates.extend(list(s_dir.glob("*.mp4")))
+                    for deep_sub in s_dir.iterdir():
+                        if deep_sub.is_dir() and deep_sub.name != "temp":
+                            video_candidates.extend(list(deep_sub.glob("*.mp4")))
 
             seen_vids = set()
             video_files = []
+            # Prioritize 16x9 master documentary first, then final, then any
+            def video_priority(v):
+                v_name = v.name.lower()
+                if "16x9" in v_name:
+                    return 0
+                if "final" in v_name:
+                    return 1
+                if "long_form" in str(v):
+                    return 2
+                return 3
+
+            video_candidates.sort(key=video_priority)
             for vf in video_candidates:
                 if vf.resolve() not in seen_vids:
                     seen_vids.add(vf.resolve())
@@ -280,14 +320,15 @@ class ProjectScanner:
             primary_video = str(video_files[0].relative_to(project_path)).replace("\\", "/") if video_files else None
             primary_video_size = video_files[0].stat().st_size if video_files else 0
 
-            # Check Audio (Direct wav/mp3 or temp)
+            # Check Audio (Direct wav/mp3 or temp or long_form/temp)
             audio_files = []
             for ext in ["*.wav", "*.mp3", "*.aac"]:
                 audio_files.extend(list(ch_dir.glob(ext)))
-            temp_dir = ch_dir / "temp"
-            if temp_dir.exists():
-                for ext in ["*.wav", "*.mp3"]:
-                    audio_files.extend(list(temp_dir.glob(ext)))
+            for a_sub in ["temp", "long_form", "long_form/temp"]:
+                temp_dir = ch_dir / a_sub
+                if temp_dir.exists():
+                    for ext in ["*.wav", "*.mp3"]:
+                        audio_files.extend(list(temp_dir.glob(ext)))
 
             has_audio = len(audio_files) > 0
 

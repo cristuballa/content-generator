@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 CONFIG_FILE = Path(__file__).resolve().parent.parent / "config.json"
+OAUTH_CALLBACK_PATH = "/rest/oauth2-credential/callback"
 
 DEFAULT_CONFIG: Dict[str, Any] = {
     "server": {
@@ -12,7 +13,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "port": 7860,
         "ssl_enabled": True,
         "ssl_certfile": "certs/cert.pem",
-        "ssl_keyfile": "certs/key.pem"
+        "ssl_keyfile": "certs/key.pem",
+        # Local OAuth callback bridge for YouTube & Threads sign-in. Changing it requires registering
+        # http://localhost:<port>/rest/oauth2-credential/callback in Google Cloud and the Meta app.
+        "oauth_callback_port": 5678
     },
     "comfyui": {
         "url": "http://127.0.0.1:8188"
@@ -123,6 +127,17 @@ class ConfigManager:
     def set(self, key: str, value: Any):
         self._config[key] = value
         self._save_config(self._config)
+
+    def get_oauth_callback_port(self) -> int:
+        """Port of the local OAuth callback bridge (YouTube & Threads sign-in redirect to it)."""
+        try:
+            return int(self.get("server", {}).get("oauth_callback_port", 5678))
+        except (TypeError, ValueError):
+            return 5678
+
+    def get_oauth_redirect_uri(self) -> str:
+        """Redirect URI that must be registered in Google Cloud / the Meta app."""
+        return f"http://localhost:{self.get_oauth_callback_port()}{OAUTH_CALLBACK_PATH}"
 
     def get_active_project(self) -> str:
         # If the active path does not exist on disk, fallback to one that does

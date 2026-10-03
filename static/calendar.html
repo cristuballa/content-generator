@@ -8,31 +8,38 @@
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link rel="alternate icon" type="image/png" href="/static/favicon.png">
   
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS (Local Vendor - Offline Capable) -->
+  <script src="/static/js/vendor/tailwindcss.js"></script>
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              gold: '#FFE614',
-              goldHover: '#e6cf10',
-              dark: '#0a0d14',
-              surface: '#121620',
-              card: '#161c29',
-              border: '#232d3f',
-              borderHover: '#374660'
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                gold: '#FFE614',
+                goldHover: '#e6cf10',
+                dark: '#0a0d14',
+                surface: '#121620',
+                card: '#161c29',
+                border: '#232d3f',
+                borderHover: '#374660'
+              }
             }
           }
         }
-      }
+      };
     }
   </script>
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lucide Icons (Local Vendor - Offline Capable) -->
+  <script src="/static/js/vendor/lucide.min.js"></script>
+  <script>
+    if (typeof lucide === 'undefined') {
+      window.lucide = { createIcons: function() {} };
+    }
+  </script>
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -166,8 +173,14 @@
           <span>Add Post</span>
         </button>
 
-        <a href="/" target="_blank" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl border border-transparent hover:border-slate-700 transition" title="Open KCT Studio Dashboard in new tab">
-          <i data-lucide="external-link" class="w-4 h-4"></i>
+        <a href="/" class="px-3 py-1.5 bg-[#161c29] hover:bg-slate-800 text-slate-300 hover:text-[#FFE614] rounded-xl border border-[#232d3f] text-xs font-semibold flex items-center gap-1.5 transition" title="Open Main Story Map Dashboard">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-[#FFE614]"></i>
+          <span class="hidden md:inline">Dashboard</span>
+        </a>
+
+        <a href="/generator" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-[#161c29] hover:bg-slate-800 text-slate-300 hover:text-amber-300 rounded-xl border border-[#232d3f] text-xs font-semibold flex items-center gap-1.5 transition" title="Open Video Generator in new tab">
+          <i data-lucide="clapperboard" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span class="hidden md:inline">Generator</span>
         </a>
       </div>
 

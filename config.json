@@ -4,13 +4,47 @@
     "port": 7860,
     "ssl_enabled": true,
     "ssl_certfile": "certs/cert.pem",
-    "ssl_keyfile": "certs/key.pem"
+    "ssl_keyfile": "certs/key.pem",
+    "oauth_callback_port": 5678
   },
   "comfyui": {
     "url": "http://127.0.0.1:8188"
   },
-  "active_project_path": "c:\\Projects\\BHRS-Youtube",
+  "active_project_path": "C:\\Projects\\BHSR",
   "projects": [
+    {
+      "name": "BHSR (Bible Hidden Secrets Revealed)",
+      "path": "C:\\Projects\\BHSR",
+      "type": "documentary",
+      "social": {
+        "dry_run": false,
+        "auto_publish_on_approve": false,
+        "auto_schedule_on_approve": true,
+        "default_posting_time": "19:15",
+        "webhook_url": "http://localhost:5678/webhook/kct-social-publish",
+        "webhook_auth_header": "",
+        "youtube": {
+          "enabled": true,
+          "privacy_status": "public",
+          "made_for_kids": false
+        },
+        "facebook": {
+          "enabled": true
+        },
+        "instagram": {
+          "enabled": true
+        },
+        "threads": {
+          "enabled": false
+        },
+        "tiktok": {
+          "enabled": false
+        },
+        "x": {
+          "enabled": false
+        }
+      }
+    },
     {
       "name": "Manhwa Cinema Lab (Recap)",
       "path": "E:\\Projects\\Manhwa Cinema Lab\\He_Gains_Attributes_Recap",
@@ -26,6 +60,7 @@
       "name": "BHRS - Youtube",
       "path": "c:\\Projects\\BHRS-Youtube",
       "type": "documentary",
+      "hidden": true,
       "social": {
         "dry_run": false,
         "auto_publish_on_approve": false,
@@ -56,6 +91,7 @@
       "name": "Bible Hidden Secrets Revealed",
       "path": "c:\\Projects\\Bible Hidden Secrets Revealed",
       "type": "documentary",
+      "hidden": true,
       "social": {
         "dry_run": false,
         "auto_publish_on_approve": false,
@@ -86,6 +122,7 @@
       "name": "Bible Mysteries Unveiled",
       "path": "C:\\Projects\\Bible-Mysteries",
       "type": "manhwa",
+      "hidden": true,
       "social": {
         "dry_run": true,
         "auto_publish_on_approve": false,
@@ -135,6 +172,9 @@
       "enabled": false
     },
     "instagram": {
+      "enabled": false
+    },
+    "threads": {
       "enabled": false
     }
   }

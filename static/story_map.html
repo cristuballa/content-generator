@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Biblical Story Map & Curriculum - KCT Studio</title>
+  
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="/static/favicon.png">
+  
+  <!-- Tailwind CSS (Local Vendor - Offline Capable) -->
+  <script src="/static/js/vendor/tailwindcss.js"></script>
+  <script>
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                gold: '#FFE614',
+                goldHover: '#e6cf10',
+                goldDim: 'rgba(255, 230, 20, 0.12)',
+                dark: '#080b11',
+                surface: '#101522',
+                card: '#151b2b',
+                cardHover: '#1c2438',
+                border: '#232d42',
+                borderHover: '#384869'
+              }
+            }
+          }
+        }
+      };
+    }
+  </script>
+
+  <!-- Lucide Icons (Local Vendor - Offline Capable) -->
+  <script src="/static/js/vendor/lucide.min.js"></script>
+  <script src="/static/js/publish_routing.js"></script>
+  <script>
+    if (typeof lucide === 'undefined') {
+      window.lucide = { createIcons: function() {} };
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #080b11;
+      color: #e2e8f0;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .modal-overlay {
+      background: rgba(4, 7, 14, 0.85);
+      backdrop-filter: blur(8px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0d121c;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #232d3f;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #3b4b66;
+    }
+    .gold-glow {
+      box-shadow: 0 0 15px rgba(255, 230, 20, 0.15);
+    }
+    .gold-badge {
+      background: rgba(255, 230, 20, 0.12);
+      border: 1px solid rgba(255, 230, 20, 0.3);
+      color: #FFE614;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-brand-dark custom-scrollbar selection:bg-brand-gold/30 selection:text-white">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="border-b border-brand-border bg-brand-surface/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-[1720px] mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Project Selector -->
+      <div class="flex items-center gap-4">
+        <a href="/" class="flex items-center gap-2.5 group shrink-0" title="KCT Studio Main Dashboard">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-gold to-yellow-600 flex items-center justify-center text-black font-black text-xl shadow-lg shadow-brand-gold/20 group-hover:scale-105 transition-transform">
+            K
+          </div>
+          <div>
+            <div class="font-extrabold text-sm tracking-wide text-white group-hover:text-brand-gold transition-colors flex items-center gap-1.5">
+              KCT STUDIO
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-card text-brand-gold border border-brand-border font-mono font-medium">v2.0</span>
+            </div>
+            <div id="activeProjectSubtitle" class="text-[11px] text-slate-400 font-medium tracking-tight truncate max-w-[220px]">
+              Bible Hidden Secrets Revealed
+            </div>
+          </div>
+        </a>
+
+        <!-- Project Switcher & Actions in Header -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <select id="projectSelect" onchange="onProjectSelectChange(this.value)" class="bg-[#151c2c] border border-brand-border text-xs font-semibold text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-gold transition font-mono max-w-[220px] sm:max-w-[280px] cursor-pointer">
+            <option value="" disabled selected>Loading projects...</option>
+          </select>
+
+          <button id="btnAddProject" onclick="openAddProjectModal()" title="Add / Register New Project Workspace" class="bg-brand-card hover:bg-brand-cardHover text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-brand-border transition text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="folder-plus" class="w-3.5 h-3.5 text-brand-gold"></i>
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button id="btnManageProjects" onclick="openManageProjectsModal()" title="Manage Project Workspaces" class="bg-brand-card hover:bg-brand-cardHover text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-brand-border transition text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="folder-cog" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span class="hidden sm:inline">Manage</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Center Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1 bg-brand-dark/70 p-1 rounded-xl border border-brand-border shadow-inner">
+        <a href="/" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-brand-card text-brand-gold border border-brand-border shadow-sm flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-brand-gold"></i>
+          Dashboard
+        </a>
+        <a href="/generator" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-brand-card transition-all flex items-center gap-2">
+          <i data-lucide="clapperboard" class="w-4 h-4 text-amber-400"></i>
+          Video Generator
+        </a>
+      </nav>
+
+      <!-- Right Header Actions & Stats -->
+      <div class="flex items-center gap-3">
+        <div class="hidden xl:flex items-center gap-3 text-xs border-r border-brand-border pr-3">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-slate-400">Year 1 Covered:</span>
+            <span id="stat-y1-percent" class="font-mono font-bold text-white">--%</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400">Franchise Assets:</span>
+            <span id="stat-franchise-assets" class="font-mono font-bold text-brand-gold">2,808</span>
+          </div>
+        </div>
+
+        <button id="btn-refresh" onclick="refreshStatus()" class="px-3 py-1.5 rounded-lg bg-brand-card hover:bg-brand-cardHover border border-brand-border text-xs font-medium text-slate-200 flex items-center gap-1.5 transition-all">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span class="hidden sm:inline">Refresh Files</span>
+        </button>
+
+        <button onclick="copySubstackPillar()" class="px-3 py-1.5 rounded-lg bg-brand-gold hover:bg-brand-goldHover text-black text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-brand-gold/10">
+          <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+          <span>Substack Syllabus</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= SUB-HEADER / SUMMARY CARDS ================= -->
+  <section class="bg-brand-surface/40 border-b border-brand-border py-6 px-4 lg:px-8">
+    <div class="max-w-[1720px] mx-auto">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-brand-gold px-2 py-0.5 rounded bg-brand-gold/10 border border-brand-gold/20">3-Year Multi-Asset Architecture</span>
+            <span class="text-xs text-slate-400 font-medium">156 Documentaries • 780 Reels • 780 Stories • 780 Polls • 312 Substack Issues</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+            Master Biblical Story Map & Curriculum
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-4xl">
+            A comprehensive, book-style table of contents spanning the Old Testament, New Testament, Dead Sea Scrolls, and Second Temple literature—systematically interpreted through an uncompromising Christ-centered lens (Luke 24:27 & John 5:39).
+          </p>
+        </div>
+
+        <!-- Metric Stat Badges -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+          <div class="bg-brand-card p-3 rounded-xl border border-brand-border text-center shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Weeks</div>
+            <div id="stat-total-weeks" class="text-xl font-black text-white font-mono mt-0.5">156</div>
+          </div>
+          <div class="bg-brand-card p-3 rounded-xl border border-brand-border text-center shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Covered Videos</div>
+            <div id="stat-covered-count" class="text-xl font-black text-emerald-400 font-mono mt-0.5">--</div>
+          </div>
+          <div class="bg-brand-card p-3 rounded-xl border border-brand-border text-center shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Weekly Reels</div>
+            <div class="text-xl font-black text-brand-gold font-mono mt-0.5">5 / Wk</div>
+          </div>
+          <div class="bg-brand-card p-3 rounded-xl border border-brand-border text-center shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Substack Guides</div>
+            <div class="text-xl font-black text-sky-400 font-mono mt-0.5">312</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= CONTROLS & FILTER BAR ================= -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-brand-border/60">
+        
+        <!-- Year Tabs -->
+        <div class="flex items-center gap-1.5 bg-brand-card p-1 rounded-xl border border-brand-border">
+          <button onclick="setYearFilter(null)" id="tab-year-all" class="year-tab px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all">
+            All Years (156)
+          </button>
+          <button onclick="setYearFilter(1)" id="tab-year-1" class="year-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-surface text-brand-gold border border-brand-border shadow-sm transition-all">
+            Year 1: Foundation (52)
+          </button>
+          <button onclick="setYearFilter(2)" id="tab-year-2" class="year-tab px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all">
+            Year 2: Hidden Codex (52)
+          </button>
+          <button onclick="setYearFilter(3)" id="tab-year-3" class="year-tab px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all">
+            Year 3: Prophetic Matrix (52)
+          </button>
+        </div>
+
+        <!-- Search & Dropdown Filters -->
+        <div class="flex flex-wrap items-center gap-2.5 flex-1 max-w-2xl justify-end">
+          <div class="relative flex-1 min-w-[200px] max-w-sm">
+            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-2.5"></i>
+            <input 
+              type="text" 
+              id="filter-search" 
+              oninput="onSearchChange()" 
+              placeholder="Search title, scripture, or theme..." 
+              class="w-full pl-9 pr-4 py-2 bg-brand-card border border-brand-border rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-gold transition-colors font-medium"
+            >
+          </div>
+
+          <select id="filter-status" onchange="onFilterChange()" class="px-3 py-2 bg-brand-card border border-brand-border rounded-xl text-xs text-slate-300 focus:outline-none focus:border-brand-gold transition-colors font-medium">
+            <option value="">All Statuses</option>
+            <option value="covered">Covered (On Disk)</option>
+            <option value="planned">Planned (Unrendered)</option>
+          </select>
+
+          <select id="filter-quarter" onchange="onFilterChange()" class="px-3 py-2 bg-brand-card border border-brand-border rounded-xl text-xs text-slate-300 focus:outline-none focus:border-brand-gold transition-colors font-medium">
+            <option value="">All Quarters</option>
+            <option value="Q1">Q1 (Weeks 1-13)</option>
+            <option value="Q2">Q2 (Weeks 14-26)</option>
+            <option value="Q3">Q3 (Weeks 27-39)</option>
+            <option value="Q4">Q4 (Weeks 40-52)</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MASTER EPISODES TIMELINE & CURRICULUM ================= -->
+  <main class="flex-1 max-w-[1720px] w-full mx-auto px-4 lg:px-8 py-6">
+    <div id="curriculum-container" class="space-y-4">
+      <!-- Loading State -->
+      <div id="loading-spinner" class="py-20 text-center">
+        <div class="w-10 h-10 border-4 border-brand-border border-t-brand-gold rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-sm font-semibold text-slate-400">Loading 156-Week Master Curriculum...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= ADAPTIVE VIDEO PLAYER MODAL ================= -->
+  <div id="video-modal" class="fixed inset-0 z-50 modal-overlay hidden flex items-center justify-center p-4">
+    <div id="video-modal-dialog" class="bg-brand-card border border-brand-border rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col transition-all duration-200">
+      <div class="px-5 py-3.5 border-b border-brand-border flex items-center justify-between bg-brand-surface">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span id="modal-video-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-gold/20 text-brand-gold border border-brand-gold/30 shrink-0">🎬 16:9 CINEMATIC</span>
+          <h3 id="modal-video-title" class="font-bold text-sm text-white truncate max-w-xl">Episode Title</h3>
+        </div>
+        <button onclick="closeVideoModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-brand-border/40 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-video-container" class="aspect-video bg-black relative flex items-center justify-center overflow-hidden">
+        <video id="modal-video-player" controls class="w-full h-full object-contain" preload="metadata"></video>
+      </div>
+      <div class="p-4 bg-brand-surface border-t border-brand-border flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div id="modal-video-scriptures" class="text-slate-400 font-mono truncate max-w-md">Scriptures</div>
+        <div class="flex items-center gap-2">
+          <button id="modal-video-post-btn" onclick="openDispatchFromPlayer()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center gap-1.5 transition-colors shadow">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Post / Schedule</span>
+          </button>
+          <a id="modal-video-download" href="#" target="_blank" class="px-3 py-1.5 rounded-lg bg-brand-card hover:bg-brand-cardHover border border-brand-border text-brand-gold font-semibold flex items-center gap-1.5 transition-colors">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>Open File</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADD PROJECT MODAL ================= -->
+  <div id="addProjectModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-brand-gold"></i>
+          <h3 class="text-base font-bold text-white">Add Project Workspace</h3>
+        </div>
+        <button onclick="closeAddProjectModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="formAddProject" onsubmit="handleCreateProject(event)" class="flex flex-col gap-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Project Name (Display Label)</label>
+          <input type="text" id="addProjectName" required placeholder="e.g. Bible Hidden Secrets Revealed" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-gold">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Folder Location (Directory Path)</label>
+          <input type="text" id="addProjectPath" required placeholder="e.g. C:\Projects\BHSR" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-brand-gold">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Pipeline Category</label>
+          <select id="addProjectType" class="w-full bg-[#181e2b] border border-brand-border text-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-gold">
+            <option value="documentary">Bible Hidden Secrets (Cinematic Documentary)</option>
+            <option value="manhwa">Manhwa Cinema Lab (16:9 Cel-Shading)</option>
+            <option value="custom">Custom Pipeline Workspace</option>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t border-brand-border flex justify-end gap-2">
+          <button type="button" onclick="closeAddProjectModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-brand-gold hover:bg-brand-goldHover text-black rounded-lg font-bold shadow-md">Add Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MANAGE PROJECTS MODAL ================= -->
+  <div id="manageProjectsModal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-cog" class="w-5 h-5 text-cyan-400"></i>
+          <h3 class="text-base font-bold text-white">Project Workspaces Manager</h3>
+        </div>
+        <button onclick="closeManageProjectsModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-3 mb-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 flex items-start gap-3">
+        <i data-lucide="shield-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <b class="text-cyan-300">File Safety Guarantee:</b> Hiding or removing a project only unlinks it from the workspace menu. Your folders and video assets on disk are <b>100% safe and never deleted</b>.
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-3 mb-3 text-xs">
+        <div class="text-slate-400 font-medium">Configured Workspaces</div>
+        <button onclick="closeManageProjectsModal(); openAddProjectModal();" class="px-3 py-1.5 rounded-lg bg-brand-gold hover:bg-brand-goldHover text-black font-bold flex items-center gap-1.5">
+          <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+          <span>Add Project</span>
+        </button>
+      </div>
+
+      <div id="manageProjectsList" class="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 max-h-[380px] custom-scrollbar">
+        <div class="py-8 text-center text-slate-500 text-xs">Loading projects...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIVERSAL SOCIAL DISPATCH MODAL ================= -->
+  <div id="modalSocialPublish" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl lg:max-w-4xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 sm:p-7 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white">Social Media Dispatch</h3>
+              <span id="dispatchFormatBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brand-card text-brand-gold border border-brand-border">16:9 Long-Form</span>
+            </div>
+            <p id="dispatchAssetSub" class="text-[11px] text-slate-400 truncate max-w-2xl font-mono mt-0.5">W01/long_form/video.mp4</p>
+          </div>
+        </div>
+        <button onclick="closeSocialPublishModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Diagnostic / Error / Selective Retry Alert Box -->
+      <div id="dispatchAlertBox" class="hidden"></div>
+
+      <!-- Direct Native Cloud Connections Panel -->
+      <div class="bg-[#181e2b] border border-[#2e394e] rounded-xl p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Direct Native Dispatch</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider font-mono">No Middleware</span>
+          </div>
+          <span class="text-[10px] text-slate-400">Local Disk &rarr; Direct Cloud Resumable Stream</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+          <!-- Facebook Status Badge -->
+          <div id="statusBadgeFacebook" class="flex items-center justify-between p-2 rounded-lg bg-[#121620] border border-brand-border">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <span class="text-[#1877F2] shrink-0"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
+              <div class="truncate">
+                <div class="font-bold text-white truncate text-[11px]" id="fbStatusTitle">Bible Hidden Secrets</div>
+                <div class="text-[10px] text-emerald-400 font-mono" id="fbStatusSub">&#9679; Connected (13.8k)</div>
+              </div>
+            </div>
+            <button id="btnConnectMeta" onclick="openMetaConnectModal()" type="button" class="px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1 shadow-sm">
+              <i data-lucide="zap" class="w-3 h-3"></i>
+              <span>Connect</span>
+            </button>
+          </div>
+
+          <!-- Instagram Status Badge -->
+          <div id="statusBadgeInstagram" class="flex items-center justify-between p-2 rounded-lg bg-[#121620] border border-brand-border">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <span class="text-rose-400 shrink-0"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></span>
+              <div class="truncate">
+                <div class="font-bold text-white truncate text-[11px]" id="igStatusTitle">@biblesecretsrevealed</div>
+                <div class="text-[10px] text-emerald-400 font-mono" id="igStatusSub">&#9679; Reels API Active</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YouTube Status Badge -->
+          <div id="statusBadgeYouTube" class="flex items-center justify-between p-2 rounded-lg bg-[#121620] border border-brand-border">
+            <div class="flex items-center gap-2 overflow-hidden flex-1">
+              <span class="text-red-400 shrink-0"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+              <div class="truncate flex-1">
+                <div class="font-bold text-white truncate text-[11px]" id="ytStatusTitle">YouTube Channel</div>
+                <div class="text-[10px] text-amber-400 font-mono" id="ytStatusSub">&#9679; OAuth Needed</div>
+              </div>
+            </div>
+            <button id="btnConnectYoutube" onclick="openYouTubeAuthModal()" type="button" class="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1 shadow-sm">
+              <i data-lucide="zap" class="w-3 h-3"></i>
+              <span>Connect</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="space-y-3.5 text-xs">
+        
+        <!-- Title Input -->
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Post Title / Hook Headline</label>
+          <input type="text" id="dispatchTitle" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-brand-gold">
+        </div>
+
+        <!-- Description / Caption Textarea -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-slate-300 font-semibold">Post Caption / Description</label>
+            <span class="text-[10px] text-slate-500">Auto-sanitizes bio links for Shorts</span>
+          </div>
+          <textarea id="dispatchDescription" rows="4" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:border-brand-gold custom-scrollbar"></textarea>
+        </div>
+
+        <!-- Hashtags -->
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Hashtags</label>
+          <input type="text" id="dispatchTags" placeholder="#BibleSecrets #Genesis #Faith" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-brand-gold">
+        </div>
+
+        <!-- Target Platform Selection -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-slate-300 font-semibold">Target Release Platforms</label>
+            <span class="text-[10px] text-slate-400">Select platforms to publish/schedule</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+            <label id="lblPlatYoutube" class="flex items-center gap-2 p-2.5 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-gold/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatYoutube" checked class="w-4 h-4 rounded text-red-500 accent-red-500 bg-[#181e2b]">
+              <span class="text-red-400"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">YouTube</div>
+                <div class="text-[9px] text-amber-400 font-mono" id="chkYtSub">&#9679; OAuth Needed</div>
+              </div>
+            </label>
+            <label id="lblPlatFacebook" class="flex items-center gap-2 p-2.5 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-gold/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatFacebook" checked class="w-4 h-4 rounded text-blue-500 accent-blue-500 bg-[#181e2b]">
+              <span class="text-[#1877F2]"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">Facebook</div>
+                <div class="text-[9px] text-emerald-400 font-mono" id="chkFbSub">&#9679; Direct Page</div>
+              </div>
+            </label>
+            <label id="lblPlatInstagram" class="flex items-center gap-2 p-2.5 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-gold/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatInstagram" checked class="w-4 h-4 rounded text-rose-500 accent-rose-500 bg-[#181e2b]">
+              <span class="text-rose-400"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">Instagram</div>
+                <div class="text-[9px] text-emerald-400 font-mono" id="chkIgSub">&#9679; Direct Reels</div>
+              </div>
+            </label>
+            <label id="lblPlatTiktok" class="flex items-center gap-2 p-2.5 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-gold/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatTiktok" checked class="w-4 h-4 rounded text-cyan-400 accent-cyan-400 bg-[#181e2b]">
+              <span class="text-cyan-300"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">TikTok</div>
+                <div class="text-[9px] text-slate-400 font-mono" id="chkTikTokSub">Browser session</div>
+              </div>
+            </label>
+            <label id="lblPlatX" class="flex items-center gap-2 p-2.5 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-gold/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatX" checked class="w-4 h-4 rounded text-slate-100 accent-slate-100 bg-[#181e2b]">
+              <span class="text-slate-100"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">X (Twitter)</div>
+                <div class="text-[9px] text-slate-400 font-mono" id="chkXSub">Not supported yet</div>
+              </div>
+            </label>
+          </div>
+          <div id="dispatchPlatformNotice" class="text-[11px] text-amber-400/90 mt-2 hidden flex items-start gap-1.5 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
+            <span id="dispatchPlatformNoticeText"></span>
+          </div>
+        </div>
+
+        <!-- Mode Selection: Post Now vs Add to Calendar Schedule -->
+        <div class="pt-2 border-t border-brand-border">
+          <div class="flex items-center gap-2 mb-3">
+            <button type="button" id="btnModePostNow" onclick="switchDispatchMode('now')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-indigo-600/20 text-indigo-300 border-indigo-500/40">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span>Post Now (Direct)</span>
+            </button>
+            <button type="button" id="btnModeSchedule" onclick="switchDispatchMode('schedule')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-brand-surface text-slate-400 border-brand-border hover:text-white">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+              <span>Add to Schedule</span>
+            </button>
+          </div>
+
+          <!-- Schedule Date & Time Row (Hidden when Post Now is active) -->
+          <div id="dispatchScheduleFields" class="hidden grid grid-cols-2 gap-3 mb-2">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Release Date</label>
+              <input type="date" id="dispatchScheduleDate" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-brand-gold">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Release Time</label>
+              <input type="time" id="dispatchScheduleTime" value="10:00" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-brand-gold">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-3 border-t border-brand-border flex items-center justify-between gap-3">
+        <button type="button" onclick="closeSocialPublishModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs transition">
+          Cancel
+        </button>
+        <button type="button" id="btnExecuteDispatch" onclick="executeDispatch()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span id="btnExecuteDispatchLabel">Post Now</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= YOUTUBE OAUTH CONNECT MODAL ================= -->
+  <div id="modalYouTubeAuth" class="fixed inset-0 z-[60] hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Connect YouTube Channel</h3>
+            <p class="text-[11px] text-slate-400">Direct Native Chunked Video Upload &amp; Shorts</p>
+          </div>
+        </div>
+        <button onclick="closeYouTubeAuthModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300">
+        <div class="p-3 bg-slate-900/60 rounded-xl border border-brand-border space-y-2">
+          <div class="font-bold text-slate-200 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+            <span>Authorize Google Account</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Click the button below to open Google's authorization consent screen in a new window and sign into the YouTube channel account.
+          </p>
+          <button type="button" id="btnLaunchGoogleAuth" onclick="launchGoogleOAuth()" class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow transition">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>Open Google OAuth Consent Window</span>
+          </button>
+        </div>
+
+        <div class="p-3 bg-slate-900/60 rounded-xl border border-brand-border space-y-2">
+          <div class="font-bold text-slate-200 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-700 text-white flex items-center justify-center text-[10px] font-black">2</span>
+            <span>Paste Authorization Code or Redirect URL</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            After clicking Allow, Google redirects you. Copy the full address bar URL or authorization code from that page and paste it here:
+          </p>
+          <input type="text" id="ytAuthCodeInput" placeholder="http://localhost:5678/rest/oauth2-credential/callback?code=4/0A... or code string" class="w-full bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-red-500">
+        </div>
+
+        <div id="ytAuthErrorBox" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs font-mono"></div>
+        <div id="ytAuthSuccessBox" class="hidden p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs"></div>
+      </div>
+
+      <div class="pt-3 border-t border-brand-border flex items-center justify-between gap-3">
+        <button type="button" onclick="closeYouTubeAuthModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs transition">
+          Cancel
+        </button>
+        <button type="button" id="btnSubmitYouTubeCode" onclick="submitYouTubeAuthCode()" class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Save &amp; Authorize Channel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 1-CLICK WEEKLY SYNDICATION MODAL ================= -->
+  <div id="modalWeeklySyndicate" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
+            <i data-lucide="calendar-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="syndicateModalTitle" class="text-sm font-bold text-white">Syndicate Week Schedule</h3>
+            <p class="text-[11px] text-slate-400">Batch-schedule all weekly assets across the calendar</p>
+          </div>
+        </div>
+        <button onclick="closeWeeklySyndicateModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Week Start Date Selector -->
+      <div class="p-3.5 rounded-xl bg-brand-surface border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-0.5">Week Beginning Date (Sunday):</label>
+          <span class="text-[11px] text-slate-400">Doc drops Sunday; Reels & Stories drop Mon-Fri.</span>
+        </div>
+        <input type="date" id="syndicateStartDate" class="bg-[#181e2b] border border-brand-border text-slate-100 rounded-xl px-3 py-1.5 font-mono text-xs focus:outline-none focus:border-brand-gold">
+      </div>
+
+      <!-- Assets Preview List -->
+      <div class="space-y-2">
+        <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+          <span>Weekly Assets Overview (11 Items)</span>
+          <span id="syndicateReadyCount" class="text-brand-gold font-mono text-[11px]">Loading...</span>
+        </div>
+        <div id="syndicateAssetsList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-3 border-t border-brand-border flex items-center justify-between gap-3 text-xs">
+        <button onclick="closeWeeklySyndicateModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold">
+          Cancel
+        </button>
+        <button id="btnBatchSyndicate" onclick="executeBatchSyndicate()" class="px-5 py-2 bg-brand-gold hover:bg-brand-goldHover text-black rounded-xl font-bold flex items-center gap-1.5 shadow">
+          <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+          <span>Schedule Ready Videos to Calendar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    let currentCurriculum = [];
+    let currentYear = 1; // Default to Year 1
+    let expandedWeeks = new Set([1, 15, 53]); // Expand key demo weeks by default
+    let allConfiguredProjects = [];
+    let activeProjectPath = null;
+
+    // Platform SVG definitions
+    const SVG_ICONS = {
+      youtube: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`,
+      facebook: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
+      instagram: `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`,
+      tiktok: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`,
+      x: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      loadProjects();
+      loadCurriculum();
+    });
+
+    // ================= PROJECT SWITCHER & WORKSPACE LOGIC =================
+    async function loadProjects(targetToSelect = null) {
+      try {
+        const res = await fetch("/api/projects?include_hidden=false");
+        const data = await res.json();
+        const select = document.getElementById("projectSelect");
+        if (!select) return;
+
+        select.innerHTML = "";
+        allConfiguredProjects = data.projects || [];
+        activeProjectPath = targetToSelect || data.active_project;
+
+        if (allConfiguredProjects.length === 0) {
+          select.innerHTML = "<option value=''>No projects registered</option>";
+          return;
+        }
+
+        allConfiguredProjects.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.path;
+          opt.textContent = p.name || p.path;
+          if (activeProjectPath && p.path.toLowerCase() === activeProjectPath.toLowerCase()) {
+            opt.selected = true;
+            updateProjectSubtitle(p.name);
+          }
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error("Failed to load projects:", e);
+      }
+    }
+
+    function updateProjectSubtitle(name) {
+      const sub = document.getElementById("activeProjectSubtitle");
+      if (sub && name) sub.textContent = name;
+    }
+
+    async function onProjectSelectChange(path) {
+      if (!path) return;
+      try {
+        const res = await fetch("/api/projects/select", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: path })
+        });
+        const data = await res.json();
+        if (data.success) {
+          activeProjectPath = path;
+          const match = allConfiguredProjects.find(p => p.path === path);
+          if (match) updateProjectSubtitle(match.name);
+          showToast(`Switched workspace to <b>${match?.name || path}</b>`, "info");
+          await loadCurriculum();
+        }
+      } catch (e) {
+        showToast(`Project Switch Error: ${e.message}`, "error");
+      }
+    }
+
+    function openAddProjectModal() {
+      document.getElementById("addProjectModal").classList.remove("hidden");
+    }
+
+    function closeAddProjectModal() {
+      document.getElementById("addProjectModal").classList.add("hidden");
+    }
+
+    async function handleCreateProject(e) {
+      e.preventDefault();
+      const name = document.getElementById("addProjectName").value.trim();
+      const path = document.getElementById("addProjectPath").value.trim();
+      const type = document.getElementById("addProjectType").value;
+
+      try {
+        const res = await fetch("/api/projects/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, path, type })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeAddProjectModal();
+          showToast(`Project <b>${name}</b> registered!`, "success");
+          await loadProjects(path);
+          await loadCurriculum();
+        } else {
+          showToast(data.detail || "Failed to add project", "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    }
+
+    async function openManageProjectsModal() {
+      const modal = document.getElementById("manageProjectsModal");
+      modal.classList.remove("hidden");
+      await renderManageProjectsList();
+    }
+
+    function closeManageProjectsModal() {
+      document.getElementById("manageProjectsModal").classList.add("hidden");
+    }
+
+    async function renderManageProjectsList() {
+      const container = document.getElementById("manageProjectsList");
+      try {
+        const res = await fetch("/api/projects?include_hidden=true");
+        const data = await res.json();
+        const list = data.projects || [];
+
+        if (list.length === 0) {
+          container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">No projects configured.</div>`;
+          return;
+        }
+
+        container.innerHTML = list.map(p => {
+          const isActive = data.active_project && p.path.toLowerCase() === data.active_project.toLowerCase();
+          return `
+            <div class="p-3 rounded-xl bg-brand-surface border border-brand-border flex items-center justify-between gap-3 ${isActive ? 'ring-1 ring-brand-gold/60' : ''}">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-xs text-white truncate">${p.name || 'Untitled'}</span>
+                  ${isActive ? '<span class="px-1.5 py-0.5 rounded bg-brand-gold/20 text-brand-gold text-[10px] font-mono font-bold">ACTIVE</span>' : ''}
+                  ${p.hidden ? '<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px]">HIDDEN</span>' : ''}
+                </div>
+                <div class="text-[11px] font-mono text-slate-400 truncate mt-0.5">${p.path}</div>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="toggleHideProject('${encodeURIComponent(p.path)}', ${!p.hidden})" class="p-1.5 text-slate-400 hover:text-white rounded hover:bg-brand-card transition" title="${p.hidden ? 'Show in switcher' : 'Hide from switcher'}">
+                  <i data-lucide="${p.hidden ? 'eye' : 'eye-off'}" class="w-4 h-4"></i>
+                </button>
+                <button onclick="removeProject('${encodeURIComponent(p.path)}')" class="p-1.5 text-slate-400 hover:text-red-400 rounded hover:bg-brand-card transition" title="Unlink project from Studio">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("");
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<div class="p-4 text-center text-red-400 text-xs">${err.message}</div>`;
+      }
+    }
+
+    async function toggleHideProject(encodedPath, hide) {
+      const path = decodeURIComponent(encodedPath);
+      try {
+        await fetch("/api/projects/toggle_hide", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path, hidden: hide })
+        });
+        await renderManageProjectsList();
+        await loadProjects();
+      } catch (e) {
+        showToast(e.message, "error");
+      }
+    }
+
+    async function removeProject(encodedPath) {
+      const path = decodeURIComponent(encodedPath);
+      if (!confirm(`Unlink project from Studio list? Files on disk remain untouched.`)) return;
+      try {
+        await fetch("/api/projects/remove", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path })
+        });
+        await renderManageProjectsList();
+        await loadProjects();
+      } catch (e) {
+        showToast(e.message, "error");
+      }
+    }
+
+    // ================= MASTER CURRICULUM LOADING & RENDERING =================
+    async function loadCurriculum() {
+      const container = document.getElementById("curriculum-container");
+      try {
+        const params = new URLSearchParams();
+        if (currentYear) params.set("year", currentYear);
+        const q = document.getElementById("filter-quarter").value;
+        if (q) params.set("quarter", q);
+        const s = document.getElementById("filter-status").value;
+        if (s) params.set("status", s);
+        const search = document.getElementById("filter-search").value;
+        if (search) params.set("search", search);
+
+        const res = await fetch(`/api/story-map?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to load story map data");
+        const json = await res.json();
+        
+        currentCurriculum = json.weeks || [];
+        updateStats(json.stats);
+        renderCurriculum(currentCurriculum);
+      } catch (err) {
+        console.error("Error loading story map:", err);
+        container.innerHTML = `
+          <div class="py-16 text-center text-red-400 bg-brand-card rounded-2xl border border-red-500/20 p-8">
+            <i data-lucide="alert-triangle" class="w-10 h-10 mx-auto mb-3 text-red-400"></i>
+            <h3 class="text-lg font-bold text-white mb-1">Failed to Load Master Story Map</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto mb-4">${err.message}</p>
+            <button onclick="loadCurriculum()" class="px-4 py-2 bg-brand-cardHover border border-brand-border rounded-lg text-xs font-semibold text-white">Retry</button>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+    }
+
+    function updateStats(stats) {
+      if (!stats) return;
+      document.getElementById("stat-total-weeks").innerText = stats.total_weeks;
+      document.getElementById("stat-covered-count").innerText = stats.total_covered;
+      document.getElementById("stat-y1-percent").innerText = `${stats.year1_percentage}%`;
+    }
+
+    function setYearFilter(yr) {
+      currentYear = yr;
+      document.querySelectorAll(".year-tab").forEach(tab => {
+        tab.className = "year-tab px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all";
+      });
+      const activeId = yr === null ? "tab-year-all" : `tab-year-${yr}`;
+      const activeTab = document.getElementById(activeId);
+      if (activeTab) {
+        activeTab.className = "year-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-surface text-brand-gold border border-brand-border shadow-sm transition-all";
+      }
+      loadCurriculum();
+    }
+
+    function onFilterChange() {
+      loadCurriculum();
+    }
+
+    let searchTimer = null;
+    function onSearchChange() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        loadCurriculum();
+      }, 300);
+    }
+
+    async function refreshStatus() {
+      const btn = document.getElementById("btn-refresh");
+      btn.classList.add("opacity-50", "pointer-events-none");
+      try {
+        await fetch("/api/story-map/refresh", { method: "POST" });
+        await loadCurriculum();
+        showToast("Curriculum & disk coverage refreshed!", "success");
+      } finally {
+        btn.classList.remove("opacity-50", "pointer-events-none");
+      }
+    }
+
+    function toggleWeekExpand(wNum) {
+      if (expandedWeeks.has(wNum)) {
+        expandedWeeks.delete(wNum);
+      } else {
+        expandedWeeks.add(wNum);
+      }
+      renderCurriculum(currentCurriculum);
+    }
+
+    function safeAttr(val) {
+      if (val === null || val === undefined) return '';
+      const str = typeof val === 'string' ? val : JSON.stringify(val);
+      return encodeURIComponent(str).replace(/'/g, '%27');
+    }
+
+    function renderCurriculum(weeks) {
+      const container = document.getElementById("curriculum-container");
+      if (!weeks || weeks.length === 0) {
+        container.innerHTML = `
+          <div class="py-20 text-center text-slate-400 bg-brand-card/50 rounded-2xl border border-brand-border p-8">
+            <i data-lucide="book-x" class="w-12 h-12 mx-auto mb-3 text-slate-600"></i>
+            <h3 class="text-base font-bold text-white mb-1">No Weeks Matched Your Filter</h3>
+            <p class="text-xs text-slate-500">Try adjusting your search query, status, or quarter selector.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      let html = "";
+      weeks.forEach(w => {
+        const isExpanded = expandedWeeks.has(w.week);
+        const doc = w.documentary;
+        const sub = w.substack;
+        const status = doc.status;
+        const weekTag = `W${String(w.week).padStart(2, '0')}`;
+
+        // Status Badge Style
+        let statusBadge = "";
+        if (status === "covered") {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Covered (On Disk)</span>`;
+        } else if (status === "in_production") {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>In Production</span>`;
+        } else {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700">Planned</span>`;
+        }
+
+        // Play Button if video exists
+        let playBtn = "";
+        if (doc.video_url) {
+          playBtn = `
+            <button onclick="playVideo('${safeAttr(doc.title)}', '${doc.video_url}', '${safeAttr((doc.scriptures || []).join(', '))}', 'documentary', '${safeAttr(doc.rel_path || '')}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5 border border-emerald-500/30 transition-all shadow-sm">
+              <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+              <span>Play Video</span>
+            </button>
+          `;
+        }
+
+        // Post Documentary Button
+        let postDocBtn = "";
+        if (doc.rel_path && doc.video_url) {
+          const docDataObj = {
+            rel_path: doc.rel_path,
+            title: doc.title,
+            type: 'documentary',
+            aspect: '16:9',
+            video_url: doc.video_url,
+            description: `${doc.title}\n\nEpisode Scriptures: ${(doc.scriptures || []).join(', ')}\n\nChristological Key:\n${doc.christological_key || ''}\n\nFranchise: Bible Hidden Secrets Revealed (Master 3-Year Curriculum)`,
+            tags: ['BibleSecrets', 'Christianity', 'Documentary', 'Theology']
+          };
+          postDocBtn = `
+            <button onclick="openSocialPublishModal('${safeAttr(docDataObj)}')" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm" title="Post or Schedule Long-Form Documentary">
+              <i data-lucide="send" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>Post Doc</span>
+            </button>
+          `;
+        }
+
+        // Syndicate Week Button
+        const syndicateBtn = `
+          <button onclick="openWeeklySyndicateModal(${w.week})" class="px-3 py-1.5 rounded-lg bg-brand-surface hover:bg-brand-card border border-brand-border text-brand-gold hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm" title="Batch-syndicate all weekly assets across the calendar">
+            <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-brand-gold"></i>
+            <span>Syndicate Week</span>
+          </button>
+        `;
+
+        // Generate Video Button (Linking to Video Generator for this week)
+        const generateBtn = `
+          <a href="/generator?week=${weekTag}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 hover:text-amber-200 border border-amber-500/35 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm group" title="Open Video Generator filtered to ${weekTag}">
+            <i data-lucide="clapperboard" class="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform"></i>
+            <span>Generate Video</span>
+          </a>
+        `;
+
+        html += `
+          <div class="bg-brand-card rounded-2xl border ${isExpanded ? 'border-brand-gold/40 shadow-lg shadow-brand-gold/5' : 'border-brand-border'} transition-all overflow-hidden">
+            
+            <!-- MASTER WEEK ROW -->
+            <div class="p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 cursor-pointer hover:bg-brand-surface/40 transition-colors" onclick="toggleWeekExpand(${w.week})">
+              
+              <div class="flex items-start gap-4 flex-1">
+                <!-- Week & Quarter Badge -->
+                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-brand-surface border border-brand-border shrink-0">
+                  <span class="text-[10px] font-black uppercase text-slate-500">${w.quarter}</span>
+                  <span class="text-lg font-black text-brand-gold font-mono leading-none mt-0.5">${weekTag}</span>
+                  <span class="text-[9px] font-semibold text-slate-400 uppercase mt-0.5">Y${w.year}</span>
+                </div>
+
+                <!-- Title & Core Meta -->
+                <div class="space-y-1.5 flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brand-surface text-slate-300 border border-brand-border">${doc.id}</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-surface text-sky-400 border border-brand-border">${w.testament}</span>
+                    <span class="text-[11px] text-slate-400 font-medium">• ${doc.duration}</span>
+                    ${statusBadge}
+                  </div>
+
+                  <h3 class="text-base sm:text-lg font-extrabold text-white group-hover:text-brand-gold transition-colors">
+                    ${doc.title}
+                  </h3>
+
+                  <div class="text-xs text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span class="text-brand-gold font-mono font-semibold">${(doc.scriptures || []).join(' • ')}</span>
+                  </div>
+
+                  <!-- Christological Key Preview -->
+                  <div class="text-xs text-slate-300/90 bg-brand-surface/70 px-3 py-1.5 rounded-lg border border-brand-border/60 max-w-4xl">
+                    <span class="text-brand-gold font-bold">Christological Key:</span> ${doc.christological_key}
+                  </div>
+
+                  <!-- Documentary Social Media Platforms (Live Status Indicators) -->
+                  <div class="flex items-center gap-2 pt-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Release Platforms:</span>
+                    <div class="flex items-center gap-2">
+                      ${renderPlatformBadge(doc.published, 'youtube', SVG_ICONS.youtube, 'YouTube Long-Form (16:9 / 4K)')}
+                      ${renderPlatformBadge(doc.published, 'facebook', SVG_ICONS.facebook, 'Facebook Watch Video')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Actions: Generate Video, Play Video, Post Doc, Syndicate, Expand Sub-table -->
+              <div class="flex flex-wrap items-center gap-2 self-end lg:self-center shrink-0" onclick="event.stopPropagation()">
+                ${generateBtn}
+                ${playBtn}
+                ${postDocBtn}
+                ${syndicateBtn}
+                
+                <button onclick="toggleWeekExpand(${w.week})" class="px-3.5 py-1.5 rounded-lg bg-brand-surface hover:bg-brand-card border border-brand-border text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition-colors">
+                  <span>${isExpanded ? 'Hide Assets' : '5 Reels, 5 Stories & Substack'}</span>
+                  <i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4 text-slate-400"></i>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- EXPANDABLE SUB-TABLE (5 Reels, 5 Stories, 5 Community Posts, Substack) -->
+            ${isExpanded ? renderSubTable(w) : ''}
+
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function renderPlatformBadge(publishedData, platform, svg, label) {
+      const p = (publishedData || {})[platform];
+      if (p && p.status === 'published') {
+        return `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition" title="Published to ${label}">
+            ${svg}
+            <span>${platform.toUpperCase()}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          </span>
+        `;
+      }
+      if (p && p.status === 'failed') {
+        return `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[11px] font-semibold transition" title="Upload Failed on ${label}: ${p.error || 'Error'}">
+            ${svg}
+            <span>${platform.toUpperCase()}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
+          </span>
+        `;
+      }
+      return `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-brand-surface text-slate-400 border border-brand-border text-[11px] font-semibold transition hover:bg-brand-card hover:text-slate-200" title="${label}">
+          ${svg}
+          <span>${platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+        </span>
+      `;
+    }
+
+    function renderPlatformIcon(publishedData, platform, svg, label) {
+      const p = (publishedData || {})[platform];
+      if (p && p.status === 'published') {
+        return `
+          <span class="p-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition hover:scale-110 flex items-center gap-0.5" title="Published to ${label}">
+            ${svg}
+            <span class="w-1 h-1 rounded-full bg-emerald-400"></span>
+          </span>
+        `;
+      }
+      if (p && p.status === 'failed') {
+        return `
+          <span class="p-1 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 transition hover:scale-110 flex items-center gap-0.5" title="Upload Failed on ${label}: ${p.error || 'Error'}">
+            ${svg}
+            <span class="w-1 h-1 rounded-full bg-rose-400 animate-pulse"></span>
+          </span>
+        `;
+      }
+      return `
+        <span class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition hover:scale-110" title="${label}">
+          ${svg}
+        </span>
+      `;
+    }
+
+    function renderSubTable(w) {
+      const doc = w.documentary;
+      const sub = w.substack;
+      const reels = w.reels || [];
+      const stories = w.stories || [];
+      const comms = w.community_posts || [];
+
+      let rowsHtml = "";
+      for (let i = 0; i < 5; i++) {
+        const r = reels[i] || {};
+        const s = stories[i] || {};
+        const c = comms[i] || {};
+        const day = ["Mon", "Tue", "Wed", "Thu", "Fri"][i];
+
+        // Reel Action Buttons
+        let reelActions = "";
+        if (r.has_video && r.video_url) {
+          const rDataObj = {
+            rel_path: r.rel_path,
+            title: r.title,
+            type: 'reel',
+            aspect: '9:16',
+            video_url: r.video_url,
+            description: `${r.title}\n\n${r.hook || ''}\n\n#BibleSecrets #Shorts #Reels`,
+            tags: ['BibleSecrets', 'Shorts', 'Reels', 'Christianity']
+          };
+
+          reelActions = `
+            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-brand-border/40">
+              <button onclick="playVideo('${safeAttr(r.title)}', '${r.video_url}', '${safeAttr(r.hook || '')}', 'reel', '${safeAttr(r.rel_path || '')}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[11px] font-bold flex items-center gap-1 border border-emerald-500/30 transition-all shadow-sm">
+                <i data-lucide="play" class="w-3 h-3 fill-current"></i>
+                <span>Play Reel</span>
+              </button>
+              <button onclick="openSocialPublishModal('${safeAttr(rDataObj)}')" class="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-[11px] font-bold flex items-center gap-1 border border-indigo-500/30 transition-all shadow-sm">
+                <i data-lucide="send" class="w-3 h-3 text-indigo-400"></i>
+                <span>Post Reel</span>
+              </button>
+            </div>
+          `;
+        } else {
+          reelActions = `
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-1 border-t border-brand-border/40 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+              <span>Video pending generation</span>
+            </div>
+          `;
+        }
+
+        // Story Action Buttons
+        let storyActions = "";
+        if (s.has_video && s.video_url) {
+          const sDataObj = {
+            rel_path: s.rel_path,
+            title: s.caption || s.badge,
+            type: 'story',
+            aspect: '9:16',
+            video_url: s.video_url,
+            description: `${s.caption || ''}\n\nCheck out the full episode! #Stories`,
+            tags: ['Stories', 'BibleSecrets']
+          };
+
+          storyActions = `
+            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-brand-border/40">
+              <button onclick="playVideo('${safeAttr(s.caption || s.badge)}', '${s.video_url}', '${safeAttr(s.sticker_type || '')}', 'story', '${safeAttr(s.rel_path || '')}')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-bold flex items-center gap-1 border border-amber-500/30 transition-all shadow-sm">
+                <i data-lucide="play" class="w-2.5 h-2.5 fill-current"></i>
+                <span>Play Story</span>
+              </button>
+              <button onclick="openSocialPublishModal('${safeAttr(sDataObj)}')" class="px-2 py-0.5 rounded bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-[10px] font-bold flex items-center gap-1 border border-indigo-500/30 transition-all shadow-sm">
+                <i data-lucide="send" class="w-2.5 h-2.5 text-indigo-400"></i>
+                <span>Post</span>
+              </button>
+            </div>
+          `;
+        } else {
+          storyActions = `
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-1 border-t border-brand-border/40 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+              <span>Graphic / sticker draft</span>
+            </div>
+          `;
+        }
+
+        rowsHtml += `
+          <tr class="border-b border-brand-border/40 hover:bg-brand-surface/30 text-xs">
+            <td class="p-3 font-bold text-brand-gold font-mono whitespace-nowrap align-top">${day}</td>
+            
+            <!-- Reel Asset + Platform Logos -->
+            <td class="p-3 align-top">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="px-1.5 py-0.5 rounded bg-brand-dark text-brand-gold font-mono text-[10px] font-bold border border-brand-border">${r.badge || r.id}</span>
+                <span class="text-[10px] text-sky-400 font-semibold uppercase">${r.hook_type || ''}</span>
+              </div>
+              <div class="font-semibold text-slate-200">${r.title || ''}</div>
+              <div class="text-[11px] text-slate-400 italic mt-0.5">${r.hook || ''}</div>
+
+              <!-- Reel Action Buttons -->
+              ${reelActions}
+
+              <!-- 5 Social Platforms Syndication Badges with live status -->
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Syndication:</span>
+                <div class="flex items-center gap-1">
+                  ${renderPlatformIcon(r.published, 'facebook', SVG_ICONS.facebook, 'Facebook Reels')}
+                  ${renderPlatformIcon(r.published, 'instagram', SVG_ICONS.instagram, 'Instagram Reels')}
+                  ${renderPlatformIcon(r.published, 'tiktok', SVG_ICONS.tiktok, 'TikTok')}
+                  ${renderPlatformIcon(r.published, 'x', SVG_ICONS.x, 'X (Twitter)')}
+                  ${renderPlatformIcon(r.published, 'youtube', SVG_ICONS.youtube, 'YouTube Shorts')}
+                </div>
+              </div>
+            </td>
+
+            <!-- Story Asset -->
+            <td class="p-3 align-top">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="px-1.5 py-0.5 rounded bg-brand-dark text-slate-300 font-mono text-[10px] font-bold border border-brand-border">${s.badge || s.id}</span>
+                <span class="text-[10px] text-amber-400 font-semibold uppercase">${s.sticker_type || ''}</span>
+              </div>
+              <div class="text-[11px] text-slate-300 leading-relaxed">${s.caption || ''}</div>
+
+              <!-- Story Action Buttons -->
+              ${storyActions}
+
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Stories:</span>
+                <div class="flex items-center gap-1">
+                  ${renderPlatformIcon(s.published, 'instagram', SVG_ICONS.instagram, 'Instagram Stories')}
+                  ${renderPlatformIcon(s.published, 'facebook', SVG_ICONS.facebook, 'Facebook Stories')}
+                </div>
+              </div>
+            </td>
+
+            <!-- Community Tab Asset -->
+            <td class="p-3 align-top">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="px-1.5 py-0.5 rounded bg-brand-dark text-purple-400 font-mono text-[10px] font-bold border border-brand-border">${c.badge || c.id}</span>
+                <span class="text-[10px] text-purple-300 font-semibold uppercase">${c.type_label || c.post_type || ''}</span>
+              </div>
+              <div class="text-[11px] text-slate-300 leading-relaxed">${c.prompt || ''}</div>
+              <button onclick="copyTextToClipboard('${encodeURIComponent(c.prompt || '')}')" class="mt-2 px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardHover border border-brand-border text-[10px] text-slate-400 hover:text-white flex items-center gap-1 transition">
+                <i data-lucide="copy" class="w-2.5 h-2.5"></i>
+                <span>Copy Post Prompt</span>
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+
+      return `
+        <div class="border-t border-brand-border bg-brand-surface/60 p-4 sm:p-6">
+          
+          <!-- Substack Companion Card -->
+          <div class="bg-brand-card p-4 rounded-xl border border-brand-border mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-brand-dark text-orange-400 border border-brand-border">${sub.pillar_id} (Sunday)</span>
+                <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-brand-dark text-slate-400 border border-brand-border">${sub.digest_id} (Thursday)</span>
+                <span class="text-xs font-semibold text-slate-400">Substack Email Capture</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">${sub.pillar_title}</h4>
+              <p class="text-xs text-slate-400"><span class="text-brand-gold font-medium">Lead Magnet:</span> ${sub.lead_magnet}</p>
+            </div>
+            <button onclick="copySingleSubstack(${w.week})" class="px-3 py-1.5 rounded-lg bg-brand-surface hover:bg-brand-card border border-brand-border text-xs font-semibold text-slate-200 flex items-center gap-1.5 shrink-0 transition-colors shadow-sm">
+              <i data-lucide="copy" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>Copy Substack Draft</span>
+            </button>
+          </div>
+
+          <!-- Multi-Asset Daily Sub-Table -->
+          <div class="overflow-x-auto rounded-xl border border-brand-border shadow-sm">
+            <table class="w-full text-left border-collapse bg-brand-card">
+              <thead>
+                <tr class="border-b border-brand-border bg-brand-surface/90 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <th class="p-3 w-16">Day</th>
+                  <th class="p-3 w-1/3">5 Vertical Reels / Shorts (9:16)</th>
+                  <th class="p-3 w-1/3">5 Daily Stories & Link Stickers</th>
+                  <th class="p-3 w-1/3">5 Community Tab Posts & Polls</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ================= MODAL & COPY ACTIONS =================
+    let currentPlayingAsset = null;
+
+    function playVideo(rawTitle, url, rawScriptures = '', type = 'documentary', rawAssetRelPath = null) {
+      let decodedTitle = '';
+      try { decodedTitle = decodeURIComponent(rawTitle || ''); } catch { decodedTitle = rawTitle || ''; }
+      let decodedScriptures = '';
+      try { decodedScriptures = decodeURIComponent(rawScriptures || ''); } catch { decodedScriptures = rawScriptures || ''; }
+      let decodedRelPath = null;
+      if (rawAssetRelPath) {
+        try { decodedRelPath = decodeURIComponent(rawAssetRelPath); } catch { decodedRelPath = rawAssetRelPath; }
+      }
+
+      currentPlayingAsset = {
+        title: decodedTitle,
+        url: url,
+        subtitle: decodedScriptures,
+        type: type,
+        rel_path: decodedRelPath
+      };
+
+      document.getElementById("modal-video-title").innerText = decodedTitle;
+      document.getElementById("modal-video-scriptures").innerText = decodedScriptures;
+      
+      const player = document.getElementById("modal-video-player");
+      player.src = url;
+      document.getElementById("modal-video-download").href = url;
+
+      const dialog = document.getElementById("video-modal-dialog");
+      const container = document.getElementById("modal-video-container");
+      const badge = document.getElementById("modal-video-badge");
+      const postBtn = document.getElementById("modal-video-post-btn");
+
+      if (decodedRelPath) {
+        postBtn.classList.remove("hidden");
+      } else {
+        postBtn.classList.add("hidden");
+      }
+
+      // Adaptive switching: 9:16 vertical smartphone vs 16:9 widescreen
+      const isVertical = type === 'vertical' || type === 'reel' || type === 'story';
+      if (isVertical) {
+        dialog.className = "bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-2xl flex flex-col transition-all duration-200 mx-auto";
+        dialog.style.width = "fit-content";
+        dialog.style.maxWidth = "calc(78vh * 9 / 16 + 2px)";
+        
+        container.className = "bg-black relative flex items-center justify-center overflow-hidden mx-auto";
+        container.style.aspectRatio = "9/16";
+        container.style.height = "min(78vh, 720px)";
+        container.style.width = "calc(min(78vh, 720px) * 9 / 16)";
+        container.style.maxHeight = "78vh";
+        
+        player.className = "w-full h-full object-cover block mx-auto";
+        
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 shrink-0";
+        badge.innerText = type === 'story' ? "⚡ 9:16 STORY" : "📱 9:16 REEL";
+      } else {
+        dialog.className = "bg-brand-card border border-brand-border rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col transition-all duration-200 mx-auto";
+        dialog.style.width = "100%";
+        dialog.style.maxWidth = "56rem";
+        
+        container.className = "aspect-video bg-black relative flex items-center justify-center overflow-hidden w-full";
+        container.style.aspectRatio = "16/9";
+        container.style.height = "auto";
+        container.style.width = "100%";
+        container.style.maxHeight = "78vh";
+        
+        player.className = "w-full h-full object-contain";
+        
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-gold/20 text-brand-gold border border-brand-gold/30 shrink-0";
+        badge.innerText = "🎬 16:9 CINEMATIC";
+      }
+
+      document.getElementById("video-modal").classList.remove("hidden");
+      player.play();
+      lucide.createIcons();
+    }
+
+    function closeVideoModal() {
+      const player = document.getElementById("modal-video-player");
+      player.pause();
+      player.src = "";
+      document.getElementById("video-modal").classList.add("hidden");
+    }
+
+    function openDispatchFromPlayer() {
+      if (!currentPlayingAsset || !currentPlayingAsset.rel_path) return;
+      closeVideoModal();
+      openSocialPublishModal({
+        rel_path: currentPlayingAsset.rel_path,
+        title: currentPlayingAsset.title,
+        type: currentPlayingAsset.type,
+        aspect: currentPlayingAsset.type === 'reel' || currentPlayingAsset.type === 'story' ? '9:16' : '16:9',
+        video_url: currentPlayingAsset.url,
+        description: currentPlayingAsset.type === 'documentary'
+          ? `${currentPlayingAsset.title}\n\nEpisode Scriptures: ${currentPlayingAsset.subtitle}\n\nFranchise: Bible Hidden Secrets Revealed (Master 3-Year Curriculum)`
+          : `${currentPlayingAsset.title}\n\n${currentPlayingAsset.subtitle}\n\n#BibleSecrets #Shorts #Reels`,
+        tags: currentPlayingAsset.type === 'documentary' ? ['BibleSecrets', 'Christianity', 'Documentary', 'Theology'] : ['BibleSecrets', 'Shorts', 'Reels']
+      });
+    }
+
+    // ================= SOCIAL MEDIA DISPATCH & SELECTIVE RETRY =================
+    let currentDispatchAsset = null;
+    let currentDispatchMode = 'now';
+    let lastFailedPlatforms = [];
+
+    function openSocialPublishModal(encodedAssetData) {
+      try {
+        if (typeof encodedAssetData === 'object' && encodedAssetData !== null) {
+          currentDispatchAsset = encodedAssetData;
+        } else if (typeof encodedAssetData === 'string') {
+          try {
+            currentDispatchAsset = JSON.parse(decodeURIComponent(encodedAssetData));
+          } catch {
+            currentDispatchAsset = JSON.parse(encodedAssetData);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse asset data:", e, encodedAssetData);
+        showToast("Failed to load asset metadata", "error");
+        return;
+      }
+
+      const modal = document.getElementById("modalSocialPublish");
+      const alertBox = document.getElementById("dispatchAlertBox");
+      alertBox.className = "hidden";
+      alertBox.innerHTML = "";
+      lastFailedPlatforms = [];
+
+      document.getElementById("dispatchTitle").value = currentDispatchAsset.title || "";
+      document.getElementById("dispatchDescription").value = currentDispatchAsset.description || "";
+      document.getElementById("dispatchTags").value = (currentDispatchAsset.tags || []).map(t => `#${t.replace(/[#\s]/g, '')}`).join(' ');
+      document.getElementById("dispatchAssetSub").innerText = currentDispatchAsset.rel_path || "";
+      
+      // Format & platform routing come from the server (same rules as the dispatcher, incl. account connection)
+      applyPlatformRouting(null);
+      loadPlatformRouting(currentDispatchAsset.rel_path);
+
+      // Pre-fill tomorrow's date for schedule mode
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById("dispatchScheduleDate").value = tomorrow.toISOString().split('T')[0];
+
+      switchDispatchMode('now');
+      modal.classList.remove("hidden");
+      refreshPlatformStatusInModal();
+      lucide.createIcons();
+    }
+
+    function closeSocialPublishModal() {
+      document.getElementById("modalSocialPublish").classList.add("hidden");
+    }
+
+    async function refreshPlatformStatusInModal() {
+      try {
+        const res = await fetch("/api/social/platforms/status");
+        const data = await res.json();
+        if (!data.success) return;
+
+        // Facebook
+        const fb = data.facebook || {};
+        const fbTitle = document.getElementById("fbStatusTitle");
+        const fbSub = document.getElementById("fbStatusSub");
+        const chkFbSub = document.getElementById("chkFbSub");
+        if (fb.active) {
+          if (fbTitle) fbTitle.innerText = fb.page_name || "Bible Hidden Secrets Revealed";
+          if (fbSub) fbSub.innerText = `● Connected (${(fb.fan_count || 13865).toLocaleString()} followers)`;
+          if (chkFbSub) chkFbSub.innerText = "● Direct Page";
+        } else {
+          if (fbSub) fbSub.innerText = "○ Disconnected";
+          if (chkFbSub) chkFbSub.innerText = "○ Offline";
+        }
+
+        // Instagram
+        const ig = data.instagram || {};
+        const igTitle = document.getElementById("igStatusTitle");
+        const igSub = document.getElementById("igStatusSub");
+        const chkIgSub = document.getElementById("chkIgSub");
+        if (ig.active) {
+          if (igTitle) igTitle.innerText = ig.username ? `@${ig.username}` : "@biblesecretsrevealed2318";
+          if (igSub) igSub.innerText = "● Direct Reels Active";
+          if (chkIgSub) chkIgSub.innerText = "● Direct Reels";
+        } else {
+          if (igSub) igSub.innerText = "○ Disconnected";
+          if (chkIgSub) chkIgSub.innerText = "○ Offline";
+        }
+
+        // YouTube
+        const yt = data.youtube || {};
+        const isAuth = yt.authenticated;
+        const ytTitle = document.getElementById("ytStatusTitle");
+        const ytSub = document.getElementById("ytStatusSub");
+        const chkYtSub = document.getElementById("chkYtSub");
+        const btnYt = document.getElementById("btnConnectYoutube");
+        
+        if (isAuth && yt.channel) {
+          if (ytTitle) ytTitle.innerText = yt.channel.title || "YouTube Channel";
+          if (ytSub) {
+            ytSub.className = "text-[10px] text-emerald-400 font-mono";
+            ytSub.innerText = `● Connected (${parseInt(yt.channel.subscriber_count || 0).toLocaleString()} subs)`;
+          }
+          if (chkYtSub) {
+            chkYtSub.className = "text-[9px] text-emerald-400 font-mono";
+            chkYtSub.innerText = "● Direct Stream";
+          }
+          if (btnYt) {
+            btnYt.className = "px-2 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1";
+            btnYt.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i><span>Connected</span>`;
+          }
+        } else {
+          if (ytTitle) ytTitle.innerText = "YouTube Channel";
+          if (ytSub) {
+            ytSub.className = "text-[10px] text-amber-400 font-mono";
+            ytSub.innerText = "○ OAuth Needed";
+          }
+          if (chkYtSub) {
+            chkYtSub.className = "text-[9px] text-amber-400 font-mono";
+            chkYtSub.innerText = "○ OAuth Needed";
+          }
+          if (btnYt) {
+            btnYt.className = "px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1 shadow-sm";
+            btnYt.innerHTML = `<i data-lucide="zap" class="w-3 h-3"></i><span>Connect</span>`;
+          }
+        }
+        lucide.createIcons();
+      } catch (e) {
+        console.error("Failed to load platform status:", e);
+      }
+    }
+
+    function openYouTubeAuthModal() {
+      const modal = document.getElementById("modalYouTubeAuth");
+      if (!modal) return;
+      document.getElementById("ytAuthCodeInput").value = "";
+      document.getElementById("ytAuthErrorBox").classList.add("hidden");
+      document.getElementById("ytAuthSuccessBox").classList.add("hidden");
+      modal.classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeYouTubeAuthModal() {
+      const modal = document.getElementById("modalYouTubeAuth");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    async function launchGoogleOAuth() {
+      try {
+        const res = await fetch("/api/social/youtube/auth_url");
+        const data = await res.json();
+        if (data.success && data.auth_url) {
+          window.open(data.auth_url, "_blank", "width=600,height=700");
+        } else {
+          alert("Error generating Google Auth URL: " + (data.error || "Unknown"));
+        }
+      } catch (e) {
+        alert("Network error fetching Google Auth URL: " + e.message);
+      }
+    }
+
+    async function submitYouTubeAuthCode() {
+      const input = document.getElementById("ytAuthCodeInput").value.trim();
+      const errBox = document.getElementById("ytAuthErrorBox");
+      const succBox = document.getElementById("ytAuthSuccessBox");
+      const submitBtn = document.getElementById("btnSubmitYouTubeCode");
+
+      errBox.classList.add("hidden");
+      succBox.classList.add("hidden");
+
+      if (!input) {
+        errBox.innerText = "Please paste the redirect URL or authorization code from Google.";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
+      submitBtn.classList.add("opacity-50", "pointer-events-none");
+      try {
+        const res = await fetch("/api/social/youtube/exchange", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: input })
+        });
+        const data = await res.json();
+        if (data.success) {
+          succBox.innerHTML = `
+            <div class="flex items-center gap-1.5 font-bold mb-1">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span>Channel Connected Successfully!</span>
+            </div>
+            <p class="text-[11px] text-slate-300">Connected: <b>${data.channel?.title || 'YouTube Channel'}</b>. Direct upload and shorts are ready.</p>
+          `;
+          succBox.classList.remove("hidden");
+          lucide.createIcons();
+          await refreshPlatformStatusInModal();
+          setTimeout(() => {
+            closeYouTubeAuthModal();
+          }, 2000);
+        } else {
+          errBox.innerText = "OAuth Exchange Failed: " + (data.error || "Invalid code or redirect");
+          errBox.classList.remove("hidden");
+        }
+      } catch (e) {
+        errBox.innerText = "Error submitting auth code: " + e.message;
+        errBox.classList.remove("hidden");
+      } finally {
+        submitBtn.classList.remove("opacity-50", "pointer-events-none");
+      }
+    }
+
+    function switchDispatchMode(mode) {
+      currentDispatchMode = mode;
+      const btnNow = document.getElementById("btnModePostNow");
+      const btnSch = document.getElementById("btnModeSchedule");
+      const fields = document.getElementById("dispatchScheduleFields");
+      const submitLabel = document.getElementById("btnExecuteDispatchLabel");
+
+      if (mode === 'now') {
+        btnNow.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-indigo-600/20 text-indigo-300 border-indigo-500/40";
+        btnSch.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-brand-surface text-slate-400 border-brand-border hover:text-white";
+        fields.classList.add("hidden");
+        submitLabel.innerText = "Post Now";
+      } else {
+        btnSch.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-brand-gold/20 text-brand-gold border-brand-gold/40";
+        btnNow.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-brand-surface text-slate-400 border-brand-border hover:text-white";
+        fields.classList.remove("hidden");
+        submitLabel.innerText = "Schedule Video";
+      }
+    }
+
+    async function executeDispatch(retryPlatforms = null) {
+      if (!currentDispatchAsset || !currentDispatchAsset.rel_path) {
+        showToast("No video asset selected for dispatch", "error");
+        return;
+      }
+
+      const btn = document.getElementById("btnExecuteDispatch");
+      const alertBox = document.getElementById("dispatchAlertBox");
+      alertBox.className = "hidden";
+      alertBox.innerHTML = "";
+
+      let platforms = [];
+      if (retryPlatforms && retryPlatforms.length > 0) {
+        platforms = retryPlatforms;
+      } else {
+        platforms = getSelectedPlatforms();
+      }
+
+      if (platforms.length === 0) {
+        showToast("Please select at least one platform", "error");
+        return;
+      }
+
+      const title = document.getElementById("dispatchTitle").value.trim();
+      const desc = document.getElementById("dispatchDescription").value.trim();
+      const tags = document.getElementById("dispatchTags").value.split(/[\s,]+/).filter(t => t.length > 0).map(t => t.replace('#', ''));
+
+      btn.classList.add("opacity-50", "pointer-events-none");
+      const originalLabel = document.getElementById("btnExecuteDispatchLabel").innerText;
+      document.getElementById("btnExecuteDispatchLabel").innerText = "Dispatching...";
+
+      try {
+        if (currentDispatchMode === 'now' || retryPlatforms) {
+          // Direct Post Now
+          const res = await fetch("/api/social/publish", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              rel_path: currentDispatchAsset.rel_path,
+              platforms: platforms,
+              title: title,
+              description: desc,
+              tags: tags,
+              force_republish: !!retryPlatforms
+            })
+          });
+          const data = await res.json();
+
+          const platResults = data.platforms || {};
+          const failed = Object.entries(platResults).filter(([p, resObj]) => resObj.status === 'failed');
+          const succeeded = Object.entries(platResults).filter(([p, resObj]) => resObj.status === 'published');
+
+          if (failed.length > 0) {
+            lastFailedPlatforms = failed.map(([p]) => p);
+            alertBox.className = "block bg-rose-950/40 border border-rose-500/40 p-4 rounded-xl text-xs space-y-2.5";
+            alertBox.innerHTML = `
+              <div class="flex items-center gap-2 text-rose-300 font-bold text-sm">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+                <span>Upload Failure on ${failed.length} Platform(s)</span>
+              </div>
+              <div class="text-slate-300 space-y-1 pl-6">
+                ${failed.map(([p, r]) => `<div><b class="text-white uppercase font-mono">${p}:</b> <span class="text-rose-300">${r.error || 'Connection or API error'}</span></div>`).join('')}
+              </div>
+              ${succeeded.length > 0 ? `
+                <div class="text-[11px] text-emerald-400 pl-6 flex items-center gap-1.5">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>${succeeded.map(([p]) => p.toUpperCase()).join(', ')} succeeded and were preserved.</span>
+                </div>
+              ` : ''}
+              <div class="pt-2 border-t border-rose-500/20 flex flex-wrap items-center justify-between gap-2 mt-2">
+                <span class="text-[11px] text-slate-400">Retry targets ONLY the failed platform(s).</span>
+                <button onclick="executeDispatch(['${lastFailedPlatforms.join("','")}'])" class="px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-bold flex items-center gap-1.5 shadow">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>Retry Failed Platforms (${lastFailedPlatforms.join(', ')})</span>
+                </button>
+              </div>
+            `;
+            lucide.createIcons();
+            showToast(`Partial upload failure: ${failed.length} platform(s) failed`, "error");
+          } else {
+            alertBox.className = "block bg-emerald-950/40 border border-emerald-500/40 p-4 rounded-xl text-xs space-y-2";
+            alertBox.innerHTML = `
+              <div class="flex items-center gap-2 text-emerald-300 font-bold text-sm">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Dispatched Successfully!</span>
+              </div>
+              <p class="text-slate-300 pl-6">${data.message || 'All selected platforms published successfully.'}</p>
+            `;
+            lucide.createIcons();
+            showToast("Video dispatched successfully!", "success");
+            await loadCurriculum();
+          }
+        } else {
+          // Schedule mode
+          const sDate = document.getElementById("dispatchScheduleDate").value;
+          const sTime = document.getElementById("dispatchScheduleTime").value || "10:00";
+          if (!sDate) {
+            showToast("Please choose a posting date", "error");
+            return;
+          }
+
+          const res = await fetch("/api/calendar/schedule", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              video_rel_path: currentDispatchAsset.rel_path,
+              scheduled_date: sDate,
+              scheduled_time: sTime,
+              platforms: platforms,
+              title: title,
+              force: true
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`Scheduled for ${sDate} at ${sTime}!`, "success");
+            closeSocialPublishModal();
+            await loadCurriculum();
+          } else {
+            throw new Error(data.detail || "Failed to schedule");
+          }
+        }
+      } catch (err) {
+        showToast(`Dispatch Error: ${err.message}`, "error");
+        alertBox.className = "block bg-rose-950/40 border border-rose-500/40 p-3.5 rounded-xl text-xs text-rose-300";
+        alertBox.innerHTML = `<b>Error:</b> ${err.message}`;
+      } finally {
+        btn.classList.remove("opacity-50", "pointer-events-none");
+        document.getElementById("btnExecuteDispatchLabel").innerText = originalLabel;
+      }
+    }
+
+    // ================= 1-CLICK WEEKLY SYNDICATION =================
+    let currentSyndicateWeek = null;
+
+    function openWeeklySyndicateModal(weekNum) {
+      const w = currentCurriculum.find(item => item.week === weekNum);
+      if (!w) return;
+      currentSyndicateWeek = w;
+
+      document.getElementById("syndicateModalTitle").innerText = `Syndicate Week ${String(w.week).padStart(2, '0')}: ${w.documentary.title}`;
+      
+      const today = new Date();
+      const nextSunday = new Date();
+      nextSunday.setDate(today.getDate() + ((7 - today.getDay()) % 7 || 7));
+      document.getElementById("syndicateStartDate").value = nextSunday.toISOString().split('T')[0];
+
+      const listContainer = document.getElementById("syndicateAssetsList");
+      const items = [];
+      
+      // Sunday Documentary
+      items.push({
+        day: "Sun",
+        dayOffset: 0,
+        time: "10:00",
+        badge: w.documentary.id,
+        title: w.documentary.title,
+        type: "Documentary (16:9)",
+        rel_path: w.documentary.rel_path,
+        has_video: !!w.documentary.video_url,
+        platforms: ["youtube", "facebook"]
+      });
+
+      // Mon-Fri Reels & Stories
+      const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+      for (let i = 0; i < 5; i++) {
+        const r = (w.reels || [])[i] || {};
+        items.push({
+          day: days[i],
+          dayOffset: i + 1,
+          time: "12:00",
+          badge: r.badge || `Reel #${i+1}`,
+          title: r.title || `Reel ${i+1}`,
+          type: "Reel (9:16)",
+          rel_path: r.rel_path,
+          has_video: !!r.has_video,
+          platforms: ["youtube", "facebook", "instagram", "tiktok", "x"]
+        });
+
+        const s = (w.stories || [])[i] || {};
+        items.push({
+          day: days[i],
+          dayOffset: i + 1,
+          time: "14:00",
+          badge: s.badge || `Story #${i+1}`,
+          title: s.caption || `Daily Story ${i+1}`,
+          type: "Story (9:16)",
+          rel_path: s.rel_path,
+          has_video: !!s.has_video,
+          platforms: ["instagram", "facebook"]
+        });
+      }
+
+      currentSyndicateWeek._items = items;
+      const readyCount = items.filter(it => it.has_video && it.rel_path).length;
+      document.getElementById("syndicateReadyCount").innerText = `${readyCount} of ${items.length} videos ready`;
+
+      listContainer.innerHTML = items.map(it => `
+        <div class="p-2.5 rounded-xl bg-brand-surface border border-brand-border flex items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-10 font-bold font-mono text-brand-gold shrink-0">${it.day}</span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-card text-slate-300 border border-brand-border">${it.badge}</span>
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">${it.type}</span>
+              </div>
+              <div class="font-semibold text-slate-200 truncate mt-0.5">${it.title}</div>
+            </div>
+          </div>
+          <div class="shrink-0 flex items-center gap-2">
+            ${it.has_video ? `
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ready
+              </span>
+            ` : `
+              <span class="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                Pending
+              </span>
+            `}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById("modalWeeklySyndicate").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeWeeklySyndicateModal() {
+      document.getElementById("modalWeeklySyndicate").classList.add("hidden");
+    }
+
+    async function executeBatchSyndicate() {
+      if (!currentSyndicateWeek || !currentSyndicateWeek._items) return;
+      const startDateStr = document.getElementById("syndicateStartDate").value;
+      if (!startDateStr) {
+        showToast("Please choose a week beginning date", "error");
+        return;
+      }
+
+      const readyItems = currentSyndicateWeek._items.filter(it => it.has_video && it.rel_path);
+      if (readyItems.length === 0) {
+        showToast("No ready video files found to schedule for this week yet.", "error");
+        return;
+      }
+
+      const btn = document.getElementById("btnBatchSyndicate");
+      btn.classList.add("opacity-50", "pointer-events-none");
+      btn.innerText = "Scheduling...";
+
+      let scheduledCount = 0;
+      const startDate = new Date(startDateStr);
+
+      try {
+        for (const item of readyItems) {
+          const itemDate = new Date(startDate);
+          itemDate.setDate(startDate.getDate() + item.dayOffset);
+          const dateIso = itemDate.toISOString().split('T')[0];
+
+          await fetch("/api/calendar/schedule", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              video_rel_path: item.rel_path,
+              scheduled_date: dateIso,
+              scheduled_time: item.time,
+              platforms: item.platforms,
+              title: item.title,
+              force: true
+            })
+          });
+          scheduledCount++;
+        }
+
+        showToast(`Successfully scheduled ${scheduledCount} videos to the Calendar Planner!`, "success");
+        closeWeeklySyndicateModal();
+      } catch (e) {
+        showToast(`Error batch-scheduling: ${e.message}`, "error");
+      } finally {
+        btn.classList.remove("opacity-50", "pointer-events-none");
+        btn.innerHTML = `<i data-lucide="calendar-plus" class="w-4 h-4"></i><span>Schedule Ready Videos to Calendar</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    function copyTextToClipboard(textEncoded) {
+      const text = decodeURIComponent(textEncoded);
+      navigator.clipboard.writeText(text);
+      showToast("Copied to clipboard!", "success");
+    }
+
+    function copySubstackPillar() {
+      if (!currentCurriculum || currentCurriculum.length === 0) return;
+      let text = `# BIBLE HIDDEN SECRETS REVEALED — 3-YEAR MASTER CURRICULUM SYLLABUS\n\n`;
+      currentCurriculum.forEach(w => {
+        text += `### Week ${String(w.week).padStart(2, '0')}: ${w.documentary.title} (${w.documentary.id})\n`;
+        text += `- **Scriptures:** ${(w.documentary.scriptures || []).join(', ')}\n`;
+        text += `- **Christological Key:** ${w.documentary.christological_key}\n`;
+        text += `- **Sunday Substack Pillar:** ${w.substack.pillar_title} (${w.substack.pillar_id})\n`;
+        text += `- **Lead Magnet:** ${w.substack.lead_magnet}\n\n`;
+      });
+      navigator.clipboard.writeText(text);
+      showToast("Full 3-Year Substack Syllabus copied to clipboard!", "success");
+    }
+
+    function copySingleSubstack(wNum) {
+      const w = currentCurriculum.find(item => item.week === wNum);
+      if (!w) return;
+      const text = `Title: ${w.substack.pillar_title}\nSubtitle: A deeper dive into ${w.documentary.title}\nScriptures: ${(w.documentary.scriptures || []).join(', ')}\n\nLead Magnet: ${w.substack.lead_magnet}\n\nChristological Key:\n${w.documentary.christological_key}`;
+      navigator.clipboard.writeText(text);
+      showToast(`Substack draft for Week ${wNum} copied!`, "success");
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = `p-3 rounded-xl border text-xs flex items-center gap-2 shadow-2xl transition-all duration-300 pointer-events-auto ${
+        type === 'success' ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200' :
+        type === 'error' ? 'bg-rose-950/90 border-rose-500/40 text-rose-200' :
+        'bg-[#151c2c]/95 border-brand-border text-slate-200'
+      }`;
+      toast.innerHTML = `
+        <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info'}" class="w-4 h-4 shrink-0"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

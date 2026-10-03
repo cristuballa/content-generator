@@ -19,6 +19,12 @@ certs/*.key
 docs/*client_secret*.json
 docs/*ClientID_ClientSecret*.txt
 *client_secret*.json
+data/meta_token.json
+data/youtube_token.json
+data/threads_token.json
+data/tiktok_session.json
+data/tiktok_cookies.txt
+data/oauth_flow_state.json
 
 # Virtual environments
 .venv/

@@ -76,6 +76,17 @@ class AssetManager:
         self._save_data()
         return rec
 
+    def iter_published(self):
+        """Yields (rel_path, platform, details) for every published platform entry (details is the live dict)."""
+        self.reload_if_needed()
+        for rel_path, rec in self._data.get("assets", {}).items():
+            for platform, entry in (rec.get("published") or {}).items():
+                if isinstance(entry, dict) and isinstance(entry.get("details"), dict):
+                    yield rel_path, platform, entry["details"]
+
+    def save(self):
+        self._save_data()
+
     def mark_published(self, rel_path: str, platform: str, details: Dict[str, Any]):
         rec = self.get_asset_record(rel_path)
         published = rec.setdefault("published", {})
@@ -285,7 +296,14 @@ Timestamps:
             print(f"[AssetManager] Error generating initial frame thumbnail for {video_path}: {e}")
         return None
 
-    def scan_assets(self, project_path_str: str, include_hidden: bool = False, filter_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def scan_assets(
+        self,
+        project_path_str: str,
+        include_hidden: bool = False,
+        filter_type: Optional[str] = None,
+        asset_type_filter: Optional[str] = None,
+        master_only: bool = False
+    ) -> List[Dict[str, Any]]:
         project_path = Path(project_path_str)
         if not project_path.exists():
             return []
@@ -303,9 +321,35 @@ Timestamps:
             if rec.get("hidden", False) and not include_hidden:
                 continue
 
-            # Classify category
+            # Classify format & master status
             name_lower = f.name.lower()
             rel_lower = rel.lower()
+
+            if "long_form" in rel_lower or "longform" in rel_lower:
+                asset_type = "long_form"
+            elif "reels" in rel_lower or "reel" in rel_lower:
+                asset_type = "reel"
+            elif "stories" in rel_lower or "story" in rel_lower:
+                asset_type = "story"
+            else:
+                asset_type = "general"
+
+            # Determine if this is a primary master render vs intermediate/test take
+            is_primary_master = False
+            if asset_type == "long_form":
+                if ("16x9" in name_lower or "30min" in name_lower or "final" in name_lower) and "sample" not in name_lower:
+                    is_primary_master = True
+            elif asset_type == "reel":
+                if ("final_reel" in name_lower or "perfect_master" in name_lower or "master_reel" in name_lower) and "sample" not in name_lower:
+                    is_primary_master = True
+            elif asset_type == "story":
+                if "story_video" in name_lower or "final" in name_lower:
+                    is_primary_master = True
+            else:
+                if "final" in name_lower or f.parent == project_path:
+                    is_primary_master = True
+
+            # Legacy category classifier
             if "final" in name_lower or "full_story" in name_lower or f.parent == project_path:
                 category = "final_master"
             elif "chapter" in rel_lower or "slideshow" in rel_lower or "reels" in rel_lower:
@@ -314,6 +358,12 @@ Timestamps:
                 category = "scene_clip"
 
             if filter_type and filter_type != "all" and category != filter_type:
+                continue
+
+            if asset_type_filter and asset_type_filter != "all" and asset_type != asset_type_filter:
+                continue
+
+            if master_only and not is_primary_master:
                 continue
 
             # Check for adjacent thumbnail
@@ -353,6 +403,8 @@ Timestamps:
                 "filename": f.name,
                 "rel_path": rel,
                 "abs_path": str(f),
+                "asset_type": asset_type,
+                "is_primary_master": is_primary_master,
                 "category": category,
                 "chapter_tag": chapter_tag,
                 "in_numbered_episode": in_numbered_episode,

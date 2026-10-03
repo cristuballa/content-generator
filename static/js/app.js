@@ -10,6 +10,7 @@ let hasRootChapters = false;
 let currentSort = "date_desc";
 let currentEpisodeSort = "num_asc";
 let currentStatusFilter = null;
+let currentAssetTypeFilter = "all";
 let allAssets = [];
 let allConfiguredProjects = [];
 let targetAssetForReject = null;
@@ -726,10 +727,30 @@ function applyProjectScan(scan) {
     epBadge.textContent = scan.chapters ? scan.chapters.length : 0;
   }
 
-  // Auto-select first ungenerated episode as default selection if available
+  // Check for week/episode query parameter in URL (e.g. ?week=W01 or ?week=1 or ?episode=W01)
+  const urlParams = new URLSearchParams(window.location.search);
+  const qWeek = (urlParams.get("week") || urlParams.get("episode") || "").trim().toLowerCase();
+
+  // Auto-select requested week, or first ungenerated episode as default selection if available
   if (scan.chapters && scan.chapters.length > 0) {
-    const firstUngenerated = scan.chapters.find(c => !c.has_video || c.video_count === 0);
-    const targetCh = firstUngenerated || scan.chapters[0];
+    let targetCh = null;
+    if (qWeek) {
+      const qNum = parseInt(qWeek.replace(/\D/g, ""), 10);
+      targetCh = scan.chapters.find(c => {
+        const cName = (c.name || "").toLowerCase();
+        if (cName === qWeek) return true;
+        if (!isNaN(qNum) && c.episode_num === qNum) return true;
+        if (!isNaN(qNum) && cName === "w" + String(qNum).padStart(2, "0")) return true;
+        if (!isNaN(qNum) && (cName.startsWith(`w${qNum}`) || cName.startsWith(`week ${qNum}`) || cName.startsWith(`week_${qNum}`))) return true;
+        return false;
+      });
+    }
+
+    if (!targetCh) {
+      const firstUngenerated = scan.chapters.find(c => !c.has_video || c.video_count === 0);
+      targetCh = firstUngenerated || scan.chapters[0];
+    }
+
     selectedEpisode = targetCh.name;
     selectedEpisodeNum = targetCh.episode_num;
     selectedEpisodeObj = targetCh;
@@ -794,6 +815,9 @@ function getSocialSvg(platform, sizeClass = "w-3.5 h-3.5", outline = false) {
   if (p === "tiktok" || p === "tt") {
     return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`;
   }
+  if (p === "threads" || p === "th") {
+    return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.222-8.184-3.56-1.748-2.208-2.455-5.3-2.103-9.19.467-5.16 3.65-9.17 8.304-10.463 1.943-.54 4.015-.657 6.012-.341 3.51.554 6.207 2.378 7.639 5.158 1.15 2.235 1.457 4.793.888 7.41-.628 2.89-2.316 5.187-4.883 6.64-2.213 1.253-4.873 1.636-7.494 1.077-1.758-.374-3.238-1.227-4.282-2.467-1.39-1.652-1.85-3.83-1.332-6.303.627-2.99 2.47-5.26 5.19-6.393 1.996-.831 4.195-.91 6.361-.23.498.156.776.685.62 1.183-.156.498-.686.775-1.184.62-1.758-.552-3.541-.488-5.163.187-2.179.907-3.666 2.73-4.17 5.137-.417 1.99.04 3.737 1.144 5.05 1.83 2.177 4.887 2.747 7.79 1.455 2.115-1.196 3.51-3.084 4.032-5.462.467-2.148.216-4.25-.726-6.077-1.168-2.268-3.376-3.76-6.242-4.212-1.632-.258-3.327-.162-4.918.28C5.23 4.296 2.59 7.632 2.2 11.94c-.296 3.268.298 5.86 1.768 7.717 1.553 1.963 3.86 2.97 6.862 2.99h.007c3.085-.019 5.297-1.076 6.775-3.243.308-.452.929-.569 1.381-.26.452.308.568.929.26 1.381-1.829 2.68-4.57 3.99-8.417 4.015h-.65z"/></svg>`;
+  }
   if (p === "x" || p === "twitter") {
     return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
   }
@@ -807,6 +831,7 @@ function isPlatformPosted(published, platform) {
     facebook: ["facebook", "fb"],
     youtube: ["youtube", "yt"],
     instagram: ["instagram", "inst", "ig"],
+    threads: ["threads", "th"],
     tiktok: ["tiktok", "tt"],
     x: ["x", "twitter"]
   };
@@ -827,6 +852,7 @@ function getEpisodeSocialStatus(ch) {
     facebook: false,
     youtube: false,
     instagram: false,
+    threads: false,
     tiktok: false,
     x: false
   };
@@ -844,6 +870,7 @@ function getEpisodeSocialStatus(ch) {
       if (isPlatformPosted(a.published, "facebook")) status.facebook = true;
       if (isPlatformPosted(a.published, "youtube")) status.youtube = true;
       if (isPlatformPosted(a.published, "instagram")) status.instagram = true;
+      if (isPlatformPosted(a.published, "threads")) status.threads = true;
       if (isPlatformPosted(a.published, "tiktok")) status.tiktok = true;
       if (isPlatformPosted(a.published, "x")) status.x = true;
     }
@@ -861,6 +888,7 @@ function getActiveProjectPlatforms() {
       facebook: s.facebook?.enabled !== false,
       youtube: s.youtube?.enabled !== false,
       instagram: s.instagram?.enabled !== false,
+      threads: s.threads?.enabled !== false,
       tiktok: s.tiktok?.enabled !== false,
       x: s.x?.enabled !== false
     };
@@ -869,6 +897,7 @@ function getActiveProjectPlatforms() {
     facebook: true,
     youtube: true,
     instagram: true,
+    threads: true,
     tiktok: true,
     x: true
   };
@@ -880,6 +909,7 @@ function renderEpisodeSocialIndicators(status) {
     { key: "facebook", name: "Facebook", activeCls: "text-[#1877F2]" },
     { key: "youtube", name: "YouTube", activeCls: "text-red-500" },
     { key: "instagram", name: "Instagram", activeCls: "text-rose-400" },
+    { key: "threads", name: "Threads", activeCls: "text-purple-400" },
     { key: "tiktok", name: "TikTok", activeCls: "text-cyan-300" },
     { key: "x", name: "X", activeCls: "text-slate-100" }
   ].filter(p => activePlatforms[p.key] !== false);
@@ -923,6 +953,11 @@ function renderSocialBadge(platform, isPosted, relPath = null) {
       activeCls: "text-cyan-300 bg-cyan-500/15 border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.3)]",
       inactiveCls: "text-slate-600 bg-slate-900/40 border-slate-800/40 opacity-25 hover:opacity-75 hover:text-slate-300"
     },
+    threads: {
+      name: "Threads",
+      activeCls: "text-purple-400 bg-purple-500/15 border-purple-500/50 shadow-[0_0_8px_rgba(168,85,247,0.3)]",
+      inactiveCls: "text-slate-600 bg-slate-900/40 border-slate-800/40 opacity-25 hover:opacity-75 hover:text-slate-300"
+    },
     x: {
       name: "X",
       activeCls: "text-slate-100 bg-white/15 border-white/40 shadow-[0_0_8px_rgba(255,255,255,0.2)]",
@@ -951,6 +986,7 @@ function renderProjectSocialBadges(asset, pub) {
     { key: "facebook" },
     { key: "youtube" },
     { key: "instagram" },
+    { key: "threads" },
     { key: "tiktok" },
     { key: "x" }
   ];
@@ -986,6 +1022,7 @@ function updateModalSocialCheckboxes(asset) {
   setCheckAndVisibility("checkSocmedFb", "facebook");
   setCheckAndVisibility("checkSocmedYt", "youtube");
   setCheckAndVisibility("checkSocmedInst", "instagram");
+  setCheckAndVisibility("checkSocmedThreads", "threads");
   setCheckAndVisibility("checkSocmedTt", "tiktok");
   setCheckAndVisibility("checkSocmedX", "x");
 }
@@ -2127,13 +2164,30 @@ function renderAssets(assets) {
 
   let filtered = [...assets];
 
+  // 0. Master Only Filter (enabled by default)
+  const masterOnlyEl = document.getElementById("chkMasterOnly");
+  const isMasterOnly = masterOnlyEl ? masterOnlyEl.checked : true;
+  if (isMasterOnly) {
+    filtered = filtered.filter(a => a.is_primary_master !== false);
+  }
+
+  // 0.1 Asset Type Filter (all, long_form, reel, story)
+  if (currentAssetTypeFilter && currentAssetTypeFilter !== "all") {
+    filtered = filtered.filter(a => a.asset_type === currentAssetTypeFilter);
+  }
+
   // 1. Episode / Scope Filter:
   if (selectedEpisode) {
-    filtered = filtered.filter(a =>
-      a.episode_folder === selectedEpisode ||
-      a.episode_rel_path === selectedEpisode ||
-      a.rel_path.includes(selectedEpisode)
-    );
+    const selLow = selectedEpisode.toLowerCase();
+    filtered = filtered.filter(a => {
+      if (a.episode_folder && a.episode_folder.toLowerCase() === selLow) return true;
+      if (a.episode_rel_path && a.episode_rel_path.toLowerCase() === selLow) return true;
+      if (a.rel_path) {
+        const normRel = a.rel_path.toLowerCase().replace(/\\/g, "/");
+        if (normRel.startsWith(selLow + "/") || normRel.includes("/" + selLow + "/") || normRel.includes(selLow)) return true;
+      }
+      return false;
+    });
   } else if (currentFilter === "episodes_default") {
     // By default, only show videos that belong to next-down level numbered folder/episodes
     const hasNumbered = assets.some(a => a.in_numbered_episode);
@@ -2141,7 +2195,7 @@ function renderAssets(assets) {
       filtered = filtered.filter(a => a.in_numbered_episode);
     }
   } else if (currentFilter === "final_master") {
-    filtered = filtered.filter(a => a.category === "final_master");
+    filtered = filtered.filter(a => a.category === "final_master" || a.is_primary_master);
   } else if (currentFilter === "chapter_reel") {
     filtered = filtered.filter(a => a.category === "chapter_reel" || a.in_numbered_episode);
   }
@@ -2184,7 +2238,7 @@ function renderAssets(assets) {
       <div class="col-span-2 py-16 text-center text-slate-500">
         <i data-lucide="video-off" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
         <p class="text-sm font-medium">No video files found matching filters.</p>
-        <p class="text-xs text-slate-600 mt-1">Run a pipeline stage to generate chapter or final videos.</p>
+        <p class="text-xs text-slate-600 mt-1">Try unchecking 'Master Assets Only' or switching category tabs.</p>
       </div>
     `;
     lucide.createIcons();
@@ -2211,14 +2265,25 @@ function renderAssets(assets) {
     }
 
     const pub = asset.published || {};
-    const isMaster = asset.category === "final_master";
+
+    let typeBadge = "";
+    if (asset.asset_type === "long_form") {
+      typeBadge = `<span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/30">🎬 LONG FORM</span>`;
+    } else if (asset.asset_type === "reel") {
+      typeBadge = `<span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">📱 REEL</span>`;
+    } else if (asset.asset_type === "story") {
+      typeBadge = `<span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">⚡ STORY</span>`;
+    }
+    const masterBadge = asset.is_primary_master ? `<span class="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">MASTER</span>` : "";
 
     card.innerHTML = `
       <div>
         <div class="flex items-center justify-between gap-2 mb-2.5">
-          <div class="flex items-center gap-1.5 min-w-0">
-            <span class="text-[11px] px-2.5 py-0.5 rounded font-mono font-bold truncate ${isMaster ? "bg-[#FFE614]/20 text-[#FFE614] border border-[#FFE614]/40" : "bg-[#181e2b] text-cyan-400 border border-[#232a3b]"}">
-              ${isMaster ? "★ MASTER FINAL STORY" : asset.chapter_tag}
+          <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+            ${typeBadge}
+            ${masterBadge}
+            <span class="text-[11px] px-2 py-0.5 rounded font-mono font-bold truncate bg-[#181e2b] text-slate-300 border border-[#232a3b]">
+              ${asset.chapter_tag}
             </span>
             <button class="btn-open-meta px-2 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-[#FFE614] border border-slate-700 text-[11px] font-mono flex items-center gap-1 transition shadow-sm shrink-0 cursor-pointer" title="View & edit video metadata" data-rel="${escapeHtml(asset.rel_path)}">
               <i data-lucide="file-text" class="w-3 h-3 text-[#FFE614]"></i>
@@ -2703,27 +2768,20 @@ function setupEventListeners() {
       });
       tab.className = "filter-tab active px-3 py-1 rounded-lg bg-[#FFE614] text-slate-950 font-bold";
 
-      currentFilter = tab.getAttribute("data-filter") || "episodes_default";
+      currentFilter = tab.getAttribute("data-filter") || "all";
       currentStatusFilter = tab.getAttribute("data-status") || null;
-
-      // When "All Content" is selected, clear any specific episode focus so user sees all project videos
-      if (currentFilter === "all") {
-        selectedEpisode = null;
-        const badge = document.getElementById("activeEpisodeFilterBadge");
-        if (badge) {
-          badge.classList.add("hidden");
-          badge.classList.remove("flex");
-        }
-        const btnClear = document.getElementById("btnClearEpisodeFilter");
-        if (btnClear) btnClear.classList.add("hidden");
-        if (currentProject && currentProject.chapters) {
-          renderEpisodesList(currentProject.chapters);
-        }
-      }
+      currentAssetTypeFilter = tab.getAttribute("data-type") || "all";
 
       renderAssets(allAssets);
     };
   });
+
+  const chkMasterOnly = document.getElementById("chkMasterOnly");
+  if (chkMasterOnly) {
+    chkMasterOnly.onchange = () => {
+      renderAssets(allAssets);
+    };
+  }
 
   // Sort dropdown change listener
   const sortSelect = document.getElementById("selectAssetSort");

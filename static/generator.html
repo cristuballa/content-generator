@@ -1,0 +1,3055 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Video Generator | KCT Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" href="/static/favicon.ico">
+  <!-- Tailwind CSS (Local Vendor - Offline Capable) -->
+  <script src="/static/js/vendor/tailwindcss.js"></script>
+  <script>
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                gold: "#FFE614",
+                card: "#121620",
+                surface: "#181e2b",
+                border: "#212836",
+                dark: "#0a0c10"
+              }
+            }
+          }
+        }
+      };
+    }
+  </script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=2.5">
+  <!-- Lucide Icons (Local Vendor - Offline Capable) -->
+  <script src="/static/js/vendor/lucide.min.js"></script>
+  <script src="/static/js/publish_routing.js"></script>
+  <script>
+    if (typeof lucide === 'undefined') {
+      window.lucide = { createIcons: function() {} };
+    }
+  </script>
+  <style>
+    .aspect-9-16 {
+      aspect-ratio: 9 / 16;
+    }
+    .aspect-16-9 {
+      aspect-ratio: 16 / 9;
+    }
+    .glow-gold-sm {
+      box-shadow: 0 0 12px rgba(255, 230, 20, 0.25);
+    }
+    .glow-emerald-sm {
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #232d3f;
+      border-radius: 4px;
+    }
+    .drawer-resizing {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+    }
+    .drawer-resizing * {
+      cursor: inherit !important;
+      user-select: none !important;
+    }
+    .cursor-ns-resize { cursor: ns-resize; }
+    .cursor-ew-resize { cursor: ew-resize; }
+    .cursor-nwse-resize { cursor: nwse-resize; }
+  </style>
+</head>
+<body class="bg-[#0a0c10] text-slate-100 min-h-screen flex flex-col selection:bg-yellow-400 selection:text-black">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="border-b border-[#212836] bg-[#10141d]/95 sticky top-0 z-40 backdrop-blur-md px-4 lg:px-8 py-3">
+    <div class="max-w-[1720px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Week Selector -->
+      <div class="flex items-center gap-4 flex-wrap">
+        <a href="/" class="flex items-center gap-2 group" title="Return to Main Dashboard">
+          <div class="w-3 h-3 rounded-full bg-[#FFE614] shadow-[0_0_8px_#FFE614] animate-pulse"></div>
+          <span class="font-black tracking-wider text-base sm:text-lg uppercase bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-200 bg-clip-text text-transparent">
+            VIDEO GENERATOR
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono border border-amber-500/30 uppercase tracking-wider font-bold">Week Studio</span>
+        </a>
+
+        <!-- Week Navigator Dropdown with Quick Arrow Buttons -->
+        <div class="flex items-center gap-1.5 bg-[#181e2b] border border-[#2c364c] rounded-xl p-1 shadow-inner">
+          <button id="btnPrevWeek" class="p-1.5 text-slate-400 hover:text-white hover:bg-[#232b3d] rounded-lg transition" title="Previous Week">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          
+          <select id="selectWeek" class="bg-transparent text-sm text-slate-100 font-semibold focus:outline-none cursor-pointer px-2 py-1 min-w-[200px] sm:min-w-[280px]">
+            <option value="" disabled selected>Loading curriculum weeks...</option>
+          </select>
+
+          <button id="btnNextWeek" class="p-1.5 text-slate-400 hover:text-white hover:bg-[#232b3d] rounded-lg transition" title="Next Week">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Actions & Hardware Telemetry -->
+      <div class="flex items-center gap-3">
+        <!-- Return to Dashboard Link -->
+        <a href="/" class="px-3 py-1.5 bg-[#181e2b] hover:bg-[#232b3d] text-slate-300 hover:text-brand-gold rounded-lg border border-[#2c364c] text-xs font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-brand-gold"></i>
+          <span class="hidden sm:inline">Story Map Dashboard</span>
+        </a>
+
+        <!-- ComfyUI Status Pill -->
+        <div id="comfyStatusPill" class="flex items-center gap-1.5 bg-[#141924] border border-[#222a3b] px-2.5 py-1 rounded-lg text-xs font-mono">
+          <div id="comfyDot" class="w-2 h-2 rounded-full bg-slate-500"></div>
+          <span class="text-slate-400 hidden md:inline">ComfyUI:</span>
+          <span id="comfyText" class="text-slate-300 font-medium">Checking...</span>
+        </div>
+
+        <!-- GPU Status Pill -->
+        <div id="gpuStatusPill" class="hidden lg:flex items-center gap-1.5 bg-[#141924] border border-[#222a3b] px-2.5 py-1 rounded-lg text-xs font-mono text-emerald-400">
+          <i data-lucide="cpu" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span id="gpuText" class="text-emerald-400 font-bold">GPU: Ready</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT WORKSPACE ================= -->
+  <main class="flex-1 max-w-[1720px] w-full mx-auto p-4 lg:p-6 pb-20 space-y-8">
+
+    <!-- ================= 1. WEEK HERO CARD / MISSION CONTROL ================= -->
+    <section id="weekHeroCard" class="studio-card p-5 lg:p-6 bg-gradient-to-br from-[#121620] via-[#141926] to-[#10141d] border border-[#263147] rounded-2xl shadow-xl relative overflow-hidden">
+      <!-- Glow Accent -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        
+        <!-- Left: Week Narrative & Biblical Focus -->
+        <div class="space-y-2.5 max-w-4xl">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="heroWeekBadge" class="text-xs font-mono font-black uppercase px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/35 tracking-wider">
+              WEEK 01
+            </span>
+            <span id="heroThemeBadge" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-cyan-950/60 text-cyan-300 border border-cyan-800/40">
+              Cosmic Divine Council & Pre-Creation
+            </span>
+            <span id="heroProgressBadge" class="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+              <span id="heroRenderedCount" class="text-emerald-400 font-black">1</span> / 11 Videos Rendered
+            </span>
+          </div>
+
+          <h1 id="heroWeekTitle" class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-snug">
+            What Happened BEFORE Genesis 1:1? The Secret Pre-Creation War
+          </h1>
+
+          <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-300 flex-wrap">
+            <div class="flex items-center gap-1.5 text-amber-300 font-semibold bg-[#1a2130] px-2.5 py-1 rounded-lg border border-[#2a364e]">
+              <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+              <span id="heroScriptures">Job 38:4-7, Proverbs 8:22-31, John 1:1-3, Colossians 1:16-17</span>
+            </div>
+          </div>
+
+          <p id="heroChristKey" class="text-xs sm:text-sm text-slate-400 leading-relaxed italic border-l-2 border-amber-400/60 pl-3">
+            "Christ is the Uncreated Logos presiding over the cosmic council; all things were created through Him and for Him."
+          </p>
+        </div>
+
+        <!-- Right: Progress Meter & Master Generate Action -->
+        <div class="flex flex-col sm:flex-row lg:flex-col items-stretch lg:items-end gap-3.5 w-full lg:w-auto shrink-0">
+          <!-- Overall Progress Box -->
+          <div class="bg-[#181e2b] border border-[#2b354a] rounded-xl p-3.5 min-w-[240px]">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="text-slate-400 font-medium">Week Video Readiness</span>
+              <span id="heroPercentText" class="font-mono font-bold text-amber-300">9%</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-700/60">
+              <div id="heroProgressBar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-2.5 rounded-full transition-all duration-500" style="width: 9%"></div>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
+              <span>1 Flagship (16:9)</span>
+              <span>5 Reels (9:16)</span>
+              <span>5 Stories (9:16)</span>
+            </div>
+          </div>
+
+          <!-- Master Generate All Action -->
+          <button id="btnGenerateAllWeek" class="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
+            <span>Generate All Videos for Week</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= 2. FLAGSHIP LONG-FORM VIDEO (16:9 DOCUMENTARY) ================= -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-[#212836]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-300">
+            <i data-lucide="tv" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white tracking-wide">Flagship Long-Form Documentary</h2>
+            <p class="text-xs text-slate-400">16:9 Landscape • 1080p Full HD • 30–35 min Master YouTube Episode</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="lfStatusBadge" class="text-xs font-mono px-3 py-1 rounded-full font-bold bg-slate-800 text-slate-300 border border-slate-700">
+            Checking status...
+          </span>
+        </div>
+      </div>
+
+      <!-- Long-Form Card Container -->
+      <div id="longFormCard" class="studio-card p-5 bg-[#121620] border border-[#252e42] rounded-2xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        
+        <!-- Video Player / Thumbnail Preview (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-2">
+          <div id="lfMediaContainer" class="aspect-16-9 w-full bg-[#0a0d14] border border-[#252e42] rounded-xl overflow-hidden relative shadow-lg group">
+            <!-- Dynamic Video Player or Thumbnail inserted via JS -->
+            <div class="w-full h-full flex flex-col items-center justify-center text-slate-500 p-6 text-center">
+              <i data-lucide="film" class="w-12 h-12 mb-2 text-slate-600 animate-pulse"></i>
+              <p class="text-xs font-mono">Loading long-form media preview...</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 font-mono">
+            <span id="lfResolutionText">1920x1080 Full HD</span>
+            <span id="lfFileSizeText">-- MB</span>
+          </div>
+
+          <!-- Long-Form Video Selector Tabs (Multi-Cut Switcher) -->
+          <div id="lfTabsContainer" class="hidden flex items-center gap-2 pt-2 border-t border-[#1e2638] overflow-x-auto">
+            <!-- Tabs inserted via JS -->
+          </div>
+        </div>
+
+        <!-- Video Metadata & Controls (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col justify-between h-full gap-5">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                16:9 Narrative
+              </span>
+              <span id="lfScriptBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                Script: Detecting...
+              </span>
+              <span id="lfScenesBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                FLUX Scenes: --
+              </span>
+            </div>
+
+            <h3 id="lfTitleText" class="text-lg font-black text-white leading-snug">
+              Loading episode title...
+            </h3>
+
+            <p id="lfDescText" class="text-xs text-slate-400 line-clamp-3 leading-relaxed">
+              Complete deep-dive documentary with VibeVoice Alistair/Christopher voice clone, choreographed Ken Burns camera motion, and safe-zone karaoke captions.
+            </p>
+
+            <!-- Metadata Specs List -->
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono pt-2">
+              <div class="bg-[#181e2b] p-2 rounded-lg border border-[#232b3d]">
+                <span class="text-slate-500 text-[10px] block uppercase">Runtime</span>
+                <span id="lfDurationSpec" class="font-bold text-slate-200">30–35 min</span>
+              </div>
+              <div class="bg-[#181e2b] p-2 rounded-lg border border-[#232b3d]">
+                <span class="text-slate-500 text-[10px] block uppercase">Word Count</span>
+                <span id="lfWordCountSpec" class="font-bold text-amber-300">-- words</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2.5 pt-2">
+            <button id="btnGenerateLongForm" class="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md shadow-amber-500/10 active:scale-[0.98]">
+              <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+              <span id="btnGenerateLongFormText">Generate Long-Form Video</span>
+            </button>
+
+            <button id="btnPostLongForm" class="hidden py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md shadow-indigo-600/20 active:scale-[0.98]" title="Post or Schedule Long-Form Documentary">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>Post Video</span>
+            </button>
+
+            <button id="btnViewLongFormScript" class="py-3 px-3.5 rounded-xl bg-[#1e2638] hover:bg-[#2b354c] text-slate-300 hover:text-white border border-[#2b354c] font-semibold text-xs flex items-center gap-1.5 transition" title="Inspect Full Narration Script & Benchmark Metadata">
+              <i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i>
+              <span class="hidden sm:inline">Script &amp; Meta</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= 3. 5 DAILY SHORT-FORM REELS (9:16 SHORTS) ================= -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-[#212836]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-300">
+            <i data-lucide="smartphone" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white tracking-wide">Daily Cinematic Reels</h2>
+            <p class="text-xs text-slate-400">9:16 Vertical • 1080x1920 • 5 Canonical Mon–Fri Cinematic Shorts with Karaoke Captions</p>
+          </div>
+        </div>
+
+        <!-- Generate All Reels Button -->
+        <button id="btnGenerateAllReels" class="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 hover:text-emerald-200 border border-emerald-500/35 text-xs font-bold flex items-center gap-2 transition active:scale-[0.98]">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          <span>Generate All 5 Reels</span>
+        </button>
+      </div>
+
+      <!-- 5-Card Grid for Daily Reels -->
+      <div id="reelsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- Rendered via JS -->
+        <div class="col-span-full py-12 text-center text-slate-500 text-xs font-mono">
+          Loading 5 daily reels for this week...
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. 5 DAILY SOCIAL STORIES (9:16 SLIDES) ================= -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-[#212836]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300">
+            <i data-lucide="instagram" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white tracking-wide">Daily Social Stories</h2>
+            <p class="text-xs text-slate-400">9:16 Vertical • 5x Daily Instagram & Facebook Multi-Slide Interactive Sequences</p>
+          </div>
+        </div>
+
+        <!-- Generate All Stories Button -->
+        <button id="btnGenerateAllStories" class="px-4 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 hover:text-purple-200 border border-purple-500/35 text-xs font-bold flex items-center gap-2 transition active:scale-[0.98]">
+          <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+          <span>Generate All 5 Stories</span>
+        </button>
+      </div>
+
+      <!-- 5-Card Grid for Daily Stories -->
+      <div id="storiesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- Rendered via JS -->
+        <div class="col-span-full py-12 text-center text-slate-500 text-xs font-mono">
+          Loading 5 daily stories for this week...
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= SLIDE-UP LIVE EXECUTION DRAWER (RESIZABLE LEFT & UP) ================= -->
+  <div id="executionDrawer" class="fixed bottom-0 right-2 sm:right-6 md:right-8 bg-[#121620]/95 backdrop-blur-md border border-[#2b354a] rounded-t-2xl shadow-2xl p-4 z-50 transform translate-y-full transition-transform duration-300 flex flex-col gap-3" style="width: 620px; max-width: calc(100vw - 20px); max-height: calc(100vh - 25px); min-width: 360px; min-height: 120px;">
+    
+    <!-- Top Resize Handle (Drag Up/Down to resize height) -->
+    <div id="drawerResizeTop" class="absolute -top-2 left-6 right-6 h-4 cursor-ns-resize z-20 group flex items-center justify-center select-none" title="Drag up/down to resize height">
+      <div class="w-16 h-1 rounded-full bg-slate-600/50 group-hover:bg-amber-400 group-hover:scale-y-125 transition-all shadow-sm"></div>
+    </div>
+
+    <!-- Left Resize Handle (Drag Left/Right to resize width) -->
+    <div id="drawerResizeLeft" class="absolute top-6 bottom-0 -left-2 w-4 cursor-ew-resize z-20 group flex items-center justify-center select-none" title="Drag left/right to resize width">
+      <div class="h-16 w-1 rounded-full bg-slate-600/50 group-hover:bg-amber-400 group-hover:scale-x-125 transition-all shadow-sm"></div>
+    </div>
+
+    <!-- Top-Left Corner Resize Handle (Drag Both Simultaneously) -->
+    <div id="drawerResizeCorner" class="absolute -top-2 -left-2 w-7 h-7 cursor-nwse-resize z-30 group p-1.5 select-none flex items-start justify-start" title="Drag to resize width and height simultaneously">
+      <div class="w-3.5 h-3.5 border-t-2 border-l-2 border-slate-500 rounded-tl group-hover:border-amber-400 group-hover:scale-110 transition-all"></div>
+    </div>
+
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between gap-3 min-w-0">
+      <div class="flex items-center gap-2.5 min-w-0 flex-1">
+        <div id="drawerStatusDot" class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
+        <div class="min-w-0 flex-1">
+          <h4 id="drawerJobTitle" class="text-xs font-bold text-white truncate" title="Executing Pipeline Task...">
+            Executing Pipeline Task...
+          </h4>
+          <p id="drawerJobSubtitle" class="text-[10px] text-slate-400 font-mono truncate">
+            Connecting to process engine...
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Toggle Terminal Log Window -->
+        <button id="btnToggleDrawerLogs" class="p-1.5 px-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-xs flex items-center gap-1 font-mono transition shrink-0" title="Toggle Terminal Output">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span class="text-[10px]">Logs</span>
+        </button>
+
+        <!-- Maximize / Restore Toggle Button -->
+        <button id="btnMaximizeDrawer" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-xs transition shrink-0" title="Maximize / Restore Size">
+          <i data-lucide="maximize-2" id="iconDrawerMaximize" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <!-- Stop Process Button -->
+        <button id="btnStopProcess" class="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1 transition shrink-0" title="Cancel Process">
+          <i data-lucide="square" class="w-3 h-3 fill-current"></i>
+          <span>Stop</span>
+        </button>
+
+        <!-- Close Drawer Button (Never clipped) -->
+        <button id="btnCloseDrawer" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition shrink-0" title="Minimize Drawer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Animated Progress Bar -->
+    <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden shrink-0">
+      <div id="drawerProgressBar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-1.5 rounded-full w-full animate-pulse"></div>
+    </div>
+
+    <!-- Expandable Live Terminal Output -->
+    <div id="drawerLogContainer" class="hidden flex-1 min-h-0 flex flex-col gap-1.5 pt-1 border-t border-[#212836] overflow-hidden">
+      <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono shrink-0">
+        <span class="flex items-center gap-1.5 font-semibold text-slate-400">
+          <i data-lucide="terminal" class="w-3 h-3 text-cyan-400"></i>
+          LIVE CONSOLE STREAM
+        </span>
+        <button id="btnClearDrawerLogs" class="hover:text-slate-300 transition">Clear</button>
+      </div>
+      <div id="drawerLogStream" class="flex-1 min-h-[140px] bg-[#080a0f] border border-[#1d2433] rounded-lg p-2.5 overflow-y-auto font-mono text-[11px] text-slate-300 leading-relaxed custom-scroll select-text">
+        <div class="text-slate-600 italic">Listening for process stdout...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= SCRIPT & METADATA INSPECTOR MODAL ================= -->
+  <div id="scriptModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="studio-card w-full max-w-4xl bg-[#121620] border border-[#2b354a] rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col gap-3.5 max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836]">
+        <div class="flex items-center gap-2.5 overflow-hidden">
+          <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+          </div>
+          <div class="truncate">
+            <h3 id="modalScriptTitle" class="text-sm font-bold text-white truncate">Document Script &amp; Metadata</h3>
+            <p id="modalScriptSubtitle" class="text-[11px] text-slate-400 truncate">Inspect full script, benchmark metadata &amp; chapter cues</p>
+          </div>
+        </div>
+        <button id="btnCloseScriptModal" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition shrink-0">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- View Selector Tabs -->
+      <div id="scriptModalTabs" class="flex items-center gap-1.5 p-1 bg-[#0a0d14] border border-[#212836] rounded-xl overflow-x-auto text-xs font-semibold custom-scroll">
+        <button type="button" id="tabScriptViewMetadata" onclick="switchScriptViewTab('metadata')" class="px-3 py-1.5 rounded-lg transition bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold flex items-center gap-1.5 shrink-0 shadow-sm">
+          <i data-lucide="layout-list" class="w-3.5 h-3.5"></i>
+          <span>Benchmark Metadata</span>
+        </button>
+        <button type="button" id="tabScriptViewNarration" onclick="switchScriptViewTab('narration')" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white border border-transparent flex items-center gap-1.5 shrink-0">
+          <i data-lucide="scroll-text" class="w-3.5 h-3.5"></i>
+          <span>Full Narration Script</span>
+        </button>
+        <button type="button" id="tabScriptViewChapters" onclick="switchScriptViewTab('chapters')" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white border border-transparent flex items-center gap-1.5 shrink-0">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+          <span>Chapters / Timestamps</span>
+        </button>
+        <button type="button" id="tabScriptViewMerch" onclick="switchScriptViewTab('merch')" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white border border-transparent flex items-center gap-1.5 shrink-0">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+          <span>Official Merch Block</span>
+        </button>
+      </div>
+      
+      <div id="modalScriptBody" class="flex-1 overflow-y-auto p-4 bg-[#0a0d14] rounded-xl border border-[#212836] font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed custom-scroll select-text">
+        Loading content...
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#212836] text-xs text-slate-400">
+        <span id="modalScriptWordCount">Word count: --</span>
+        <div class="flex items-center gap-2">
+          <button id="btnOpenDispatchFromScript" type="button" onclick="openDispatchFromScriptModal()" class="px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 hover:text-white border border-indigo-500/40 font-medium flex items-center gap-1.5 transition">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Post / Dispatch</span>
+          </button>
+          <button id="btnCopyScriptText" class="px-3 py-1.5 rounded-lg bg-[#1a2130] hover:bg-[#252f44] text-slate-200 border border-[#2a364e] font-medium flex items-center gap-1.5 transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Text</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIVERSAL SOCIAL DISPATCH MODAL ================= -->
+  <div id="modalSocialPublish" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl lg:max-w-4xl bg-[#121620] border border-[#2e394e] rounded-2xl p-6 sm:p-7 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-y-auto custom-scroll">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[#2e394e]">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white">Social Media Dispatch</h3>
+              <span id="dispatchFormatBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#181e2b] text-amber-400 border border-[#2e394e]">16:9 Long-Form</span>
+            </div>
+            <p id="dispatchAssetSub" class="text-[11px] text-slate-400 truncate max-w-2xl font-mono mt-0.5">W01/long_form/video.mp4</p>
+          </div>
+        </div>
+        <button onclick="closeSocialPublishModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Diagnostic / Error Alert Box -->
+      <div id="dispatchAlertBox" class="hidden"></div>
+
+      <!-- Direct Native Cloud Connections Panel -->
+      <div class="bg-[#181e2b] border border-[#2e394e] rounded-xl p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Direct Native Dispatch</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider font-mono">No Middleware</span>
+          </div>
+          <span class="text-[10px] text-slate-400">Local Disk &rarr; Direct Cloud Stream</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+          <!-- Facebook Status Badge -->
+          <div id="statusBadgeFacebook" class="flex items-center justify-between p-2 rounded-lg bg-[#121620] border border-[#2e394e]">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <span class="text-[#1877F2] shrink-0"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
+              <div class="truncate">
+                <div class="font-bold text-white truncate text-[11px]" id="fbStatusTitle">Bible Hidden Secrets</div>
+                <div class="text-[10px] text-emerald-400 font-mono" id="fbStatusSub">&#9679; Connected</div>
+              </div>
+            </div>
+            <button id="btnConnectMeta" onclick="openMetaConnectModal()" type="button" class="px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1 shadow-sm">
+              <i data-lucide="zap" class="w-3 h-3"></i>
+              <span>Connect</span>
+            </button>
+          </div>
+
+          <!-- Instagram Status Badge -->
+          <div id="statusBadgeInstagram" class="flex items-center justify-between p-2 rounded-lg bg-[#121620] border border-[#2e394e]">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <span class="text-rose-400 shrink-0"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></span>
+              <div class="truncate">
+                <div class="font-bold text-white truncate text-[11px]" id="igStatusTitle">@biblesecretsrevealed</div>
+                <div class="text-[10px] text-emerald-400 font-mono" id="igStatusSub">&#9679; Active</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YouTube Status Badge -->
+          <div id="statusBadgeYouTube" class="flex items-center justify-between p-2 rounded-lg bg-[#121620] border border-[#2e394e]">
+            <div class="flex items-center gap-2 overflow-hidden flex-1">
+              <span class="text-red-400 shrink-0"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+              <div class="truncate flex-1">
+                <div class="font-bold text-white truncate text-[11px]" id="ytStatusTitle">YouTube Channel</div>
+                <div class="text-[10px] text-amber-400 font-mono" id="ytStatusSub">&#9679; OAuth Needed</div>
+              </div>
+            </div>
+            <button id="btnConnectYoutube" onclick="openYouTubeAuthModal()" type="button" class="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1 shadow-sm">
+              <i data-lucide="zap" class="w-3 h-3"></i>
+              <span>Connect</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Post Title / Hook Headline</label>
+          <input type="text" id="dispatchTitle" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-100 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <div class="flex items-center gap-2">
+              <label class="text-slate-300 font-semibold">Post Caption / Description</label>
+              <span id="dispatchUrlBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-500/10 text-slate-300 border border-slate-500/30">Master Benchmark</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="dispatchCharCounter" class="text-[10px] font-mono text-slate-400 bg-[#121620] px-2 py-0.5 rounded border border-[#2e394e]">0 chars</span>
+            </div>
+          </div>
+
+          <!-- Platform Caption Preview Switcher Tabs -->
+          <div class="flex items-center gap-1 mb-2 p-1 bg-[#121620] border border-[#2e394e] rounded-xl overflow-x-auto text-[11px] font-medium custom-scroll">
+            <button type="button" onclick="switchCaptionTab('all')" id="tabCapAll" class="px-2.5 py-1 rounded-lg transition bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold shrink-0">Master Benchmark</button>
+            <button type="button" onclick="switchCaptionTab('facebook')" id="tabCapFacebook" class="px-2.5 py-1 rounded-lg transition text-slate-400 hover:text-white shrink-0">Facebook</button>
+            <button type="button" onclick="switchCaptionTab('youtube')" id="tabCapYoutube" class="px-2.5 py-1 rounded-lg transition text-slate-400 hover:text-white shrink-0">YouTube (Shorts/Long)</button>
+            <button type="button" onclick="switchCaptionTab('instagram')" id="tabCapInstagram" class="px-2.5 py-1 rounded-lg transition text-slate-400 hover:text-white shrink-0">Instagram</button>
+            <button type="button" onclick="switchCaptionTab('tiktok')" id="tabCapTiktok" class="px-2.5 py-1 rounded-lg transition text-slate-400 hover:text-white shrink-0">TikTok</button>
+            <button type="button" onclick="switchCaptionTab('x')" id="tabCapX" class="px-2.5 py-1 rounded-lg transition text-slate-400 hover:text-white shrink-0">X (Twitter &le; 280c)</button>
+          </div>
+
+          <textarea id="dispatchDescription" rows="8" oninput="onCaptionInput()" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-100 rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:border-amber-400 custom-scroll font-sans"></textarea>
+
+          <!-- Pinned Comment Container for YouTube -->
+          <div id="pinnedCommentContainer" class="hidden mt-2.5 p-3 rounded-xl bg-[#121620] border border-amber-500/30 shadow-inner">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+                <span>📌</span> Comment Posted After Publishing <span class="text-[10px] font-normal text-amber-400/80 font-mono">(Direct Links Live Here)</span>
+              </span>
+              <button type="button" onclick="copyPinnedComment()" class="text-[10px] px-2.5 py-1 rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 transition flex items-center gap-1 font-mono font-bold shadow-sm">
+                <span>📋</span> Copy Comment
+              </button>
+            </div>
+            <textarea id="dispatchPinnedComment" rows="4" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-200 rounded-lg p-2.5 text-xs leading-relaxed focus:outline-none focus:border-amber-400 font-sans custom-scroll"></textarea>
+            <div class="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1.5">
+              <span class="text-amber-400">💡</span> <span>Captions stay link-free on every platform. This comment is posted right after publishing on YouTube, Facebook, Instagram and Threads (scheduled posts: once they go live).</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Hashtags</label>
+          <input type="text" id="dispatchTags" placeholder="#BibleSecrets #Genesis #Faith" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-slate-300 font-semibold">Target Release Platforms</label>
+            <span class="text-[10px] text-slate-400">Select platforms to publish/schedule</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+            <label id="lblPlatYoutube" class="flex items-center gap-2 p-2.5 rounded-xl bg-[#181e2b] border border-[#2e394e] hover:border-amber-400/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatYoutube" checked class="w-4 h-4 rounded text-red-500 accent-red-500 bg-[#181e2b]">
+              <span class="text-red-400"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">YouTube</div>
+                <div class="text-[9px] text-amber-400 font-mono" id="chkYtSub">&#9679; OAuth Needed</div>
+              </div>
+            </label>
+            <label id="lblPlatFacebook" class="flex items-center gap-2 p-2.5 rounded-xl bg-[#181e2b] border border-[#2e394e] hover:border-amber-400/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatFacebook" checked class="w-4 h-4 rounded text-blue-500 accent-blue-500 bg-[#181e2b]">
+              <span class="text-[#1877F2]"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">Facebook</div>
+                <div class="text-[9px] text-emerald-400 font-mono" id="chkFbSub">&#9679; Direct Page</div>
+              </div>
+            </label>
+            <label id="lblPlatInstagram" class="flex items-center gap-2 p-2.5 rounded-xl bg-[#181e2b] border border-[#2e394e] hover:border-amber-400/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatInstagram" checked class="w-4 h-4 rounded text-rose-500 accent-rose-500 bg-[#181e2b]">
+              <span class="text-rose-400"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">Instagram</div>
+                <div class="text-[9px] text-emerald-400 font-mono" id="chkIgSub">&#9679; Direct Reels</div>
+              </div>
+            </label>
+            <label id="lblPlatTiktok" class="flex items-center gap-2 p-2.5 rounded-xl bg-[#181e2b] border border-[#2e394e] hover:border-amber-400/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatTiktok" checked class="w-4 h-4 rounded text-cyan-400 accent-cyan-400 bg-[#181e2b]">
+              <span class="text-cyan-300"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">TikTok</div>
+                <div class="text-[9px] text-slate-400 font-mono" id="chkTikTokSub">Browser session</div>
+              </div>
+            </label>
+            <label id="lblPlatX" class="flex items-center gap-2 p-2.5 rounded-xl bg-[#181e2b] border border-[#2e394e] hover:border-amber-400/40 cursor-pointer transition select-none">
+              <input type="checkbox" id="chkPlatX" checked class="w-4 h-4 rounded text-slate-100 accent-slate-100 bg-[#181e2b]">
+              <span class="text-slate-100"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
+              <div class="flex-1">
+                <div class="font-bold text-slate-200">X (Twitter)</div>
+                <div class="text-[9px] text-slate-400 font-mono" id="chkXSub">Not supported yet</div>
+              </div>
+            </label>
+          </div>
+          <div id="dispatchPlatformNotice" class="text-[11px] text-amber-400/90 mt-2 hidden flex items-start gap-1.5 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
+            <span id="dispatchPlatformNoticeText"></span>
+          </div>
+        </div>
+
+        <!-- Mode Selection: Post Now vs Add to Calendar Schedule -->
+        <div class="pt-2 border-t border-[#2e394e]">
+          <div class="flex items-center gap-2 mb-3">
+            <button type="button" id="btnModePostNow" onclick="switchDispatchMode('now')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-indigo-600/20 text-indigo-300 border-indigo-500/40">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span>Post Now (Direct)</span>
+            </button>
+            <button type="button" id="btnModeSchedule" onclick="switchDispatchMode('schedule')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-[#181e2b] text-slate-400 border-[#2e394e] hover:text-white">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+              <span>Add to Schedule</span>
+            </button>
+          </div>
+
+          <div id="dispatchScheduleFields" class="hidden grid grid-cols-2 gap-3 mb-2">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Release Date</label>
+              <input type="date" id="dispatchScheduleDate" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Release Time</label>
+              <input type="time" id="dispatchScheduleTime" value="10:00" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber-400">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-3 border-t border-[#2e394e] flex items-center justify-between gap-3">
+        <button type="button" onclick="closeSocialPublishModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs transition">
+          Cancel
+        </button>
+        <button type="button" id="btnExecuteDispatch" onclick="executeDispatch()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span id="btnExecuteDispatchLabel">Post Now</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= YOUTUBE OAUTH CONNECT MODAL ================= -->
+  <div id="modalYouTubeAuth" class="fixed inset-0 z-[60] hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-[#121620] border border-[#2e394e] rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#2e394e]">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Connect YouTube Channel</h3>
+            <p class="text-[11px] text-slate-400">Direct Native Video Upload &amp; Shorts</p>
+          </div>
+        </div>
+        <button onclick="closeYouTubeAuthModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300">
+        <div class="p-3 bg-slate-900/60 rounded-xl border border-[#2e394e] space-y-2">
+          <div class="font-bold text-slate-200 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+            <span>Authorize Google Account</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Click below to open Google's authorization consent screen and sign into the YouTube channel account.
+          </p>
+          <button type="button" id="btnLaunchGoogleAuth" onclick="launchGoogleOAuth()" class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow transition">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>Open Google OAuth Consent Window</span>
+          </button>
+        </div>
+
+        <div class="p-3 bg-slate-900/60 rounded-xl border border-[#2e394e] space-y-2">
+          <div class="font-bold text-slate-200 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-700 text-white flex items-center justify-center text-[10px] font-black">2</span>
+            <span>Paste Authorization Code or Redirect URL</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            After clicking Allow, Google redirects you. Copy the full address bar URL or code and paste here:
+          </p>
+          <input type="text" id="ytAuthCodeInput" placeholder="http://localhost:5678/rest/oauth2-credential/callback?code=4/0A... or code string" class="w-full bg-[#181e2b] border border-[#2e394e] text-slate-100 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-red-500">
+        </div>
+
+        <div id="ytAuthErrorBox" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs font-mono"></div>
+        <div id="ytAuthSuccessBox" class="hidden p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs"></div>
+      </div>
+
+      <div class="pt-3 border-t border-[#2e394e] flex items-center justify-between gap-3">
+        <button type="button" onclick="closeYouTubeAuthModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs transition">
+          Cancel
+        </button>
+        <button type="button" id="btnSubmitYouTubeCode" onclick="submitYouTubeAuthCode()" class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Save &amp; Authorize Channel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Quick Ad Combine & Thumbnail Generator -->
+  <div id="modalCombineAd" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAdCombineModal()"></div>
+    <div class="relative bg-[#111622] border border-[#232a3b] rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 z-10 animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <i data-lucide="badge-percent" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Combine Ad Outro &amp; Thumbnail</h3>
+            <p id="adCombineTargetTitle" class="text-xs text-slate-400 mt-0.5 line-clamp-1">Reel 01 • What Did God Do BEFORE Genesis 1:1?</p>
+          </div>
+        </div>
+        <button onclick="closeAdCombineModal()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2.5 text-xs text-amber-300">
+        <i data-lucide="zap" class="w-4 h-4 shrink-0 text-amber-400"></i>
+        <span><strong>Fast Concat:</strong> Attaches the ad and regenerates thumbnail without re-rendering the 20 main video scenes (~2 seconds).</span>
+      </div>
+
+      <!-- Ad Variant Options -->
+      <div class="space-y-2.5">
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Select Ad Outro Variant</label>
+        
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-emerald-500/40 bg-emerald-950/20 hover:border-emerald-500 transition cursor-pointer ad-variant-opt">
+          <input type="radio" name="adVariantSelection" value="1" checked class="mt-1 accent-emerald-500">
+          <div class="flex-1 text-xs">
+            <div class="font-bold text-white flex items-center justify-between">
+              <span>Ad 1: Books Vol 1 &amp; 2 + Sacred Merch</span>
+              <span class="text-[10px] font-mono text-emerald-400 bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Recommended</span>
+            </div>
+            <p class="text-slate-400 mt-1 text-[11px] leading-relaxed">
+              Promotes 100 hidden secrets in Book 1 &amp; 2 on Amazon + sacred art and apparel on Etsy.
+            </p>
+          </div>
+        </label>
+
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700/60 bg-[#161c2b] hover:border-slate-500 transition cursor-pointer ad-variant-opt">
+          <input type="radio" name="adVariantSelection" value="2" class="mt-1 accent-emerald-500">
+          <div class="flex-1 text-xs">
+            <div class="font-bold text-white">Ad 2: Book 1 Focus (50 Old Testament Mysteries)</div>
+            <p class="text-slate-400 mt-1 text-[11px] leading-relaxed">
+              Focuses specifically on fifty shocking Old Testament secrets decoded in Book One.
+            </p>
+          </div>
+        </label>
+
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700/60 bg-[#161c2b] hover:border-slate-500 transition cursor-pointer ad-variant-opt">
+          <input type="radio" name="adVariantSelection" value="3" class="mt-1 accent-emerald-500">
+          <div class="flex-1 text-xs">
+            <div class="font-bold text-white">Ad 3: Book 2 Focus (Hidden Prophecies)</div>
+            <p class="text-slate-400 mt-1 text-[11px] leading-relaxed">
+              Focuses on controversial hidden prophecies from Genesis to Revelation.
+            </p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Additional Options -->
+      <div class="pt-2 border-t border-slate-800">
+        <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
+          <input type="checkbox" id="chkAlsoRegenThumbnail" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500 w-4 h-4">
+          <span>Also regenerate <strong>Option-C Composite Thumbnail</strong> with hook banner</span>
+        </label>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+        <button onclick="closeAdCombineModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-semibold transition">
+          Cancel
+        </button>
+        <button id="btnExecuteAdCombine" onclick="executeAdCombine()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Combine &amp; Update Reel</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= CLIENT JAVASCRIPT ================= -->
+  <script>
+    // State
+    let currentWeekId = "W01";
+    let currentWeekData = null;
+    let allWeeks = [];
+    let ws = null;
+    let isJobRunning = false;
+    let initialVideoIndex = null;
+
+    // Elements
+    const selectWeek = document.getElementById("selectWeek");
+    const btnPrevWeek = document.getElementById("btnPrevWeek");
+    const btnNextWeek = document.getElementById("btnNextWeek");
+    const btnGenerateAllWeek = document.getElementById("btnGenerateAllWeek");
+    const btnGenerateLongForm = document.getElementById("btnGenerateLongForm");
+    const btnViewLongFormScript = document.getElementById("btnViewLongFormScript");
+    const btnGenerateAllReels = document.getElementById("btnGenerateAllReels");
+    const btnGenerateAllStories = document.getElementById("btnGenerateAllStories");
+
+    // Drawer Elements
+    const executionDrawer = document.getElementById("executionDrawer");
+    const drawerJobTitle = document.getElementById("drawerJobTitle");
+    const drawerJobSubtitle = document.getElementById("drawerJobSubtitle");
+    const drawerProgressBar = document.getElementById("drawerProgressBar");
+    const drawerStatusDot = document.getElementById("drawerStatusDot");
+    const drawerLogContainer = document.getElementById("drawerLogContainer");
+    const drawerLogStream = document.getElementById("drawerLogStream");
+    const btnToggleDrawerLogs = document.getElementById("btnToggleDrawerLogs");
+    const btnStopProcess = document.getElementById("btnStopProcess");
+    const btnCloseDrawer = document.getElementById("btnCloseDrawer");
+    const btnClearDrawerLogs = document.getElementById("btnClearDrawerLogs");
+
+    // Script Modal
+    const scriptModal = document.getElementById("scriptModal");
+    const modalScriptTitle = document.getElementById("modalScriptTitle");
+    const modalScriptBody = document.getElementById("modalScriptBody");
+    const modalScriptWordCount = document.getElementById("modalScriptWordCount");
+    const btnCloseScriptModal = document.getElementById("btnCloseScriptModal");
+    const btnCopyScriptText = document.getElementById("btnCopyScriptText");
+
+    // 1. Initialize
+    document.addEventListener("DOMContentLoaded", async () => {
+      lucide.createIcons();
+      initWebSocket();
+      checkSystemStats();
+      setInterval(checkSystemStats, 10000);
+
+      // Parse ?week=W01 or ?week=1 and ?video=2 from query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const weekParam = urlParams.get("week");
+      if (weekParam) {
+        currentWeekId = weekParam.toUpperCase().startsWith("W") ? weekParam.toUpperCase() : `W${parseInt(weekParam, 10).toString().padStart(2, "0")}`;
+      }
+      const videoParam = urlParams.get("video") || urlParams.get("cut");
+      if (videoParam) {
+        const vNum = parseInt(videoParam, 10);
+        if (!isNaN(vNum) && vNum >= 1) {
+          initialVideoIndex = vNum - 1;
+        }
+      }
+
+      await loadWeeksList();
+      await loadWeekData(currentWeekId);
+    });
+
+    // 2. Load Weeks List
+    async function loadWeeksList() {
+      try {
+        const res = await fetch("/api/generator/weeks");
+        if (!res.ok) throw new Error("Failed to load weeks list");
+        const data = await res.json();
+        allWeeks = data.weeks || [];
+
+        selectWeek.innerHTML = "";
+        allWeeks.forEach(w => {
+          const opt = document.createElement("option");
+          opt.value = w.week_tag;
+          const statusTag = w.rendered_count > 0 ? `(${w.rendered_count}/11 Rendered)` : (w.has_scripts ? `(Scripts Ready)` : `(Planned)`);
+          opt.textContent = `${w.week_tag}: ${w.title.substring(0, 42)}... ${statusTag}`;
+          if (w.week_tag === currentWeekId) {
+            opt.selected = true;
+          }
+          selectWeek.appendChild(opt);
+        });
+
+      } catch (err) {
+        console.error("Error loading weeks:", err);
+      }
+    }
+
+    // 3. Load Week Detailed Data
+    async function loadWeekData(weekId) {
+      currentWeekId = weekId;
+      // Update browser URL query param without full reload
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set("week", currentWeekId);
+      window.history.replaceState({}, "", newUrl);
+
+      // Synchronize select dropdown
+      if (selectWeek.value !== currentWeekId) {
+        selectWeek.value = currentWeekId;
+      }
+
+      try {
+        const res = await fetch(`/api/generator/week/${weekId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch week data`);
+        const data = await res.json();
+        currentWeekData = data;
+        renderWeekUI(data);
+      } catch (err) {
+        console.error("Error fetching week data:", err);
+        document.getElementById("heroWeekTitle").textContent = `Error loading ${weekId}`;
+        document.getElementById("lfTitleText").textContent = `Failed to connect: ${err.message}`;
+        document.getElementById("lfStatusBadge").textContent = "Connection Error";
+        document.getElementById("lfStatusBadge").className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40";
+      }
+    }
+
+    // 4. Render UI Components
+    function renderWeekUI(data) {
+      // 4.1 Hero Mission Control
+      document.getElementById("heroWeekBadge").textContent = data.week_tag;
+      document.getElementById("heroThemeBadge").textContent = data.theme || "Biblical Curriculum";
+      document.getElementById("heroWeekTitle").textContent = data.title;
+      document.getElementById("heroScriptures").textContent = data.scriptures || "Scripture references attached";
+      document.getElementById("heroChristKey").textContent = data.christological_key ? `"${data.christological_key}"` : "Christ-centered revelation.";
+
+      const renderedCount = data.rendered_count || 0;
+      const totalVideos = data.total_videos || 11;
+      const percent = Math.round((renderedCount / totalVideos) * 100);
+
+      document.getElementById("heroRenderedCount").textContent = renderedCount;
+      document.getElementById("heroPercentText").textContent = `${percent}%`;
+      document.getElementById("heroProgressBar").style.width = `${percent}%`;
+
+      btnGenerateAllWeek.onclick = () => triggerGeneration(data.week_num, "all_week", null, `All 11 Videos for ${data.week_tag}`);
+
+      // 4.2 Flagship Long-Form
+      renderLongForm(data.long_form, data.week_num);
+
+      // 4.3 Daily Reels
+      renderReels(data.reels, data.week_num);
+
+      // 4.4 Daily Stories
+      renderStories(data.stories, data.week_num);
+
+      lucide.createIcons();
+    }
+
+    // Render Long-Form Section
+    // State for Multi-Cut Long-Form Videos
+    let currentLfVideos = [];
+    let selectedLfVideoIndex = 0;
+
+    function renderLongForm(lf, weekNum) {
+      const container = document.getElementById("lfMediaContainer");
+      const titleEl = document.getElementById("lfTitleText");
+      const statusBadge = document.getElementById("lfStatusBadge");
+      const scriptBadge = document.getElementById("lfScriptBadge");
+      const scenesBadge = document.getElementById("lfScenesBadge");
+      const durationSpec = document.getElementById("lfDurationSpec");
+      const wordCountSpec = document.getElementById("lfWordCountSpec");
+      const btnGen = document.getElementById("btnGenerateLongForm");
+      const btnGenText = document.getElementById("btnGenerateLongFormText");
+      const resText = document.getElementById("lfResolutionText");
+      const sizeText = document.getElementById("lfFileSizeText");
+      const tabsContainer = document.getElementById("lfTabsContainer");
+
+      titleEl.textContent = lf.title;
+      scenesBadge.textContent = lf.scene_count > 0 ? `✔ ${lf.scene_count} FLUX Scenes` : "Scenes: Pending";
+
+      // Populate videos array
+      if (lf.videos && lf.videos.length > 0) {
+        currentLfVideos = lf.videos;
+      } else if (lf.is_rendered && lf.video_url) {
+        currentLfVideos = [{
+          index: 0,
+          id: "vid_1",
+          label: "Master Cut",
+          short_label: "Master Cut",
+          filename: "master_cut.mp4",
+          video_path: lf.video_path,
+          video_url: lf.video_url,
+          thumbnail_url: lf.thumbnail_url,
+          size_mb: lf.video_size_mb,
+          duration_formatted: lf.duration_target,
+          resolution: lf.resolution || "1920x1080",
+          script_file: lf.script_file,
+          script_word_count: lf.script_word_count,
+          title: lf.title
+        }];
+      } else {
+        currentLfVideos = [];
+      }
+
+      // Render Cut Tabs if 2 or more videos exist (Hidden if 1 or 0 videos)
+      if (tabsContainer) {
+        if (currentLfVideos.length > 1) {
+          tabsContainer.classList.remove("hidden");
+          tabsContainer.innerHTML = currentLfVideos.map((v, idx) => `
+            <button onclick="switchLongFormVideo(${idx})" id="lfTabBtn_${idx}" class="flex-1 min-w-[95px] py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border ${idx === 0 ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm' : 'bg-[#161c2b] text-slate-400 border-[#232b3d] hover:text-white hover:border-slate-600'}">
+              <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-black border border-amber-500/30">V${idx+1}</span>
+              <span class="truncate">${v.short_label ? v.short_label.replace(/^V\d+:\s*/, '') : `Cut ${idx+1}`}</span>
+            </button>
+          `).join("");
+        } else {
+          tabsContainer.classList.add("hidden");
+          tabsContainer.innerHTML = "";
+        }
+      }
+
+      if (currentLfVideos.length > 0) {
+        let targetIdx = 0;
+        if (initialVideoIndex !== null) {
+          if (initialVideoIndex >= 0 && initialVideoIndex < currentLfVideos.length) {
+            targetIdx = initialVideoIndex;
+          }
+          initialVideoIndex = null; // consume once on initial load
+        } else if (selectedLfVideoIndex >= 0 && selectedLfVideoIndex < currentLfVideos.length) {
+          targetIdx = selectedLfVideoIndex;
+        }
+        switchLongFormVideo(targetIdx);
+      } else {
+        statusBadge.textContent = "Pending Generation";
+        statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35";
+        btnGenText.textContent = "Generate Long-Form Video";
+        btnGen.className = "flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md shadow-amber-500/10 active:scale-[0.98]";
+
+        durationSpec.textContent = lf.duration_target || "30–35 min";
+        wordCountSpec.textContent = lf.script_word_count ? `${lf.script_word_count.toLocaleString()} words` : "--";
+        resText.textContent = `${lf.resolution || "1920x1080"} Full HD`;
+        sizeText.textContent = "-- MB";
+        scriptBadge.textContent = lf.script_status === "Ready" ? `✔ Script (${lf.script_word_count || 0}w)` : "Missing Script";
+        scriptBadge.className = lf.script_status === "Ready" ? "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : "text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30";
+
+        const btnPost = document.getElementById("btnPostLongForm");
+        if (btnPost) btnPost.classList.add("hidden");
+
+        const thumbBg = lf.thumbnail_url ? `style="background-image: url('${lf.thumbnail_url}'); background-size: cover; background-position: center;"` : '';
+        container.innerHTML = `
+          <div class="w-full h-full relative flex items-center justify-center bg-[#0d121c]" ${thumbBg}>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50"></div>
+            <div class="relative z-10 text-center p-4">
+              <div class="w-14 h-14 rounded-full bg-amber-500/90 text-slate-950 flex items-center justify-center mx-auto mb-2 shadow-xl shadow-amber-500/20 group-hover:scale-110 transition cursor-pointer" onclick="document.getElementById('btnGenerateLongForm').click()">
+                <i data-lucide="play" class="w-6 h-6 fill-current ml-0.5"></i>
+              </div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-200 bg-slate-950/70 px-3 py-1 rounded-full border border-slate-700/80">
+                16:9 Master Ready to Render
+              </span>
+            </div>
+          </div>
+        `;
+        btnGen.onclick = () => triggerGeneration(weekNum, "long_form", 1, `Flagship Documentary for W${weekNum.toString().padStart(2, "0")}`);
+        document.getElementById("btnViewLongFormScript").onclick = () => viewLongFormScript(null, 1);
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function switchLongFormVideo(index) {
+      if (!currentLfVideos || !currentLfVideos[index]) return;
+      selectedLfVideoIndex = index;
+      const vid = currentLfVideos[index];
+      const lf = currentWeekData?.long_form || {};
+      const weekNum = currentWeekData?.week_num || 1;
+
+      // Update URL query param ?video=
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set("video", index + 1);
+      window.history.replaceState({}, "", newUrl);
+
+      // 1. Update tab styling
+      currentLfVideos.forEach((_, i) => {
+        const btn = document.getElementById(`lfTabBtn_${i}`);
+        if (btn) {
+          if (i === index) {
+            btn.className = "flex-1 min-w-[95px] py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm";
+          } else {
+            btn.className = "flex-1 min-w-[95px] py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 border bg-[#161c2b] text-slate-400 border-[#232b3d] hover:text-white hover:border-slate-600";
+          }
+        }
+      });
+
+      // Update status badge accurately for current cut
+      const statusBadge = document.getElementById("lfStatusBadge");
+      if (statusBadge) {
+        if (vid.video_url) {
+          statusBadge.textContent = "✔ Video Rendered & Ready";
+          statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 glow-emerald-sm";
+        } else if (vid.script_file) {
+          statusBadge.textContent = "Script Ready • Pending Render";
+          statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35";
+        } else {
+          statusBadge.textContent = "Pending Generation";
+          statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-slate-800 text-slate-400 border border-slate-700";
+        }
+      }
+
+      // 2. Video Player
+      const container = document.getElementById("lfMediaContainer");
+      const cacheBuster = Date.now();
+      const posterUrl = (vid.thumbnail_url || lf.thumbnail_url || '') ? `${vid.thumbnail_url || lf.thumbnail_url}?t=${cacheBuster}` : '';
+      const videoSrc = vid.video_url ? `${vid.video_url}?t=${cacheBuster}` : '';
+
+      if (vid.video_url) {
+        container.innerHTML = `
+          <video controls preload="metadata" poster="${posterUrl}" class="w-full h-full object-cover">
+            <source src="${videoSrc}" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="w-full h-full relative flex items-center justify-center bg-[#0d121c]" ${posterUrl ? `style="background-image: url('${posterUrl}'); background-size: cover; background-position: center;"` : ''}>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50"></div>
+            <div class="relative z-10 text-center p-4">
+              <div class="w-14 h-14 rounded-full bg-amber-500/90 text-slate-950 flex items-center justify-center mx-auto mb-2 shadow-xl shadow-amber-500/20 group-hover:scale-110 transition cursor-pointer" onclick="document.getElementById('btnGenerateLongForm').click()">
+                <i data-lucide="play" class="w-6 h-6 fill-current ml-0.5"></i>
+              </div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-200 bg-slate-950/70 px-3 py-1 rounded-full border border-slate-700/80">
+                ${vid.label || 'Video Cut Ready to Render'}
+              </span>
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. Specs, Badges & Title
+      if (vid.title) {
+        document.getElementById("lfTitleText").textContent = vid.title;
+      }
+      if (vid.hook || vid.description) {
+        document.getElementById("lfDescText").textContent = vid.hook ? `"${vid.hook}"` : vid.description;
+      }
+      document.getElementById("lfResolutionText").textContent = `${vid.resolution || "1920x1080"} Full HD`;
+      document.getElementById("lfFileSizeText").textContent = vid.size_mb ? `${vid.size_mb} MB` : "-- MB";
+      document.getElementById("lfDurationSpec").textContent = vid.duration_formatted || vid.duration_target || "30–35 min";
+      document.getElementById("lfWordCountSpec").textContent = vid.script_word_count ? `${vid.script_word_count.toLocaleString()} words` : "-- words";
+
+      const scriptBadge = document.getElementById("lfScriptBadge");
+      if (scriptBadge) {
+        if (vid.script_file) {
+          scriptBadge.textContent = `✔ ${vid.script_file} (${vid.script_word_count || 0}w)`;
+          scriptBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+        } else {
+          scriptBadge.textContent = "Missing Script";
+          scriptBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30";
+        }
+      }
+
+      // 4. Action Buttons
+      const btnGen = document.getElementById("btnGenerateLongForm");
+      const btnGenText = document.getElementById("btnGenerateLongFormText");
+      const cutTargetNum = vid.index + 1;
+      if (btnGenText) {
+        btnGenText.textContent = vid.video_url ? `Regenerate ${vid.short_label || 'Video'}` : `Generate ${vid.short_label || 'Video'}`;
+      }
+      if (btnGen) {
+        btnGen.className = vid.video_url 
+          ? "flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition"
+          : "flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md shadow-amber-500/10 active:scale-[0.98]";
+        btnGen.onclick = () => triggerGeneration(weekNum, "long_form", cutTargetNum, `${vid.label || `Cut ${cutTargetNum}`} for W${weekNum.toString().padStart(2, "0")}`);
+      }
+
+      const btnPost = document.getElementById("btnPostLongForm");
+      if (btnPost) {
+        if (vid.video_path && vid.video_url) {
+          btnPost.classList.remove("hidden");
+          btnPost.onclick = () => {
+            const scripturesText = document.getElementById("heroScriptures")?.textContent || "";
+            const christKeyText = document.getElementById("heroChristKey")?.textContent || "";
+            openSocialPublishModal({
+              rel_path: vid.video_path,
+              title: vid.title || `${lf.title} (${vid.short_label})`,
+              type: 'documentary',
+              aspect: '16:9',
+              video_url: vid.video_url,
+              description: vid.description || vid.facebook_caption || `${vid.title || lf.title}\n\nCut: ${vid.label}\n\nEpisode Scriptures: ${vid.scriptures || scripturesText}\n\nChristological Key:\n${vid.christological_key || christKeyText}\n\nFranchise: Bible Hidden Secrets Revealed (Master 3-Year Curriculum)`,
+              tags: vid.tags || lf.tags || ['BibleSecrets', 'Christianity', 'Documentary', 'Theology'],
+              facebook_caption: vid.facebook_caption || lf.facebook_caption,
+              youtube_description: vid.youtube_description || lf.youtube_description,
+              instagram_caption: vid.instagram_caption || lf.instagram_caption,
+              tiktok_caption: vid.tiktok_caption || lf.tiktok_caption,
+              x_post: vid.x_post || lf.x_post
+            });
+          };
+        } else {
+          btnPost.classList.add("hidden");
+        }
+      }
+
+      const btnViewLongFormScript = document.getElementById("btnViewLongFormScript");
+      if (btnViewLongFormScript) {
+        btnViewLongFormScript.onclick = () => viewLongFormScript(vid.script_file, cutTargetNum);
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Render 5 Reels
+    function renderReels(reels, weekNum) {
+      const grid = document.getElementById("reelsGrid");
+      btnGenerateAllReels.onclick = () => triggerGeneration(weekNum, "all_reels", null, `All 5 Daily Reels for W${weekNum.toString().padStart(2, "0")}`);
+
+      if (!reels || reels.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-xs">No reels defined for this week.</div>`;
+        return;
+      }
+
+      grid.innerHTML = reels.map(r => {
+        const isRendered = r.is_rendered && r.video_url;
+        const cacheBuster = Date.now();
+        const thumbBg = r.thumbnail_url ? `${r.thumbnail_url}?t=${cacheBuster}` : '';
+        const videoSrc = r.video_url ? `${r.video_url}?t=${cacheBuster}` : '';
+        const mediaHtml = isRendered ? `
+          <video controls preload="metadata" poster="${thumbBg}" class="w-full h-full object-cover">
+            <source src="${videoSrc}" type="video/mp4">
+          </video>
+        ` : `
+          <div class="w-full h-full flex flex-col items-center justify-center p-4 text-center relative" style="${thumbBg ? `background-image: url('${thumbBg}'); background-size: cover; background-position: center;` : 'background: linear-gradient(to bottom, #141a27, #0c0f17);'}">
+            ${thumbBg ? '<div class="absolute inset-0 bg-black/55"></div>' : ''}
+            <div class="relative z-10 flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center mb-2 shadow backdrop-blur-sm">
+                <i data-lucide="smartphone" class="w-5 h-5"></i>
+              </div>
+              <p class="text-[11px] font-semibold text-white line-clamp-3 italic px-1 drop-shadow-lg">
+                "${r.hook || r.title}"
+              </p>
+              <span class="mt-3 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-600 backdrop-blur-sm">
+                Ready to Render
+              </span>
+            </div>
+          </div>
+        `;
+
+        return `
+          <div class="studio-card p-3 bg-[#121620] border border-[#232b3d] rounded-xl flex flex-col justify-between gap-3 hover:border-emerald-500/40 transition shadow-md group">
+            
+            <!-- Card Header: Day & ID -->
+            <div>
+              <div class="flex items-center justify-between text-[10px] font-mono mb-1.5">
+                <span class="font-bold text-emerald-400 uppercase tracking-wider">${r.day} • Reel 0${r.num}</span>
+                <span class="text-slate-500">${r.reel_id}</span>
+              </div>
+              
+              <h4 class="text-xs font-bold text-white line-clamp-2 leading-tight" title="${r.title}">
+                ${r.title}
+              </h4>
+            </div>
+
+            <!-- 9:16 Media Preview Box -->
+            <div class="aspect-9-16 w-full rounded-lg overflow-hidden bg-black border border-[#232a3b] shadow-inner relative">
+              ${mediaHtml}
+            </div>
+
+            <!-- Hook & Scripture -->
+            <div class="space-y-1">
+              <p class="text-[11px] text-amber-300/90 font-medium line-clamp-2 italic" title="${r.hook}">
+                "${r.hook}"
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                <span>9:16 • ~55s</span>
+                <span class="${r.script_status === 'Ready' ? 'text-emerald-400' : 'text-slate-500'}">
+                  ${r.script_status === 'Ready' ? `✔ Script (${r.script_word_count}w)` : 'Missing'}
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="flex items-center gap-1.5 pt-1">
+              <button onclick="triggerGeneration(${weekNum}, 'reel', ${r.num}, 'Reel 0${r.num} (${r.day})')" class="flex-1 py-2 px-2.5 rounded-lg ${isRendered ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold'} text-xs flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="${isRendered ? 'refresh-cw' : 'play'}" class="w-3.5 h-3.5"></i>
+                <span>${isRendered ? 'Regenerate' : 'Generate'}</span>
+              </button>
+
+              <button onclick="triggerThumbnailRegen(${weekNum}, ${r.num}, '${(r.title || '').replace(/'/g, "\\'")}')" class="p-2 rounded-lg bg-[#181e2b] hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 border border-[#252f44] hover:border-amber-500/40 transition" title="Regenerate Thumbnail Only (Fast, ~1s)">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i>
+              </button>
+
+              <button onclick="openAdCombineModal(${weekNum}, ${r.num}, '${(r.title || '').replace(/'/g, "\\'")}', ${isRendered})" class="p-2 rounded-lg bg-[#181e2b] hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-300 border border-[#252f44] hover:border-emerald-500/40 transition" title="Attach / Swap Ad Outro (Instant Concat)">
+                <i data-lucide="badge-percent" class="w-3.5 h-3.5"></i>
+              </button>
+
+              ${isRendered && r.video_path ? `
+              <button onclick="postReelFromGenerator(${r.num - 1})" class="p-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 hover:text-white border border-indigo-500/40 transition" title="Post or Schedule Reel">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              </button>
+              ` : ''}
+
+              <button onclick="viewReelScript(${r.num - 1})" class="p-2 rounded-lg bg-[#181e2b] hover:bg-[#252f44] text-slate-400 hover:text-white border border-[#252f44] transition" title="View Reel Script">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Render 5 Stories
+    function renderStories(stories, weekNum) {
+      const grid = document.getElementById("storiesGrid");
+      btnGenerateAllStories.onclick = () => triggerGeneration(weekNum, "all_stories", null, `All 5 Daily Stories for W${weekNum.toString().padStart(2, "0")}`);
+
+      if (!stories || stories.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-xs">No stories defined for this week.</div>`;
+        return;
+      }
+
+      grid.innerHTML = stories.map(s => {
+        const isRendered = s.is_rendered && s.video_url;
+        const cacheBuster = Date.now();
+        const thumbBg = s.thumbnail_url ? `${s.thumbnail_url}?t=${cacheBuster}` : '';
+        const videoSrc = s.video_url ? `${s.video_url}?t=${cacheBuster}` : '';
+        const mediaHtml = isRendered ? `
+          <video controls preload="metadata" poster="${thumbBg}" class="w-full h-full object-cover">
+            <source src="${videoSrc}" type="video/mp4">
+          </video>
+        ` : `
+          <div class="w-full h-full flex flex-col items-center justify-center p-4 text-center relative" style="${thumbBg ? `background-image: url('${thumbBg}'); background-size: cover; background-position: center;` : 'background: linear-gradient(to bottom, #1b172b, #0c0f17);'}">
+            ${thumbBg ? '<div class="absolute inset-0 bg-black/55"></div>' : ''}
+            <div class="relative z-10 flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 flex items-center justify-center mb-2 shadow backdrop-blur-sm">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+              </div>
+              <p class="text-[11px] font-bold text-slate-200">
+                ${s.total_slides || 5} Interactive Slides
+              </p>
+              <span class="mt-2 text-[10px] font-mono text-purple-300 px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800 backdrop-blur-sm">
+                Instagram/FB Story
+              </span>
+            </div>
+          </div>
+        `;
+
+        return `
+          <div class="studio-card p-3 bg-[#121620] border border-[#232b3d] rounded-xl flex flex-col justify-between gap-3 hover:border-purple-500/40 transition shadow-md group">
+            
+            <!-- Card Header: Day & ID -->
+            <div>
+              <div class="flex items-center justify-between text-[10px] font-mono mb-1.5">
+                <span class="font-bold text-purple-400 uppercase tracking-wider">${s.day} • Story 0${s.num}</span>
+                <span class="text-slate-500">${s.story_id}</span>
+              </div>
+              
+              <h4 class="text-xs font-bold text-white line-clamp-2 leading-tight" title="${s.title}">
+                ${s.title}
+              </h4>
+            </div>
+
+            <!-- 9:16 Media Preview Box -->
+            <div class="aspect-9-16 w-full rounded-lg overflow-hidden bg-black border border-[#232a3b] shadow-inner relative">
+              ${mediaHtml}
+            </div>
+
+            <!-- Slide Specs -->
+            <div class="space-y-1">
+              <p class="text-[10px] text-slate-400 truncate" title="${s.sound_suggestion || 'Ambient soundtrack'}">
+                🎵 ${s.sound_suggestion || 'Ambient soundtrack'}
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                <span>${s.total_slides || 5} Slides</span>
+                <span class="${s.script_status === 'Ready' ? 'text-purple-400' : 'text-slate-500'}">
+                  ${s.script_status === 'Ready' ? `✔ Slides Script` : 'Pending'}
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="flex items-center gap-1.5 pt-1">
+              <button onclick="triggerGeneration(${weekNum}, 'story', ${s.num}, 'Story 0${s.num} (${s.day})')" class="flex-1 py-2 px-2.5 rounded-lg ${isRendered ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-purple-600 hover:bg-purple-500 text-white font-bold'} text-xs flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="${isRendered ? 'refresh-cw' : 'play'}" class="w-3.5 h-3.5"></i>
+                <span>${isRendered ? 'Regenerate' : 'Generate'}</span>
+              </button>
+
+              <button onclick="triggerStoryThumbnailRegen(${weekNum}, ${s.num}, '${(s.title || '').replace(/'/g, "\\'")}')" class="p-2 rounded-lg bg-[#181e2b] hover:bg-purple-500/20 text-slate-400 hover:text-purple-300 border border-[#252f44] hover:border-purple-500/40 transition" title="Regenerate Story Thumbnail & Slide Previews (Fast, ~1s)">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i>
+              </button>
+
+              ${isRendered && s.video_path ? `
+              <button onclick="postStoryFromGenerator(${s.num - 1})" class="p-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 hover:text-white border border-indigo-500/40 transition" title="Post or Schedule Story">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              </button>
+              ` : ''}
+
+              <button onclick="viewStoryScript(${s.num - 1})" class="p-2 rounded-lg bg-[#181e2b] hover:bg-[#252f44] text-slate-400 hover:text-white border border-[#252f44] transition" title="View Story Outline">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join("");
+    }
+
+    // 5. Trigger Video Generation
+    async function triggerGeneration(weekNum, type, targetNum, label) {
+      if (isJobRunning) {
+        if (!confirm("A pipeline task is already executing. Do you want to check its progress?")) return;
+        showDrawer();
+        return;
+      }
+
+      const confirmed = confirm(`Start video generation for ${label}?`);
+      if (!confirmed) return;
+
+      showDrawer(label);
+      appendDrawerLog(`[REQUEST] Initiating generation: ${label}...`, "system");
+
+      try {
+        const res = await fetch("/api/generator/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            week: weekNum,
+            type: type,
+            target_num: targetNum
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Generation dispatch failed");
+        }
+
+        const data = await res.json();
+        appendDrawerLog(`[SUCCESS] Process dispatched successfully. PID: ${data.job?.pid || 'Active'}`, "system");
+        isJobRunning = true;
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+      } catch (err) {
+        appendDrawerLog(`[ERROR] ${err.message}`, "error");
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+      }
+    }
+
+    // 5b. Quick Mode: Regenerate Option-C Composite Thumbnail Only (No video re-render)
+    async function triggerThumbnailRegen(weekNum, reelNum, title) {
+      if (isJobRunning) {
+        if (!confirm("A pipeline task is already executing. Do you want to check its progress?")) return;
+        showDrawer();
+        return;
+      }
+
+      const confirmed = confirm(`Regenerate Option-C composite thumbnail for Reel 0${reelNum}? (Fast, ~1-2 seconds)`);
+      if (!confirmed) return;
+
+      const label = `Thumbnail: Reel 0${reelNum}`;
+      showDrawer(label);
+      appendDrawerLog(`[REQUEST] Fast regenerating Option-C composite thumbnail for Reel 0${reelNum}...`, "system");
+
+      try {
+        const res = await fetch("/api/generator/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            week: weekNum,
+            type: "regen_thumbnail",
+            target_num: reelNum
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Thumbnail regeneration dispatch failed");
+        }
+
+        const data = await res.json();
+        appendDrawerLog(`[SUCCESS] Thumbnail regeneration task launched. PID: ${data.job?.pid || 'Active'}`, "system");
+        isJobRunning = true;
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+      } catch (err) {
+        appendDrawerLog(`[ERROR] ${err.message}`, "error");
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+      }
+    }
+
+    // 5bb. Quick Mode: Fast Regenerate Story Thumbnail & Slide Previews Only
+    async function triggerStoryThumbnailRegen(weekNum, storyNum, title) {
+      if (isJobRunning) {
+        if (!confirm("A pipeline task is already executing. Do you want to check its progress?")) return;
+        showDrawer();
+        return;
+      }
+
+      const confirmed = confirm(`Regenerate thumbnail & slide previews for Story 0${storyNum}? (Fast, ~1-2 seconds)`);
+      if (!confirmed) return;
+
+      const label = `Thumbnail: Story 0${storyNum}`;
+      showDrawer(label);
+      appendDrawerLog(`[REQUEST] Fast regenerating thumbnail & slide previews for Story 0${storyNum}...`, "system");
+
+      try {
+        const res = await fetch("/api/generator/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            week: weekNum,
+            type: "regen_story_thumbnail",
+            target_num: storyNum
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Story thumbnail regeneration dispatch failed");
+        }
+
+        const data = await res.json();
+        appendDrawerLog(`[SUCCESS] Story thumbnail regeneration task launched. PID: ${data.job?.pid || 'Active'}`, "system");
+        isJobRunning = true;
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+      } catch (err) {
+        appendDrawerLog(`[ERROR] ${err.message}`, "error");
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+      }
+    }
+
+    // 5c. Quick Mode: Fast Ad Outro Combine & Thumbnail Update (No video re-render)
+    let currentAdCombineTarget = { weekNum: null, reelNum: null };
+
+    function openAdCombineModal(weekNum, reelNum, title, isRendered) {
+      if (!isRendered) {
+        if (!confirm(`This reel has not been rendered yet. Do you want to run a full generation for Reel 0${reelNum}?`)) return;
+        triggerGeneration(weekNum, 'reel', reelNum, `Reel 0${reelNum}`);
+        return;
+      }
+      currentAdCombineTarget = { weekNum, reelNum };
+      const titleElem = document.getElementById("adCombineTargetTitle");
+      if (titleElem) {
+        titleElem.textContent = `Reel 0${reelNum} • ${title}`;
+      }
+      const modal = document.getElementById("modalCombineAd");
+      if (modal) {
+        modal.classList.remove("hidden");
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeAdCombineModal() {
+      const modal = document.getElementById("modalCombineAd");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    async function executeAdCombine() {
+      const { weekNum, reelNum } = currentAdCombineTarget;
+      if (!weekNum || !reelNum) return;
+
+      const selectedOpt = document.querySelector('input[name="adVariantSelection"]:checked');
+      const adVariant = selectedOpt ? parseInt(selectedOpt.value, 10) : 1;
+      const chkThumb = document.getElementById("chkAlsoRegenThumbnail");
+      const regenThumb = chkThumb ? chkThumb.checked : true;
+
+      closeAdCombineModal();
+
+      const label = `Combine Ad #${adVariant} onto Reel 0${reelNum}`;
+      showDrawer(label);
+      appendDrawerLog(`[REQUEST] Fast combining Ad Outro #${adVariant} onto Reel 0${reelNum}${regenThumb ? ' (with thumbnail refresh)' : ''}...`, "system");
+
+      try {
+        const res = await fetch("/api/generator/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            week: weekNum,
+            type: "combine_ad",
+            target_num: reelNum,
+            ad_variant: adVariant,
+            regen_thumb: regenThumb
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Ad combine dispatch failed");
+        }
+
+        const data = await res.json();
+        appendDrawerLog(`[SUCCESS] Fast combine task launched. PID: ${data.job?.pid || 'Active'}`, "system");
+        isJobRunning = true;
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+      } catch (err) {
+        appendDrawerLog(`[ERROR] ${err.message}`, "error");
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+      }
+    }
+
+    // 6. Stop Running Process
+    btnStopProcess.addEventListener("click", async () => {
+      if (!confirm("Are you sure you want to stop the active generation process?")) return;
+      try {
+        const res = await fetch("/api/pipeline/stop", { method: "POST" });
+        const data = await res.json();
+        appendDrawerLog(`[PROCESS STOPPED] ${data.message || 'Halted by user'}`, "system");
+        isJobRunning = false;
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-slate-500";
+        drawerJobSubtitle.textContent = "Process stopped";
+      } catch (err) {
+        alert("Failed to stop process: " + err.message);
+      }
+    });
+
+    // 7. Drawer Management
+    let jobStartTime = null;
+    let jobTimerInterval = null;
+    let lastJobStatusText = "Running video engine...";
+    let lastLogReceivedTime = Date.now();
+
+    function startJobTimer() {
+      if (jobTimerInterval) clearInterval(jobTimerInterval);
+      jobStartTime = Date.now();
+      lastLogReceivedTime = Date.now();
+      jobTimerInterval = setInterval(() => {
+        if (!isJobRunning || !jobStartTime) {
+          clearInterval(jobTimerInterval);
+          return;
+        }
+        const totalSec = Math.floor((Date.now() - jobStartTime) / 1000);
+        const mins = Math.floor(totalSec / 60);
+        const secs = totalSec % 60;
+        const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+        // Keep drawer subtitle fresh with active elapsed time
+        if (drawerJobSubtitle) {
+          drawerJobSubtitle.textContent = `${lastJobStatusText} • ${timeStr} elapsed`;
+        }
+
+        // Heartbeat: If 60 seconds pass without any new log line, print an unbuffered heartbeat
+        if (Date.now() - lastLogReceivedTime >= 60000) {
+          lastLogReceivedTime = Date.now();
+          appendDrawerLog(`[Status Heartbeat] Pipeline working • ${mins}m ${secs < 10 ? '0' : ''}${secs}s elapsed (processing in background)...`, "system");
+        }
+      }, 1000);
+    }
+
+    function stopJobTimer() {
+      if (jobTimerInterval) {
+        clearInterval(jobTimerInterval);
+        jobTimerInterval = null;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Live Execution Drawer Resizing (Left & Up) & Controls
+    // -------------------------------------------------------------
+    const drawerResizeTop = document.getElementById("drawerResizeTop");
+    const drawerResizeLeft = document.getElementById("drawerResizeLeft");
+    const drawerResizeCorner = document.getElementById("drawerResizeCorner");
+    const btnMaximizeDrawer = document.getElementById("btnMaximizeDrawer");
+    const iconDrawerMaximize = document.getElementById("iconDrawerMaximize");
+
+    let isDrawerMaximized = false;
+    let savedDrawerWidth = localStorage.getItem("kct_drawer_width") || "620";
+    let savedDrawerHeight = localStorage.getItem("kct_drawer_height") || "460";
+    let preMaxWidth = null;
+    let preMaxHeight = null;
+
+    function applySavedDrawerDimensions() {
+      if (!executionDrawer) return;
+      const w = Math.min(window.innerWidth - 20, Math.max(360, parseInt(savedDrawerWidth, 10) || 620));
+      executionDrawer.style.width = `${w}px`;
+      if (drawerLogContainer && !drawerLogContainer.classList.contains("hidden")) {
+        const h = Math.min(window.innerHeight - 30, Math.max(160, parseInt(savedDrawerHeight, 10) || 460));
+        executionDrawer.style.height = `${h}px`;
+      } else {
+        executionDrawer.style.height = "auto";
+      }
+    }
+    applySavedDrawerDimensions();
+
+    function showDrawer(jobTitle) {
+      if (jobTitle) {
+        drawerJobTitle.textContent = `Generating: ${jobTitle}`;
+        drawerJobTitle.title = `Generating: ${jobTitle}`;
+        lastJobStatusText = "Running video engine...";
+        drawerJobSubtitle.textContent = lastJobStatusText;
+        drawerJobSubtitle.title = lastJobStatusText;
+      }
+      startJobTimer();
+      if (drawerLogContainer) {
+        drawerLogContainer.classList.remove("hidden");
+      }
+      applySavedDrawerDimensions();
+      executionDrawer.classList.remove("translate-y-full");
+    }
+
+    function hideDrawer() {
+      executionDrawer.classList.add("translate-y-full");
+    }
+
+    if (btnCloseDrawer) {
+      btnCloseDrawer.addEventListener("click", hideDrawer);
+    }
+
+    if (btnToggleDrawerLogs) {
+      btnToggleDrawerLogs.addEventListener("click", () => {
+        drawerLogContainer.classList.toggle("hidden");
+        if (drawerLogContainer.classList.contains("hidden")) {
+          executionDrawer.style.height = "auto";
+        } else {
+          const h = Math.min(window.innerHeight - 30, Math.max(160, parseInt(savedDrawerHeight, 10) || 460));
+          executionDrawer.style.height = `${h}px`;
+        }
+      });
+    }
+
+    if (btnClearDrawerLogs) {
+      btnClearDrawerLogs.addEventListener("click", () => {
+        drawerLogStream.innerHTML = "";
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Mouse & Touch Resizing to the LEFT and UP
+    // -------------------------------------------------------------
+    let isResizingDrawer = false;
+    let resizeDirection = null; // 'top', 'left', 'corner'
+    let resizeStartX = 0, resizeStartY = 0;
+    let resizeStartWidth = 0, resizeStartHeight = 0;
+
+    function startDrawerResize(e, dir) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      isResizingDrawer = true;
+      resizeDirection = dir;
+      resizeStartX = e.clientX;
+      resizeStartY = e.clientY;
+      resizeStartWidth = executionDrawer.offsetWidth;
+      resizeStartHeight = executionDrawer.offsetHeight;
+
+      if (drawerLogContainer && drawerLogContainer.classList.contains("hidden") && (dir === "top" || dir === "corner")) {
+        drawerLogContainer.classList.remove("hidden");
+      }
+
+      document.body.classList.add("drawer-resizing");
+      if (dir === "top") document.body.style.cursor = "ns-resize";
+      else if (dir === "left") document.body.style.cursor = "ew-resize";
+      else if (dir === "corner") document.body.style.cursor = "nwse-resize";
+
+      executionDrawer.style.transition = "none";
+
+      window.addEventListener("mousemove", onDrawerMouseMove, { passive: false });
+      window.addEventListener("mouseup", stopDrawerResize);
+      window.addEventListener("touchmove", onDrawerTouchMove, { passive: false });
+      window.addEventListener("touchend", stopDrawerResize);
+    }
+
+    function onDrawerMouseMove(e) {
+      if (!isResizingDrawer) return;
+      e.preventDefault();
+
+      if (resizeDirection === "left" || resizeDirection === "corner") {
+        const deltaX = resizeStartX - e.clientX; // moving left increases width
+        const maxWidth = window.innerWidth - 20;
+        const newWidth = Math.min(maxWidth, Math.max(360, resizeStartWidth + deltaX));
+        executionDrawer.style.width = `${newWidth}px`;
+        savedDrawerWidth = newWidth;
+      }
+
+      if (resizeDirection === "top" || resizeDirection === "corner") {
+        const deltaY = resizeStartY - e.clientY; // moving up increases height
+        const maxHeight = window.innerHeight - 30;
+        const newHeight = Math.min(maxHeight, Math.max(140, resizeStartHeight + deltaY));
+        executionDrawer.style.height = `${newHeight}px`;
+        savedDrawerHeight = newHeight;
+      }
+    }
+
+    function onDrawerTouchMove(e) {
+      if (!isResizingDrawer || e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      onDrawerMouseMove({
+        preventDefault: () => e.preventDefault(),
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+    }
+
+    function stopDrawerResize() {
+      if (!isResizingDrawer) return;
+      isResizingDrawer = false;
+      resizeDirection = null;
+
+      document.body.classList.remove("drawer-resizing");
+      document.body.style.cursor = "";
+      executionDrawer.style.transition = "";
+
+      if (executionDrawer.style.width) {
+        localStorage.setItem("kct_drawer_width", parseInt(executionDrawer.style.width, 10));
+      }
+      if (executionDrawer.style.height && executionDrawer.style.height !== "auto") {
+        localStorage.setItem("kct_drawer_height", parseInt(executionDrawer.style.height, 10));
+      }
+
+      window.removeEventListener("mousemove", onDrawerMouseMove);
+      window.removeEventListener("mouseup", stopDrawerResize);
+      window.removeEventListener("touchmove", onDrawerTouchMove);
+      window.removeEventListener("touchend", stopDrawerResize);
+    }
+
+    if (drawerResizeTop) {
+      drawerResizeTop.addEventListener("mousedown", (e) => startDrawerResize(e, "top"));
+      drawerResizeTop.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) startDrawerResize(e.touches[0], "top");
+      }, { passive: false });
+    }
+    if (drawerResizeLeft) {
+      drawerResizeLeft.addEventListener("mousedown", (e) => startDrawerResize(e, "left"));
+      drawerResizeLeft.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) startDrawerResize(e.touches[0], "left");
+      }, { passive: false });
+    }
+    if (drawerResizeCorner) {
+      drawerResizeCorner.addEventListener("mousedown", (e) => startDrawerResize(e, "corner"));
+      drawerResizeCorner.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) startDrawerResize(e.touches[0], "corner");
+      }, { passive: false });
+    }
+
+    // -------------------------------------------------------------
+    // Maximize / Restore Toggle Button
+    // -------------------------------------------------------------
+    if (btnMaximizeDrawer) {
+      btnMaximizeDrawer.addEventListener("click", () => {
+        if (!isDrawerMaximized) {
+          preMaxWidth = executionDrawer.style.width || `${executionDrawer.offsetWidth}px`;
+          preMaxHeight = executionDrawer.style.height || `${executionDrawer.offsetHeight}px`;
+          
+          if (drawerLogContainer) {
+            drawerLogContainer.classList.remove("hidden");
+          }
+          executionDrawer.style.width = `${Math.min(980, window.innerWidth - 24)}px`;
+          executionDrawer.style.height = `${Math.min(680, window.innerHeight - 40)}px`;
+          isDrawerMaximized = true;
+          btnMaximizeDrawer.title = "Restore Normal Size";
+          if (iconDrawerMaximize) iconDrawerMaximize.setAttribute("data-lucide", "minimize-2");
+        } else {
+          executionDrawer.style.width = preMaxWidth || `${savedDrawerWidth}px`;
+          executionDrawer.style.height = preMaxHeight || `${savedDrawerHeight}px`;
+          isDrawerMaximized = false;
+          btnMaximizeDrawer.title = "Maximize / Expand";
+          if (iconDrawerMaximize) iconDrawerMaximize.setAttribute("data-lucide", "maximize-2");
+        }
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      });
+    }
+
+    function appendDrawerLog(text, stream = "stdout") {
+      lastLogReceivedTime = Date.now();
+      const line = document.createElement("div");
+      line.className = "py-0.5 truncate";
+      const ts = new Date().toLocaleTimeString();
+
+      // Dynamic Progress & Subtitle Tracking
+      if (text) {
+        const cleanText = text.trim();
+
+        // 1. Voiceover Section Progress (e.g. [Voiceover Progress 35%] Section 5/14: "Abraham told...")
+        const voiceMatch = cleanText.match(/\[Voice(?:over)? Progress (\d+)%\]\s*(.*)/i);
+        if (voiceMatch) {
+          const pct = Math.min(100, Math.max(0, parseInt(voiceMatch[1], 10)));
+          const detail = voiceMatch[2] ? voiceMatch[2].replace(/"/g, "") : `Section synthesis (${pct}%)`;
+          lastJobStatusText = `Voiceover: ${detail}`;
+          if (drawerJobSubtitle) {
+            drawerJobSubtitle.textContent = lastJobStatusText;
+          }
+          if (drawerProgressBar) {
+            // Voiceover occupies 0% - 40% of the overall reel pipeline
+            const overallPct = Math.round(pct * 0.40);
+            drawerProgressBar.style.width = `${Math.max(8, overallPct)}%`;
+            drawerProgressBar.classList.remove("w-full");
+          }
+        } else if (cleanText.includes("[Audio Step 1/3]") || cleanText.includes("[VibeVoice] Initializing")) {
+          lastJobStatusText = "Voiceover: Loading Microsoft VibeVoice cloned model...";
+          if (drawerJobSubtitle) drawerJobSubtitle.textContent = lastJobStatusText;
+          if (drawerProgressBar) {
+            drawerProgressBar.style.width = "10%";
+            drawerProgressBar.classList.remove("w-full");
+          }
+        } else if (cleanText.includes("[Audio Step 2/3]") || cleanText.includes("[Whisper] Aligning speech")) {
+          lastJobStatusText = "Whisper: Aligning word-level timestamps...";
+          if (drawerJobSubtitle) drawerJobSubtitle.textContent = lastJobStatusText;
+          if (drawerProgressBar) {
+            drawerProgressBar.style.width = "45%";
+            drawerProgressBar.classList.remove("w-full");
+          }
+        } else if (cleanText.includes("[Audio Step 3/3]") || cleanText.includes("Mixing Voiceover with Cinematic Soundtrack") || cleanText.includes("[Audio] Blending voiceover")) {
+          lastJobStatusText = "Soundtrack: Mastering Demucs stems & studio EQ...";
+          if (drawerJobSubtitle) drawerJobSubtitle.textContent = lastJobStatusText;
+          if (drawerProgressBar) {
+            drawerProgressBar.style.width = "52%";
+            drawerProgressBar.classList.remove("w-full");
+          }
+        } else if (cleanText.match(/\[Render\] Frame (\d+)\/(\d+)\s*\(([\d.]+)%\)/i)) {
+          const m = cleanText.match(/\[Render\] Frame (\d+)\/(\d+)\s*\(([\d.]+)%\)/i);
+          const curF = m[1], totF = m[2], pctVal = parseFloat(m[3]);
+          lastJobStatusText = `Rendering Video: Frame ${curF}/${totF} (${pctVal.toFixed(0)}%)`;
+          if (drawerJobSubtitle) drawerJobSubtitle.textContent = lastJobStatusText;
+          if (drawerProgressBar) {
+            // Video rendering occupies 55% - 95% of pipeline
+            const renderPct = 55 + Math.round(pctVal * 0.40);
+            drawerProgressBar.style.width = `${Math.min(96, renderPct)}%`;
+            drawerProgressBar.classList.remove("w-full");
+          }
+        } else if (cleanText.includes("[Mux] Assembling final")) {
+          lastJobStatusText = "Muxing final broadcast 9:16 MP4...";
+          if (drawerJobSubtitle) drawerJobSubtitle.textContent = lastJobStatusText;
+          if (drawerProgressBar) {
+            drawerProgressBar.style.width = "98%";
+            drawerProgressBar.classList.remove("w-full");
+          }
+        } else if (cleanText.match(/Scene (\d+)[:\/](\d+)?/i)) {
+          const scM = cleanText.match(/Scene (\d+)[:\/](\d+)?/i);
+          if (scM) {
+            lastJobStatusText = `Visuals: Scene ${scM[1]} validated on disk`;
+            if (drawerJobSubtitle) drawerJobSubtitle.textContent = lastJobStatusText;
+          }
+        }
+      }
+
+      if (stream === "error") {
+        line.className += " text-rose-400 font-bold";
+        line.textContent = `[${ts}] ${text}`;
+      } else if (stream === "system") {
+        line.className += " text-cyan-300 font-semibold";
+        line.textContent = `[${ts}] ${text}`;
+      } else {
+        line.className += " text-slate-300";
+        line.textContent = `[${ts}] ${text}`;
+      }
+
+      drawerLogStream.appendChild(line);
+      drawerLogStream.scrollTop = drawerLogStream.scrollHeight;
+    }
+
+    // 8. WebSocket Connection for Live Logs & Process Updates
+    function initWebSocket() {
+      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${proto}//${window.location.host}/ws/logs`;
+
+      try {
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+          console.log("[WS] Connected to live pipeline stream");
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === "init") {
+              if (data.status === "running") {
+                isJobRunning = true;
+                showDrawer(data.job?.cmd_display || "Active Pipeline Job");
+                drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+              }
+              if (data.logs) {
+                data.logs.slice(-30).forEach(l => appendDrawerLog(l.line, l.stream));
+              }
+            } else if (data.type === "log") {
+              appendDrawerLog(data.entry.line, data.entry.stream);
+            } else if (data.type === "status") {
+              if (data.status === "running") {
+                isJobRunning = true;
+                showDrawer(data.job?.cmd_display);
+                drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+              } else if (data.status === "completed") {
+                isJobRunning = false;
+                stopJobTimer();
+                drawerStatusDot.className = "w-3 h-3 rounded-full bg-emerald-400";
+                drawerJobSubtitle.textContent = "Generation complete!";
+                if (drawerProgressBar) {
+                  drawerProgressBar.style.width = "100%";
+                  drawerProgressBar.classList.remove("animate-pulse");
+                }
+                appendDrawerLog("=== [GENERATION COMPLETED SUCCESSFULLY] ===", "system");
+                // Reload week data to show newly rendered video
+                setTimeout(() => loadWeekData(currentWeekId), 1200);
+              } else if (data.status === "error" || data.status === "stopped") {
+                isJobRunning = false;
+                stopJobTimer();
+                drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+                drawerJobSubtitle.textContent = data.status === "error" ? "Process failed" : "Process stopped";
+              }
+            }
+          } catch (e) {
+            console.error("WS Parse error:", e);
+          }
+        };
+
+        ws.onclose = () => {
+          setTimeout(initWebSocket, 4000);
+        };
+      } catch (err) {
+        console.warn("WebSocket init failed:", err);
+      }
+    }
+
+    // 9. Check Hardware & ComfyUI Status
+    async function checkSystemStats() {
+      try {
+        const res = await fetch("/api/system/stats");
+        if (!res.ok) return;
+        const stats = await res.json();
+
+        // ComfyUI
+        const comfyDot = document.getElementById("comfyDot");
+        const comfyText = document.getElementById("comfyText");
+        if (stats.comfyui && stats.comfyui.running) {
+          comfyDot.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]";
+          comfyText.textContent = "Online";
+          comfyText.className = "text-emerald-400 font-bold";
+        } else {
+          comfyDot.className = "w-2 h-2 rounded-full bg-slate-500";
+          comfyText.textContent = "Offline";
+          comfyText.className = "text-slate-400 font-medium";
+        }
+
+        // GPU
+        const gpuText = document.getElementById("gpuText");
+        if (stats.gpu && stats.gpu.vram_used_mb) {
+          gpuText.textContent = `GPU: ${stats.gpu.vram_used_mb}MB (${stats.gpu.temp_c || '--'}°C)`;
+        }
+      } catch (e) {}
+    }
+
+    // 10. Script & Benchmark Metadata Modal Handler
+    let currentScriptModalData = {
+      title: '',
+      subtitle: '',
+      narration: '',
+      metadata: '',
+      chapters: '',
+      merch: '',
+      activeTab: 'metadata',
+      wordCount: 0,
+      assetForDispatch: null
+    };
+
+    function switchScriptViewTab(tab) {
+      currentScriptModalData.activeTab = tab;
+      const tabs = ['metadata', 'narration', 'chapters', 'merch'];
+      tabs.forEach(t => {
+        const btnId = `tabScriptView${t.charAt(0).toUpperCase() + t.slice(1)}`;
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        if (t === tab) {
+          btn.className = "px-3 py-1.5 rounded-lg transition bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold flex items-center gap-1.5 shrink-0 shadow-sm";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white border border-transparent flex items-center gap-1.5 shrink-0";
+        }
+      });
+
+      const bodyEl = document.getElementById("modalScriptBody");
+      if (bodyEl) {
+        bodyEl.textContent = currentScriptModalData[tab] || "(No content available for this section)";
+        bodyEl.scrollTop = 0;
+      }
+    }
+
+    function openDispatchFromScriptModal() {
+      if (currentScriptModalData.assetForDispatch) {
+        scriptModal.classList.add("hidden");
+        openSocialPublishModal(currentScriptModalData.assetForDispatch);
+      } else {
+        showToast("No video asset selected for dispatch", "info");
+      }
+    }
+
+    async function viewLongFormScript(scriptFile = null, targetNum = 1) {
+      const lf = currentWeekData?.long_form;
+      if (!lf) return;
+
+      const activeVid = (currentLfVideos && currentLfVideos[selectedLfVideoIndex]) ? currentLfVideos[selectedLfVideoIndex] : null;
+      const title = activeVid?.title || lf.title || "Long-Form Master Documentary";
+      modalScriptTitle.textContent = title;
+      const subEl = document.getElementById("modalScriptSubtitle");
+      const activeDuration = activeVid?.duration_formatted || lf.duration_target || '30–35 min';
+      const activeScenes = activeVid?.scene_count || lf.scene_count || 78;
+      if (subEl) subEl.textContent = `${activeVid?.short_label ? `${activeVid.short_label} • ` : ''}Flagship 16:9 • Runtime ${activeDuration} • ${activeScenes} Scenes`;
+
+      // 1. Chapters text
+      let chaptersText = "";
+      const timestamps = activeVid?.timestamps || lf.timestamps;
+      if (Array.isArray(timestamps) && timestamps.length > 0) {
+        chaptersText = "=======================================================\n" +
+          "TIMESTAMPS / CHAPTERS CUES:\n" +
+          "=======================================================\n" +
+          timestamps.map(ts => {
+            if (typeof ts === 'object' && ts.time) return `${ts.time} - ${ts.title || ''}`;
+            return String(ts);
+          }).join("\n");
+      } else if ((activeVid?.description || lf.description || "").includes("TIMESTAMPS")) {
+        const m = (activeVid?.description || lf.description).match(/TIMESTAMPS[\s\S]*?(?=\n\n={3,}|\n\n#|$)/);
+        chaptersText = m ? m[0].trim() : "00:00 - Prologue\n04:15 - Chapter 1\n09:30 - Chapter 2\n14:45 - Chapter 3\n20:10 - Chapter 4\n25:30 - Chapter 5\n30:00 - Climax";
+      } else {
+        chaptersText = "00:00 - The Silence Before Creation\n04:15 - The Divine Council (Bene Elohim) in Job 38\n09:30 - The Eternal Wisdom of Proverbs 8\n14:45 - Bereshit: The Cross Concealed in the First Hebrew Word\n20:10 - Why Lucifer Desired the Cosmic Mountain\n25:30 - John 1: The Word That Preceded the Cosmos\n30:00 - Christ the Uncreated King: The Redemptive Climax";
+      }
+
+      // 2. Merch text
+      const merchText = activeVid?.merch_block || lf.merch_block || `=======================================================\n🛒 OFFICIAL MERCH & BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n=======================================================`;
+
+      // 3. Narrative body
+      const narrativeBody = (activeVid?.description || lf.description) ? (activeVid?.description || lf.description).split("TIMESTAMPS")[0].trim() : (
+        "The Bible opens at Genesis 1:1... but what happened BEFORE the foundation of the world? " +
+        "In this 32-minute deep-dive documentary, we explore the pre-cosmic divine council of God, " +
+        "the songs of the Morning Stars in Job 38, the eternal generation of the Logos in John 1, " +
+        "the prophetic code hidden in the Hebrew word Bereshit, and the disqualification of the " +
+        "anointed covering cherub before the dust of earth was formed."
+      );
+
+      // 4. Hashtags
+      const activeHashtags = activeVid?.hashtags || lf.hashtags;
+      const hashtagsStr = (activeHashtags && activeHashtags.length > 0)
+        ? (Array.isArray(activeHashtags) ? activeHashtags.join(' ') : activeHashtags)
+        : (activeVid?.tags || lf.tags || []).map(t => `#${t.replace(/[\s#]+/g, '')}`).join(' ');
+
+      // 5. Build rich benchmark metadata
+      const metaContent = `=======================================================
+DOCUMENTARY BENCHMARK METADATA: BIBLE SECRETS REVEALED
+=======================================================
+
+EPISODE TITLE:
+${title}
+
+HOOK HEADLINE:
+${activeVid?.hook || lf.hook || "WHAT HAPPENED BEFORE THE FOUNDATION OF THE WORLD?"}
+
+CURRICULUM THEME:
+${activeVid?.theme || lf.theme || currentWeekData?.theme || "What Happened Before Genesis? The Divine Council & Lucifer's Pre-Cosmic Fall"}
+
+EPISODE SCRIPTURES:
+${activeVid?.scriptures || lf.scriptures || currentWeekData?.scriptures || "Job 38:4-7, Proverbs 8:22-31, John 1:1-14, Colossians 1:16-17, Ezekiel 28:12-19, Revelation 13:8"}
+
+CHRISTOLOGICAL KEY:
+${activeVid?.christological_key || lf.christological_key || currentWeekData?.christological_key || "Christ is the Uncreated Logos presiding over the cosmic council; all things were created through Him and for Him."}
+
+TECHNICAL METRICS:
+• Target Runtime: ${activeDuration}
+• Script Status: ${activeVid?.script_file ? 'Ready' : lf.script_status || 'Ready'} (${(activeVid?.script_word_count || lf.script_word_count || 4540).toLocaleString()} words)
+• Visual Scenes: ${activeScenes} FLUX 16:9 Plates
+• Master Narration File: ${scriptFile || activeVid?.script_file || lf.script_file || 'script_30min.txt'}
+
+-------------------------------------------------------
+2-PARAGRAPH THEOLOGICAL BODY NARRATIVE:
+-------------------------------------------------------
+${narrativeBody}
+
+-------------------------------------------------------
+${chaptersText}
+
+-------------------------------------------------------
+${merchText}
+
+-------------------------------------------------------
+CURATED HASHTAGS:
+${hashtagsStr}
+
+=======================================================
+MULTI-PLATFORM PREVIEWS:
+=======================================================
+• FACEBOOK: ${(activeVid?.facebook_caption || lf.facebook_caption) ? ((activeVid?.facebook_caption || lf.facebook_caption).length + ' chars ready') : 'Standard benchmark ready'}
+• YOUTUBE: ${(activeVid?.youtube_description || lf.youtube_description) ? ((activeVid?.youtube_description || lf.youtube_description).length + ' chars • Direct raw URLs preserved') : 'Raw links active'}
+• X (TWITTER): ${(activeVid?.x_post || lf.x_post) || 'Strictly <= 280c'}`;
+
+      const activeWordCount = activeVid?.script_word_count || lf.script_word_count || 4540;
+      currentScriptModalData = {
+        title: title,
+        narration: activeVid?.script_content || lf.script_content || "Loading full narration script from project...",
+        metadata: metaContent,
+        chapters: chaptersText,
+        merch: merchText,
+        activeTab: 'metadata',
+        wordCount: activeWordCount,
+        assetForDispatch: {
+          rel_path: activeVid?.video_path || lf.video_path,
+          title: title,
+          type: 'documentary',
+          aspect: '16:9',
+          description: activeVid?.description || lf.description || activeVid?.facebook_caption || lf.facebook_caption || metaContent,
+          tags: activeVid?.tags || lf.tags || ['BibleSecrets', 'Documentary', 'Theology'],
+          facebook_caption: activeVid?.facebook_caption || lf.facebook_caption,
+          youtube_description: activeVid?.youtube_description || lf.youtube_description,
+          instagram_caption: activeVid?.instagram_caption || lf.instagram_caption,
+          tiktok_caption: activeVid?.tiktok_caption || lf.tiktok_caption,
+          x_post: activeVid?.x_post || lf.x_post
+        }
+      };
+
+      modalScriptWordCount.textContent = `Word count: ${activeWordCount.toLocaleString()} • Runtime: ${activeDuration}`;
+      scriptModal.classList.remove("hidden");
+      switchScriptViewTab('metadata');
+      if (window.lucide) lucide.createIcons();
+
+      // If narration content is not cached or if specific scriptFile requested, fetch from API
+      const targetScript = scriptFile || activeVid?.script_file || lf.script_file || 'script_30min.txt';
+      if (!currentScriptModalData.narration || currentScriptModalData.narration.startsWith("Loading") || scriptFile) {
+        try {
+          const res = await fetch(`/api/generator/script?week=${encodeURIComponent(currentWeekId)}&type=long_form&target_num=${targetNum}&filename=${encodeURIComponent(targetScript)}`);
+          const data = await res.json();
+          if (data.success && data.content) {
+            currentScriptModalData.narration = data.content;
+            if (data.word_count) {
+              currentScriptModalData.wordCount = data.word_count;
+              modalScriptWordCount.textContent = `Word count: ${data.word_count.toLocaleString()} • Runtime: ${activeDuration}`;
+            }
+            if (currentScriptModalData.activeTab === 'narration') {
+              switchScriptViewTab('narration');
+            }
+          }
+        } catch (e) {
+          console.warn("Could not fetch remote script content:", e);
+        }
+      }
+    }
+
+    async function viewReelScript(index) {
+      const r = currentWeekData?.reels?.[index];
+      if (!r) return;
+
+      const title = `Reel 0${r.num}: ${r.title}`;
+      modalScriptTitle.textContent = title;
+      const subEl = document.getElementById("modalScriptSubtitle");
+      if (subEl) subEl.textContent = `${r.reel_id} • ${r.day} • Target 55s • 9:16 Vertical`;
+
+      const merchText = r.merch_block || `=======================================================\n🛒 OFFICIAL MERCH & BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n=======================================================`;
+
+      const tagsStr = (r.tags || []).map(t => `#${t.replace(/[\s#]+/g, '')}`).join(' ');
+
+      const metaContent = `=======================================================
+REEL BENCHMARK METADATA: BIBLE SECRETS REVEALED
+=======================================================
+
+TITLE:
+${r.title}
+
+PROVOCATIVE HOOK HEADLINE:
+${r.hook || r.title}
+
+SCRIPTURES & REFERENCES:
+${r.scriptures || "Scripture Revealed"}
+
+STATUS & METRICS:
+• Day: ${r.day} (${r.reel_id})
+• Status: ${r.script_status} (${(r.script_word_count || 0)} words)
+• Target: 55 seconds (9:16 Vertical)
+
+-------------------------------------------------------
+2-PARAGRAPH THEOLOGICAL BODY NARRATIVE:
+-------------------------------------------------------
+${r.description || r.caption || "Narrative body..."}
+
+-------------------------------------------------------
+${merchText}
+
+-------------------------------------------------------
+CURATED HASHTAGS:
+${tagsStr}
+
+=======================================================
+PLATFORM CAPTION VARIANTS:
+=======================================================
+• FACEBOOK: ${r.facebook_caption ? (r.facebook_caption.length + ' chars ready') : 'Standard benchmark'}
+• YOUTUBE SHORTS: ${r.youtube_description ? (r.youtube_description.length + ' chars • Direct raw URLs preserved') : 'Direct links'}
+• INSTAGRAM: ${r.instagram_caption ? (r.instagram_caption.length + ' chars') : 'Bio CTA'}
+• TIKTOK: ${r.tiktok_caption ? (r.tiktok_caption.length + ' chars') : 'Punchy'}
+• X (TWITTER): ${r.x_post || 'Strictly <= 280c'}`;
+
+      currentScriptModalData = {
+        title: title,
+        narration: r.script_content || r.script_preview || "No script text available.",
+        metadata: metaContent,
+        chapters: `00:00 - Hook: ${r.hook || r.title}\n00:15 - Core Mystery\n00:35 - Theological Reveal\n00:50 - Call to Action & Merch`,
+        merch: merchText,
+        activeTab: 'metadata',
+        wordCount: r.script_word_count || 0,
+        assetForDispatch: {
+          rel_path: r.video_path,
+          title: r.title,
+          type: 'reel',
+          aspect: '9:16',
+          description: r.description || r.facebook_caption || metaContent,
+          tags: r.tags || ['BibleSecrets', 'Shorts', 'Reels'],
+          facebook_caption: r.facebook_caption,
+          youtube_description: r.youtube_description,
+          instagram_caption: r.instagram_caption,
+          tiktok_caption: r.tiktok_caption,
+          x_post: r.x_post
+        }
+      };
+
+      modalScriptWordCount.textContent = `Word count: ${(r.script_word_count || 0).toLocaleString()} • Target: 55s`;
+      scriptModal.classList.remove("hidden");
+      switchScriptViewTab('metadata');
+      if (window.lucide) lucide.createIcons();
+
+      if (!r.script_content && currentWeekId) {
+        try {
+          const res = await fetch(`/api/generator/script?week=${encodeURIComponent(currentWeekId)}&type=reel&target_num=${r.num}`);
+          const data = await res.json();
+          if (data.success && data.content) {
+            currentScriptModalData.narration = data.content;
+            if (currentScriptModalData.activeTab === 'narration') {
+              switchScriptViewTab('narration');
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    function viewStoryScript(index) {
+      const s = currentWeekData?.stories?.[index];
+      if (!s) return;
+      const content = `Instagram/Facebook Story: ${s.title}\nID: ${s.story_id} (${s.day})\nTotal Slides: ${s.total_slides || 5}\nReference: ${s.reference || 'N/A'}\nSound Suggestion: ${s.sound_suggestion || 'Ambient cinematic pads'}\n\nStatus: ${s.script_status} (${s.script_word_count || 0} words)`;
+      currentScriptModalData = {
+        title: s.title,
+        narration: s.script_content || content,
+        metadata: content,
+        chapters: `Slide 1: Hook\nSlide 2: Context\nSlide 3: Revelation\nSlide 4: Impact\nSlide 5: Call to Action`,
+        merch: "Story Format: 9:16 interactive slides with background music",
+        activeTab: 'metadata',
+        wordCount: s.script_word_count || 0,
+        assetForDispatch: s.video_path ? {
+          rel_path: s.video_path,
+          title: s.title,
+          type: 'story',
+          aspect: '9:16',
+          description: s.title,
+          tags: ['BibleSecrets', 'Stories']
+        } : null
+      };
+      modalScriptTitle.textContent = s.title;
+      modalScriptWordCount.textContent = `Word count: ${(s.script_word_count || 0).toLocaleString()} • 5 Slides`;
+      scriptModal.classList.remove("hidden");
+      switchScriptViewTab('metadata');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    btnCloseScriptModal.addEventListener("click", () => scriptModal.classList.add("hidden"));
+    scriptModal.addEventListener("click", (e) => {
+      if (e.target === scriptModal) scriptModal.classList.add("hidden");
+    });
+
+    btnCopyScriptText.addEventListener("click", () => {
+      navigator.clipboard.writeText(modalScriptBody.textContent);
+      const original = btnCopyScriptText.innerHTML;
+      btnCopyScriptText.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span>Copied!</span>`;
+      lucide.createIcons();
+      setTimeout(() => {
+        btnCopyScriptText.innerHTML = original;
+        lucide.createIcons();
+      }, 1500);
+    });
+
+    // 11. Week Switching Handlers
+    selectWeek.addEventListener("change", (e) => {
+      loadWeekData(e.target.value);
+    });
+
+    btnPrevWeek.addEventListener("click", () => {
+      const idx = allWeeks.findIndex(w => w.week_tag === currentWeekId);
+      if (idx > 0) {
+        loadWeekData(allWeeks[idx - 1].week_tag);
+      }
+    });
+
+    btnNextWeek.addEventListener("click", () => {
+      const idx = allWeeks.findIndex(w => w.week_tag === currentWeekId);
+      if (idx < allWeeks.length - 1) {
+        loadWeekData(allWeeks[idx + 1].week_tag);
+      }
+    });
+
+    // ================= SOCIAL MEDIA DISPATCH & YOUTUBE OAUTH =================
+    let currentDispatchAsset = null;
+    let currentDispatchMode = 'now';
+    let lastFailedPlatforms = [];
+    let currentPlatformVariants = {
+      all: '',
+      facebook: '',
+      youtube: '',
+      instagram: '',
+      tiktok: '',
+      x: ''
+    };
+    let activeCaptionTab = 'all';
+
+    function onCaptionInput() {
+      const descEl = document.getElementById("dispatchDescription");
+      if (!descEl) return;
+      const text = descEl.value;
+      currentPlatformVariants[activeCaptionTab] = text;
+
+      const counterEl = document.getElementById("dispatchCharCounter");
+      if (!counterEl) return;
+      const len = text.length;
+
+      if (activeCaptionTab === 'x') {
+        counterEl.textContent = `${len} / 280 chars`;
+        if (len > 280) {
+          counterEl.className = "text-[10px] font-mono px-2 py-0.5 rounded border border-rose-500/40 bg-rose-950/50 text-rose-300 font-bold";
+        } else {
+          counterEl.className = "text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 font-bold";
+        }
+      } else {
+        counterEl.textContent = `${len.toLocaleString()} chars`;
+        counterEl.className = "text-[10px] font-mono text-slate-400 bg-[#121620] px-2 py-0.5 rounded border border-[#2e394e]";
+      }
+    }
+
+    function switchCaptionTab(tab) {
+      const descEl = document.getElementById("dispatchDescription");
+      if (descEl && currentPlatformVariants) {
+        currentPlatformVariants[activeCaptionTab] = descEl.value;
+      }
+      activeCaptionTab = tab;
+
+      const tabs = ['all', 'facebook', 'youtube', 'instagram', 'tiktok', 'x'];
+      tabs.forEach(t => {
+        const btnId = `tabCap${t.charAt(0).toUpperCase() + t.slice(1)}`;
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        if (t === tab) {
+          btn.className = "px-2.5 py-1 rounded-lg transition bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold shrink-0 shadow-sm";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-lg transition text-slate-400 hover:text-white border border-transparent shrink-0";
+        }
+      });
+
+      // Update URL compliance badge
+      const badge = document.getElementById("dispatchUrlBadge");
+      if (badge) {
+        if (tab === 'youtube') {
+          badge.textContent = "Bio & Pinned Comment (No Direct URLs)";
+          badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30";
+        } else if (tab === 'facebook') {
+          badge.textContent = "Direct URLs Active";
+          badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+        } else if (tab === 'instagram') {
+          badge.textContent = "Link in Bio Only";
+          badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30";
+        } else if (tab === 'tiktok') {
+          badge.textContent = "Link in Bio Only";
+          badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30";
+        } else if (tab === 'x') {
+          badge.textContent = "Short URLs Active";
+          badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30";
+        } else {
+          badge.textContent = "Master Benchmark";
+          badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-slate-500/10 text-slate-300 border border-slate-500/30";
+        }
+      }
+
+      // The links comment is posted on every platform, so its box stays visible on all tabs
+      const pinnedBox = document.getElementById("pinnedCommentContainer");
+      if (pinnedBox) pinnedBox.classList.remove('hidden');
+
+      if (descEl) {
+        descEl.value = currentPlatformVariants[tab] || '';
+      }
+      onCaptionInput();
+    }
+
+    function copyPinnedComment() {
+      const pinEl = document.getElementById("dispatchPinnedComment");
+      if (pinEl && pinEl.value) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(pinEl.value).then(() => {
+            showToast("Pinned Comment copied to clipboard!", "success");
+          }).catch(() => {
+            pinEl.select();
+            document.execCommand("copy");
+            showToast("Pinned Comment copied to clipboard!", "success");
+          });
+        } else {
+          pinEl.select();
+          document.execCommand("copy");
+          showToast("Pinned Comment copied to clipboard!", "success");
+        }
+      }
+    }
+
+    function postReelFromGenerator(index) {
+      const r = currentWeekData?.reels?.[index];
+      if (!r || !r.video_path) return;
+      openSocialPublishModal({
+        rel_path: r.video_path,
+        title: r.title,
+        type: 'reel',
+        aspect: '9:16',
+        video_url: r.video_url,
+        description: r.description || r.facebook_caption || r.caption || `${r.title}\n\n${r.hook || ''}\n\n#BibleSecrets #Shorts #Reels`,
+        tags: r.tags || ['BibleSecrets', 'Shorts', 'Reels'],
+        facebook_caption: r.facebook_caption,
+        youtube_description: r.youtube_description,
+        instagram_caption: r.instagram_caption,
+        tiktok_caption: r.tiktok_caption,
+        x_post: r.x_post,
+        pinned_comment: r.pinned_comment || ""
+      });
+    }
+
+    function postStoryFromGenerator(index) {
+      const s = currentWeekData?.stories?.[index];
+      if (!s || !s.video_path) return;
+      openSocialPublishModal({
+        rel_path: s.video_path,
+        title: s.title,
+        type: 'story',
+        aspect: '9:16',
+        video_url: s.video_url,
+        description: `${s.title}\n\n#BibleSecrets #Stories`,
+        tags: ['BibleSecrets', 'Stories']
+      });
+    }
+
+    function safeAttr(val) {
+      if (val === null || val === undefined) return '';
+      const str = typeof val === 'string' ? val : JSON.stringify(val);
+      return encodeURIComponent(str).replace(/'/g, '%27');
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = `p-3 rounded-xl border text-xs flex items-center gap-2 shadow-2xl transition-all duration-300 pointer-events-auto ${
+        type === 'success' ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200' :
+        type === 'error' ? 'bg-rose-950/90 border-rose-500/40 text-rose-200' :
+        'bg-[#151c2c]/95 border-[#2e394e] text-slate-200'
+      }`;
+      toast.innerHTML = `
+        <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info'}" class="w-4 h-4 shrink-0"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function openSocialPublishModal(encodedAssetData) {
+      try {
+        if (typeof encodedAssetData === 'object' && encodedAssetData !== null) {
+          currentDispatchAsset = encodedAssetData;
+        } else if (typeof encodedAssetData === 'string') {
+          try {
+            currentDispatchAsset = JSON.parse(decodeURIComponent(encodedAssetData));
+          } catch {
+            currentDispatchAsset = JSON.parse(encodedAssetData);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse asset data:", e, encodedAssetData);
+        showToast("Failed to load asset metadata", "error");
+        return;
+      }
+
+      const modal = document.getElementById("modalSocialPublish");
+      const alertBox = document.getElementById("dispatchAlertBox");
+      alertBox.className = "hidden";
+      alertBox.innerHTML = "";
+      lastFailedPlatforms = [];
+
+      document.getElementById("dispatchTitle").value = currentDispatchAsset.title || "";
+      document.getElementById("dispatchAssetSub").innerText = currentDispatchAsset.rel_path || "";
+      
+      // Format & platform routing come from the server (same rules as the dispatcher, incl. account connection)
+      applyPlatformRouting(null);
+      loadPlatformRouting(currentDispatchAsset.rel_path);
+
+      // Pre-fill tomorrow's date for schedule mode
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById("dispatchScheduleDate").value = tomorrow.toISOString().split('T')[0];
+
+      // Initialize platform variants from asset
+      const baseDesc = currentDispatchAsset.description || "";
+      currentPlatformVariants = {
+        all: baseDesc,
+        facebook: currentDispatchAsset.facebook_caption || baseDesc,
+        youtube: currentDispatchAsset.youtube_description || baseDesc,
+        instagram: currentDispatchAsset.instagram_caption || baseDesc,
+        tiktok: currentDispatchAsset.tiktok_caption || baseDesc,
+        x: currentDispatchAsset.x_post || ""
+      };
+
+      document.getElementById("dispatchTags").value = (currentDispatchAsset.tags || []).map(t => `#${t.replace(/[#\s]/g, '')}`).join(' ');
+      const pinInput = document.getElementById("dispatchPinnedComment");
+      if (pinInput) pinInput.value = currentDispatchAsset.pinned_comment || "";
+
+      // Initialize active tab to Master Benchmark
+      activeCaptionTab = 'all';
+      switchCaptionTab('all');
+
+      // Live fetch dynamic metadata preview from backend to guarantee fresh benchmark sync
+      if (currentDispatchAsset.rel_path) {
+        fetch(`/api/social/metadata/preview?rel_path=${encodeURIComponent(currentDispatchAsset.rel_path)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.metadata) {
+              const m = data.metadata;
+              if (m.title && !document.getElementById("dispatchTitle").value) {
+                document.getElementById("dispatchTitle").value = m.title;
+              }
+              if (m.tags && m.tags.length > 0 && !document.getElementById("dispatchTags").value) {
+                document.getElementById("dispatchTags").value = m.tags.map(t => `#${t.replace(/[#\s]/g, '')}`).join(' ');
+              }
+
+              if (m.facebook_caption) currentPlatformVariants.facebook = m.facebook_caption;
+              if (m.youtube_description) currentPlatformVariants.youtube = m.youtube_description;
+              if (m.instagram_caption) currentPlatformVariants.instagram = m.instagram_caption;
+              if (m.tiktok_caption) currentPlatformVariants.tiktok = m.tiktok_caption;
+              if (m.x_post) currentPlatformVariants.x = m.x_post;
+              if (m.description) currentPlatformVariants.all = m.description;
+              if (m.pinned_comment) {
+                const pinEl = document.getElementById("dispatchPinnedComment");
+                if (pinEl) pinEl.value = m.pinned_comment;
+              }
+
+              // Refresh current active tab view
+              const descEl = document.getElementById("dispatchDescription");
+              if (descEl) {
+                descEl.value = currentPlatformVariants[activeCaptionTab] || currentPlatformVariants.all || "";
+                onCaptionInput();
+              }
+            }
+          })
+          .catch(e => console.warn("Could not fetch metadata preview:", e));
+      }
+
+      switchDispatchMode('now');
+      modal.classList.remove("hidden");
+      refreshPlatformStatusInModal();
+      lucide.createIcons();
+    }
+
+    function closeSocialPublishModal() {
+      document.getElementById("modalSocialPublish").classList.add("hidden");
+    }
+
+    async function refreshPlatformStatusInModal() {
+      try {
+        const res = await fetch("/api/social/platforms/status");
+        const data = await res.json();
+        if (!data.success) return;
+
+        // Facebook
+        const fb = data.facebook || {};
+        const fbTitle = document.getElementById("fbStatusTitle");
+        const fbSub = document.getElementById("fbStatusSub");
+        const chkFbSub = document.getElementById("chkFbSub");
+        if (fb.active) {
+          if (fbTitle) fbTitle.innerText = fb.page_name || "Bible Hidden Secrets Revealed";
+          if (fbSub) fbSub.innerText = `● Connected (${(fb.fan_count || 13865).toLocaleString()} followers)`;
+          if (chkFbSub) chkFbSub.innerText = "● Direct Page";
+        } else {
+          if (fbSub) fbSub.innerText = "○ Disconnected";
+          if (chkFbSub) chkFbSub.innerText = "○ Offline";
+        }
+
+        // Instagram
+        const ig = data.instagram || {};
+        const igTitle = document.getElementById("igStatusTitle");
+        const igSub = document.getElementById("igStatusSub");
+        const chkIgSub = document.getElementById("chkIgSub");
+        if (ig.active) {
+          if (igTitle) igTitle.innerText = ig.username ? `@${ig.username}` : "@biblesecretsrevealed2318";
+          if (igSub) igSub.innerText = "● Direct Reels Active";
+          if (chkIgSub) chkIgSub.innerText = "● Direct Reels";
+        } else {
+          if (igSub) igSub.innerText = "○ Disconnected";
+          if (chkIgSub) chkIgSub.innerText = "○ Offline";
+        }
+
+        // YouTube
+        const yt = data.youtube || {};
+        const isAuth = yt.authenticated;
+        const ytTitle = document.getElementById("ytStatusTitle");
+        const ytSub = document.getElementById("ytStatusSub");
+        const chkYtSub = document.getElementById("chkYtSub");
+        const btnYt = document.getElementById("btnConnectYoutube");
+        
+        if (isAuth && yt.channel) {
+          if (ytTitle) ytTitle.innerText = yt.channel.title || "YouTube Channel";
+          if (ytSub) {
+            ytSub.className = "text-[10px] text-emerald-400 font-mono";
+            ytSub.innerText = `● Connected (${parseInt(yt.channel.subscriber_count || 0).toLocaleString()} subs)`;
+          }
+          if (chkYtSub) {
+            chkYtSub.className = "text-[9px] text-emerald-400 font-mono";
+            chkYtSub.innerText = "● Direct Stream";
+          }
+          if (btnYt) {
+            btnYt.className = "px-2 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1";
+            btnYt.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i><span>Connected</span>`;
+          }
+        } else {
+          if (ytTitle) ytTitle.innerText = "YouTube Channel";
+          if (ytSub) {
+            ytSub.className = "text-[10px] text-amber-400 font-mono";
+            ytSub.innerText = "○ OAuth Needed";
+          }
+          if (chkYtSub) {
+            chkYtSub.className = "text-[9px] text-amber-400 font-mono";
+            chkYtSub.innerText = "○ OAuth Needed";
+          }
+          if (btnYt) {
+            btnYt.className = "px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-[10px] font-bold shrink-0 transition flex items-center gap-1 shadow-sm";
+            btnYt.innerHTML = `<i data-lucide="zap" class="w-3 h-3"></i><span>Connect</span>`;
+          }
+        }
+        lucide.createIcons();
+      } catch (e) {
+        console.error("Failed to load platform status:", e);
+      }
+    }
+
+    function openYouTubeAuthModal() {
+      const modal = document.getElementById("modalYouTubeAuth");
+      if (!modal) return;
+      document.getElementById("ytAuthCodeInput").value = "";
+      document.getElementById("ytAuthErrorBox").classList.add("hidden");
+      document.getElementById("ytAuthSuccessBox").classList.add("hidden");
+      modal.classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeYouTubeAuthModal() {
+      const modal = document.getElementById("modalYouTubeAuth");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    async function launchGoogleOAuth() {
+      try {
+        const res = await fetch("/api/social/youtube/auth_url");
+        const data = await res.json();
+        if (data.success && data.auth_url) {
+          window.open(data.auth_url, "_blank", "width=600,height=700");
+          // Callback port taken (e.g. by n8n): the user must paste the redirect URL in step 2
+          const errBox = document.getElementById("ytAuthErrorBox");
+          if (errBox) {
+            errBox.innerText = data.warning || "";
+            errBox.classList.toggle("hidden", !data.warning);
+          }
+        } else {
+          alert("Error generating Google Auth URL: " + (data.error || "Unknown"));
+        }
+      } catch (e) {
+        alert("Network error fetching Google Auth URL: " + e.message);
+      }
+    }
+
+    async function submitYouTubeAuthCode() {
+      const input = document.getElementById("ytAuthCodeInput").value.trim();
+      const errBox = document.getElementById("ytAuthErrorBox");
+      const succBox = document.getElementById("ytAuthSuccessBox");
+      const submitBtn = document.getElementById("btnSubmitYouTubeCode");
+
+      errBox.classList.add("hidden");
+      succBox.classList.add("hidden");
+
+      if (!input) {
+        errBox.innerText = "Please paste the redirect URL or authorization code from Google.";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
+      submitBtn.classList.add("opacity-50", "pointer-events-none");
+      try {
+        const res = await fetch("/api/social/youtube/exchange", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: input })
+        });
+        const data = await res.json();
+        if (data.success) {
+          succBox.innerHTML = `
+            <div class="flex items-center gap-1.5 font-bold mb-1">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span>Channel Connected Successfully!</span>
+            </div>
+            <p class="text-[11px] text-slate-300">Connected: <b>${data.channel?.title || 'YouTube Channel'}</b>. Direct upload and shorts are ready.</p>
+          `;
+          succBox.classList.remove("hidden");
+          lucide.createIcons();
+          await refreshPlatformStatusInModal();
+          setTimeout(() => {
+            closeYouTubeAuthModal();
+          }, 2000);
+        } else {
+          errBox.innerText = "OAuth Exchange Failed: " + (data.error || "Invalid code or redirect");
+          errBox.classList.remove("hidden");
+        }
+      } catch (e) {
+        errBox.innerText = "Error submitting auth code: " + e.message;
+        errBox.classList.remove("hidden");
+      } finally {
+        submitBtn.classList.remove("opacity-50", "pointer-events-none");
+      }
+    }
+
+    function switchDispatchMode(mode) {
+      currentDispatchMode = mode;
+      const btnNow = document.getElementById("btnModePostNow");
+      const btnSch = document.getElementById("btnModeSchedule");
+      const fields = document.getElementById("dispatchScheduleFields");
+      const submitLabel = document.getElementById("btnExecuteDispatchLabel");
+
+      if (mode === 'now') {
+        btnNow.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-indigo-600/20 text-indigo-300 border-indigo-500/40";
+        btnSch.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-[#181e2b] text-slate-400 border-[#2e394e] hover:text-white";
+        fields.classList.add("hidden");
+        submitLabel.innerText = "Post Now";
+      } else {
+        btnSch.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-amber-500/20 text-amber-300 border-amber-500/40";
+        btnNow.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition bg-[#181e2b] text-slate-400 border-[#2e394e] hover:text-white";
+        fields.classList.remove("hidden");
+        submitLabel.innerText = "Schedule Video";
+      }
+    }
+
+    async function executeDispatch(retryPlatforms = null) {
+      if (!currentDispatchAsset || !currentDispatchAsset.rel_path) {
+        showToast("No video asset selected for dispatch", "error");
+        return;
+      }
+
+      const btn = document.getElementById("btnExecuteDispatch");
+      const alertBox = document.getElementById("dispatchAlertBox");
+      alertBox.className = "hidden";
+      alertBox.innerHTML = "";
+
+      let platforms = [];
+      if (retryPlatforms && retryPlatforms.length > 0) {
+        platforms = retryPlatforms;
+      } else {
+        platforms = getSelectedPlatforms();
+      }
+
+      if (platforms.length === 0) {
+        showToast("Please select at least one platform", "error");
+        return;
+      }
+
+      // Persist whatever the user typed in the currently active tab
+      const currentText = document.getElementById("dispatchDescription").value;
+      if (currentPlatformVariants) {
+        currentPlatformVariants[activeCaptionTab] = currentText;
+      }
+
+      const title = document.getElementById("dispatchTitle").value.trim();
+      const desc = (currentPlatformVariants && currentPlatformVariants.all) ? currentPlatformVariants.all : currentText.trim();
+      const tags = document.getElementById("dispatchTags").value.split(/[\s,]+/).filter(t => t.length > 0).map(t => t.replace('#', ''));
+
+      const platformCaptionsPayload = {
+        facebook: currentPlatformVariants?.facebook || desc,
+        youtube: currentPlatformVariants?.youtube || desc,
+        instagram: currentPlatformVariants?.instagram || desc,
+        tiktok: currentPlatformVariants?.tiktok || desc,
+        x: currentPlatformVariants?.x || desc
+      };
+
+      btn.classList.add("opacity-50", "pointer-events-none");
+      const originalLabel = document.getElementById("btnExecuteDispatchLabel").innerText;
+      document.getElementById("btnExecuteDispatchLabel").innerText = "Dispatching...";
+
+      try {
+        if (currentDispatchMode === 'now' || retryPlatforms) {
+          // Direct Post Now
+          const res = await fetch("/api/social/publish", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              rel_path: currentDispatchAsset.rel_path,
+              platforms: platforms,
+              title: title,
+              description: desc,
+              tags: tags,
+              force_republish: !!retryPlatforms,
+              platform_captions: platformCaptionsPayload,
+              pinned_comment: document.getElementById("dispatchPinnedComment") ? document.getElementById("dispatchPinnedComment").value : ""
+            })
+          });
+          const data = await res.json();
+
+          const platResults = data.platforms || {};
+          const failed = Object.entries(platResults).filter(([p, resObj]) => resObj.status === 'failed');
+          const succeeded = Object.entries(platResults).filter(([p, resObj]) => resObj.status === 'published');
+
+          if (failed.length > 0) {
+            lastFailedPlatforms = failed.map(([p]) => p);
+            alertBox.className = "block bg-rose-950/40 border border-rose-500/40 p-4 rounded-xl text-xs space-y-2.5";
+            alertBox.innerHTML = `
+              <div class="flex items-center gap-2 text-rose-300 font-bold text-sm">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+                <span>Upload Failure on ${failed.length} Platform(s)</span>
+              </div>
+              <div class="text-slate-300 space-y-1 pl-6">
+                ${failed.map(([p, r]) => `<div><b class="text-white uppercase font-mono">${p}:</b> <span class="text-rose-300">${r.error || 'Connection or API error'}</span></div>`).join('')}
+              </div>
+              ${succeeded.length > 0 ? `
+                <div class="text-[11px] text-emerald-400 pl-6 flex items-center gap-1.5">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>${succeeded.map(([p]) => p.toUpperCase()).join(', ')} succeeded and were preserved.</span>
+                </div>
+              ` : ''}
+              <div class="pt-2 border-t border-rose-500/20 flex flex-wrap items-center justify-between gap-2 mt-2">
+                <span class="text-[11px] text-slate-400">Retry targets ONLY the failed platform(s).</span>
+                <button onclick="executeDispatch(['${lastFailedPlatforms.join("','")}'])" class="px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-bold flex items-center gap-1.5 shadow">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>Retry Failed Platforms (${lastFailedPlatforms.join(', ')})</span>
+                </button>
+              </div>
+            `;
+            lucide.createIcons();
+            showToast(`Partial upload failure: ${failed.length} platform(s) failed`, "error");
+          } else {
+            alertBox.className = "block bg-emerald-950/40 border border-emerald-500/40 p-4 rounded-xl text-xs space-y-2";
+            alertBox.innerHTML = `
+              <div class="flex items-center gap-2 text-emerald-300 font-bold text-sm">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Dispatched Successfully!</span>
+              </div>
+              <p class="text-slate-300 pl-6">${data.message || 'All selected platforms published successfully.'}</p>
+            `;
+            lucide.createIcons();
+            showToast("Video dispatched successfully!", "success");
+            await loadWeekData(currentWeekId);
+          }
+        } else {
+          // Schedule mode
+          const sDate = document.getElementById("dispatchScheduleDate").value;
+          const sTime = document.getElementById("dispatchScheduleTime").value || "10:00";
+          if (!sDate) {
+            showToast("Please choose a posting date", "error");
+            return;
+          }
+
+          const res = await fetch("/api/calendar/schedule", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              video_rel_path: currentDispatchAsset.rel_path,
+              scheduled_date: sDate,
+              scheduled_time: sTime,
+              platforms: platforms,
+              title: title,
+              force: true
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`Scheduled for ${sDate} at ${sTime}!`, "success");
+            closeSocialPublishModal();
+            await loadWeekData(currentWeekId);
+          } else {
+            throw new Error(data.detail || "Failed to schedule");
+          }
+        }
+      } catch (err) {
+        showToast(`Dispatch Error: ${err.message}`, "error");
+        alertBox.className = "block bg-rose-950/40 border border-rose-500/40 p-3.5 rounded-xl text-xs text-rose-300";
+        alertBox.innerHTML = `<b>Error:</b> ${err.message}`;
+      } finally {
+        btn.classList.remove("opacity-50", "pointer-events-none");
+        document.getElementById("btnExecuteDispatchLabel").innerText = originalLabel;
+      }
+    }
+  </script>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2 pointer-events-none"></div>
+</body>
+</html>

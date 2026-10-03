@@ -63,8 +63,8 @@ def resolve_python_runtime(cwd: Optional[str] = None) -> str:
     Prioritizes project venvs and ComfyUI PyTorch/CUDA environments over global python."""
     if cwd:
         p_dir = Path(cwd)
-        # Check direct project venvs (e.g. .venv, venv, .venv_vibevoice)
-        for venv_name in [".venv", "venv", ".venv_vibevoice"]:
+        # Check direct project venvs (e.g. .venv, venv)
+        for venv_name in [".venv", "venv"]:
             py_cand = p_dir / venv_name / "Scripts" / "python.exe"
             if py_cand.exists():
                 return str(py_cand.resolve())

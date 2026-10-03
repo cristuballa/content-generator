@@ -479,43 +479,18 @@ class CalendarManager:
                 if plat not in item["published_platforms"]:
                     item["published_platforms"].append(plat)
 
-        wb_resp = res.get("webhook_result", {}).get("response", {})
-        if isinstance(wb_resp, dict):
-            if wb_resp.get("youtube_id") or wb_resp.get("youtube_url"):
-                yt_info = {
-                    "status": "published",
-                    "platform": "YouTube",
-                    "id": wb_resp.get("youtube_id"),
-                    "url": wb_resp.get("youtube_url") or f"https://youtu.be/{wb_resp.get('youtube_id')}",
-                    "scheduled": True
-                }
-                asset_manager.mark_published(item["video_rel_path"], "youtube", yt_info)
-                if "youtube" not in item["staged_platforms"]:
-                    item["staged_platforms"].append("youtube")
-                if "youtube" not in item["published_platforms"]:
-                    item["published_platforms"].append("youtube")
-
-            if wb_resp.get("facebook_id") or wb_resp.get("facebook_url"):
-                fb_info = {
-                    "status": "published",
-                    "platform": "Facebook",
-                    "id": wb_resp.get("facebook_id"),
-                    "url": wb_resp.get("facebook_url") or f"https://www.facebook.com/watch/?v={wb_resp.get('facebook_id')}",
-                    "scheduled": True
-                }
-                asset_manager.mark_published(item["video_rel_path"], "facebook", fb_info)
-                if "facebook" not in item["staged_platforms"]:
-                    item["staged_platforms"].append("facebook")
-                if "facebook" not in item["published_platforms"]:
-                    item["published_platforms"].append("facebook")
-
         if item["staged_platforms"]:
             item["staged"] = True
             item["pre_uploaded"] = True
             item["pre_uploaded_at"] = now_iso
             item["error"] = None
         else:
-            item["error"] = res.get("message") or res.get("error", "Failed to stage video to cloud platforms")
+            skipped_msgs = [
+                f"{plat}: {pinfo.get('message', 'Skipped')}"
+                for plat, pinfo in dispatched_plats.items()
+                if isinstance(pinfo, dict) and pinfo.get("status") == "skipped"
+            ]
+            item["error"] = res.get("error") or "; ".join(skipped_msgs) or res.get("message") or "Failed to stage video to cloud platforms"
 
         self._save_all(items)
         return {"success": bool(item.get("staged")), "entry": item, "dispatch": res}
@@ -693,58 +668,38 @@ class CalendarManager:
                         if plat not in it["published_platforms"]:
                             it["published_platforms"].append(plat)
 
-                # Also inspect webhook payload response directly for confirmed platform IDs
-                wb_resp = res.get("webhook_result", {}).get("response", {})
-                if isinstance(wb_resp, dict):
-                    if wb_resp.get("youtube_id") or wb_resp.get("youtube_url"):
-                        yt_info = {
-                            "status": "published",
-                            "platform": "YouTube",
-                            "id": wb_resp.get("youtube_id"),
-                            "url": wb_resp.get("youtube_url") or f"https://youtu.be/{wb_resp.get('youtube_id')}"
-                        }
-                        asset_manager.mark_published(video_rel, "youtube", yt_info)
-                        if "youtube" not in it["published_platforms"]:
-                            it["published_platforms"].append("youtube")
+                # Platforms the dispatcher skipped on purpose (format limits, disabled in settings, unsupported)
+                skipped = {
+                    plat: pinfo.get("message", "Skipped")
+                    for plat, pinfo in dispatched_plats.items()
+                    if isinstance(pinfo, dict) and pinfo.get("status") == "skipped"
+                }
+                it["skipped_platforms"] = skipped
 
-                    if wb_resp.get("facebook_id") or wb_resp.get("facebook_url"):
-                        fb_info = {
-                            "status": "published",
-                            "platform": "Facebook",
-                            "id": wb_resp.get("facebook_id"),
-                            "url": wb_resp.get("facebook_url") or f"https://www.facebook.com/watch/?v={wb_resp.get('facebook_id')}"
-                        }
-                        asset_manager.mark_published(video_rel, "facebook", fb_info)
-                        if "facebook" not in it["published_platforms"]:
-                            it["published_platforms"].append("facebook")
-
-                    if wb_resp.get("instagram_id") or wb_resp.get("instagram_url"):
-                        ig_info = {
-                            "status": "published",
-                            "platform": "Instagram",
-                            "id": wb_resp.get("instagram_id"),
-                            "url": wb_resp.get("instagram_url") or ""
-                        }
-                        asset_manager.mark_published(video_rel, "instagram", ig_info)
-                        if "instagram" not in it["published_platforms"]:
-                            it["published_platforms"].append("instagram")
-
-                # Verify whether all platforms are now published
+                # Verify whether all non-skipped platforms are now published
                 current_pub = set(it.get("published_platforms", []))
-                unposted = [p for p in platforms if p not in current_pub]
+                posted_now = [p for p in platforms if p in current_pub]
+                unposted = [p for p in platforms if p not in current_pub and p not in skipped]
 
-                if not unposted:
+                it["retry_count"] = 0
+                it["next_retry_at"] = None
+                if res.get("dry_run"):
+                    # Nothing is uploaded in dry-run mode; leave publish history untouched
+                    it["status"] = "failed"
+                    it["error"] = "Dry run is on: nothing was published. Turn off dry run, then repost."
+                elif not unposted and posted_now:
                     it["status"] = "posted"
                     it["error"] = None
-                    it["retry_count"] = 0
-                    it["next_retry_at"] = None
-                    asset_manager.update_social_posted_batch(video_rel, platforms)
+                    asset_manager.update_social_posted_batch(video_rel, posted_now)
+                elif not unposted:
+                    it["status"] = "failed"
+                    it["error"] = "Nothing was published: " + "; ".join(f"{p}: {m}" for p, m in skipped.items())
                 else:
                     # Cleanly mark failed for manual user reposting (no background auto-retry loop)
-                    err_msg = res.get("message") or res.get("error", f"Platforms failed: {', '.join(unposted)}")
+                    err_msg = res.get("error") or "; ".join(
+                        f"{p}: {(dispatched_plats.get(p) or {}).get('error') or 'not published'}" for p in unposted
+                    )
                     it["status"] = "failed"
-                    it["retry_count"] = 0
-                    it["next_retry_at"] = None
                     it["error"] = f"Failed to publish to [{', '.join(unposted)}]: {err_msg}"
 
                 executed.append(it)
