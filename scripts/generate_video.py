@@ -7,7 +7,7 @@ Standard: 16:9 Landscape (1920x1080 Full HD), YouTube Master Quality
 - Resolution: 1920x1080 (16:9 Full HD), 24 FPS
 - Motion: Smooth Ken Burns frame-by-frame easing zoom/pan (apply_motion_16x9)
 - Captions: Safe-zone (Y=85%) rounded black badge with white text & active gold word highlight
-- Audio: Broadcast master mixing with Demucs musical stems (other, bass, drums)
+- Audio: Broadcast-mastered narration only (no background music)
 - Visuals: FLUX.1 Schnell GGUF photorealistic 16:9 scene images (1344x768) + ComfyUI pipeline
 - Metadata: Dynamically ingests metadata.json, script_30min.txt, and visual scene cues
 - Streaming: Injects -movflags +faststart for instant web streaming
@@ -92,7 +92,8 @@ LOCAL_LOGO = str(SHARED_ASSETS / "transparent_logo.png")
 if not os.path.exists(LOCAL_LOGO):
     LOCAL_LOGO = str(BHSR_ROOT / "shared_assets" / "transparent_logo.png")
 
-STEMS_DIR = BHSR_ROOT / "demucs_stems" / "htdemucs" / "original_audio"
+# Narration EQ / de-ess / compression applied before loudness normalisation (voice only, no music bed)
+VOICE_MASTER_CHAIN = "highpass=f=75,lowpass=f=7200,equalizer=f=220:t=q:w=1.2:g=2.5,equalizer=f=3400:t=q:w=1.8:g=-4.5,equalizer=f=5500:t=q:w=1.5:g=-5.0,deesser=i=0.6:m=0.5:f=0.5,compand=attacks=0.01:decays=0.08:points=-80/-80|-22/-10|-10/-3|0/0,volume=3.2"
 
 # Auto-switch to ComfyUI environment if running from python lacking whisper / imageio
 if __name__ == "__main__" and "--list" not in sys.argv:
@@ -192,6 +193,36 @@ PRONUNCIATION_MAP = {
     "Tohu wa-Bohu": "TOH-hoo wah-BOH-hoo",
     "Tohu wa Bohu": "TOH-hoo wah-BOH-hoo",
     "Heylel": "hay-LEL",
+    "phosteres": "foss-TEH-rays",
+    "tanninim": "tah-nee-NEEM",
+    "shavat": "shah-VAHT",
+    "vayehi": "vah-yeh-HEE",
+    "yom echad": "yohm eh-KHAHD",
+    "maor": "mah-OHR",
+    "moadim": "moh-ah-DEEM",
+    "Shamash": "shah-MAHSH",
+    "katelaben": "kah-TEH-lah-ben",
+    "Nisan": "nee-SAHN",
+    "1 John": "First John",
+    "2 John": "Second John",
+    "3 John": "Third John",
+    "Qayin": "KAH-yeen",
+    "qanah": "kah-NAH",
+    "Hevel": "HEH-vel",
+    "havalim": "hah-vah-LEEM",
+    "minchah": "min-KHAH",
+    "robets": "roh-VETS",
+    "rabisu": "rah-BEE-soo",
+    "teshuqah": "tesh-oo-KAH",
+    "shamar": "shah-MAR",
+    "demei": "deh-MAY",
+    "damim": "dah-MEEM",
+    "na va nad": "nah vah NAHD",
+    "avon": "ah-VOHN",
+    "Mishnah": "MEESH-nah",
+    "Sanhedrin": "san-HEH-drin",
+    "Jehoiada": "jeh-HOY-ah-dah",
+    "Septuagint": "SEP-too-ah-jint",
     "ben Shachar": "ben shah-KHAHR",
     "Tehom": "teh-HOHM",
     "Anakim": "AN-uh-keem",
@@ -211,6 +242,53 @@ PRONUNCIATION_MAP = {
 }
 
 ACRONYMS = {"USA", "UK", "DNA", "BC", "AD", "B.C.", "A.D.", "AI"}
+
+# =============================================================================
+# BOOKS / MERCH LINE & STALE-VOICE DETECTION
+# =============================================================================
+# Every video points to the books. Older wordings are upgraded and a missing line is added at render time.
+BOOKS_LINE = ("If this blew your mind, it's just one part of what we uncover in our books. "
+              "They're linked in the bio and comments, along with our sacred art merch.")
+OLD_BOOKS_LINES = (
+    "If this study opened your eyes, go deeper. Our books and sacred art merch are linked in the bio and comments.",
+    "Our books and sacred art merch are linked in the bio and comments.",
+)
+CLOSING_LINE_RE = re.compile(r"(?:Until next time|Thank you for watching|Thanks for watching|Follow for more secrets)",
+                             re.IGNORECASE)
+
+
+def ensure_books_cta(narration: str) -> str:
+    """Upgrades an older books/merch line, or adds the current one before the closing line (or at the end)."""
+    for old in OLD_BOOKS_LINES:
+        narration = narration.replace(old, BOOKS_LINE)
+    if "linked in the bio and comments" in narration:
+        return narration
+    closing = None
+    for closing in CLOSING_LINE_RE.finditer(narration):
+        pass
+    if closing and closing.start() >= len(narration) * 0.75:
+        return narration[:closing.start()] + BOOKS_LINE + " " + narration[closing.start():]
+    return narration.rstrip() + " " + BOOKS_LINE
+
+
+def retire_stale_audio(temp_dir, paths):
+    """Moves an outdated recording (and everything derived from it) to temp/_previous, keeping one generation."""
+    prev = Path(temp_dir) / "_previous"
+    if prev.exists():
+        shutil.rmtree(prev, ignore_errors=True)
+    prev.mkdir(parents=True, exist_ok=True)
+    for p in map(Path, paths):
+        if p.exists():
+            shutil.move(str(p), str(prev / p.name))
+
+
+def cached_script_differs(script_file, voice_script: str) -> bool:
+    """True when a cached recording was made from a different script (or pronunciation map) than the current one."""
+    script_file = Path(script_file)
+    if not script_file.exists():
+        return False
+    return script_file.read_text(encoding="utf-8", errors="replace").strip() != voice_script.strip()
+
 
 def prepare_voice_script(text, pron_map=None):
     if pron_map is None:
@@ -316,7 +394,7 @@ def is_comfyui_running(url=COMFY_URL) -> bool:
     except Exception:
         return False
 
-def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=45) -> bool:
+def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=240) -> bool:
     if is_comfyui_running(url):
         return True
     print("\n[ComfyUI] Server offline. Auto-launching in background...", flush=True)
@@ -333,7 +411,7 @@ def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=45) -> bool:
         if is_comfyui_running(url):
             print(f"[ComfyUI] Server online in {time.time()-start_time:.1f}s\n", flush=True)
             return True
-    print(f"[ComfyUI Notice] Timed out waiting for server. Will use fallback visuals.", flush=True)
+    print(f"[ComfyUI Notice] Timed out after {max_wait_sec}s waiting for the server.", flush=True)
     return False
 
 def build_flux_workflow_16x9(prompt_text, width=FLUX_WIDTH, height=FLUX_HEIGHT, steps=4, seed=None):
@@ -401,27 +479,8 @@ def generate_flux_image_16x9(prompt_text: str, scene_id: str, target_file: Path)
         except Exception as e:
             print(f"  [FLUX Notice] ComfyUI submission skipped for {scene_id}: {e}", flush=True)
 
-    # Fallback to high-res stylized 16:9 canvas
-    print(f"  [Fallback Visual] Creating 16:9 atmospheric background for {scene_id}", flush=True)
-    card_img = Image.new("RGB", (FLUX_WIDTH, FLUX_HEIGHT), (8, 12, 22))
-    draw = ImageDraw.Draw(card_img)
-    for y in range(FLUX_HEIGHT):
-        dist = abs(y / float(FLUX_HEIGHT) - 0.5) * 2.0
-        r_col = int(22 * (1.0 - dist * 0.4))
-        g_col = int(28 * (1.0 - dist * 0.3))
-        b_col = int(45 * (1.0 - dist * 0.2))
-        draw.line([(0, y), (FLUX_WIDTH, y)], fill=(r_col, g_col, b_col))
-
-    # Add subtle golden dust accents
-    np.random.seed(abs(hash(scene_id)) % (2**31))
-    for _ in range(80):
-        px = np.random.randint(0, FLUX_WIDTH)
-        py = np.random.randint(0, FLUX_HEIGHT)
-        pr = np.random.randint(1, 4)
-        draw.ellipse([px, py, px + pr, py + pr], fill=(220, 190, 110, 120))
-
-    card_img.save(str(target_file), "PNG")
-    return target_file
+    # No placeholder images: a cached placeholder would be reused by every later render
+    raise RuntimeError(f"ComfyUI could not generate scene {scene_id} (is it running at http://127.0.0.1:8188?). No placeholder was saved: start ComfyUI and run the render again; finished scenes are kept.")
 
 # =============================================================================
 # SCRIPT PARSER & 16:9 SCENE CHOREOGRAPHY
@@ -626,12 +685,17 @@ def generate_speech_and_timestamps(narration_text, temp_dir, ep_prefix, speed=1.
     soundtrack_path = str(temp_p / f"{ep_prefix}_master_audio.wav")
 
     # 1. Voice Synthesis (VibeVoice with Edge-TTS Fallback)
+    voice_script = prepare_voice_script(narration_text, PRONUNCIATION_MAP)
+    voice_script_file = str(temp_p / "voice_script.txt")
+    if not force_rebuild and (os.path.exists(raw_voice_path) or os.path.exists(soundtrack_path)) \
+            and cached_script_differs(voice_script_file, voice_script):
+        print("[Voiceover] The script changed since the cached recording: re-recording the narration "
+              "(old audio kept in temp/_previous).", flush=True)
+        retire_stale_audio(temp_p, [raw_voice_path, raw_voice_path + "_chunks", transcript_path, soundtrack_path])
     voice_needed = force_rebuild or not (os.path.exists(raw_voice_path) or os.path.exists(soundtrack_path))
     if voice_needed:
         total_words = len(narration_text.split())
         print(f"\n=== Synthesizing Full Narration with VibeVoice ({total_words} words, {speed}x pace) ===", flush=True)
-        voice_script = prepare_voice_script(narration_text, PRONUNCIATION_MAP)
-        voice_script_file = str(temp_p / "voice_script.txt")
         with open(voice_script_file, "w", encoding="utf-8") as f:
             f.write(voice_script)
 
@@ -693,33 +757,20 @@ def generate_speech_and_timestamps(narration_text, temp_dir, ep_prefix, speed=1.
     total_duration = transcript_result["segments"][-1]["end"]
     print(f"Audio Duration: {total_duration:.2f}s ({total_duration/60:.2f} mins) across {len(transcript_result['segments'])} segments.", flush=True)
 
-    # 3. Master Soundtrack Mix with Demucs Stems
+    # 3. Master voice track: narration only, no background music (music beds caused copyright claims)
     if force_rebuild or not os.path.exists(soundtrack_path):
-        other_stem = str(STEMS_DIR / "other.wav")
-        bass_stem = str(STEMS_DIR / "bass.wav")
-        drums_stem = str(STEMS_DIR / "drums.wav")
-
-        if os.path.exists(other_stem):
-            print("\n=== Mixing Voiceover with Looped Ambient Soundtrack Stems ===", flush=True)
-            mix_cmd = [
-                FFMPEG_EXE, "-y",
-                "-hide_banner", "-loglevel", "error",
-                "-i", raw_voice_path,
-                "-stream_loop", "-1", "-i", other_stem,
-                "-stream_loop", "-1", "-i", bass_stem,
-                "-stream_loop", "-1", "-i", drums_stem,
-                "-filter_complex", 
-                "[0:a]highpass=f=75,lowpass=f=7200,equalizer=f=220:t=q:w=1.2:g=2.5,equalizer=f=3400:t=q:w=1.8:g=-4.5,equalizer=f=5500:t=q:w=1.5:g=-5.0,deesser=i=0.6:m=0.5:f=0.5,compand=attacks=0.01:decays=0.08:points=-80/-80|-22/-10|-10/-3|0/0,volume=3.2[voice];"
-                "[1:a][2:a][3:a]amix=inputs=3:duration=longest:normalize=0,volume=0.22[bg];"
-                "[voice][bg]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-11.5:TP=-0.5:LRA=5[out]",
-                "-map", "[out]", "-ar", "44100",
-                soundtrack_path
-            ]
-            cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
-            subprocess.run(mix_cmd, check=True, creationflags=cf)
-            print(f"[Audio] Master soundtrack successfully mixed: {soundtrack_path}", flush=True)
-        else:
-            shutil.copy2(raw_voice_path, soundtrack_path)
+        print("\n=== Mastering Voiceover (voice only, no music) ===", flush=True)
+        master_cmd = [
+            FFMPEG_EXE, "-y",
+            "-hide_banner", "-loglevel", "error",
+            "-i", raw_voice_path,
+            "-filter_complex", f"[0:a]{VOICE_MASTER_CHAIN},loudnorm=I=-11.5:TP=-0.5:LRA=5[out]",
+            "-map", "[out]", "-ar", "44100",
+            soundtrack_path
+        ]
+        cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+        subprocess.run(master_cmd, check=True, creationflags=cf)
+        print(f"[Audio] Voice master ready: {soundtrack_path}", flush=True)
     else:
         print(f"[Audio] Master soundtrack ready: {soundtrack_path}", flush=True)
 
@@ -786,10 +837,10 @@ def load_chunked_captions_16x9(script_text, transcript_path, max_words=6):
 
     aligned_words = align_transcript_with_script(script_text, all_raw_words)
 
-    max_chunk_width = 1100
+    max_chunk_width = 1300
     word_spacing = 18
     try:
-        font_word = ImageFont.truetype("arialbd.ttf", 50)
+        font_word = ImageFont.truetype("arialbd.ttf", 64)
     except Exception:
         font_word = ImageFont.load_default()
 
@@ -902,7 +953,7 @@ def _render_segment_worker(worker_id, s_frame, e_frame, total_frames, timeline, 
             pass
 
     try:
-        font_word = ImageFont.truetype("arialbd.ttf", 52)
+        font_word = ImageFont.truetype("arialbd.ttf", 66)
     except Exception:
         font_word = ImageFont.load_default()
 
@@ -986,9 +1037,10 @@ def _render_segment_worker(worker_id, s_frame, e_frame, total_frames, timeline, 
                 pill_pad_x = 32
                 pill_pad_y = 16
                 pill_left = max(0, int(cached_start_x - pill_pad_x))
-                pill_top = max(0, int(caption_y - 34 - pill_pad_y))
+                half_h = int(font_word.size * 0.66)
+                pill_top = max(0, int(caption_y - half_h - pill_pad_y))
                 pill_right = min(W, int(cached_start_x + total_cw + pill_pad_x))
-                pill_bottom = min(H, int(caption_y + 30 + pill_pad_y))
+                pill_bottom = min(H, int(caption_y + half_h - 4 + pill_pad_y))
                 pw = pill_right - pill_left
                 ph = pill_bottom - pill_top
 
@@ -1059,6 +1111,7 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
     print("=" * 78, flush=True)
 
     narration_text, scenes = parse_episode_folder(ep_p)
+    narration_text = ensure_books_cta(narration_text)
     print(f"[Script] Narrative: {len(narration_text.split())} words, {len(scenes)} visual scenes.")
 
     images_paths = ensure_scene_images(scenes, ep_p, ep_num)

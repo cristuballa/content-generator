@@ -22,6 +22,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 from core.config import config_manager
+from core.thumbnails import YOUTUBE_MAX_BYTES, jpeg_copy
 from core.hashtags import PLATFORM_HASHTAG_LIMITS, append_hashtag, find_hashtags
 
 
@@ -225,6 +226,72 @@ class YouTubeUploader:
             logging.warning(f"[YouTubeUploader] Could not post comment on video {video_id}: {e}")
             return {"success": False, "error": str(e)}
 
+    def update_comment(self, comment_id: str, text: str, youtube: Any = None) -> Dict[str, Any]:
+        """Edits the channel's own comment (a comment thread's id is also its top-level comment's id)."""
+        try:
+            if youtube is None:
+                creds = self.get_credentials()
+                if not creds:
+                    return {"success": False, "error": "YouTube is not authenticated."}
+                youtube = build("youtube", "v3", credentials=creds)
+            youtube.comments().update(
+                part="snippet",
+                body={"id": comment_id, "snippet": {"textOriginal": text.strip()}}
+            ).execute()
+            logging.info(f"[YouTubeUploader] Comment {comment_id} updated.")
+            return {"success": True, "id": comment_id}
+        except Exception as e:
+            logging.warning(f"[YouTubeUploader] Could not update comment {comment_id}: {e}")
+            return {"success": False, "error": str(e)}
+
+    # Status fields a videos.update call may send back; the read-only ones (uploadStatus, madeForKids...) are left out
+    WRITABLE_STATUS = ("privacyStatus", "publishAt", "license", "embeddable", "publicStatsViewable",
+                       "selfDeclaredMadeForKids", "containsSyntheticMedia")
+
+    def set_publish_time(self, video_id: str, publish_at_iso: Optional[str] = None, youtube: Any = None) -> Dict[str, Any]:
+        """
+        Moves a scheduled (private) video to a new publish time (UTC ISO 8601), or makes it public now when
+        publish_at_iso is None. Only privacyStatus and publishAt change; the other status settings (made for kids,
+        synthetic-media disclosure, licence...) are sent back as they are.
+        """
+        try:
+            if youtube is None:
+                creds = self.get_credentials()
+                if not creds:
+                    return {"success": False, "error": "YouTube is not authenticated."}
+                youtube = build("youtube", "v3", credentials=creds)
+            items = youtube.videos().list(part="status", id=video_id).execute().get("items") or []
+            if not items:
+                return {"success": False, "error": f"Video {video_id} was not found on the channel."}
+            status = {k: v for k, v in (items[0].get("status") or {}).items() if k in self.WRITABLE_STATUS}
+            if publish_at_iso:
+                status["privacyStatus"] = "private"
+                status["publishAt"] = publish_at_iso
+            else:
+                status.pop("publishAt", None)
+                status["privacyStatus"] = "public"
+            youtube.videos().update(part="status", body={"id": video_id, "status": status}).execute()
+            logging.info(f"[YouTubeUploader] Video {video_id} {'rescheduled to ' + publish_at_iso if publish_at_iso else 'made public'}.")
+            return {"success": True}
+        except Exception as e:
+            logging.warning(f"[YouTubeUploader] Could not change the publish time of {video_id}: {e}")
+            return {"success": False, "error": str(e)}
+
+    def delete_video(self, video_id: str, youtube: Any = None) -> Dict[str, Any]:
+        """Deletes a video from the channel (used for a scheduled copy that is cancelled before it goes live)."""
+        try:
+            if youtube is None:
+                creds = self.get_credentials()
+                if not creds:
+                    return {"success": False, "error": "YouTube is not authenticated."}
+                youtube = build("youtube", "v3", credentials=creds)
+            youtube.videos().delete(id=video_id).execute()
+            logging.info(f"[YouTubeUploader] Deleted video {video_id}.")
+            return {"success": True}
+        except Exception as e:
+            logging.warning(f"[YouTubeUploader] Could not delete video {video_id}: {e}")
+            return {"success": False, "error": str(e)}
+
     def upload_video(
         self,
         video_path: Path,
@@ -236,7 +303,8 @@ class YouTubeUploader:
         is_short: bool = False,
         thumbnail_path: Optional[Path] = None,
         pinned_comment: Optional[str] = None,
-        progress_callback: Optional[Callable[[float], None]] = None
+        progress_callback: Optional[Callable[[float], None]] = None,
+        contains_synthetic_media: bool = True
     ) -> Dict[str, Any]:
         """
         Uploads a video to YouTube using the official resumable chunked protocol.
@@ -244,6 +312,7 @@ class YouTubeUploader:
         - Sets custom thumbnail (thumbnail_option_1.jpg) upon completion.
         - Supports native cloud scheduling via `publishAt`.
         - Automatically creates top-level creator comment for links/call-to-actions.
+        - Discloses altered/synthetic content (containsSyntheticMedia: True) in accordance with YouTube rules.
         """
         if not video_path.exists():
             return {"status": "failed", "platform": "YouTube", "error": f"File not found: {video_path}"}
@@ -259,9 +328,10 @@ class YouTubeUploader:
         file_size = video_path.stat().st_size
         logging.info(f"[YouTubeUploader] Starting YouTube resumable upload for '{title}' ({round(file_size/(1024*1024), 1)} MB)")
 
-        # Prepare description with tags & shorts hashtag if applicable.
-        # Copy the tags: the caller's list is shared with the other platforms in the same dispatch.
-        clean_desc = description.strip()
+        # Sanitize title and description in accordance with YouTube rules (URL-free description, valid title chars)
+        from core.social_dispatcher import SocialDispatcher
+        clean_title = SocialDispatcher.sanitize_title_for_youtube(title)
+        clean_desc = SocialDispatcher.sanitize_urls_for_youtube(description).strip()
         tags_list = list(tags) if tags else ["BibleSecrets", "Christianity", "BibleStudy"]
         if is_short:
             if not any(t.lstrip("#").lower() == "shorts" for t in tags_list):
@@ -274,13 +344,14 @@ class YouTubeUploader:
         # YouTube category 27 = Education, 22 = People & Blogs
         body = {
             "snippet": {
-                "title": title[:100],
+                "title": clean_title[:100],
                 "description": clean_desc[:5000],
                 "tags": [t.replace("#", "") for t in tags_list][:50],
                 "categoryId": "27"
             },
             "status": {
-                "selfDeclaredMadeForKids": False
+                "selfDeclaredMadeForKids": False,
+                "containsSyntheticMedia": bool(contains_synthetic_media)
             }
         }
 
@@ -351,20 +422,28 @@ class YouTubeUploader:
             watch_url = f"https://youtu.be/{video_id}"
             logging.info(f"[YouTubeUploader] Video uploaded successfully: {watch_url}")
 
-            # Attach custom thumbnail if present and not vertical Short
+            # Attach the custom thumbnail (long-form and Shorts) as a JPEG within YouTube's 2 MB limit; one retry
             thumb_attached = False
-            if thumbnail_path and thumbnail_path.exists():
+            thumb_file, thumb_is_temp = jpeg_copy(thumbnail_path, YOUTUBE_MAX_BYTES)
+            if thumb_file:
                 try:
-                    logging.info(f"[YouTubeUploader] Setting custom thumbnail from {thumbnail_path.name}...")
-                    thumb_media = MediaFileUpload(str(thumbnail_path), mimetype="image/jpeg")
-                    youtube.thumbnails().set(
-                        videoId=video_id,
-                        media_body=thumb_media
-                    ).execute()
-                    thumb_attached = True
-                    logging.info("[YouTubeUploader] Custom thumbnail set successfully.")
-                except Exception as t_err:
-                    logging.warning(f"[YouTubeUploader] Could not set custom thumbnail: {t_err}")
+                    for attempt in (1, 2):
+                        try:
+                            logging.info(f"[YouTubeUploader] Setting custom thumbnail from {Path(thumbnail_path).name}...")
+                            youtube.thumbnails().set(
+                                videoId=video_id,
+                                media_body=MediaFileUpload(str(thumb_file), mimetype="image/jpeg")
+                            ).execute()
+                            thumb_attached = True
+                            logging.info("[YouTubeUploader] Custom thumbnail set successfully.")
+                            break
+                        except Exception as t_err:
+                            logging.warning(f"[YouTubeUploader] Could not set custom thumbnail (attempt {attempt}): {t_err}")
+                            if attempt == 1:
+                                time.sleep(3)
+                finally:
+                    if thumb_is_temp:
+                        thumb_file.unlink(missing_ok=True)
 
             result = {
                 "status": "published",

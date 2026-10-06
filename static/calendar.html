@@ -47,6 +47,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* Native dropdown lists: dark popup with readable text (transparent selects otherwise open white-on-white) */
+    select {
+      color-scheme: dark;
+    }
+    select option {
+      background-color: #121620;
+      color: #e2e8f0;
+    }
+    select option:checked {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: #090c13;
@@ -162,6 +174,11 @@
 
       <!-- Right: Action Buttons -->
       <div class="flex items-center gap-2">
+        <button id="btnBusinessSuite" class="px-3 py-1.5 bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm" title="Instagram and Facebook Stories to schedule by hand in Meta Business Suite, and week-ahead upload settings">
+          <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Business Suite</span>
+        </button>
+
         <button id="btnAutoSchedule" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm" title="Auto-schedule unposted approved videos to consecutive future slots">
           <i data-lucide="zap" class="w-3.5 h-3.5 fill-amber-300"></i>
           <span class="hidden sm:inline">Auto-Schedule Approved</span>
@@ -442,6 +459,9 @@
         </div>
       </div>
 
+      <!-- Week-ahead / Business Suite status per platform -->
+      <div id="detailStageInfo" class="hidden rounded-xl border border-[#242f44] bg-[#151b28] p-3 text-[11px] space-y-1.5"></div>
+
       <!-- Edit Date & Time Form -->
       <div class="space-y-3 text-xs">
         <div class="grid grid-cols-2 gap-3">
@@ -497,10 +517,66 @@
     </div>
   </div>
 
+  <!-- ================= META BUSINESS SUITE CHECKLIST ================= -->
+  <div id="modalBusinessSuite" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl bg-[#121620] border border-[#2b3548] rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-[#212836]">
+        <div class="flex items-center gap-2">
+          <i data-lucide="list-checks" class="w-4 h-4 text-pink-300"></i>
+          <h3 class="font-bold text-sm text-slate-100">Business Suite checklist</h3>
+          <span class="text-[11px] text-slate-500">next 7 days</span>
+        </div>
+        <button id="btnCloseBusinessSuite" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-[11px] text-slate-400 leading-relaxed">
+        Instagram can't hold a scheduled post through its API, and neither can Facebook Stories, so these are scheduled by hand
+        in Meta Business Suite. KCT Studio doesn't post them itself. Copy each caption, drag the video in, and tick it off.
+        Once an Instagram reel is live, KCT Studio finds it, saves its link and adds the usual links comment under it.
+      </p>
+
+      <!-- Week-ahead settings for the project -->
+      <div class="rounded-xl border border-[#242f44] bg-[#151b28] p-3 text-xs space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-semibold text-slate-200">Scheduling settings · <span id="bsSettingsProject" class="text-slate-400 font-mono">project</span></span>
+          <button id="btnSaveBsSettings" class="px-3 py-1 bg-[#FFE614] hover:bg-[#e6cf10] text-slate-950 rounded-lg text-[11px] font-black transition">Save</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-slate-300">
+          <label class="flex items-center gap-2">
+            <span>Upload to YouTube &amp; Facebook</span>
+            <input type="number" id="bsStageDays" min="0" max="30" step="1" class="w-14 bg-[#181e2b] border border-[#2b3548] text-slate-100 rounded-lg px-2 py-1 text-xs font-mono focus:outline-none focus:border-[#FFE614]">
+            <span>days ahead (0 = off)</span>
+          </label>
+          <label class="flex items-center gap-2" title="Reel times by place in the day: mon_1 posts at the 1st time, mon_2 at the 2nd...">
+            <span>Reel times</span>
+            <input type="text" id="bsReelTimes" placeholder="07:30, 17:30, 20:30" class="w-36 bg-[#181e2b] border border-[#2b3548] text-slate-100 rounded-lg px-2 py-1 text-xs font-mono focus:outline-none focus:border-[#FFE614]">
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="bsIgToggle" class="accent-pink-500"> Instagram via Business Suite</label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="bsFbStoriesToggle" class="accent-pink-500"> Facebook Stories via Business Suite</label>
+        </div>
+        <p id="bsDryRunNote" class="hidden text-[11px] text-amber-300">Dry run is on for this project, so nothing is uploaded ahead.</p>
+      </div>
+
+      <div class="flex items-center justify-between gap-2">
+        <a id="bsPlannerLink" href="https://business.facebook.com/latest/content_calendar" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-[#1877F2]/15 hover:bg-[#1877F2]/25 text-blue-300 border border-[#1877F2]/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span>Open Business Suite Planner</span>
+        </a>
+        <button id="btnRefreshBusinessSuite" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Refresh">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="bsTaskList" class="space-y-4"></div>
+    </div>
+  </div>
+
   <!-- Toast Notification Stack -->
   <div id="calToastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
   <!-- Calendar Script -->
-  <script src="/static/js/calendar.js?v=2.8"></script>
+  <script src="/static/js/calendar.js?v=3.0"></script>
 </body>
 </html>

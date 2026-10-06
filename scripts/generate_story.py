@@ -23,16 +23,16 @@ Benchmark Architecture (mirrors generate_reel.py):
      - Intelligently pairs thematic artwork from matching reels and long_form
   3. Visual Standards:
      - Full-bleed unblurred FLUX artwork with cinematic grade (+22% contrast, +28% color)
-     - Top 4px segmented Story progress bar (completed gold, active white, pending translucent)
-     - Top-left red pill badge: [ THE SECRET BIBLE CODE ]
-     - Top-right circular gold channel seal watermark
-     - Two-tone floating typography (White + Electric Yellow) with drop shadow
+     - Nothing in the top 14% / bottom 20%: Instagram & Facebook cover them with their own
+       progress bar, profile name and reply bar
+     - One dark title panel in the middle band: channel seal + red badge, two-tone headline
+       (White + Electric Yellow), subtitle and scripture pill
      - Automatic Unicode font switching for Hebrew glyphs (no broken boxes)
-     - Native Instagram/FB style interactive stickers (Poll: YES/NO, Link: TAP TO WATCH)
-     - Translucent dark scripture pill badges & bottom brand footer
+     - Honest CTAs only ("Reply YES or NO", "Full documentary on our page"): the API can't add
+       real poll/link stickers, and each Story is one video, so "tap for next part" would skip it
   4. Heartbeat & FFmpeg Audio Mastering:
      - ProgressHeartbeat for background liveness
-     - Demucs stem audio mixing with smooth 1.5s fade-out
+     - Silent audio track by default (no music); optional licensed --audio track with 1.5s fade-out
 =============================================================================
 """
 
@@ -75,6 +75,12 @@ BLACK          = (0, 0, 0)
 RED_FILL       = (220, 20, 20, 245)
 RED_OUTLINE    = (255, 90, 90, 255)
 DARK_PILL_FILL = (0, 0, 0, 180)
+PANEL_FILL     = (8, 10, 16, 178)
+
+# ---- Story safe zones (1080x1920) --------------------------------------------
+SAFE_TOP       = int(HEIGHT * 0.14)   # Instagram/Facebook progress bar, profile name, close button
+SAFE_BOTTOM    = int(HEIGHT * 0.80)   # reply bar ("Send message") and share buttons
+PANEL_CENTER_Y = int(HEIGHT * 0.42)   # title panel sits in the middle band, above the artwork's subject
 BRAND_TEXT     = "BIBLE HIDDEN SECRETS REVEALED"
 
 # Logo locations
@@ -198,7 +204,11 @@ def wrap_text(text: str, font, max_width: int, draw: ImageDraw.Draw) -> list:
 
 def split_story_title(title: str) -> tuple[str, str]:
     """Splits a title cleanly into Line 1 (White) and Line 2 (Yellow)."""
-    clean = re.sub(r'[:?]', '', title).strip()
+    # "Theology Check: Who created the universe?" splits at the colon (verse colons like 1:1 don't count)
+    lead = re.match(r'^(.*?\D):(?!\d)\s*(.+)$', title.strip())
+    if lead and len(lead.group(1).split()) <= 5:
+        return lead.group(1).upper() + ":", lead.group(2).upper()
+    clean = re.sub(r'(?<!\d):(?!\d)|\?', '', title).strip()
     words = clean.split()
     if len(words) <= 2:
         return words[0].upper(), (words[1].upper() if len(words) > 1 else "")
@@ -222,36 +232,50 @@ def split_story_title(title: str) -> tuple[str, str]:
         l2 += "?"
     return l1, l2
 
-def create_story_scrim(W, H, is_hook=False):
-    """Fast smooth 2D gradient scrim (15ms execution time)."""
-    mask = Image.new("L", (32, 64), 0)
-    mdraw = ImageDraw.Draw(mask)
-    
-    # 1. Top gradient for progress bar, badge, and logo legibility
-    top_limit = 22 if is_hook else 18
-    for y in range(top_limit):
-        mdraw.line([(0, y), (32, y)], fill=int(185 * ((top_limit - y) / top_limit)))
-        
-    # 2. Text backdrop scrim with left-side bias
-    for y in range(8, 34):
-        y_factor = max(0.0, 1.0 - abs((y - 19) / 13.0) ** 1.8)
-        for x in range(32):
-            x_factor = max(0.0, ((32 - x) / 32.0) ** 0.8)
-            alpha = int(185 * y_factor * x_factor)
-            cur = mask.getpixel((x, y))
-            if alpha > cur:
-                mask.putpixel((x, y), alpha)
-                
-    # 3. Bottom vignette for stickers / footer
-    for y in range(48, 64):
-        mdraw.line([(0, y), (32, y)], fill=int(195 * ((y - 48) / 16.0)))
-        
-    mask_full = mask.resize((W, H), Image.Resampling.BICUBIC)
+def create_story_scrim(W, H):
+    """Light top/bottom shading so the apps' own white UI (progress bar, profile name, reply bar) stays legible."""
+    column = Image.new("L", (1, 64), 0)
+    for y in range(64):
+        top = max(0.0, 1.0 - y / 10.0) * 150          # first ~16% of the frame
+        bottom = max(0.0, (y - 50) / 14.0) * 170       # last ~22% of the frame
+        column.putpixel((0, y), int(max(top, bottom)))
     overlay = Image.new("RGBA", (W, H), (6, 8, 14, 0))
-    overlay.putalpha(mask_full)
+    overlay.putalpha(column.resize((W, H), Image.Resampling.BICUBIC))
     return overlay
 
+def clean_story_cta(text: str) -> str:
+    """'Tap below to watch the full premiere!' -> 'Watch the full premiere!' (nothing on a Story is tappable)."""
+    clean = re.sub(r'^\s*(?:tap|swipe|click)\s+(?:below|up|here|the link)?\s*to\s+', '', text or "", flags=re.IGNORECASE)
+    return clean[:1].upper() + clean[1:] if clean else clean
+
+def clean_story_title(title: str) -> str:
+    """Drops internal production labels: 'What Happened Before Genesis? Teaser & Countdown' -> 'What Happened Before Genesis?'"""
+    clean = re.sub(r'\s*\((?:day|part)\s*\d+\)\s*', ' ', title or "", flags=re.IGNORECASE)
+    clean = re.sub(r'\s*[-–—:]?\s*(?:teaser\s*&\s*(?:mystery\s*)?countdown|study notes|community poll|scripture challenge)\b.*$', '', clean, flags=re.IGNORECASE)
+    if "?" in clean:
+        clean = clean[:clean.index("?") + 1]
+    return clean.strip()
+
+def story_subtitle(metadata: dict, title: str) -> str:
+    """Subtitle under the hook: the week's curriculum theme (after its question), else the cleaned story title."""
+    theme = metadata.get("curriculum") or metadata.get("curriculum_theme") or metadata.get("theme") or ""
+    if theme and "?" in theme:
+        theme = theme.split("?", 1)[1].strip()
+    return (theme or clean_story_title(title)).strip()
+
+HEBREW_RUN_RE = re.compile(r"[֐-׿]+(?:\s+[֐-׿]+)*")
+
+def visual_order(text: str) -> str:
+    """PIL without libraqm draws characters left-to-right, so Hebrew came out reversed: flip each Hebrew run.
+    Vowel points are dropped because without libraqm they land beside their letters instead of on them."""
+    def flip(m):
+        letters = re.sub(r"[֑-ֽֿ-ׇ]", "", m.group(0))
+        return letters[::-1]
+    return HEBREW_RUN_RE.sub(flip, text)
+
 def draw_shadowed_text(draw, x, y, text, font, fill=WHITE, shadow_fill=BLACK, r=4):
+    if has_hebrew(text):
+        text = visual_order(text)
     for ox in range(-r, r + 1):
         for oy in range(-r, r + 1):
             if abs(ox) + abs(oy) >= r - 1:
@@ -300,6 +324,9 @@ def scaffold_story_if_missing(story_dir: Path, week_num: int, story_num: int):
     script_p = story_dir / "story_script.md"
     meta_p = story_dir / "metadata.json"
     
+    if script_p.exists() and meta_p.exists():
+        return
+
     # Try reading curriculum from week folder
     week_dir = story_dir.parent.parent
     curr_file = week_dir / "curriculum_metadata.json"
@@ -319,10 +346,10 @@ def scaffold_story_if_missing(story_dir: Path, week_num: int, story_num: int):
             f"Scripture Challenge & Community Poll (Day 4)",
             f"Cinematic Vision & Flagship Premiere (Day 5)"
         ]
-        title = default_titles[story_num - 1]
+        title = default_titles[story_num - 1] if story_num <= len(default_titles) else f"Week {week_num:02d} Story {story_num}"
 
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    day_name = days[story_num - 1]
+    day_name = days[(story_num - 1) % 5]
 
     if not meta_p.exists():
         meta = {
@@ -366,7 +393,7 @@ def scaffold_story_if_missing(story_dir: Path, week_num: int, story_num: int):
             "",
             "### Slide 5",
             "- **Visual:** Master episode thumbnail banner",
-            "- **On-Screen Text:** Tap below to watch the full documentary premiere!",
+            "- **On-Screen Text:** Watch the full documentary premiere on our page!",
             "- **Interactive Sticker:** link",
             ""
         ]
@@ -411,224 +438,254 @@ def render_slide_image(slide: dict, total_slides: int, metadata: dict, week_tag:
         base = Image.new("RGBA", (WIDTH, HEIGHT), (12, 16, 26, 255))
 
     is_hook = (slide_num == 1)
-    scrim = create_story_scrim(WIDTH, HEIGHT, is_hook=is_hook)
-    canvas = Image.alpha_composite(base, scrim)
+    canvas = Image.alpha_composite(base, create_story_scrim(WIDTH, HEIGHT))
     draw = ImageDraw.Draw(canvas, "RGBA")
 
-    # 2. Segmented Story Progress Bars (Y: 36)
-    margin = 32
-    bar_y = 36
-    bar_h = 5
-    gap = 8
-    total_gaps = (total_slides - 1) * gap
-    bar_w = (WIDTH - (margin * 2) - total_gaps) // total_slides
+    # 2. Content: everything sits in one dark panel in the middle band (see SAFE_TOP / SAFE_BOTTOM).
+    #    Instagram & Facebook draw their own progress bar, profile name and reply bar, so nothing is drawn there.
+    margin, pad, gap = 48, 40, 24
+    inner_x = margin + pad
+    inner_w = WIDTH - 2 * (margin + pad)
+    on_screen_text = clean_story_cta(on_screen_text)
+    is_poll = "poll" in sticker.lower() or "yes" in sticker.lower()
+    is_last = slide_num == total_slides or "link" in sticker.lower()
+    if is_poll:
+        on_screen_text = re.sub(r'^(?:community\s+)?poll\s*:\s*', '', on_screen_text, flags=re.IGNORECASE)
 
-    for i in range(total_slides):
-        bx1 = margin + i * (bar_w + gap)
-        bx2 = bx1 + bar_w
-        if i + 1 < slide_num:
-            fill_col = (255, 225, 0, 240)    # gold completed
-        elif i + 1 == slide_num:
-            fill_col = (255, 255, 255, 255)  # white active
-        else:
-            fill_col = (255, 255, 255, 65)   # pending
-        draw.rounded_rectangle([bx1, bar_y, bx2, bar_y + bar_h], radius=3, fill=fill_col)
+    ops = []  # (height, shapes(layer_draw, y), text(canvas, draw, y)) stacked top-down inside the panel
 
-    # 3. Header Bar: Red Pill Badge (Top Left) & Channel Logo (Top Right)
-    badge_y = 66
-    badge_font = find_font(28, bold=True)
-    badge_text = f"THE SECRET BIBLE CODE • PART {slide_num}" if not is_hook else "THE SECRET BIBLE CODE"
-    bw = draw.textlength(badge_text, font=badge_font)
-    pill_box = [margin, badge_y, margin + int(bw) + 36, badge_y + 46]
-    
-    pill_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-    pdraw = ImageDraw.Draw(pill_layer)
-    pdraw.rounded_rectangle(pill_box, radius=12, fill=RED_FILL, outline=RED_OUTLINE, width=2)
-    canvas = Image.alpha_composite(canvas, pill_layer)
-    draw = ImageDraw.Draw(canvas, "RGBA")
-    draw.text((margin + 18, badge_y + 8), badge_text, font=badge_font, fill=WHITE)
-
-    # Channel Logo (Top Right)
+    # Header row: channel seal + red badge
+    badge_font = find_font(52, bold=True)
+    badge_text = "THE SECRET BIBLE CODE" if is_hook else f"PART {slide_num} OF {total_slides}"
+    badge_w = int(draw.textlength(badge_text, font=badge_font)) + 48
+    logo = None
     logo_file = find_logo()
     if logo_file:
         try:
-            logo = Image.open(logo_file).convert("RGBA").resize((84, 84), Image.Resampling.LANCZOS)
-            canvas.paste(logo, (WIDTH - margin - 84, badge_y - 12), logo)
-            draw = ImageDraw.Draw(canvas, "RGBA")
+            logo = Image.open(logo_file).convert("RGBA").resize((100, 100), Image.Resampling.LANCZOS)
         except Exception:
-            pass
+            logo = None
+    badge_x = inner_x + (118 if logo else 0)
 
-    # 4. Slide Content (Floating, Breathable, High-Contrast Typography)
-    start_x = margin + 12
-    max_text_w = WIDTH - (margin * 2) - 24
+    def header_shapes(ld, y):
+        ld.rounded_rectangle([badge_x, y + 12, badge_x + badge_w, y + 88], radius=18, fill=RED_FILL, outline=RED_OUTLINE, width=2)
+
+    def header_text(cv, dr, y):
+        if logo:
+            cv.paste(logo, (inner_x, y), logo)
+        dr.text((badge_x + 24, y + 22), badge_text, font=badge_font, fill=WHITE)
+
+    ops.append((100, header_shapes, header_text))
+
+    def text_lines(lines, font, fill, line_h, r=3):
+        def _draw(cv, dr, y):
+            for i, line in enumerate(lines):
+                draw_shadowed_text(dr, inner_x, y + i * line_h, line, font, fill=fill, r=r)
+        return (line_h * len(lines), None, _draw)
+
+    def fitted_lines(text, max_size, min_size):
+        font = fit_font(draw, text, inner_w, max_size, min_size=min_size)
+        return wrap_text(text, font, inner_w, draw), font
 
     if is_hook:
-        # Hook Slide: Clean, punchy 2-line title
-        hook_candidate = title if (len(title.split()) <= 8) else on_screen_text
-        line1, line2 = split_story_title(hook_candidate)
-        font_h1 = fit_font(draw, line1, max_text_w, 104, min_size=64)
-        font_h2 = fit_font(draw, line2, max_text_w, 104, min_size=64)
-        font_kicker = find_font(34, bold=True)
-
-        y1 = 200
-        draw_shadowed_text(draw, start_x, y1, line1, font_h1, fill=WHITE, r=6)
-
-        line1_h = font_h1.size if hasattr(font_h1, "size") else 96
-        y2 = y1 + int(line1_h * 1.10)
-        draw_shadowed_text(draw, start_x, y2, line2, font_h2, fill=YELLOW, r=6)
-
-        kicker_text = "THE SECRET PRE-CREATION WAR EXPOSED"
-        line2_h = font_h2.size if hasattr(font_h2, "size") else 96
-        y3 = y2 + int(line2_h * 1.20)
-        draw_shadowed_text(draw, start_x, y3, kicker_text, font_kicker, fill=(240, 240, 240), r=4)
-
-        # Scripture Pill
-        if reference:
-            sc_font = find_font(26, bold=True)
-            first_ref = reference.split(",")[0].strip().upper()
-            sw = draw.textlength(first_ref, font=sc_font)
-            sc_box = [start_x, y3 + 55, start_x + int(sw) + 32, y3 + 97]
-            sc_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-            sc_draw = ImageDraw.Draw(sc_layer)
-            sc_draw.rounded_rectangle(sc_box, radius=10, fill=DARK_PILL_FILL, outline=YELLOW + (200,), width=2)
-            canvas = Image.alpha_composite(canvas, sc_layer)
-            draw = ImageDraw.Draw(canvas, "RGBA")
-            draw.text((start_x + 16, y3 + 63), first_ref, font=sc_font, fill=YELLOW)
-
+        # Hook: the slide's own question as a two-tone headline, the curriculum line as subtitle
+        line1, line2 = split_story_title(on_screen_text or clean_story_title(title))
+        l1, f1 = fitted_lines(line1, 100, 60)
+        ops.append(text_lines(l1, f1, WHITE, int(f1.size * 1.08), r=5))
+        if line2:
+            l2, f2 = fitted_lines(line2, 100, 60)
+            ops.append(text_lines(l2, f2, YELLOW, int(f2.size * 1.08), r=5))
+        subtitle = story_subtitle(metadata, title).upper()
+        if subtitle:
+            sub_font = find_font(46, bold=True)
+            ops.append(text_lines(wrap_text(subtitle, sub_font, inner_w, draw)[:2], sub_font, (240, 240, 240), 58))
     else:
-        # Narrative Slides: Clean, readable floating cards with two-tone header
-        y_cursor = 190
-        kicker_text = "THE ANCIENT SCRIPTURES REVEAL" if slide_num == 2 else ("THE DEEP REVELATION" if slide_num == 3 else ("COMMUNITY POLL" if "poll" in sticker.lower() else "THE FINALE"))
-        
-        # Topic kicker
-        kicker_font = find_font(28, bold=True)
-        draw_shadowed_text(draw, start_x, y_cursor, kicker_text, kicker_font, fill=YELLOW, r=3)
-        y_cursor += 42
+        kicker_text = (
+            "COMMUNITY POLL" if is_poll else
+            "THE FINALE" if is_last else
+            "THE ANCIENT SCRIPTURES REVEAL" if slide_num == 2 else
+            "THE DEEP REVELATION" if slide_num == 3 else
+            "THE HIDDEN DETAIL"
+        )
+        kicker_font = find_font(52, bold=True)
+        ops.append(text_lines([kicker_text], kicker_font, YELLOW, 66))
 
-        # Extract headline and body text
-        sentences = on_screen_text.split(":")
-        if len(sentences) > 1 and len(sentences[0].split()) <= 6:
-            h_text = sentences[0].strip().upper()
-            body_text = ":".join(sentences[1:]).strip()
+        # Headline + body, split at a natural break: a short lead before ':', else the first sentence,
+        # else the whole slide as the headline when it fits in 3 lines
+        words = on_screen_text.split()
+        parts = on_screen_text.split(":")
+        sentences = re.split(r'(?<=[.!?])\s+', on_screen_text.strip())
+        whole_font = find_font(64, bold=True, text=on_screen_text)
+        verse_quote = re.match(r"^((?:[1-3]\s?)?[A-Za-z]+\.?\s+\d+:\d+(?:-\d+)?)\s*:\s*(.+)$", on_screen_text.strip())
+        if verse_quote:
+            # "Colossians 1:16: 'For by Him all things...'" -> reference headline, quote as body
+            h_text, body_text = verse_quote.group(1), verse_quote.group(2)
+        elif len(parts) > 1 and len(parts[0].split()) <= 6 and not re.search(r'\d$', parts[0]):
+            h_text, body_text = parts[0].strip(), ":".join(parts[1:]).strip()
+        elif len(sentences) > 1 and len(sentences[0].split()) <= 10:
+            h_text, body_text = sentences[0], " ".join(sentences[1:])
+        elif len(wrap_text(on_screen_text.upper(), whole_font, inner_w, draw)) <= 3:
+            h_text, body_text = on_screen_text, ""
         else:
-            words = on_screen_text.split()
-            split_p = min(6, len(words) // 2) if len(words) > 8 else len(words)
-            h_text = " ".join(words[:split_p]).upper()
-            body_text = " ".join(words[split_p:]).strip()
-
-        h_font = fit_font(draw, h_text, max_text_w, 74, min_size=46)
-        draw_shadowed_text(draw, start_x, y_cursor, h_text, h_font, fill=WHITE, r=5)
-        h_h = h_font.size if hasattr(h_font, "size") else 70
-        y_cursor += int(h_h * 1.15)
-
-        # Thin gold accent line
-        draw.line([(start_x, y_cursor), (start_x + 160, y_cursor)], fill=YELLOW + (220,), width=3)
-        y_cursor += 28
-
-        # Body text with Hebrew Unicode font support
+            split_p = min(6, len(words) // 2)
+            h_text, body_text = " ".join(words[:split_p]), " ".join(words[split_p:]).strip()
+        h_text = h_text.upper()
+        # Largest headline size that still wraps into at most 3 lines
+        for size in (80, 74, 68, 62, 56):
+            h_font = find_font(size, bold=True, text=h_text)
+            h_lines = wrap_text(h_text, h_font, inner_w, draw)
+            if len(h_lines) <= 3:
+                break
+        ops.append(text_lines(h_lines[:3], h_font, WHITE, int(h_font.size * 1.12), r=4))
+        ops.append((4, lambda ld, y: ld.line([(inner_x, y), (inner_x + 160, y)], fill=YELLOW + (220,), width=4), None))
         if body_text:
-            body_font = find_font(42, bold=True, text=body_text)
-            body_lines = wrap_text(body_text, body_font, max_text_w, draw)
-            for line in body_lines[:5]:
-                draw_shadowed_text(draw, start_x, y_cursor, line, body_font, fill=WHITE, r=4)
-                y_cursor += 58
+            body_font = find_font(52, bold=True, text=body_text)
+            ops.append(text_lines(wrap_text(body_text, body_font, inner_w, draw)[:5], body_font, WHITE, 68))
 
-        # Scripture Pill
-        if reference:
-            y_cursor += 15
-            sc_font = find_font(26, bold=True)
-            first_ref = reference.split(",")[0].strip().upper()
-            sw = draw.textlength(first_ref, font=sc_font)
-            sc_box = [start_x, y_cursor, start_x + int(sw) + 32, y_cursor + 42]
-            sc_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-            sc_draw = ImageDraw.Draw(sc_layer)
-            sc_draw.rounded_rectangle(sc_box, radius=10, fill=DARK_PILL_FILL, outline=YELLOW + (200,), width=2)
-            canvas = Image.alpha_composite(canvas, sc_layer)
-            draw = ImageDraw.Draw(canvas, "RGBA")
-            draw.text((start_x + 16, y_cursor + 8), first_ref, font=sc_font, fill=YELLOW)
+    # Scripture pill
+    if reference:
+        sc_font = find_font(50, bold=True)
+        first_ref = reference.split(",")[0].strip().upper()
+        sc_w = int(draw.textlength(first_ref, font=sc_font)) + 44
 
-    # 5. Interactive Bottom Stickers
-    sticker_y = 1430
-    if "poll" in sticker.lower() or "yes" in sticker.lower():
-        # Sleek Instagram Poll Sticker
-        poll_box = [margin, sticker_y, WIDTH - margin, sticker_y + 190]
-        poll_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-        pld = ImageDraw.Draw(poll_layer)
-        pld.rounded_rectangle(poll_box, radius=22, fill=(16, 20, 30, 220), outline=(60, 75, 110, 200), width=2)
-        
-        q_font = find_font(26, bold=True)
-        pld.text((margin + 28, sticker_y + 22), "TAP TO CAST YOUR VOTE:", font=q_font, fill=(200, 215, 240, 230))
-        
-        # Option A (YES)
-        pld.rounded_rectangle([margin + 24, sticker_y + 68, WIDTH // 2 - 12, sticker_y + 154], radius=16, fill=(16, 185, 129, 230), outline=(52, 211, 153, 255), width=2)
-        btn_font = find_font(36, bold=True)
-        pld.text((margin + 120, sticker_y + 90), "YES  (84%)", font=btn_font, fill=WHITE)
-        
-        # Option B (NO)
-        pld.rounded_rectangle([WIDTH // 2 + 12, sticker_y + 68, WIDTH - margin - 24, sticker_y + 154], radius=16, fill=(239, 68, 68, 230), outline=(248, 113, 113, 255), width=2)
-        pld.text((WIDTH // 2 + 105, sticker_y + 90), "NO  (16%)", font=btn_font, fill=WHITE)
-        
-        canvas = Image.alpha_composite(canvas, poll_layer)
-        draw = ImageDraw.Draw(canvas, "RGBA")
+        def pill_shapes(ld, y):
+            ld.rounded_rectangle([inner_x, y, inner_x + sc_w, y + 76], radius=16, fill=DARK_PILL_FILL, outline=YELLOW + (200,), width=2)
 
-    elif "link" in sticker.lower() or "watch" in sticker.lower() or slide_num == 5:
-        # Sleek Instagram Link Sticker
-        link_box = [margin + 40, sticker_y + 30, WIDTH - margin - 40, sticker_y + 140]
-        link_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-        lld = ImageDraw.Draw(link_layer)
-        lld.rounded_rectangle(link_box, radius=24, fill=YELLOW + (240,), outline=WHITE + (240,), width=3)
-        
-        link_font = find_font(40, bold=True)
-        link_text = "TAP TO WATCH FULL EPISODE >>"
-        lw = lld.textlength(link_text, font=link_font)
-        lld.text(((WIDTH - lw) // 2, sticker_y + 62), link_text, font=link_font, fill=(10, 12, 18))
-        
-        canvas = Image.alpha_composite(canvas, link_layer)
-        draw = ImageDraw.Draw(canvas, "RGBA")
+        def pill_text(cv, dr, y):
+            dr.text((inner_x + 22, y + 11), first_ref, font=sc_font, fill=YELLOW)
 
-    else:
-        # Subtle Swipe Prompt
-        swipe_box = [margin + 80, sticker_y + 60, WIDTH - margin - 80, sticker_y + 130]
-        sw_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-        swd = ImageDraw.Draw(sw_layer)
-        swd.rounded_rectangle(swipe_box, radius=18, fill=(16, 20, 30, 190), outline=YELLOW + (120,), width=1)
-        
-        sw_font = find_font(28, bold=True)
-        sw_text = "SWIPE TO UNCOVER NEXT REVELATION >>" if is_hook else "TAP / SWIPE FOR NEXT PART >>"
-        sw_w = swd.textlength(sw_text, font=sw_font)
-        swd.text(((WIDTH - sw_w) // 2, sticker_y + 78), sw_text, font=sw_font, fill=YELLOW + (240,))
-        
-        canvas = Image.alpha_composite(canvas, sw_layer)
-        draw = ImageDraw.Draw(canvas, "RGBA")
+        ops.append((76, pill_shapes, pill_text))
 
-    # 6. Brand Footer
-    brand_font = find_font(24, bold=True)
-    bw = draw.textlength(BRAND_TEXT, font=brand_font)
-    draw.text(((WIDTH - bw) // 2, 1845), BRAND_TEXT, font=brand_font, fill=GOLD + (220,))
+    # CTA under the panel. Each Story is one video, so tapping only skips ahead: no "tap for next part" and
+    # no fake poll/link stickers (the API can't add real ones). Replies are the Story's real interaction.
+    final_cta = (metadata.get("final_cta") or "FULL DOCUMENTARY ON OUR PAGE").upper()
+    cta_text = "REPLY YES OR NO" if is_poll else (final_cta if is_last else "")
+    cta_font = find_font(50, bold=True)
+    cta_h = 116 if cta_text else 0
+
+    # 3. Layout: centre the panel on PANEL_CENTER_Y, kept inside the safe band together with the CTA
+    panel_h = pad * 2 + sum(h for h, _, _ in ops) + gap * (len(ops) - 1)
+    cta_space = (cta_h + 36) if cta_text else 0
+    panel_top = PANEL_CENTER_Y - panel_h // 2
+    panel_top = min(panel_top, SAFE_BOTTOM - 24 - cta_space - panel_h)
+    panel_top = max(panel_top, SAFE_TOP + 30)
+    panel_box = [margin, panel_top, WIDTH - margin, panel_top + panel_h]
+
+    shapes_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(shapes_layer)
+    ld.rounded_rectangle(panel_box, radius=28, fill=PANEL_FILL, outline=(255, 255, 255, 40), width=2)
+    positions = []
+    y = panel_top + pad
+    for h, shapes, _ in ops:
+        positions.append(y)
+        if shapes:
+            shapes(ld, y)
+        y += h + gap
+    if cta_text:
+        cta_w = int(ld.textlength(cta_text, font=cta_font)) + 80
+        cta_x = (WIDTH - cta_w) // 2
+        cta_y = panel_box[3] + 36
+        ld.rounded_rectangle([cta_x, cta_y, cta_x + cta_w, cta_y + cta_h], radius=24, fill=YELLOW + (240,), outline=WHITE + (240,), width=3)
+    canvas = Image.alpha_composite(canvas, shapes_layer)
+
+    draw = ImageDraw.Draw(canvas, "RGBA")
+    for (h, _, text_fn), y in zip(ops, positions):
+        if text_fn:
+            text_fn(canvas, draw, y)
+    if cta_text:
+        draw.text((cta_x + 40, cta_y + (cta_h - cta_font.size) // 2 - 4), cta_text, font=cta_font, fill=(10, 12, 18))
 
     return canvas.convert("RGB")
 
 # =============================================================================
 # THEMATIC ARTWORK RESOLUTION
 # =============================================================================
-def get_story_background_candidates(story_dir: Path, week_dir: Path, story_idx: int) -> list:
-    """Intelligently pairs each story with thematic artwork from reels or long form."""
+# -----------------------------------------------------------------------------
+# Reel folders: W06/reels/<day>_<n>_<name> (mon_1, mon_2, tue_1...). Posting order is day, then n.
+# Older numbered folders (01_name, 146_name) take Monday..Friday in number order, one a day.
+# Same rules as core/reels.py in KCT Studio and generate_reel.py: keep them in step.
+# -----------------------------------------------------------------------------
+REEL_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+_REEL_DAY_RE = re.compile(r"^(mon|tue|wed|thu|fri|sat|sun)_(\d+)_(.+)$", re.IGNORECASE)
+_REEL_NUMBERED_RE = re.compile(r"^(\d+)[_-](.+)$")
+
+
+def reel_slots(reels_dir: Path) -> list:
+    """(folder, day index 0=Mon, place in the day) for a week's reels, in posting order."""
+    if not reels_dir or not reels_dir.is_dir():
+        return []
+    named, numbered, other = [], [], []
+    for d in reels_dir.iterdir():
+        if not d.is_dir() or d.name.lower() in ("temp", "temp_slides") or d.name.startswith((".", "__")):
+            continue
+        m = _REEL_DAY_RE.match(d.name)
+        n = _REEL_NUMBERED_RE.match(d.name)
+        if m:
+            named.append((d, REEL_DAYS.index(m.group(1).lower()), int(m.group(2))))
+        elif n:
+            numbered.append((int(n.group(1)), d))
+        else:
+            other.append(d)
+    for rank, (_, d) in enumerate(sorted(numbered, key=lambda x: (x[0], x[1].name))):
+        named.append((d, rank % 7, rank // 7 + 1))
+    named.sort(key=lambda x: (x[1], x[2], x[0].name))
+    last = (named[-1][1], named[-1][2]) if named else (0, 0)
+    return named + [(d, last[0], last[1] + i + 1) for i, d in enumerate(sorted(other, key=lambda d: d.name))]
+
+
+def find_reel(reels_dir: Path, which):
+    """A reel by its key ("tue_2"), folder name, or position in posting order (1 = first)."""
+    slots = reel_slots(reels_dir)
+    text = str(which).strip().lower()
+    for d, day, n in slots:
+        if text in (d.name.lower(), f"{REEL_DAYS[day]}_{n}"):
+            return d
+    if text.isdigit() and 1 <= int(text) <= len(slots):
+        return slots[int(text) - 1][0]
+    return None
+
+
+def story_reel(reels_dir: Path, reel: str = None, reel_num: int = None, story_idx: int = None):
+    """The reel a story borrows its art from: its "reel" key (tue_1); else an older reel_num, or the story's own
+    number, read as that weekday's first reel (2 = Tuesday's), so adding a second reel to a day never shifts it."""
+    if reel:
+        found = find_reel(reels_dir, reel)
+        if found:
+            return found
+    n = reel_num or story_idx
+    if not n:
+        return None
+    if 1 <= int(n) <= 7:
+        found = find_reel(reels_dir, f"{REEL_DAYS[int(n) - 1]}_1")
+        if found:
+            return found
+    return find_reel(reels_dir, n)
+
+
+def get_story_background_candidates(story_dir: Path, week_dir: Path, story_idx: int, reel_num: int = None,
+                                    reel: str = None) -> list:
+    """Intelligently pairs each story with thematic artwork from reels or long form.
+    The story's "reel" key (or older reel_num) picks the reel to borrow art from; otherwise story N uses day N's reel."""
     candidates = []
-    
+
     # 1. Matching reel folder for this story
     reels_dir = week_dir / "reels"
     if reels_dir.exists():
-        sub_reels = sorted([d for d in reels_dir.iterdir() if d.is_dir()])
-        if story_idx <= len(sub_reels):
-            target_reel = sub_reels[story_idx - 1]
+        target_reel = story_reel(reels_dir, reel, reel_num, story_idx)
+        if target_reel:
             r_imgs = sorted(list((target_reel / "images").glob("reel*.png")))
             r_imgs = [img for img in r_imgs if "card" not in img.name]
+            if (reel or reel_num) and r_imgs:
+                # Several stories share a reel's art: start each one at a different image
+                shift = (story_idx * 4) % len(r_imgs)
+                r_imgs = r_imgs[shift:] + r_imgs[:shift]
             candidates.extend(r_imgs)
             
-    # 2. Long form scene images
-    lf_img_dir = week_dir / "long_form" / "images"
-    if lf_img_dir.exists():
-        candidates.extend(sorted(list(lf_img_dir.glob("*.png"))))
+    # 2. Long form scene images (week root, or one folder per episode)
+    lf_dir = week_dir / "long_form"
+    if lf_dir.exists():
+        candidates.extend(sorted(list((lf_dir / "images").glob("*.png"))))
+        candidates.extend(sorted(list(lf_dir.glob("*/images/*.png"))))
         
     # 3. Fallbacks
     cand_defaults = [
@@ -638,13 +695,19 @@ def get_story_background_candidates(story_dir: Path, week_dir: Path, story_idx: 
     candidates.extend([c for c in cand_defaults if c.exists()])
     return candidates
 
+def count_week_stories(week_dir: Path) -> int:
+    """Number of stories in a week: one per story folder, never fewer than the 5 daily stories."""
+    stories_dir = week_dir / "stories"
+    subdirs = [d for d in stories_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")] if stories_dir.exists() else []
+    return max(5, len(subdirs))
+
 def find_story_folder(week_dir: Path, story_num: int) -> Path:
     """Finds the folder for a given story index within week_dir/stories."""
     stories_dir = week_dir / "stories"
     stories_dir.mkdir(parents=True, exist_ok=True)
     
     prefix = f"0{story_num}"
-    subdirs = sorted([d for d in stories_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()])
+    subdirs = sorted([d for d in stories_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")])
     
     for d in subdirs:
         if d.name.startswith(prefix) or d.name.startswith(f"{story_num}_") or d.name.startswith(f"{story_num}-"):
@@ -703,12 +766,16 @@ def render_story(
     if not slides:
         print(f"[-] No slides found in {script_path}")
         return None
+    curriculum = re.search(r'\*\*Curriculum:\*\*\s*(.+)', script_path.read_text(encoding="utf-8", errors="replace"))
+    if curriculum and not metadata.get("curriculum"):
+        metadata["curriculum"] = curriculum.group(1).strip()
 
     temp_dir = story_dir / "temp_slides"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
     week_dir = story_dir.parent.parent
-    bg_candidates = get_story_background_candidates(story_dir, week_dir, story_num)
+    bg_candidates = get_story_background_candidates(story_dir, week_dir, story_num, reel_num=metadata.get("reel_num"),
+                                                    reel=metadata.get("reel"))
 
     title_display = metadata.get("title", story_dir.name)
     print(f"\n==========================================================================")
@@ -760,17 +827,9 @@ def render_story(
         if slide_images:
             f.write(f"file '{slide_images[-1].name}'\n")
 
-    # Select audio track
-    audio_stem = None
-    if custom_audio and os.path.exists(custom_audio):
-        audio_stem = Path(custom_audio)
-    else:
-        stem_candidates = [
-            BHSR_ROOT / "demucs_stems" / "htdemucs" / "original_audio" / "other.wav",
-            BHSR_ROOT / "demucs_stems" / "htdemucs" / "original_audio" / "ambient.wav",
-            PROJECT_DIR / "shared_assets" / "ambient_music.wav"
-        ]
-        audio_stem = next((p for p in stem_candidates if p.exists()), None)
+    # Audio: no background music by default (music beds caused copyright claims). A licensed track can still be
+    # passed with --audio; otherwise the video gets a silent track so every platform accepts it.
+    audio_stem = Path(custom_audio) if custom_audio and os.path.exists(custom_audio) else None
 
     total_duration = len(slides) * slide_duration
     print(f"[FFmpeg] Compiling 1080x1920 MP4 ({total_duration:.1f}s) via {ffmpeg_bin}...", flush=True)
@@ -795,7 +854,12 @@ def render_story(
             "-b:a", "192k"
         ])
     else:
-        cmd.extend(["-t", str(total_duration)])
+        cmd.extend([
+            "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+            "-map", "0:v", "-map", "1:a",
+            "-t", str(total_duration),
+            "-c:a", "aac", "-b:a", "128k"
+        ])
 
     cmd.extend([
         "-c:v", "libx264",
@@ -825,14 +889,14 @@ def render_story(
 def main():
     parser = argparse.ArgumentParser(description="Master Social Story Video Generator (9:16)")
     parser.add_argument("--week", "-w", type=str, default=None, help="Target week (e.g. 1, W01)")
-    parser.add_argument("--story", "-s", type=int, default=None, help="Target story index (1 to 5)")
+    parser.add_argument("--story", "-s", type=int, default=None, help="Target story index (1 to 15)")
     parser.add_argument("--episode", "-e", "--global-story", "-g", type=int, default=None, help="Global story index (1 to 780)")
-    parser.add_argument("--all", "-a", action="store_true", help="Generate all 5 daily stories for the week")
+    parser.add_argument("--all", "-a", action="store_true", help="Generate every story of the week (5, or 15 when posting 3 a day)")
     parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild even if video already exists")
     parser.add_argument("--thumbnail-only", "--thumb-only", action="store_true", help="Regenerate modern story cover thumbnail & slides in seconds")
     parser.add_argument("--slides-only", action="store_true", help="Generate slide images only without MP4 encoding")
     parser.add_argument("--duration", type=float, default=DEFAULT_SLIDE_DURATION, help="Per-slide duration in seconds (default: 3.5s)")
-    parser.add_argument("--audio", "-m", type=str, default=None, help="Path to custom soundtrack audio file")
+    parser.add_argument("--audio", "-m", type=str, default=None, help="Optional licensed soundtrack (default: no music, silent track)")
     args = parser.parse_args()
 
     week_num = None
@@ -846,7 +910,7 @@ def main():
         w_str = str(args.week).upper().replace("W", "")
         week_num = int(w_str)
         if args.all or args.story is None:
-            story_indices = [1, 2, 3, 4, 5]
+            story_indices = list(range(1, count_week_stories(BHSR_ROOT / f"W{week_num:02d}") + 1))
         else:
             story_indices = [args.story]
     else:

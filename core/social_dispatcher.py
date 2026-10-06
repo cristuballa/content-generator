@@ -14,6 +14,8 @@ from core.youtube_uploader import youtube_uploader
 from core.threads_uploader import threads_uploader
 from core.tiktok_uploader import tiktok_uploader
 from core.hashtags import find_hashtags, normalize_tags, split_tags, strip_hashtags
+from core.week_links import (comment_id_of, export_week_links, is_reel, live_documentary_url, week_of,
+                             with_documentary_link)
 
 # Posted as the first comment right after every upload (captions themselves carry no links)
 DEFAULT_BHRS_PINNED_COMMENT = """🛒 OFFICIAL MERCH & SACRED BOOKS:
@@ -36,6 +38,9 @@ DEFAULT_BHRS_FB_CALLOUT = "📖 Official Books & Sacred Art collection linked in
 DEFAULT_BHRS_YT_MERCH_BLOCK = DEFAULT_BHRS_MERCH_BLOCK
 DEFAULT_BHRS_IG_MERCH_BLOCK = DEFAULT_BHRS_MERCH_BLOCK
 
+# Standard YouTube viewer disclosure for altered or synthetic content (Rule 7)
+DEFAULT_YT_AI_DISCLOSURE = "ℹ️ Altered or synthetic content: Sound and visuals in this video are significantly edited or digitally generated."
+
 # Promo text that must not appear in captions: store/book lines, link-in-bio pointers, raw URLs
 PROMO_LINE_RE = re.compile(
     r"^[ \t]*(?:🛒|✨\s*Etsy|📖\s*Book|📚\s*Books?|•\s*Book|👉\s*(?:Tap|Find all|Subscribe)|📖\s*(?:Official Books|Check our books)|🔗\s*Link in bio)[^\n]*(?:\n|$)",
@@ -44,7 +49,13 @@ PROMO_LINE_RE = re.compile(
 INLINE_PROMO_RE = re.compile(r"[ \t]*(?:Follow for more!\s*)?🔗\s*Link in bio[^\n]*|[ \t]*📖\s*Books? & Merch in bio!?", re.IGNORECASE)
 CHAPTER_HEADER_RE = re.compile(r"^[ \t]*(?:TIMESTAMPS|CHAPTERS)\b[^\n]*:[ \t]*$\n?", re.IGNORECASE | re.MULTILINE)
 CHAPTER_LINE_RE = re.compile(r"^[ \t]*\d{1,2}:\d{2}(?::\d{2})?[ \t]*[-–—][^\n]*$\n?", re.MULTILINE)
-URL_RE = re.compile(r"(?:https?://|www\.)\S+|\b(?:etsy|amazon)\.com/\S+", re.IGNORECASE)
+URL_RE = re.compile(
+    r"(?:https?://|www\.)\S+"
+    r"|\b(?:bit\.ly|tinyurl\.com|linktr\.ee|t\.co|cutt\.ly|goo\.gl|ow\.ly|is\.gd|buff\.ly|wa\.me)/\S+"
+    r"|\b(?:etsy|amazon)\.com/\S+",
+    re.IGNORECASE
+)
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\((?:https?://|www\.)[^)]*\)", re.IGNORECASE)
 
 class SocialDispatcher:
     def __init__(self):
@@ -72,7 +83,14 @@ class SocialDispatcher:
         if not video_dir.exists():
             return None
 
-        # 1. Preferred option 1 thumbnail (standard in BHRS-Youtube long-form episodes)
+        # 1. The chosen thumbnail: create_thumbnail.py copies its pick to thumbnail.jpg and redesigns overwrite it,
+        #    so it wins over the original thumbnail_option_* drafts
+        for name in ["thumbnail.jpg", "thumbnail.png", "thumbnail.jpeg", "thumbnail.webp"]:
+            cand = video_dir / name
+            if cand.is_file() and cand.stat().st_size > 0:
+                return cand
+
+        # 2. Option 1 thumbnail (standard in BHRS-Youtube long-form episodes)
         for name in [
             "thumbnail_option_1.jpg", "thumbnail_option_1.png", "thumbnail_option_1.jpeg", "thumbnail_option_1.webp",
             "thumbnail_1.jpg", "thumbnail_1.png", "thumbnail_1.jpeg", "thumbnail_1.webp",
@@ -82,9 +100,8 @@ class SocialDispatcher:
             if cand.is_file() and cand.stat().st_size > 0:
                 return cand
 
-        # 2. Generic thumbnail or cover
+        # 3. Cover or poster image
         for name in [
-            "thumbnail.jpg", "thumbnail.png", "thumbnail.jpeg", "thumbnail.webp",
             "cover.jpg", "cover.png", "cover.jpeg", "cover.webp",
             "poster.jpg", "poster.png"
         ]:
@@ -146,6 +163,7 @@ class SocialDispatcher:
         clean = re.sub(r"={10,}", "", clean)
         clean = PROMO_LINE_RE.sub("", clean)
         clean = INLINE_PROMO_RE.sub("", clean)
+        clean = MARKDOWN_LINK_RE.sub(r"\1", clean)
         clean = URL_RE.sub("", clean)
         clean = re.sub(r"\((?:Link in (?:Channel )?Bio[^)]*)\)", "", clean, flags=re.IGNORECASE)
         clean = re.sub(r"[ \t]+\n", "\n", clean)
@@ -313,11 +331,38 @@ class SocialDispatcher:
         return normalize_tags(hashtags, platform, max_tags)
 
     @classmethod
-    def sanitize_urls_for_youtube(cls, text: str, hashtags: Any = None) -> str:
-        """YouTube description: no URLs or merch blocks, no '<' '>', hashtags capped at the YouTube limit."""
+    def sanitize_urls_for_youtube(
+        cls,
+        text: str,
+        hashtags: Any = None,
+        include_ai_disclosure: bool = False
+    ) -> str:
+        """
+        YouTube description compliance sanitization:
+        - Strips raw URLs, URL shorteners, and merch blocks (external links go in pinned comment).
+        - Strips illegal YouTube characters ('<' and '>') that cause API 400 errors or XSS warnings.
+        - Enforces 5,000 character YouTube description ceiling.
+        - Caps hashtags at YouTube platform limits.
+        - Optionally includes the official altered/synthetic content disclosure note.
+        """
         if not text:
             return ""
-        return cls._finalize_caption(text.replace("<", "").replace(">", ""), "youtube", hashtags, max_chars=5000)
+        sanitized = cls._finalize_caption(text.replace("<", "").replace(">", ""), "youtube", hashtags, max_chars=5000)
+        if include_ai_disclosure and DEFAULT_YT_AI_DISCLOSURE not in sanitized:
+            clean, tags = strip_hashtags(sanitized)
+            tags_str = normalize_tags(tags, "youtube") if tags else ""
+            disclosure_block = f"{clean}\n\n{DEFAULT_YT_AI_DISCLOSURE}".strip()
+            return f"{disclosure_block}\n\n{tags_str}".strip() if tags_str else disclosure_block
+        return sanitized
+
+    @classmethod
+    def apply_youtube_compliance(cls, description: str, include_ai_disclosure: bool = True) -> str:
+        """
+        Convenience method applying full YouTube compliance to video descriptions:
+        strips all unauthorized external URLs, strips invalid characters, and appends
+        the standard altered/synthetic content disclosure.
+        """
+        return cls.sanitize_urls_for_youtube(description, include_ai_disclosure=include_ai_disclosure)
 
     @classmethod
     def sanitize_urls_for_instagram(cls, text: str, hashtags: Any = None) -> str:
@@ -428,11 +473,18 @@ class SocialDispatcher:
         timestamps: str = "",
         merch_block: str = "",
         hashtags: Any = "",
-        scriptures: str = ""
+        scriptures: str = "",
+        include_ai_disclosure: bool = False
     ) -> str:
         """YouTube description (Shorts & long-form) in the house format, with chapters for long-form. No URLs."""
         caption = cls._compose_caption("youtube", hook, body, hashtags, scriptures, extra=timestamps, max_chars=5000)
-        return caption.replace("<", "").replace(">", "")
+        clean = caption.replace("<", "").replace(">", "")
+        if include_ai_disclosure and DEFAULT_YT_AI_DISCLOSURE not in clean:
+            body_part, tags = strip_hashtags(clean)
+            tags_str = normalize_tags(tags, "youtube") if tags else ""
+            disclosure_block = f"{body_part}\n\n{DEFAULT_YT_AI_DISCLOSURE}".strip()
+            return f"{disclosure_block}\n\n{tags_str}".strip() if tags_str else disclosure_block
+        return clean
 
     @classmethod
     def build_instagram_caption(
@@ -819,6 +871,94 @@ class SocialDispatcher:
                 route.update(eligible=False, reason=f"{route['label']} is disabled in this project's social settings.")
         return routes
 
+    def compose_post_texts(
+        self,
+        project_path: Path,
+        video_rel_path: str,
+        custom_title: Optional[str] = None,
+        custom_desc: Optional[str] = None,
+        custom_tags: Optional[List[str]] = None,
+        platform_captions: Optional[Dict[str, str]] = None,
+        custom_pinned_comment: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Title, per-platform captions and the links comment exactly as a post sends them. Used by publish_video and by
+        the Business Suite checklist, so a caption pasted into Business Suite matches what KCT Studio would post.
+        """
+        project_path = Path(project_path)
+        meta = self.extract_metadata_for_video(project_path, video_rel_path)
+
+        vid_stem_title = (project_path / video_rel_path).stem.replace("_", " ").title()
+        if custom_title and custom_title.strip() and custom_title.strip() != vid_stem_title:
+            title = custom_title
+        else:
+            title = meta.get("title") or custom_title or vid_stem_title
+        raw_title = title
+
+        tags = custom_tags if custom_tags is not None else meta["tags"]
+        hashtags_string = meta.get("hashtags_string") or " ".join([f"#{t}" for t in tags])
+
+        if custom_desc and not custom_desc.startswith("Generated by AI Content Generation Pipeline"):
+            desc = custom_desc
+            fb_desc = custom_desc
+            ig_desc = custom_desc
+            th_desc = custom_desc if len(custom_desc) <= 500 else self.build_threads_caption(title, custom_desc, hashtags_string)
+            yt_desc = custom_desc
+            tt_desc = custom_desc if len(custom_desc) <= 2000 else self.build_tiktok_caption(title, custom_desc, hashtags_string)
+            x_desc = self.build_x_post(title, custom_desc, hashtags=hashtags_string)
+        else:
+            desc = meta.get("description") or ""
+            fb_desc = meta.get("facebook_caption") or desc
+            ig_desc = meta.get("instagram_caption") or desc
+            th_desc = meta.get("threads_caption") or self.build_threads_caption(title, desc, hashtags=hashtags_string)
+            yt_desc = meta.get("youtube_description") or desc
+            tt_desc = meta.get("tiktok_caption") or desc
+            x_desc = meta.get("x_post") or self.build_x_post(title, desc, hashtags=hashtags_string)
+
+        # Allow granular per-platform caption overrides if explicitly provided
+        if platform_captions and isinstance(platform_captions, dict):
+            if platform_captions.get("facebook"):
+                fb_desc = platform_captions["facebook"]
+            if platform_captions.get("youtube"):
+                yt_desc = platform_captions["youtube"]
+            if platform_captions.get("instagram"):
+                ig_desc = platform_captions["instagram"]
+            if platform_captions.get("threads"):
+                th_desc = platform_captions["threads"]
+            if platform_captions.get("tiktok"):
+                tt_desc = platform_captions["tiktok"]
+            if platform_captions.get("x"):
+                x_desc = platform_captions["x"]
+
+        # Universal Policy & Compliance Sanitizer Guard:
+        # Ensures no platform receives policy-violating text (URLs, merch blocks, length, sensitive tags).
+        # Hashtags edited in the publish modal come first, then the caption's own.
+        explicit_tags = custom_tags or []
+        yt_desc = self.sanitize_urls_for_youtube(yt_desc, hashtags=explicit_tags)
+        title = self.sanitize_title_for_youtube(title)
+        fb_desc = self.sanitize_caption_for_facebook(fb_desc, hook=title, body=desc, hashtags=explicit_tags)
+        ig_desc = self.sanitize_urls_for_instagram(ig_desc, hashtags=explicit_tags)
+        th_desc = self.sanitize_caption_for_threads(th_desc, title, desc, hashtags=explicit_tags)
+        tt_desc = self.sanitize_caption_for_tiktok(tt_desc, hashtags=explicit_tags)
+        x_desc = self.sanitize_post_for_x(x_desc)
+
+        effective_pinned_comment = custom_pinned_comment or meta.get("pinned_comment") or DEFAULT_BHRS_PINNED_COMMENT
+        # Reels point to the week's full documentary: its YouTube link leads the comment once it is live
+        documentary_url = live_documentary_url(project_path, video_rel_path) if is_reel(video_rel_path) else None
+        effective_pinned_comment = with_documentary_link(effective_pinned_comment, documentary_url)
+
+        return {
+            "meta": meta,
+            "raw_title": raw_title,
+            "title": title,
+            "desc": desc,
+            "tags": tags,
+            "captions": {"youtube": yt_desc, "facebook": fb_desc, "instagram": ig_desc,
+                         "threads": th_desc, "tiktok": tt_desc, "x": x_desc},
+            "pinned_comment": effective_pinned_comment,
+            "documentary_url": documentary_url,
+        }
+
     async def publish_video(
         self,
         project_path_str: str,
@@ -907,22 +1047,12 @@ class SocialDispatcher:
         else:
             is_already_posted = False
 
-        meta = self.extract_metadata_for_video(project_path, video_rel_path)
-
-        vid_stem_title = video_abs_path.stem.replace("_", " ").title()
-        if custom_title and custom_title.strip() and custom_title.strip() != vid_stem_title:
-            title = custom_title
-        else:
-            title = meta.get("title") or custom_title or vid_stem_title
-
-        if custom_desc and not custom_desc.startswith("Generated by AI Content Generation Pipeline"):
-            desc = custom_desc
-        else:
-            desc = meta.get("description") or custom_desc or ""
-
-        tags = custom_tags if custom_tags is not None else meta["tags"]
-        hashtags_string = meta.get("hashtags_string") or " ".join([f"#{t}" for t in tags])
-        caption = f"{title}\n\n{hashtags_string}".strip()
+        texts = self.compose_post_texts(project_path, video_rel_path, custom_title=custom_title, custom_desc=custom_desc,
+                                        custom_tags=custom_tags, platform_captions=platform_captions,
+                                        custom_pinned_comment=custom_pinned_comment)
+        meta = texts["meta"]
+        title = texts["raw_title"]
+        tags = texts["tags"]
 
         # Video media specifications
         stat = video_abs_path.stat()
@@ -966,51 +1096,13 @@ class SocialDispatcher:
 
         thumb_abs = meta.get("thumbnail_abs_path", "")
 
-        if custom_desc and not custom_desc.startswith("Generated by AI Content Generation Pipeline"):
-            desc = custom_desc
-            fb_desc = custom_desc
-            ig_desc = custom_desc
-            th_desc = custom_desc if len(custom_desc) <= 500 else self.build_threads_caption(title, custom_desc, hashtags_string)
-            yt_desc = custom_desc
-            tt_desc = custom_desc if len(custom_desc) <= 2000 else self.build_tiktok_caption(title, custom_desc, hashtags_string)
-            x_desc = self.build_x_post(title, custom_desc, hashtags=hashtags_string)
-        else:
-            desc = meta.get("description") or ""
-            fb_desc = meta.get("facebook_caption") or desc
-            ig_desc = meta.get("instagram_caption") or desc
-            th_desc = meta.get("threads_caption") or self.build_threads_caption(title, desc, hashtags=hashtags_string)
-            yt_desc = meta.get("youtube_description") or desc
-            tt_desc = meta.get("tiktok_caption") or desc
-            x_desc = meta.get("x_post") or self.build_x_post(title, desc, hashtags=hashtags_string)
-
-        # Allow granular per-platform caption overrides if explicitly provided
-        if platform_captions and isinstance(platform_captions, dict):
-            if platform_captions.get("facebook"):
-                fb_desc = platform_captions["facebook"]
-            if platform_captions.get("youtube"):
-                yt_desc = platform_captions["youtube"]
-            if platform_captions.get("instagram"):
-                ig_desc = platform_captions["instagram"]
-            if platform_captions.get("threads"):
-                th_desc = platform_captions["threads"]
-            if platform_captions.get("tiktok"):
-                tt_desc = platform_captions["tiktok"]
-            if platform_captions.get("x"):
-                x_desc = platform_captions["x"]
-
-        # Universal Policy & Compliance Sanitizer Guard:
-        # Ensures no platform receives policy-violating text (URLs, merch blocks, length, sensitive tags).
-        # Hashtags edited in the publish modal come first, then the caption's own.
-        explicit_tags = custom_tags or []
-        yt_desc = self.sanitize_urls_for_youtube(yt_desc, hashtags=explicit_tags)
-        title = self.sanitize_title_for_youtube(title)
-        fb_desc = self.sanitize_caption_for_facebook(fb_desc, hook=title, body=desc, hashtags=explicit_tags)
-        ig_desc = self.sanitize_urls_for_instagram(ig_desc, hashtags=explicit_tags)
-        th_desc = self.sanitize_caption_for_threads(th_desc, title, desc, hashtags=explicit_tags)
-        tt_desc = self.sanitize_caption_for_tiktok(tt_desc, hashtags=explicit_tags)
-        x_desc = self.sanitize_post_for_x(x_desc)
-
-        effective_pinned_comment = custom_pinned_comment or meta.get("pinned_comment") or DEFAULT_BHRS_PINNED_COMMENT
+        title = texts["title"]
+        desc = texts["desc"]
+        captions = texts["captions"]
+        yt_desc, fb_desc, ig_desc = captions["youtube"], captions["facebook"], captions["instagram"]
+        th_desc, tt_desc, x_desc = captions["threads"], captions["tiktok"], captions["x"]
+        effective_pinned_comment = texts["pinned_comment"]
+        documentary_url = texts["documentary_url"]
 
         results = {}
 
@@ -1075,7 +1167,14 @@ class SocialDispatcher:
         # Record real uploads only: a dry run must never touch publish history
         if not dry_run:
             for plat in newly_published:
-                asset_manager.mark_published(video_rel_path, plat, results[plat])
+                details = results[plat]
+                if isinstance(details, dict) and plat in ("youtube", "facebook", "instagram"):
+                    details["comment_text"] = effective_pinned_comment
+                    if documentary_url:
+                        details["documentary_link"] = documentary_url
+                asset_manager.mark_published(video_rel_path, plat, details)
+            if newly_published:
+                export_week_links(project_path, week_of(video_rel_path))
 
         # Send native desktop notification only on verified (or explicitly simulated) dispatch
         done_plats = target_platforms if dry_run else newly_published
@@ -1103,6 +1202,14 @@ class SocialDispatcher:
             "video": video_abs_path.name,
             "platforms": results
         }
+        if not is_story and not thumb_abs:
+            response["thumbnail_warning"] = (
+                "No thumbnail image was found next to this video, so each platform chose its own frame. "
+                "Add thumbnail.jpg to the video's folder (reels: the thumbnail button in the Generator) and repost if needed."
+            )
+            for plat in newly_published:
+                if isinstance(results.get(plat), dict):
+                    results[plat]["message"] = f"{results[plat].get('message', '')} (no thumbnail image found)".strip()
         if dry_run:
             response["message"] = "Dry run: nothing was uploaded and publish history was not changed."
         return response
@@ -1123,8 +1230,12 @@ class SocialDispatcher:
             and int(details.get("comment_attempts") or 0) < self.MAX_COMMENT_ATTEMPTS
         ]
         posted = 0
+        project_path = Path(config_manager.get_active_project() or ".")
         for rel_path, platform, details in due:
-            res = await asyncio.to_thread(self._post_comment, platform, str(details["id"]), details["pending_comment"])
+            text = details["pending_comment"]
+            doc_url = live_documentary_url(project_path, rel_path) if is_reel(rel_path) else None
+            text = with_documentary_link(text, doc_url)
+            res = await asyncio.to_thread(self._post_comment, platform, str(details["id"]), text)
             # Re-read the record: the catalog may have been reloaded while the API call ran
             entry = asset_manager.get_asset_record(rel_path).get("published", {}).get(platform) or {}
             if isinstance(entry.get("details"), dict):
@@ -1135,6 +1246,9 @@ class SocialDispatcher:
                 posted += 1
                 details["comment_posted"] = True
                 details["comment_id"] = res.get("id")
+                details["comment_text"] = text
+                if doc_url:
+                    details["documentary_link"] = doc_url
                 details.pop("pending_comment", None)
                 details.pop("comment_error", None)
             else:
@@ -1143,6 +1257,68 @@ class SocialDispatcher:
         if due:
             asset_manager.save()
         return posted
+
+    MAX_DOC_LINK_ATTEMPTS = 5
+
+    async def update_documentary_links(self) -> int:
+        """
+        Once a week's documentary is live on YouTube, adds its link to the links comment of that week's reels that were
+        posted before it (YouTube and Facebook comments are edited; Instagram comments can't be, so they are left).
+        Called by the scheduler loop; does nothing (and calls no API) when every reel already has its link.
+        """
+        project_path = Path(config_manager.get_active_project() or ".")
+        now = time.time()
+        todo = []
+        for rel_path, platform, details in asset_manager.iter_published():
+            if platform not in ("youtube", "facebook") or not is_reel(rel_path) or details.get("documentary_link"):
+                continue
+            if details.get("pending_comment") or not details.get("id"):
+                continue  # still queued: post_due_comments adds the link when it posts
+            if "comment_text" not in details:
+                continue  # posted before reels carried documentary links: older posts are left as they are
+            if int(details.get("doc_link_attempts") or 0) >= self.MAX_DOC_LINK_ATTEMPTS:
+                continue
+            if float(details.get("doc_link_retry_at") or 0) > now:
+                continue
+            doc_url = live_documentary_url(project_path, rel_path)
+            if doc_url:
+                todo.append((rel_path, platform, details, doc_url))
+        weeks = set()
+        for rel_path, platform, details, doc_url in todo:
+            text = with_documentary_link(details.get("comment_text") or DEFAULT_BHRS_PINNED_COMMENT, doc_url)
+            comment_id = comment_id_of(details)
+            if comment_id:
+                res = await asyncio.to_thread(self._update_comment, platform, str(comment_id), text)
+            else:
+                res = await asyncio.to_thread(self._post_comment, platform, str(details["id"]), text)
+            entry = asset_manager.get_asset_record(rel_path).get("published", {}).get(platform) or {}
+            if isinstance(entry.get("details"), dict):
+                details = entry["details"]
+            if res.get("success"):
+                details["documentary_link"] = doc_url
+                details["comment_text"] = text
+                details["comment_posted"] = True
+                if not comment_id and res.get("id"):
+                    details["comment_id"] = res["id"]
+                details.pop("doc_link_error", None)
+                weeks.add(week_of(rel_path))
+            else:
+                attempts = int(details.get("doc_link_attempts") or 0) + 1
+                details["doc_link_attempts"] = attempts
+                details["doc_link_error"] = res.get("error")
+                details["doc_link_retry_at"] = now + 300 * attempts
+        if todo:
+            asset_manager.save()
+        for week in weeks:
+            export_week_links(project_path, week)
+        return len(weeks)
+
+    def _update_comment(self, platform: str, comment_id: str, text: str) -> Dict[str, Any]:
+        if platform == "youtube":
+            return youtube_uploader.update_comment(comment_id, text)
+        if platform == "facebook":
+            return meta_uploader.update_comment(comment_id, text)
+        return {"success": False, "error": f"Comments can't be edited on {platform}"}
 
     def _post_comment(self, platform: str, object_id: str, text: str) -> Dict[str, Any]:
         if platform == "youtube":
@@ -1213,7 +1389,8 @@ class SocialDispatcher:
                         description=clean_fb_desc,
                         tags=tags,
                         scheduled_timestamp=scheduled_timestamp,
-                        pinned_comment=fb_comment
+                        pinned_comment=fb_comment,
+                        thumbnail_path=thumbnail_path
                     )
                 else:
                     logging.info(f"[SocialDispatcher] Executing Direct Native Upload to Facebook Long Video (Watch): {video_path.name}")
@@ -1223,7 +1400,8 @@ class SocialDispatcher:
                         description=clean_fb_desc,
                         tags=tags,
                         scheduled_timestamp=scheduled_timestamp,
-                        pinned_comment=fb_comment
+                        pinned_comment=fb_comment,
+                        thumbnail_path=thumbnail_path
                     )
             else:
                 return {
@@ -1242,7 +1420,8 @@ class SocialDispatcher:
                     video_path=video_path,
                     caption=description or title,
                     tags=tags,
-                    pinned_comment=pinned_comment or DEFAULT_BHRS_PINNED_COMMENT
+                    pinned_comment=pinned_comment or DEFAULT_BHRS_PINNED_COMMENT,
+                    thumbnail_path=thumbnail_path
                 )
             else:
                 return {

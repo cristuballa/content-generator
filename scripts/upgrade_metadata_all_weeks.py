@@ -232,7 +232,7 @@ def upgrade_week_reels(week_num: int = 1):
         # 2. Update All 5 Reels
         reels_dir = base_p / "reels"
         if reels_dir.exists():
-            subdirs = sorted([d for d in reels_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()])
+            subdirs = sorted([d for d in reels_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")])
             for idx, r_dir in enumerate(subdirs[:5]):
                 reel_num = idx + 1
                 cur_data = W01_CURATED_METADATA.get(reel_num, {})

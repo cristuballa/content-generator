@@ -35,7 +35,9 @@ from core.process_runner import process_runner
 from core.asset_manager import asset_manager
 from core.social_dispatcher import social_dispatcher
 from core.cert_manager import cert_manager
-from core.calendar_manager import calendar_manager
+from core.calendar_manager import calendar_manager, PostBusyError
+from core.reels import (DAY_NAMES as REEL_DAY_NAMES, DAYS as REEL_DAYS, find_reel, recorded_reel_number, reel_day_and_time,
+                        reel_posting_times, reel_slots)
 from core.story_map_manager import story_map_manager
 from core.meta_uploader import meta_uploader
 from core.youtube_uploader import youtube_uploader
@@ -117,19 +119,38 @@ async def lifespan(app: FastAPI):
                 await calendar_manager.execute_due_posts(social_dispatcher)
                 # Links comment on scheduled YouTube/Facebook posts that have just gone live
                 await social_dispatcher.post_due_comments()
+                # Reels posted before their week's documentary get its link once it is live
+                await social_dispatcher.update_documentary_links()
+                # Instagram reels scheduled by hand in Business Suite: record their link and comment once live
+                await calendar_manager.sync_business_suite_posts(social_dispatcher)
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 logging.error(f"[Scheduler] Error executing due posts: {e}")
 
+    # Week-ahead uploads run in their own loop, so a long upload never holds up due posts or comments
+    async def staging_loop():
+        while True:
+            try:
+                await asyncio.sleep(60)
+                await calendar_manager.stage_upcoming_posts(social_dispatcher)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logging.error(f"[Staging] Error uploading posts ahead: {e}")
+
+    staging_task = None
     try:
         scheduler_task = asyncio.create_task(scheduler_loop())
+        staging_task = asyncio.create_task(staging_loop())
     except Exception as e:
         logging.warning(f"Could not start calendar scheduler task: {e}")
 
     yield
 
     stop_oauth_bridge()
+    if staging_task:
+        staging_task.cancel()
     if scheduler_task:
         scheduler_task.cancel()
         try:
@@ -203,6 +224,7 @@ class GeneratorRunRequest(BaseModel):
     week: int
     type: str  # "long_form", "reel", "story", "all_reels", "all_stories", "all_week", "regen_thumbnail", "combine_ad"
     target_num: Optional[int] = None
+    target_key: Optional[str] = None  # a reel's day key (mon_2); wins over target_num
     ad_variant: Optional[int] = 1
     regen_thumb: Optional[bool] = False
 
@@ -236,6 +258,9 @@ class SocialConfigRequest(BaseModel):
     auto_publish_on_approve: Optional[bool] = None
     auto_schedule_on_approve: Optional[bool] = None
     default_posting_time: Optional[str] = None
+    stage_ahead_days: Optional[float] = None
+    business_suite: Optional[Dict[str, Any]] = None
+    reel_posting_times: Optional[List[str]] = None
     webhook_url: Optional[str] = None
     webhook_auth_header: Optional[str] = None
     youtube: Optional[Dict[str, Any]] = None
@@ -548,7 +573,7 @@ async def set_asset_status(req: AssetStatusRequest):
             )
         elif auto_sched:
             try:
-                slot = calendar_manager.find_next_available_slot(active_path)
+                slot = calendar_manager.find_next_available_slot(active_path, video_rel_path=req.rel_path)
                 scheduled_entry = calendar_manager.schedule_video(
                     project_path=active_path,
                     video_rel_path=req.rel_path,
@@ -560,7 +585,7 @@ async def set_asset_status(req: AssetStatusRequest):
                 logging.warning(f"Could not auto-schedule approved video {req.rel_path}: {e}")
     elif req.status in ("pending", "rejected"):
         try:
-            calendar_manager.remove_schedule_for_video(active_path, req.rel_path)
+            await calendar_manager.remove_schedule_for_video(active_path, req.rel_path)
         except Exception as e:
             logging.warning(f"Could not remove calendar schedule for unapproved video: {e}")
 
@@ -976,20 +1001,23 @@ async def get_generator_weeks_api():
         has_dir = w_dir.exists()
         
         rendered_count = 0
+        n_reels, n_stories = 5, 5
         if has_dir:
             lf_dir = w_dir / "long_form"
-            if lf_dir.exists() and any(p.suffix == ".mp4" and "temp" not in p.parts for p in lf_dir.glob("*.mp4")):
+            # The long-form is rendered either in long_form/ or in one of its episode folders
+            if lf_dir.exists() and any(p.suffix == ".mp4" and "sample" not in p.name.lower()
+                                       for p in list(lf_dir.glob("*.mp4")) + list(lf_dir.glob("*/*.mp4"))):
                 rendered_count += 1
             r_dir = w_dir / "reels"
             if r_dir.exists():
-                for sub in r_dir.iterdir():
-                    if sub.is_dir() and any(p.suffix == ".mp4" and "temp" not in p.parts for p in sub.glob("*.mp4")):
-                        rendered_count += 1
+                r_subs = [sub for sub in r_dir.iterdir() if sub.is_dir() and sub.name.lower() not in ("temp", "temp_slides")]
+                n_reels = max(5, len(r_subs))
+                rendered_count += sum(1 for sub in r_subs if any(sub.glob("*.mp4")))
             s_dir = w_dir / "stories"
             if s_dir.exists():
-                for sub in s_dir.iterdir():
-                    if sub.is_dir() and any(p.suffix == ".mp4" and "temp" not in p.parts for p in sub.glob("*.mp4")):
-                        rendered_count += 1
+                s_subs = [sub for sub in s_dir.iterdir() if sub.is_dir() and sub.name.lower() not in ("temp", "temp_slides")]
+                n_stories = max(5, len(s_subs))
+                rendered_count += sum(1 for sub in s_subs if any(sub.glob("*.mp4")))
 
         weeks.append({
             "week_num": w,
@@ -998,7 +1026,7 @@ async def get_generator_weeks_api():
             "theme": cur.get("theme", ""),
             "has_dir": has_dir,
             "rendered_count": rendered_count,
-            "total_videos": 11,
+            "total_videos": 1 + n_reels + n_stories,
             "has_scripts": has_dir and (w_dir / "long_form" / "script_30min.txt").exists()
         })
     return {"weeks": weeks}
@@ -1389,29 +1417,24 @@ async def get_generator_week_api(week_id: str):
         elif default_thumb_url:
             lf_data["thumbnail_url"] = default_thumb_url
 
-    # 5 Daily Reels (9:16)
+    # Daily Reels (9:16): reels/<day>_<n>_<name> (mon_1, mon_2, tue_1...) in posting order, any number a day
     reels_list = []
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
     r_dir = w_dir / "reels"
-    r_subdirs = sorted([d for d in r_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()]) if (r_dir.exists() and r_dir.is_dir()) else []
+    reel_times = reel_posting_times(config_manager.get_project_social_config(str(base_p)))
+    # A week without reel folders yet shows 5 empty slots, Monday to Friday
+    week_reels = reel_slots(r_dir) or [(None, day, 1) for day in range(5)]
 
-    for i in range(5):
-        day_name = days[i]
+    for i, (target_sub, day_idx, slot) in enumerate(week_reels):
+        day_name = REEL_DAY_NAMES[day_idx]
         reel_num = i + 1
-        prefix = f"0{reel_num}"
-        target_sub = None
-        for d in r_subdirs:
-            if d.name.startswith(prefix) or d.name.startswith(f"{reel_num}_"):
-                target_sub = d
-                break
-        if not target_sub and i < len(r_subdirs):
-            target_sub = r_subdirs[i]
-
-        global_reel_num = (w_num - 1) * 5 + reel_num
+        global_reel_num = (recorded_reel_number(target_sub) if target_sub else None) or (w_num - 1) * 5 + reel_num
         r_info = {
             "num": reel_num,
             "global_num": global_reel_num,
             "day": day_name,
+            "key": f"{REEL_DAYS[day_idx]}_{slot}",
+            "slot": slot,
+            "post_time": reel_day_and_time(target_sub, reel_times)[1] if target_sub else reel_times[min(slot, len(reel_times)) - 1],
             "reel_id": f"REEL-{w_tag}.{reel_num}",
             "title": f"Reel {reel_num}",
             "hook": "",
@@ -1517,13 +1540,14 @@ async def get_generator_week_api(week_id: str):
 
         reels_list.append(r_info)
 
-    # 5 Daily Stories (9:16)
+    # Daily Stories (9:16): 5 a week, or 15 when posting 3 a day (stories 6-15 carry their day in metadata.json)
     stories_list = []
     s_dir = w_dir / "stories"
-    s_subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()]) if (s_dir.exists() and s_dir.is_dir()) else []
+    s_subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]) if (s_dir.exists() and s_dir.is_dir()) else []
 
-    for i in range(5):
-        day_name = days[i]
+    for i in range(max(5, len(s_subdirs))):
+        # Stories 1-5 are the weekday stories; 6-15 carry their day in metadata.json (read below)
+        day_name = REEL_DAY_NAMES[i] if i < 5 else ""
         story_num = i + 1
         prefix = f"0{story_num}"
         target_sub = None
@@ -1562,6 +1586,9 @@ async def get_generator_week_api(week_id: str):
                     s_info["reference"] = m_json.get("reference") or ""
                     s_info["total_slides"] = m_json.get("total_slides", 5)
                     s_info["sound_suggestion"] = m_json.get("sound_suggestion") or ""
+                    s_info["day"] = m_json.get("day") or s_info["day"]
+                    s_info["slot"] = m_json.get("slot") or ""
+                    s_info["post_time"] = m_json.get("post_time") or ""
                     if m_json.get("story_id"):
                         s_info["story_id"] = m_json.get("story_id")
                 except Exception:
@@ -1613,7 +1640,7 @@ async def get_generator_week_api(week_id: str):
         "scriptures": scriptures,
         "christological_key": christological_key,
         "rendered_count": rendered_count,
-        "total_videos": 11,
+        "total_videos": 1 + len(reels_list) + len(stories_list),
         "long_form": lf_data,
         "reels": reels_list,
         "stories": stories_list
@@ -1664,14 +1691,8 @@ async def get_generator_script(
         script_candidates = [filename] if filename else ["script_30min.txt", "script.txt", "narration_script.txt", "script.md", "03_what_happened_before_genesis_30min.txt"]
     elif type == "reel":
         num = target_num or 1
-        r_dir = w_dir / "reels"
-        subdirs = sorted([d for d in r_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()]) if r_dir.exists() else []
-        for d in subdirs:
-            if d.name.startswith(f"0{num}") or d.name.startswith(f"{num}_") or d.name.startswith(f"{num}-"):
-                target_dir = d
-                break
-        if not target_dir and num <= len(subdirs):
-            target_dir = subdirs[num - 1]
+        # Reels are addressed by their place in the week's posting order (mon_1, mon_2, tue_1...)
+        target_dir = find_reel(w_dir / "reels", num)
         if not target_dir:
             raise HTTPException(status_code=404, detail=f"Reel 0{num} folder not found")
         meta_candidates = ["metadata.json", "metadata.txt"]
@@ -1679,7 +1700,7 @@ async def get_generator_script(
     elif type == "story":
         num = target_num or 1
         s_dir = w_dir / "stories"
-        subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()]) if s_dir.exists() else []
+        subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]) if s_dir.exists() else []
         for d in subdirs:
             if d.name.startswith(f"0{num}") or d.name.startswith(f"{num}_") or d.name.startswith(f"{num}-"):
                 target_dir = d
@@ -1751,7 +1772,9 @@ async def run_generator_api(req: GeneratorRunRequest):
         script_path = next((p for p in script_candidates if p.exists()), None)
         if not script_path:
             raise HTTPException(status_code=404, detail="generate_video.py not found in project")
-        args = ["--week", str(req.week), "--force-rebuild"]
+        # No --force-rebuild: the generator re-records the narration only when the script changed, keeps
+        # finished images, and always re-assembles the video
+        args = ["--week", str(req.week)]
         if req.target_num:
             args.extend(["--video", str(req.target_num)])
         cwd = str(base_p)
@@ -1766,7 +1789,7 @@ async def run_generator_api(req: GeneratorRunRequest):
         script_path = next((p for p in script_candidates if p.exists()), None)
         if not script_path:
             raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
-        args = ["--week", str(req.week), "--reel", str(target_num), "--force-rebuild"]
+        args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--force-rebuild"]
 
     elif req.type == "regen_thumbnail":
         target_num = req.target_num or 1
@@ -1778,7 +1801,7 @@ async def run_generator_api(req: GeneratorRunRequest):
         script_path = next((p for p in script_candidates if p.exists()), None)
         if not script_path:
             raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
-        args = ["--week", str(req.week), "--reel", str(target_num), "--thumbnail-only"]
+        args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--thumbnail-only"]
 
     elif req.type == "combine_ad":
         target_num = req.target_num or 1
@@ -1790,7 +1813,7 @@ async def run_generator_api(req: GeneratorRunRequest):
         script_path = next((p for p in script_candidates if p.exists()), None)
         if not script_path:
             raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
-        args = ["--week", str(req.week), "--reel", str(target_num), "--ads", str(req.ad_variant or 1), "--combine-ad"]
+        args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--ads", str(req.ad_variant or 1), "--combine-ad"]
         if req.regen_thumb:
             args.append("--thumbnail-only")
 
@@ -1841,20 +1864,10 @@ async def run_generator_api(req: GeneratorRunRequest):
         args = ["--week", str(req.week), "--all", "--force-rebuild"]
 
     elif req.type == "all_week":
-        if (base_p / "generate_video.py").exists():
-            script_path = base_p / "generate_video.py"
-            args = ["--week", str(req.week)]
-        elif (base_p / "scripts" / "generate_video.py").exists():
-            script_path = base_p / "scripts" / "generate_video.py"
-            args = ["--week", str(req.week)]
-        elif (base_p / "generate_reel.py").exists():
-            script_path = base_p / "generate_reel.py"
-            args = ["--week", str(req.week)]
-        elif (base_p / "scripts" / "generate_story.py").exists():
-            script_path = base_p / "scripts" / "generate_story.py"
-            args = ["--week", str(req.week), "--all"]
-        else:
-            raise HTTPException(status_code=404, detail="Generation scripts not found")
+        # Whole week in order: every long-form episode, then reels, then stories (they borrow the reels' art).
+        # Up-to-date videos are skipped.
+        script_path = Path(__file__).resolve().parent / "scripts" / "generate_week.py"
+        args = ["--week", str(req.week), "--project", str(base_p)]
 
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported generator target type: {req.type}")
@@ -1936,7 +1949,7 @@ async def add_calendar_schedule(req: CalendarScheduleRequest):
 @app.put("/api/calendar/schedule/{post_id}")
 async def update_calendar_schedule(post_id: str, req: CalendarUpdateRequest):
     try:
-        updated = calendar_manager.update_post(
+        res = await calendar_manager.change_post(
             post_id=post_id,
             date_str=req.scheduled_date,
             time_str=req.scheduled_time,
@@ -1944,9 +1957,11 @@ async def update_calendar_schedule(post_id: str, req: CalendarUpdateRequest):
             force=req.force or False,
             status=req.status
         )
-        return {"success": True, "entry": updated}
+        return {"success": True, "entry": res["entry"], "notes": res["notes"], "errors": res["errors"]}
     except KeyError:
         raise HTTPException(status_code=404, detail="Schedule post not found")
+    except PostBusyError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
@@ -1954,21 +1969,31 @@ async def update_calendar_schedule(post_id: str, req: CalendarUpdateRequest):
 
 @app.delete("/api/calendar/schedule/{post_id}")
 async def delete_calendar_schedule(post_id: str):
-    removed = calendar_manager.delete_post(post_id)
-    if not removed:
+    try:
+        res = await calendar_manager.remove_post(post_id)
+    except KeyError:
         raise HTTPException(status_code=404, detail="Schedule post not found")
-    return {"success": True, "deleted_id": post_id}
+    except PostBusyError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    if not res["success"]:
+        raise HTTPException(
+            status_code=502,
+            detail="The post was kept on the calendar because a copy waiting on a platform couldn't be deleted: "
+                   + "; ".join(res["errors"]) + ". Try again, or delete it in YouTube Studio / Meta Business Suite."
+        )
+    return {"success": True, "deleted_id": post_id, "deleted_copies": res["deleted_copies"]}
 
 @app.post("/api/calendar/schedule/{post_id}/post_now")
 async def trigger_post_now(
-    post_id: str, 
+    post_id: str,
     force_republish: bool = Query(False),
     platforms: Optional[str] = Query(None)
 ):
-    items = calendar_manager._load_all()
-    item = next((it for it in items if it.get("id") == post_id), None)
+    item = calendar_manager.get_post_by_id(post_id)
     if not item:
         raise HTTPException(status_code=404, detail="Schedule post not found")
+    if calendar_manager.is_busy(post_id):
+        raise HTTPException(status_code=409, detail="This post is being uploaded right now. Try again in a few minutes.")
     # If item["title"] is just the filename stem, allow extract_metadata_for_video to supply the true title
     passed_title = item.get("title")
     vid_stem_title = Path(item["video_rel_path"]).stem.replace("_", " ").title()
@@ -1976,49 +2001,120 @@ async def trigger_post_now(
         passed_title = None
 
     target_platforms = [p.strip().lower() for p in platforms.split(",") if p.strip()] if platforms else item.get("platforms", ["youtube"])
-    item["platforms"] = target_platforms
 
-    res = await social_dispatcher.publish_video(
-        project_path_str=item["project_path"],
-        video_rel_path=item["video_rel_path"],
-        platforms=target_platforms,
-        custom_title=passed_title,
-        force_republish=force_republish
-    )
+    # Copies already waiting on a platform go out now instead of being uploaded a second time: the YouTube copy is
+    # made public, the Facebook copy is replaced by an immediate post
+    released = await calendar_manager.release_staged(post_id, target_platforms)
+    failed_release = [e.split(":", 1)[0].lower() for e in released["errors"]]
+    upload_platforms = [p for p in target_platforms if p not in released["released"] and p not in failed_release]
+
+    if upload_platforms:
+        calendar_manager._busy.add(post_id)
+        try:
+            res = await social_dispatcher.publish_video(
+                project_path_str=item["project_path"],
+                video_rel_path=item["video_rel_path"],
+                platforms=upload_platforms,
+                custom_title=passed_title,
+                force_republish=force_republish
+            )
+        finally:
+            calendar_manager._busy.discard(post_id)
+    else:
+        res = {"success": True, "title": item.get("title"), "platforms": {}}
+    res.setdefault("platforms", {})
+    for p in released["released"]:
+        res["platforms"][p] = {"status": "published", "platform": p.capitalize(), "message": "The copy waiting on YouTube is public now."}
+    for err in released["errors"]:
+        res["platforms"][err.split(":", 1)[0].lower()] = {"status": "failed", "error": err}
+    if released["errors"]:
+        res["success"] = False
+        res["error"] = "; ".join(released["errors"])
+
     import datetime
     now_iso = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    item["posted_at"] = now_iso
-    item["dispatch_result"] = res
-    if res.get("title"):
-        item["title"] = res["title"]
-    if (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False):
-        item["status"] = "posted"
+    posted = (res.get("success", False) or res.get("simulated", False)) and not res.get("skipped", False)
+    if posted:
         asset_manager.update_social_posted_batch(item["video_rel_path"], target_platforms)
-    else:
-        item["status"] = "failed"
-        item["error"] = res.get("message") or res.get("error", "Dispatch failed or skipped")
-    calendar_manager._save_all(items)
-    return {"success": item["status"] == "posted", "entry": item, "dispatch": res}
+
+    def apply(it):
+        it["platforms"] = target_platforms
+        it["posted_at"] = now_iso
+        it["dispatch_result"] = res
+        if res.get("title"):
+            it["title"] = res["title"]
+        if posted:
+            it["status"] = "posted"
+        else:
+            it["status"] = "failed"
+            it["error"] = res.get("message") or res.get("error", "Dispatch failed or skipped")
+
+    entry = calendar_manager._patch_item(post_id, apply)
+    return {"success": posted, "entry": entry, "dispatch": res}
 
 @app.post("/api/calendar/schedule/{post_id}/pre_upload")
 async def trigger_pre_upload(
     post_id: str,
-    platforms: Optional[str] = Query(None)
+    platforms: Optional[str] = Query(None),
+    replace: bool = Query(False)
 ):
     target_platforms = [p.strip().lower() for p in platforms.split(",") if p.strip()] if platforms else None
     try:
         res = await calendar_manager.pre_upload_post(
             post_id=post_id,
             platforms=target_platforms,
-            social_dispatcher=social_dispatcher
+            social_dispatcher=social_dispatcher,
+            replace=replace
         )
         return res
     except KeyError:
         raise HTTPException(status_code=404, detail="Schedule post not found")
+    except PostBusyError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/calendar/business_suite")
+async def get_business_suite_checklist(project_path: Optional[str] = Query(None), days: int = Query(7)):
+    """The coming week's Instagram reels / stories and Facebook Stories to schedule by hand in Meta Business Suite,
+    with the caption exactly as KCT Studio would post it."""
+    target_path = project_path or config_manager.get_active_project()
+    tasks = calendar_manager.business_suite_tasks(target_path, days)
+    for t in tasks:
+        t["caption"] = ""
+        if t["is_story"]:
+            continue
+        try:
+            texts = await asyncio.to_thread(social_dispatcher.compose_post_texts, Path(t["project_path"]), t["video_rel_path"])
+            t["caption"] = texts["captions"]["instagram"]
+        except Exception as e:
+            t["caption_error"] = str(e)
+    return {"success": True, "tasks": tasks, "planner_url": "https://business.facebook.com/latest/content_calendar"}
+
+@app.post("/api/calendar/schedule/{post_id}/manual/{platform}")
+async def set_business_suite_state(post_id: str, platform: str, done: bool = Query(True)):
+    try:
+        entry = calendar_manager.set_manual_state(post_id, platform.lower(), done)
+        return {"success": True, "entry": entry}
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Schedule post not found")
+
+class RevealVideoRequest(BaseModel):
+    project_path: str
+    video_rel_path: str
+
+@app.post("/api/calendar/reveal_video")
+async def reveal_calendar_video(req: RevealVideoRequest):
+    """Opens Explorer with the video file selected (to drag it into Business Suite)."""
+    base = Path(req.project_path).resolve()
+    target = (base / req.video_rel_path).resolve()
+    if base not in target.parents or not target.is_file():
+        raise HTTPException(status_code=404, detail="Video file not found")
+    if sys.platform == "win32":
+        subprocess.Popen(["explorer.exe", f"/select,{target}"], shell=False)
+    return {"success": True, "file_path": str(target)}
 
 @app.post("/api/calendar/auto_schedule")
 async def auto_schedule_posts(req: CalendarAutoScheduleRequest):
@@ -2027,10 +2123,11 @@ async def auto_schedule_posts(req: CalendarAutoScheduleRequest):
     return {"success": True, "scheduled_count": len(new_items), "items": new_items}
 
 @app.get("/api/calendar/next_slot")
-async def get_next_calendar_slot(project_path: Optional[str] = Query(None), platforms: Optional[str] = Query(None)):
+async def get_next_calendar_slot(project_path: Optional[str] = Query(None), platforms: Optional[str] = Query(None),
+                                 video_rel_path: Optional[str] = Query(None)):
     target_path = project_path or config_manager.get_active_project()
     plat_list = [p.strip() for p in platforms.split(",")] if platforms else None
-    slot = calendar_manager.find_next_available_slot(target_path, plat_list)
+    slot = calendar_manager.find_next_available_slot(target_path, plat_list, video_rel_path=video_rel_path)
     return slot
 
 @app.get("/api/calendar/unposted_approved_videos")

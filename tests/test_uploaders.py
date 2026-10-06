@@ -68,6 +68,44 @@ class YouTubeUploaderTests(unittest.TestCase):
         _, snippet = self.upload(desc, ["Bible"])
         self.assertNotIn("#Shorts", snippet["description"])
 
+    def test_discloses_synthetic_media_and_sanitizes_title(self):
+        captured = {}
+
+        class FakeInsert:
+            def next_chunk(self):
+                return None, {"id": "vid123"}
+
+        class FakeYouTube:
+            def videos(self):
+                return self
+
+            def insert(self, part, body, media_body):
+                captured["body"] = body
+                return FakeInsert()
+
+        path = temp_video()
+        try:
+            with mock.patch.object(youtube_uploader, "get_credentials", return_value=object()), \
+                    mock.patch("core.youtube_uploader.build", return_value=FakeYouTube()), \
+                    mock.patch("core.youtube_uploader.MediaFileUpload"):
+                res = youtube_uploader.upload_video(
+                    path,
+                    "Title With <Invalid> Characters",
+                    "Description with raw link: https://unsafe.com and bit.ly/test\n\n#Bible",
+                    tags=["Bible"]
+                )
+        finally:
+            path.unlink()
+
+        self.assertEqual(res["status"], "published")
+        # Rule 7: Altered or synthetic content disclosure
+        self.assertTrue(captured["body"]["status"].get("containsSyntheticMedia"))
+        # Title sanitization (no < or >)
+        self.assertEqual(captured["body"]["snippet"]["title"], "Title With Invalid Characters")
+        # Description sanitization (no raw URLs)
+        self.assertNotIn("https://", captured["body"]["snippet"]["description"])
+        self.assertNotIn("bit.ly", captured["body"]["snippet"]["description"])
+
 
 class MetaUploaderTests(unittest.TestCase):
     def setUp(self):

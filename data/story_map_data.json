@@ -44,113 +44,9 @@
           "title": "What Did God Do BEFORE Genesis 1:1?",
           "hook_type": "Mystery Hook",
           "hook": "The angels sang for joy before earth was formed (Job 38:7).",
-          "rel_path": "W01/reels/01_what_did_god_do_before_gen_1/01_what_did_god_do_before_gen_1_final_reel.mp4",
-          "video_url": "/api/media/W01/reels/01_what_did_god_do_before_gen_1/01_what_did_god_do_before_gen_1_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W01/reels/01_what_did_god_do_before_gen_1/01_what_did_god_do_before_gen_1_final_reel.mp4",
-          "has_video": true,
-          "published": {
-            "youtube": {
-              "status": "published",
-              "time": 1790920882.4610431,
-              "details": {
-                "status": "published",
-                "platform": "YouTube",
-                "id": "8jFT4fPTeJ4",
-                "url": "https://youtu.be/8jFT4fPTeJ4",
-                "scheduled": false,
-                "message": "Published to YouTube: https://youtu.be/8jFT4fPTeJ4"
-              }
-            },
-            "facebook": {
-              "status": "published",
-              "time": 1790920882.5716686,
-              "details": {
-                "status": "published",
-                "platform": "Facebook",
-                "id": "1621100229805030",
-                "url": "https://www.facebook.com/watch/?v=1621100229805030",
-                "scheduled": false,
-                "message": "Published to Facebook Page: https://www.facebook.com/watch/?v=1621100229805030"
-              }
-            }
-          }
-        },
-        {
-          "id": "R-W01.2",
-          "num": 2,
-          "global_num": 2,
-          "day": "Tue",
-          "badge": "Bible Secrets #002 [W01.2]",
-          "title": "The Cross Hidden in the Very First Hebrew Word!",
-          "hook_type": "Ancient Hebrew / Text",
-          "hook": "The pictographic letters of Bereshit spell 'The Son of God dies on the Cross'.",
-          "rel_path": "W01/reels/02_cross_hidden_in_first_hebrew_word/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
-          "video_url": "/api/media/W01/reels/02_cross_hidden_in_first_hebrew_word/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W01/reels/02_cross_hidden_in_first_hebrew_word/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W01.3",
-          "num": 3,
-          "global_num": 3,
-          "day": "Wed",
-          "badge": "Bible Secrets #003 [W01.3]",
-          "title": "Who Were the 'Morning Stars' Who Sang at Creation?",
-          "hook_type": "Prophecy / Scroll",
-          "hook": "Explaining the Sons of God (Bene Elohim) in Job 38.",
-          "rel_path": "W01/reels/03_morning_stars_singing_job_38/03_morning_stars_singing_job_38_final_reel.mp4",
-          "video_url": "/api/media/W01/reels/03_morning_stars_singing_job_38/03_morning_stars_singing_job_38_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W01/reels/03_morning_stars_singing_job_38/03_morning_stars_singing_job_38_final_reel.mp4",
-          "has_video": true,
-          "published": {
-            "facebook": {
-              "status": "published",
-              "time": 1791027731.669038,
-              "details": {
-                "status": "published",
-                "platform": "Facebook Reels",
-                "id": "2260464948133359",
-                "url": "https://www.facebook.com/reel/2260464948133359",
-                "is_reel": true,
-                "scheduled": false,
-                "scheduled_timestamp": null,
-                "first_comment": {
-                  "status": "failed",
-                  "error": "(#200) The permission(s) pages_read_user_content,pages_manage_engagement are not available. It could because either they are deprecated or need to be approved by App Review."
-                },
-                "message": "Published Reel to Facebook Page: https://www.facebook.com/reel/2260464948133359"
-              }
-            }
-          }
-        },
-        {
-          "id": "R-W01.4",
-          "num": 4,
-          "global_num": 4,
-          "day": "Thu",
-          "badge": "Bible Secrets #004 [W01.4]",
-          "title": "Why John 1:1 Re-Wrote Genesis 1:1",
-          "hook_type": "Christological Typology",
-          "hook": "Jesus is the Speaker of Genesis: In the beginning was the WORD.",
-          "rel_path": "W01/reels/04_why_john_1_rewrote_genesis_1/04_why_john_1_rewrote_genesis_1_final_reel.mp4",
-          "video_url": "/api/media/W01/reels/04_why_john_1_rewrote_genesis_1/04_why_john_1_rewrote_genesis_1_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W01/reels/04_why_john_1_rewrote_genesis_1/04_why_john_1_rewrote_genesis_1_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W01.5",
-          "num": 5,
-          "global_num": 5,
-          "day": "Fri",
-          "badge": "Bible Secrets #005 [W01.5]",
-          "title": "Heylel's Disqualification: The Guardian Who Fell",
-          "hook_type": "Bestselling Book CTA",
-          "hook": "Why Ezekiel 28 says the covering cherub walked in Eden before his pride.",
-          "rel_path": "W01/reels/05_lucifers_pre_cosmic_fall/05_lucifers_pre_cosmic_fall_final_reel.mp4",
-          "video_url": "/api/media/W01/reels/05_lucifers_pre_cosmic_fall/05_lucifers_pre_cosmic_fall_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W01/reels/05_lucifers_pre_cosmic_fall/05_lucifers_pre_cosmic_fall_final_reel.mp4",
+          "rel_path": "W01/reels/fri_1_lucifers_pre_cosmic_fall/fri_1_lucifers_pre_cosmic_fall_final_reel.mp4",
+          "video_url": "/api/media/W01/reels/fri_1_lucifers_pre_cosmic_fall/fri_1_lucifers_pre_cosmic_fall_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W01/reels/fri_1_lucifers_pre_cosmic_fall/fri_1_lucifers_pre_cosmic_fall_final_reel.mp4",
           "has_video": true,
           "published": {
             "youtube": {
@@ -190,6 +86,126 @@
                 "id": "17895781674672864",
                 "url": "https://www.instagram.com/reel/Dd-_MnwDv_k/",
                 "message": "Published Reel to @biblesecretsrevealed2318: https://www.instagram.com/reel/Dd-_MnwDv_k/"
+              }
+            }
+          }
+        },
+        {
+          "id": "R-W01.2",
+          "num": 2,
+          "global_num": 2,
+          "day": "Tue",
+          "badge": "Bible Secrets #002 [W01.2]",
+          "title": "The Cross Hidden in the Very First Hebrew Word!",
+          "hook_type": "Ancient Hebrew / Text",
+          "hook": "The pictographic letters of Bereshit spell 'The Son of God dies on the Cross'.",
+          "rel_path": "W01/reels/mon_1_what_did_god_do_before_gen_1/mon_1_what_did_god_do_before_gen_1_final_reel.mp4",
+          "video_url": "/api/media/W01/reels/mon_1_what_did_god_do_before_gen_1/mon_1_what_did_god_do_before_gen_1_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W01/reels/mon_1_what_did_god_do_before_gen_1/mon_1_what_did_god_do_before_gen_1_final_reel.mp4",
+          "has_video": true,
+          "published": {
+            "youtube": {
+              "status": "published",
+              "time": 1790920882.4610431,
+              "details": {
+                "status": "published",
+                "platform": "YouTube",
+                "id": "8jFT4fPTeJ4",
+                "url": "https://youtu.be/8jFT4fPTeJ4",
+                "scheduled": false,
+                "message": "Published to YouTube: https://youtu.be/8jFT4fPTeJ4"
+              }
+            },
+            "facebook": {
+              "status": "published",
+              "time": 1790920882.5716686,
+              "details": {
+                "status": "published",
+                "platform": "Facebook",
+                "id": "1621100229805030",
+                "url": "https://www.facebook.com/watch/?v=1621100229805030",
+                "scheduled": false,
+                "message": "Published to Facebook Page: https://www.facebook.com/watch/?v=1621100229805030"
+              }
+            }
+          }
+        },
+        {
+          "id": "R-W01.3",
+          "num": 3,
+          "global_num": 3,
+          "day": "Wed",
+          "badge": "Bible Secrets #003 [W01.3]",
+          "title": "Who Were the 'Morning Stars' Who Sang at Creation?",
+          "hook_type": "Prophecy / Scroll",
+          "hook": "Explaining the Sons of God (Bene Elohim) in Job 38.",
+          "rel_path": "W01/reels/thu_1_why_john_1_rewrote_genesis_1/thu_1_why_john_1_rewrote_genesis_1_final_reel.mp4",
+          "video_url": "/api/media/W01/reels/thu_1_why_john_1_rewrote_genesis_1/thu_1_why_john_1_rewrote_genesis_1_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W01/reels/thu_1_why_john_1_rewrote_genesis_1/thu_1_why_john_1_rewrote_genesis_1_final_reel.mp4",
+          "has_video": true,
+          "published": {}
+        },
+        {
+          "id": "R-W01.4",
+          "num": 4,
+          "global_num": 4,
+          "day": "Thu",
+          "badge": "Bible Secrets #004 [W01.4]",
+          "title": "Why John 1:1 Re-Wrote Genesis 1:1",
+          "hook_type": "Christological Typology",
+          "hook": "Jesus is the Speaker of Genesis: In the beginning was the WORD.",
+          "rel_path": "W01/reels/tue_1_cross_hidden_in_first_hebrew_word/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
+          "video_url": "/api/media/W01/reels/tue_1_cross_hidden_in_first_hebrew_word/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W01/reels/tue_1_cross_hidden_in_first_hebrew_word/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
+          "has_video": true,
+          "published": {}
+        },
+        {
+          "id": "R-W01.5",
+          "num": 5,
+          "global_num": 5,
+          "day": "Fri",
+          "badge": "Bible Secrets #005 [W01.5]",
+          "title": "Heylel's Disqualification: The Guardian Who Fell",
+          "hook_type": "Bestselling Book CTA",
+          "hook": "Why Ezekiel 28 says the covering cherub walked in Eden before his pride.",
+          "rel_path": "W01/reels/wed_1_morning_stars_singing_job_38/wed_1_morning_stars_singing_job_38_final_reel.mp4",
+          "video_url": "/api/media/W01/reels/wed_1_morning_stars_singing_job_38/wed_1_morning_stars_singing_job_38_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W01/reels/wed_1_morning_stars_singing_job_38/wed_1_morning_stars_singing_job_38_final_reel.mp4",
+          "has_video": true,
+          "published": {
+            "facebook": {
+              "status": "published",
+              "time": 1791027731.669038,
+              "details": {
+                "status": "published",
+                "platform": "Facebook Reels",
+                "id": "2260464948133359",
+                "url": "https://www.facebook.com/reel/2260464948133359",
+                "is_reel": true,
+                "scheduled": false,
+                "scheduled_timestamp": null,
+                "first_comment": {
+                  "status": "failed",
+                  "error": "(#200) The permission(s) pages_read_user_content,pages_manage_engagement are not available. It could because either they are deprecated or need to be approved by App Review."
+                },
+                "message": "Published Reel to Facebook Page: https://www.facebook.com/reel/2260464948133359"
+              }
+            },
+            "instagram": {
+              "status": "published",
+              "time": 1791039605.185914,
+              "details": {
+                "status": "published",
+                "platform": "Instagram",
+                "id": "18074393351737915",
+                "url": "https://www.instagram.com/reel/DeCU2Qemzzt/",
+                "first_comment": {
+                  "status": "failed",
+                  "error": "(#10) Application does not have permission for this action"
+                },
+                "is_story": false,
+                "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeCU2Qemzzt/"
               }
             }
           }
@@ -236,7 +252,33 @@
           "video_url": "/api/media/W01/stories/03_divine_council_study_notes/story_video_final.mp4",
           "thumbnail_url": "/api/thumbnail/W01/stories/03_divine_council_study_notes/story_video_final.mp4",
           "has_video": true,
-          "published": {}
+          "published": {
+            "facebook": {
+              "status": "published",
+              "time": 1791046002.8877442,
+              "details": {
+                "status": "published",
+                "platform": "Facebook Story",
+                "id": "1054581154248956",
+                "url": "https://www.facebook.com/1054581154248956",
+                "is_story": true,
+                "message": "Published Story to Facebook Page: https://www.facebook.com/1054581154248956"
+              }
+            },
+            "instagram": {
+              "status": "published",
+              "time": 1791046003.0274146,
+              "details": {
+                "status": "published",
+                "platform": "Instagram",
+                "id": "18125643499855836",
+                "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/3999905967345307815",
+                "first_comment": null,
+                "is_story": true,
+                "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/3999905967345307815"
+              }
+            }
+          }
         },
         {
           "id": "S-W01.4",
@@ -362,9 +404,27 @@
           "rel_path": "W01/long_form/02_the_divine_council_and_lucifers_fall/W01_week_01_final_16x9.mp4",
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1998,
+          "script_word_count": 2027,
           "status": "covered",
-          "published": {}
+          "published": {
+            "youtube": {
+              "status": "published",
+              "time": 1791095492.5124323,
+              "details": {
+                "status": "published",
+                "platform": "YouTube",
+                "id": "xGJZjcG4nBc",
+                "url": "https://youtu.be/xGJZjcG4nBc",
+                "scheduled": false,
+                "scheduled_for": null,
+                "thumbnail_attached": true,
+                "comment_posted": true,
+                "message": "Published to YouTube: https://youtu.be/xGJZjcG4nBc",
+                "comment_id": "UgxEccvbLDKZW4OO8cd4AaABAg",
+                "mode": "YouTube Standard"
+              }
+            }
+          }
         }
       ]
     },
@@ -386,8 +446,8 @@
         "christological_key": "God said 'Let there be light' - Jesus is the True Light that enlightens every person coming into the world.",
         "status": "covered",
         "episode_folder": "1-The-Creation",
-        "rel_path": "W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_the_pre_existent_logos_who_com_final_16x9.mp4",
-        "video_url": "/api/media/W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_the_pre_existent_logos_who_com_final_16x9.mp4",
+        "rel_path": "W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_decoded_the_word_final_16x9.mp4",
+        "video_url": "/api/media/W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_decoded_the_word_final_16x9.mp4",
         "thumbnail_url": "/api/thumbnail/W02/long_form/01_genesis_1_pre_existent_logos/thumbnail.jpg",
         "published": {}
       },
@@ -408,9 +468,9 @@
           "title": "Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W02/reels/01_physics_of_let_there_be_light/01_physics_of_let_there_be_light_final_reel.mp4",
-          "video_url": "/api/media/W02/reels/01_physics_of_let_there_be_light/01_physics_of_let_there_be_light_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W02/reels/01_physics_of_let_there_be_light/01_physics_of_let_there_be_light_final_reel.mp4",
+          "rel_path": "W02/reels/fri_1_day_seven_sabbath_rest_of_christ/fri_1_day_seven_sabbath_rest_of_christ_final_reel.mp4",
+          "video_url": "/api/media/W02/reels/fri_1_day_seven_sabbath_rest_of_christ/fri_1_day_seven_sabbath_rest_of_christ_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/reels/fri_1_day_seven_sabbath_rest_of_christ/fri_1_day_seven_sabbath_rest_of_christ_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -423,11 +483,63 @@
           "title": "Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W02/reels/02_ruach_hovering_over_chaos/02_ruach_hovering_over_chaos_final_reel.mp4",
-          "video_url": "/api/media/W02/reels/02_ruach_hovering_over_chaos/02_ruach_hovering_over_chaos_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W02/reels/02_ruach_hovering_over_chaos/02_ruach_hovering_over_chaos_final_reel.mp4",
+          "rel_path": "W02/reels/mon_1_physics_of_let_there_be_light/mon_1_physics_of_let_there_be_light_final_reel.mp4",
+          "video_url": "/api/media/W02/reels/mon_1_physics_of_let_there_be_light/mon_1_physics_of_let_there_be_light_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/reels/mon_1_physics_of_let_there_be_light/mon_1_physics_of_let_there_be_light_final_reel.mp4",
           "has_video": true,
-          "published": {}
+          "published": {
+            "youtube": {
+              "status": "published",
+              "time": 1791178260.6546125,
+              "details": {
+                "status": "published",
+                "platform": "YouTube",
+                "id": "cvLqaLfRHDA",
+                "url": "https://youtu.be/cvLqaLfRHDA",
+                "scheduled": false,
+                "scheduled_for": null,
+                "thumbnail_attached": true,
+                "comment_posted": true,
+                "message": "Published to YouTube: https://youtu.be/cvLqaLfRHDA",
+                "comment_id": "Ugy5dV5O0RFi733T_UB4AaABAg",
+                "mode": "YouTube Shorts"
+              }
+            },
+            "facebook": {
+              "status": "published",
+              "time": 1791178261.0568404,
+              "details": {
+                "status": "published",
+                "platform": "Facebook Reels",
+                "id": "28848363748113520",
+                "url": "https://www.facebook.com/reel/28848363748113520",
+                "is_reel": true,
+                "scheduled": false,
+                "scheduled_timestamp": null,
+                "first_comment": {
+                  "status": "posted",
+                  "comment_id": "28848363748113520_39966474442951751"
+                },
+                "message": "Published Reel to Facebook Page: https://www.facebook.com/reel/28848363748113520"
+              }
+            },
+            "instagram": {
+              "status": "published",
+              "time": 1791178261.51405,
+              "details": {
+                "status": "published",
+                "platform": "Instagram",
+                "id": "17991883929111403",
+                "url": "https://www.instagram.com/reel/DeGdVNCj4Fh/",
+                "first_comment": {
+                  "status": "failed",
+                  "error": "(#10) Application does not have permission for this action"
+                },
+                "is_story": false,
+                "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeGdVNCj4Fh/"
+              }
+            }
+          }
         },
         {
           "id": "R-W02.3",
@@ -438,9 +550,9 @@
           "title": "Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W02/reels/03_six_days_literal_or_epochs/03_six_days_literal_or_epochs_final_reel.mp4",
-          "video_url": "/api/media/W02/reels/03_six_days_literal_or_epochs/03_six_days_literal_or_epochs_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W02/reels/03_six_days_literal_or_epochs/03_six_days_literal_or_epochs_final_reel.mp4",
+          "rel_path": "W02/reels/thu_1_let_us_make_man_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
+          "video_url": "/api/media/W02/reels/thu_1_let_us_make_man_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/reels/thu_1_let_us_make_man_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -453,11 +565,72 @@
           "title": "Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness (Part 4)",
           "hook_type": "Christological Typology",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W02/reels/04_let_us_make_man_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
-          "video_url": "/api/media/W02/reels/04_let_us_make_man_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W02/reels/04_let_us_make_man_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
+          "rel_path": "W02/reels/tue_1_ruach_hovering_over_chaos/tue_1_ruach_hovering_over_chaos_final_reel.mp4",
+          "video_url": "/api/media/W02/reels/tue_1_ruach_hovering_over_chaos/tue_1_ruach_hovering_over_chaos_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/reels/tue_1_ruach_hovering_over_chaos/tue_1_ruach_hovering_over_chaos_final_reel.mp4",
           "has_video": true,
-          "published": {}
+          "published": {
+            "youtube": {
+              "status": "published",
+              "time": 1791253462.31209,
+              "details": {
+                "status": "published",
+                "platform": "YouTube",
+                "id": "CQflq4R7kZ0",
+                "url": "https://youtu.be/CQflq4R7kZ0",
+                "scheduled": false,
+                "scheduled_for": null,
+                "thumbnail_attached": true,
+                "comment_posted": true,
+                "message": "Published to YouTube: https://youtu.be/CQflq4R7kZ0",
+                "comment_id": "Ugxwfa1sX3-8_vz1MJR4AaABAg",
+                "mode": "YouTube Shorts",
+                "comment_text": "🎬 Watch the full documentary: https://youtu.be/wtV8RaAFQ2U\n\n🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!",
+                "documentary_link": "https://youtu.be/wtV8RaAFQ2U"
+              }
+            },
+            "facebook": {
+              "status": "published",
+              "time": 1791253462.4347894,
+              "details": {
+                "status": "published",
+                "platform": "Facebook Reels",
+                "id": "1080111661329003",
+                "url": "https://www.facebook.com/reel/1080111661329003",
+                "is_reel": true,
+                "thumbnail_attached": true,
+                "scheduled": false,
+                "scheduled_timestamp": null,
+                "first_comment": {
+                  "status": "posted",
+                  "comment_id": "1080111661329003_2094546157822811"
+                },
+                "message": "Published Reel to Facebook Page: https://www.facebook.com/reel/1080111661329003",
+                "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!",
+                "doc_link_attempts": 5,
+                "doc_link_error": "An unknown error has occurred.",
+                "doc_link_retry_at": 1791262737.2479887
+              }
+            },
+            "instagram": {
+              "status": "published",
+              "time": 1791253462.546254,
+              "details": {
+                "status": "published",
+                "platform": "Instagram",
+                "id": "18025242470878182",
+                "url": "https://www.instagram.com/reel/DeIs-VFjp2Z/",
+                "first_comment": {
+                  "status": "failed",
+                  "error": "(#10) Application does not have permission for this action"
+                },
+                "is_story": false,
+                "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeIs-VFjp2Z/",
+                "thumbnail_attached": true,
+                "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+              }
+            }
+          }
         },
         {
           "id": "R-W02.5",
@@ -467,7 +640,12 @@
           "badge": "Bible Secrets #010 [W02.5]",
           "title": "Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness (Part 5)",
           "hook_type": "Bestselling Book CTA",
-          "hook": "Watch to discover the decoded mystery."
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W02/reels/wed_1_six_days_literal_or_epochs/wed_1_six_days_literal_or_epochs_final_reel.mp4",
+          "video_url": "/api/media/W02/reels/wed_1_six_days_literal_or_epochs/wed_1_six_days_literal_or_epochs_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/reels/wed_1_six_days_literal_or_epochs/wed_1_six_days_literal_or_epochs_final_reel.mp4",
+          "has_video": true,
+          "published": {}
         }
       ],
       "stories": [
@@ -479,9 +657,9 @@
           "badge": "Story #006 [W02.1]",
           "sticker_type": "link_youtube",
           "caption": "New Documentary Streaming! Tap to watch full episode.",
-          "rel_path": "W02/stories/01_the_creation_dawn_of_existence/story_video.mp4",
-          "video_url": "/api/media/W02/stories/01_the_creation_dawn_of_existence/story_video.mp4",
-          "thumbnail_url": "/api/thumbnail/W02/stories/01_the_creation_dawn_of_existence/story_video.mp4",
+          "rel_path": "W02/stories/01_the_creation_dawn_of_existence/story_video_final.mp4",
+          "video_url": "/api/media/W02/stories/01_the_creation_dawn_of_existence/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/stories/01_the_creation_dawn_of_existence/story_video_final.mp4",
           "has_video": true,
           "published": {}
         },
@@ -492,7 +670,58 @@
           "day": "Tue",
           "badge": "Story #007 [W02.2]",
           "sticker_type": "poll",
-          "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+          "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]",
+          "rel_path": "W02/stories/02_bara_vs_asah_word_study/story_video_final.mp4",
+          "video_url": "/api/media/W02/stories/02_bara_vs_asah_word_study/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/stories/02_bara_vs_asah_word_study/story_video_final.mp4",
+          "has_video": true,
+          "published": {
+            "youtube": {
+              "status": "published",
+              "time": 1791273691.544863,
+              "details": {
+                "status": "published",
+                "platform": "YouTube",
+                "id": "LtE7hJVQ3I4",
+                "url": "https://youtu.be/LtE7hJVQ3I4",
+                "scheduled": false,
+                "scheduled_for": null,
+                "thumbnail_attached": true,
+                "comment_posted": true,
+                "message": "Published to YouTube: https://youtu.be/LtE7hJVQ3I4",
+                "comment_id": "UgxIDwtZv6ipY2G8IGZ4AaABAg",
+                "mode": "YouTube Shorts",
+                "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+              }
+            },
+            "facebook": {
+              "status": "published",
+              "time": 1791273691.6925025,
+              "details": {
+                "status": "published",
+                "platform": "Facebook Story",
+                "id": "1139825622024002",
+                "url": "https://www.facebook.com/1139825622024002",
+                "is_story": true,
+                "message": "Published Story to Facebook Page: https://www.facebook.com/1139825622024002",
+                "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+              }
+            },
+            "instagram": {
+              "status": "published",
+              "time": 1791273691.8285866,
+              "details": {
+                "status": "published",
+                "platform": "Instagram",
+                "id": "18039149906643763",
+                "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4001815941994891647",
+                "first_comment": null,
+                "is_story": true,
+                "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4001815941994891647",
+                "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+              }
+            }
+          }
         },
         {
           "id": "S-W02.3",
@@ -501,7 +730,12 @@
           "day": "Wed",
           "badge": "Story #008 [W02.3]",
           "sticker_type": "link_substack",
-          "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+          "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!",
+          "rel_path": "W02/stories/03_six_day_cosmic_temple/story_video_final.mp4",
+          "video_url": "/api/media/W02/stories/03_six_day_cosmic_temple/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/stories/03_six_day_cosmic_temple/story_video_final.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "S-W02.4",
@@ -510,7 +744,12 @@
           "day": "Thu",
           "badge": "Story #009 [W02.4]",
           "sticker_type": "quiz",
-          "caption": "Bible Quiz of the Week on Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness"
+          "caption": "Bible Quiz of the Week on Genesis 1: The Pre-Existent Logos Who Commanded Light from Darkness",
+          "rel_path": "W02/stories/04_image_of_god_imago_dei/story_video_final.mp4",
+          "video_url": "/api/media/W02/stories/04_image_of_god_imago_dei/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/stories/04_image_of_god_imago_dei/story_video_final.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "S-W02.5",
@@ -519,7 +758,12 @@
           "day": "Fri",
           "badge": "Story #010 [W02.5]",
           "sticker_type": "countdown",
-          "caption": "Next Episode Drops Sunday 10 AM!"
+          "caption": "Next Episode Drops Sunday 10 AM!",
+          "rel_path": "W02/stories/05_sabbath_rest_foreshadow/story_video_final.mp4",
+          "video_url": "/api/media/W02/stories/05_sabbath_rest_foreshadow/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W02/stories/05_sabbath_rest_foreshadow/story_video_final.mp4",
+          "has_video": true,
+          "published": {}
         }
       ],
       "community_posts": [
@@ -589,17 +833,17 @@
           "index": 0,
           "id": "doc_1",
           "subfolder": "01_genesis_1_pre_existent_logos",
-          "title": "Genesis 1 Decoded: The Pre-Existent Logos Speaks Light from Chaos",
-          "hook": "",
+          "title": "Genesis 1 Decoded: The Pre-Existent Word Who Spoke Creation Into Being",
+          "hook": "Who was speaking when God said, \"Let there be light\"?",
           "label": "Video 1: 01 Genesis 1 Pre Existent Logos",
           "short_label": "V1: 01 Genesis 1 Pre E",
           "has_video": true,
-          "video_url": "/api/media/W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_the_pre_existent_logos_who_com_final_16x9.mp4",
+          "video_url": "/api/media/W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_decoded_the_word_final_16x9.mp4",
           "thumbnail_url": "/api/thumbnail/W02/long_form/01_genesis_1_pre_existent_logos/thumbnail.jpg",
-          "rel_path": "W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_the_pre_existent_logos_who_com_final_16x9.mp4",
+          "rel_path": "W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_decoded_the_word_final_16x9.mp4",
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 2121,
+          "script_word_count": 4266,
           "status": "covered",
           "published": {}
         },
@@ -607,19 +851,38 @@
           "index": 1,
           "id": "doc_2",
           "subfolder": "02_fiat_lux_uncreated_light",
-          "title": "Fiat Lux: The Physics & Theology of Uncreated Light",
-          "hook": "Why did light exist three full days before the sun was formed?",
+          "title": "Fiat Lux: Light Before the Sun — The Uncreated Light of Genesis 1 and the Light of the World",
+          "hook": "Why was there light three days before the sun?",
           "label": "Video 2: 02 Fiat Lux Uncreated Light",
           "short_label": "V2: 02 Fiat Lux Uncrea",
-          "has_video": false,
-          "video_url": null,
+          "has_video": true,
+          "video_url": "/api/media/W02/long_form/02_fiat_lux_uncreated_light/W02_fiat_lux_light_before_the_sun_final_16x9.mp4",
           "thumbnail_url": "/api/thumbnail/W02/long_form/02_fiat_lux_uncreated_light/thumbnail.jpg",
-          "rel_path": null,
+          "rel_path": "W02/long_form/02_fiat_lux_uncreated_light/W02_fiat_lux_light_before_the_sun_final_16x9.mp4",
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 307,
-          "status": "in_production",
-          "published": {}
+          "script_word_count": 4243,
+          "status": "covered",
+          "published": {
+            "youtube": {
+              "status": "published",
+              "time": 1791258220.9941216,
+              "details": {
+                "status": "published",
+                "platform": "YouTube",
+                "id": "wtV8RaAFQ2U",
+                "url": "https://youtu.be/wtV8RaAFQ2U",
+                "scheduled": false,
+                "scheduled_for": null,
+                "thumbnail_attached": true,
+                "comment_posted": true,
+                "message": "Published to YouTube: https://youtu.be/wtV8RaAFQ2U",
+                "comment_id": "Ugy_ODqsA2tccZTBgLB4AaABAg",
+                "mode": "YouTube Standard",
+                "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+              }
+            }
+          }
         }
       ]
     },
@@ -664,10 +927,10 @@
           "title": "The Seraph in Eden & Heylel's Disqualification: The Guardian Who Fell (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "video_url": "/api/media/W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -679,10 +942,10 @@
           "title": "The Seraph in Eden & Heylel's Disqualification: The Guardian Who Fell (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "video_url": "/api/media/W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -693,7 +956,12 @@
           "badge": "Bible Secrets #013 [W03.3]",
           "title": "The Seraph in Eden & Heylel's Disqualification: The Guardian Who Fell (Part 3)",
           "hook_type": "Prophecy / Scroll",
-          "hook": "Watch to discover the decoded mystery."
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "video_url": "/api/media/W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "R-W03.4",
@@ -703,7 +971,12 @@
           "badge": "Bible Secrets #014 [W03.4]",
           "title": "The Seraph in Eden & Heylel's Disqualification: The Guardian Who Fell (Part 4)",
           "hook_type": "Christological Typology",
-          "hook": "Watch to discover the decoded mystery."
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W03/reels/tue_1_nachash_shining_bronze_seraph/tue_1_nachash_shining_bronze_seraph_final_reel.mp4",
+          "video_url": "/api/media/W03/reels/tue_1_nachash_shining_bronze_seraph/tue_1_nachash_shining_bronze_seraph_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W03/reels/tue_1_nachash_shining_bronze_seraph/tue_1_nachash_shining_bronze_seraph_final_reel.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "R-W03.5",
@@ -724,7 +997,12 @@
           "day": "Mon",
           "badge": "Story #011 [W03.1]",
           "sticker_type": "link_youtube",
-          "caption": "New Documentary Streaming! Tap to watch full episode."
+          "caption": "New Documentary Streaming! Tap to watch full episode.",
+          "rel_path": "W03/stories/01_garden_of_eden_holy_mountain/story_video_final.mp4",
+          "video_url": "/api/media/W03/stories/01_garden_of_eden_holy_mountain/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W03/stories/01_garden_of_eden_holy_mountain/story_video_final.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "S-W03.2",
@@ -840,7 +1118,7 @@
           "rel_path": "W03/long_form/01_the_seraph_in_the_garden_the_creature_behind_the_serpent/10-The_Seraph_and_the_Garden_final_16x9.mp4",
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4811,
+          "script_word_count": 4840,
           "status": "covered",
           "published": {}
         },
@@ -858,7 +1136,7 @@
           "rel_path": null,
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1102,
+          "script_word_count": 1131,
           "status": "in_production",
           "published": {}
         }
@@ -904,9 +1182,9 @@
           "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W04/reels/01_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
-          "video_url": "/api/media/W04/reels/01_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W04/reels/01_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "rel_path": "W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "video_url": "/api/media/W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -919,10 +1197,10 @@
           "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "video_url": "/api/media/W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -1095,7 +1373,7 @@
           "rel_path": null,
           "duration": "26 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1985,
+          "script_word_count": 2014,
           "status": "in_production",
           "published": {}
         },
@@ -1113,7 +1391,7 @@
           "rel_path": null,
           "duration": "26 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1101,
+          "script_word_count": 1130,
           "status": "in_production",
           "published": {}
         }
@@ -1158,10 +1436,10 @@
           "title": "Cain, Abel & The First Blood Sacrifice: The Blood That Speaks Better Things (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4",
+          "video_url": "/api/media/W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -1173,10 +1451,10 @@
           "title": "Cain, Abel & The First Blood Sacrifice: The Blood That Speaks Better Things (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4",
+          "video_url": "/api/media/W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -1233,7 +1511,12 @@
           "day": "Mon",
           "badge": "Story #021 [W05.1]",
           "sticker_type": "link_youtube",
-          "caption": "New Documentary Streaming! Tap to watch full episode."
+          "caption": "New Documentary Streaming! Tap to watch full episode.",
+          "rel_path": "W05/stories/01_cain_and_abel_first_murder/story_video_final.mp4",
+          "video_url": "/api/media/W05/stories/01_cain_and_abel_first_murder/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W05/stories/01_cain_and_abel_first_murder/story_video_final.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "S-W05.2",
@@ -1242,7 +1525,12 @@
           "day": "Tue",
           "badge": "Story #022 [W05.2]",
           "sticker_type": "poll",
-          "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+          "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]",
+          "rel_path": "W05/stories/02_works_vs_faith_altars/story_video_final.mp4",
+          "video_url": "/api/media/W05/stories/02_works_vs_faith_altars/story_video_final.mp4",
+          "thumbnail_url": "/api/thumbnail/W05/stories/02_works_vs_faith_altars/story_video_final.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "S-W05.3",
@@ -1339,8 +1627,8 @@
           "index": 0,
           "id": "doc_1",
           "subfolder": "01_cain_abel_and_the_first_blood_sacrifice",
-          "title": "The First Murder & The Blood on the Ground: The Secrets of Cain & Abel",
-          "hook": "",
+          "title": "Cain & Abel: Why God Rejected Cain's Offering — The Two Altars and the First Blood Sacrifice",
+          "hook": "Why did God accept Abel's offering and reject Cain's?",
           "label": "Video 1: 01 Cain Abel And The First Blood Sacrifice",
           "short_label": "V1: 01 Cain Abel And T",
           "has_video": false,
@@ -1349,7 +1637,7 @@
           "rel_path": null,
           "duration": "25 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1994,
+          "script_word_count": 3884,
           "status": "in_production",
           "published": {}
         },
@@ -1357,8 +1645,8 @@
           "index": 1,
           "id": "doc_2",
           "subfolder": "02_the_blood_that_cries_from_the_ground",
-          "title": "The Blood That Cries: Righteous Abel & The True Lamb [30-Min Master]",
-          "hook": "Why did God accept Abel's blood sacrifice and reject Cain's offering of the earth?",
+          "title": "The Blood That Cries From the Ground: The Mark of Cain & the Better Blood of Jesus",
+          "hook": "Abel's blood is still speaking. Here is what it says.",
           "label": "Video 2: 02 The Blood That Cries From The Ground",
           "short_label": "V2: 02 The Blood That ",
           "has_video": false,
@@ -1367,7 +1655,7 @@
           "rel_path": null,
           "duration": "25 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1085,
+          "script_word_count": 3959,
           "status": "in_production",
           "published": {}
         }
@@ -1414,9 +1702,9 @@
           "title": "The Descent of the Watchers on Mount Hermon: The 200 Fallen Angels (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W06/reels/01_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
-          "video_url": "/api/media/W06/reels/01_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W06/reels/01_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
+          "rel_path": "W06/reels/mon_1_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
+          "video_url": "/api/media/W06/reels/mon_1_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W06/reels/mon_1_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -1429,10 +1717,10 @@
           "title": "The Descent of the Watchers on Mount Hermon: The 200 Fallen Angels (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W06/reels/mon_1_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
+          "video_url": "/api/media/W06/reels/mon_1_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W06/reels/mon_1_why_200_angels_landed_on_hermon/55_the_nephilim_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -1605,7 +1893,7 @@
           "rel_path": "W06/long_form/01_the_watchers_and_the_nephilim_pre_flood_cosmic_incursion/04_the_watchers_and_nephilim_35min_final_16x9.mp4",
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4805,
+          "script_word_count": 4834,
           "status": "covered",
           "published": {}
         },
@@ -1623,7 +1911,7 @@
           "rel_path": null,
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1077,
+          "script_word_count": 1106,
           "status": "in_production",
           "published": {}
         }
@@ -1849,7 +2137,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1788,
+          "script_word_count": 1817,
           "status": "in_production",
           "published": {}
         },
@@ -1867,7 +2155,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1094,
+          "script_word_count": 1123,
           "status": "in_production",
           "published": {}
         }
@@ -1912,9 +2200,9 @@
           "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W08/reels/01_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
-          "video_url": "/api/media/W08/reels/01_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
-          "thumbnail_url": "/api/thumbnail/W08/reels/01_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
+          "rel_path": "W08/reels/mon_1_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
+          "video_url": "/api/media/W08/reels/mon_1_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
+          "thumbnail_url": "/api/thumbnail/W08/reels/mon_1_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
           "has_video": true,
           "published": {}
         },
@@ -1927,10 +2215,10 @@
           "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W08/reels/mon_1_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
+          "video_url": "/api/media/W08/reels/mon_1_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
+          "thumbnail_url": "/api/thumbnail/W08/reels/mon_1_who_was_azazel_leviticus_16/EP026_FINAL.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -2103,7 +2391,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4328,
+          "script_word_count": 4357,
           "status": "in_production",
           "published": {}
         },
@@ -2121,7 +2409,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1116,
+          "script_word_count": 1145,
           "status": "in_production",
           "published": {}
         }
@@ -2357,7 +2645,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 16231,
+          "script_word_count": 16260,
           "status": "in_production",
           "published": {}
         },
@@ -2375,7 +2663,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1116,
+          "script_word_count": 1145,
           "status": "in_production",
           "published": {}
         },
@@ -2393,7 +2681,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 16231,
+          "script_word_count": 16260,
           "status": "in_production",
           "published": {}
         }
@@ -2438,9 +2726,9 @@
           "title": "The Covenant of the Rainbow: The Emerald Halo Encircling the Throne (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W10/reels/01_the_rainbow_was_gods_war_bow/01_the_rainbow_was_gods_war_bow_final_reel.mp4",
-          "video_url": "/api/media/W10/reels/01_the_rainbow_was_gods_war_bow/01_the_rainbow_was_gods_war_bow_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W10/reels/01_the_rainbow_was_gods_war_bow/01_the_rainbow_was_gods_war_bow_final_reel.mp4",
+          "rel_path": "W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4",
+          "video_url": "/api/media/W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2453,10 +2741,10 @@
           "title": "The Covenant of the Rainbow: The Emerald Halo Encircling the Throne (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4",
+          "video_url": "/api/media/W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {
@@ -2629,7 +2917,7 @@
           "rel_path": null,
           "duration": "24 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1605,
+          "script_word_count": 1634,
           "status": "in_production",
           "published": {}
         },
@@ -2647,7 +2935,7 @@
           "rel_path": null,
           "duration": "24 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1130,
+          "script_word_count": 1159,
           "status": "in_production",
           "published": {}
         }
@@ -2693,9 +2981,9 @@
           "title": "The Curse of Ham & Canaan: Uncovering the Sacred Tent Transgression (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W11/reels/51_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
-          "video_url": "/api/media/W11/reels/51_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W11/reels/51_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "rel_path": "W11/reels/fri_1_the_nephilim/fri_1_the_nephilim_final_reel.mp4",
+          "video_url": "/api/media/W11/reels/fri_1_the_nephilim/fri_1_the_nephilim_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W11/reels/fri_1_the_nephilim/fri_1_the_nephilim_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2708,9 +2996,9 @@
           "title": "The Curse of Ham & Canaan: Uncovering the Sacred Tent Transgression (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W11/reels/52_david_described_crucifixion/52_david_described_crucifixion_final_reel.mp4",
-          "video_url": "/api/media/W11/reels/52_david_described_crucifixion/52_david_described_crucifixion_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W11/reels/52_david_described_crucifixion/52_david_described_crucifixion_final_reel.mp4",
+          "rel_path": "W11/reels/mon_1_the_first_prophecy_of_jesus/mon_1_the_first_prophecy_of_jesus_final_reel.mp4",
+          "video_url": "/api/media/W11/reels/mon_1_the_first_prophecy_of_jesus/mon_1_the_first_prophecy_of_jesus_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W11/reels/mon_1_the_first_prophecy_of_jesus/mon_1_the_first_prophecy_of_jesus_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2723,9 +3011,9 @@
           "title": "The Curse of Ham & Canaan: Uncovering the Sacred Tent Transgression (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W11/reels/53_the_chapter_rabbis_skip/53_the_chapter_rabbis_skip_final_reel.mp4",
-          "video_url": "/api/media/W11/reels/53_the_chapter_rabbis_skip/53_the_chapter_rabbis_skip_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W11/reels/53_the_chapter_rabbis_skip/53_the_chapter_rabbis_skip_final_reel.mp4",
+          "rel_path": "W11/reels/thu_1_melchizedek/thu_1_melchizedek_final_reel.mp4",
+          "video_url": "/api/media/W11/reels/thu_1_melchizedek/thu_1_melchizedek_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W11/reels/thu_1_melchizedek/thu_1_melchizedek_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2738,9 +3026,9 @@
           "title": "The Curse of Ham & Canaan: Uncovering the Sacred Tent Transgression (Part 4)",
           "hook_type": "Christological Typology",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W11/reels/54_melchizedek/54_melchizedek_final_reel.mp4",
-          "video_url": "/api/media/W11/reels/54_melchizedek/54_melchizedek_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W11/reels/54_melchizedek/54_melchizedek_final_reel.mp4",
+          "rel_path": "W11/reels/tue_1_david_described_crucifixion/tue_1_david_described_crucifixion_final_reel.mp4",
+          "video_url": "/api/media/W11/reels/tue_1_david_described_crucifixion/tue_1_david_described_crucifixion_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W11/reels/tue_1_david_described_crucifixion/tue_1_david_described_crucifixion_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2753,9 +3041,9 @@
           "title": "The Curse of Ham & Canaan: Uncovering the Sacred Tent Transgression (Part 5)",
           "hook_type": "Bestselling Book CTA",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W11/reels/55_the_nephilim/55_the_nephilim_final_reel.mp4",
-          "video_url": "/api/media/W11/reels/55_the_nephilim/55_the_nephilim_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W11/reels/55_the_nephilim/55_the_nephilim_final_reel.mp4",
+          "rel_path": "W11/reels/wed_1_the_chapter_rabbis_skip/wed_1_the_chapter_rabbis_skip_final_reel.mp4",
+          "video_url": "/api/media/W11/reels/wed_1_the_chapter_rabbis_skip/wed_1_the_chapter_rabbis_skip_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W11/reels/wed_1_the_chapter_rabbis_skip/wed_1_the_chapter_rabbis_skip_final_reel.mp4",
           "has_video": true,
           "published": {}
         }
@@ -2884,7 +3172,7 @@
           "rel_path": "W11/long_form/01_the_curse_of_ham_and_canaan_tent_transgression/7-The_Curse_of_Ham_and_Canaan_final_16x9.mp4",
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4833,
+          "script_word_count": 4862,
           "status": "covered",
           "published": {}
         },
@@ -2902,7 +3190,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1484,
+          "script_word_count": 1513,
           "status": "in_production",
           "published": {}
         }
@@ -2948,9 +3236,9 @@
           "title": "The Stargate of Babel & Nimrod’s Rebellion: Storming the Divine Realm (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W12/reels/56_abraham_almost_killed_isaac/56_abraham_almost_killed_isaac_final_reel.mp4",
-          "video_url": "/api/media/W12/reels/56_abraham_almost_killed_isaac/56_abraham_almost_killed_isaac_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W12/reels/56_abraham_almost_killed_isaac/56_abraham_almost_killed_isaac_final_reel.mp4",
+          "rel_path": "W12/reels/fri_1_moses_hit_a_rock_and_water_came_out/fri_1_moses_hit_a_rock_and_water_came_out_final_reel.mp4",
+          "video_url": "/api/media/W12/reels/fri_1_moses_hit_a_rock_and_water_came_out/fri_1_moses_hit_a_rock_and_water_came_out_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W12/reels/fri_1_moses_hit_a_rock_and_water_came_out/fri_1_moses_hit_a_rock_and_water_came_out_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2963,9 +3251,9 @@
           "title": "The Stargate of Babel & Nimrod’s Rebellion: Storming the Divine Realm (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W12/reels/57_the_passover_lamb/57_the_passover_lamb_final_reel.mp4",
-          "video_url": "/api/media/W12/reels/57_the_passover_lamb/57_the_passover_lamb_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W12/reels/57_the_passover_lamb/57_the_passover_lamb_final_reel.mp4",
+          "rel_path": "W12/reels/mon_1_abraham_almost_killed_isaac/mon_1_abraham_almost_killed_isaac_final_reel.mp4",
+          "video_url": "/api/media/W12/reels/mon_1_abraham_almost_killed_isaac/mon_1_abraham_almost_killed_isaac_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W12/reels/mon_1_abraham_almost_killed_isaac/mon_1_abraham_almost_killed_isaac_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2978,9 +3266,9 @@
           "title": "The Stargate of Babel & Nimrod’s Rebellion: Storming the Divine Realm (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W12/reels/58_jonah_wasnt_just_in_a_fish/58_jonah_wasnt_just_in_a_fish_final_reel.mp4",
-          "video_url": "/api/media/W12/reels/58_jonah_wasnt_just_in_a_fish/58_jonah_wasnt_just_in_a_fish_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W12/reels/58_jonah_wasnt_just_in_a_fish/58_jonah_wasnt_just_in_a_fish_final_reel.mp4",
+          "rel_path": "W12/reels/thu_1_god_told_moses_to_make_a_serpent_idol/thu_1_god_told_moses_to_make_a_serpent_idol_final_reel.mp4",
+          "video_url": "/api/media/W12/reels/thu_1_god_told_moses_to_make_a_serpent_idol/thu_1_god_told_moses_to_make_a_serpent_idol_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W12/reels/thu_1_god_told_moses_to_make_a_serpent_idol/thu_1_god_told_moses_to_make_a_serpent_idol_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2993,9 +3281,9 @@
           "title": "The Stargate of Babel & Nimrod’s Rebellion: Storming the Divine Realm (Part 4)",
           "hook_type": "Christological Typology",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W12/reels/59_god_told_moses_to_make_a_serpent_idol/59_god_told_moses_to_make_a_serpent_idol_final_reel.mp4",
-          "video_url": "/api/media/W12/reels/59_god_told_moses_to_make_a_serpent_idol/59_god_told_moses_to_make_a_serpent_idol_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W12/reels/59_god_told_moses_to_make_a_serpent_idol/59_god_told_moses_to_make_a_serpent_idol_final_reel.mp4",
+          "rel_path": "W12/reels/tue_1_the_passover_lamb/tue_1_the_passover_lamb_final_reel.mp4",
+          "video_url": "/api/media/W12/reels/tue_1_the_passover_lamb/tue_1_the_passover_lamb_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W12/reels/tue_1_the_passover_lamb/tue_1_the_passover_lamb_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3008,9 +3296,9 @@
           "title": "The Stargate of Babel & Nimrod’s Rebellion: Storming the Divine Realm (Part 5)",
           "hook_type": "Bestselling Book CTA",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W12/reels/60_moses_hit_a_rock_and_water_came_out/60_moses_hit_a_rock_and_water_came_out_final_reel.mp4",
-          "video_url": "/api/media/W12/reels/60_moses_hit_a_rock_and_water_came_out/60_moses_hit_a_rock_and_water_came_out_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W12/reels/60_moses_hit_a_rock_and_water_came_out/60_moses_hit_a_rock_and_water_came_out_final_reel.mp4",
+          "rel_path": "W12/reels/wed_1_jonah_wasnt_just_in_a_fish/wed_1_jonah_wasnt_just_in_a_fish_final_reel.mp4",
+          "video_url": "/api/media/W12/reels/wed_1_jonah_wasnt_just_in_a_fish/wed_1_jonah_wasnt_just_in_a_fish_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W12/reels/wed_1_jonah_wasnt_just_in_a_fish/wed_1_jonah_wasnt_just_in_a_fish_final_reel.mp4",
           "has_video": true,
           "published": {}
         }
@@ -3139,7 +3427,7 @@
           "rel_path": "W12/long_form/01_the_stargate_of_babel_nimrods_rebellion/06_the_babel_stargate_35min_final_16x9.mp4",
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4829,
+          "script_word_count": 4858,
           "status": "covered",
           "published": {}
         },
@@ -3157,7 +3445,7 @@
           "rel_path": null,
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1481,
+          "script_word_count": 1510,
           "status": "in_production",
           "published": {}
         }
@@ -3368,7 +3656,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1477,
+          "script_word_count": 1506,
           "status": "in_production",
           "published": {}
         },
@@ -3386,7 +3674,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1479,
+          "script_word_count": 1508,
           "status": "in_production",
           "published": {}
         }
@@ -3432,9 +3720,9 @@
           "title": "The Call of Abram & The Promise of the Seed: Abraham Saw Christ's Day (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W14/reels/66_the_first_three_verses_of_the_bible_contain_the_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
-          "video_url": "/api/media/W14/reels/66_the_first_three_verses_of_the_bible_contain_the_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W14/reels/66_the_first_three_verses_of_the_bible_contain_the_trinity/66_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
+          "rel_path": "W14/reels/fri_1_ruths_story_isnt_a_love_story/fri_1_ruths_story_isnt_a_love_story_final_reel.mp4",
+          "video_url": "/api/media/W14/reels/fri_1_ruths_story_isnt_a_love_story/fri_1_ruths_story_isnt_a_love_story_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W14/reels/fri_1_ruths_story_isnt_a_love_story/fri_1_ruths_story_isnt_a_love_story_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3447,9 +3735,9 @@
           "title": "The Call of Abram & The Promise of the Seed: Abraham Saw Christ's Day (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W14/reels/67_naaman_had_to_dip_7_times/67_naaman_had_to_dip_7_times_final_reel.mp4",
-          "video_url": "/api/media/W14/reels/67_naaman_had_to_dip_7_times/67_naaman_had_to_dip_7_times_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W14/reels/67_naaman_had_to_dip_7_times/67_naaman_had_to_dip_7_times_final_reel.mp4",
+          "rel_path": "W14/reels/mon_1_the_first_three_verses_of_the_bible_contain_the_trinity/mon_1_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
+          "video_url": "/api/media/W14/reels/mon_1_the_first_three_verses_of_the_bible_contain_the_trinity/mon_1_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W14/reels/mon_1_the_first_three_verses_of_the_bible_contain_the_trinity/mon_1_the_first_three_verses_of_the_bible_contain_the_trinity_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3462,9 +3750,9 @@
           "title": "The Call of Abram & The Promise of the Seed: Abraham Saw Christ's Day (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W14/reels/68_samsons_death_was_not_a_failure/68_samsons_death_was_not_a_failure_final_reel.mp4",
-          "video_url": "/api/media/W14/reels/68_samsons_death_was_not_a_failure/68_samsons_death_was_not_a_failure_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W14/reels/68_samsons_death_was_not_a_failure/68_samsons_death_was_not_a_failure_final_reel.mp4",
+          "rel_path": "W14/reels/thu_1_elijah_vs_450_prophets/thu_1_elijah_vs_450_prophets_final_reel.mp4",
+          "video_url": "/api/media/W14/reels/thu_1_elijah_vs_450_prophets/thu_1_elijah_vs_450_prophets_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W14/reels/thu_1_elijah_vs_450_prophets/thu_1_elijah_vs_450_prophets_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3477,9 +3765,9 @@
           "title": "The Call of Abram & The Promise of the Seed: Abraham Saw Christ's Day (Part 4)",
           "hook_type": "Christological Typology",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W14/reels/69_elijah_vs_450_prophets/69_elijah_vs_450_prophets_final_reel.mp4",
-          "video_url": "/api/media/W14/reels/69_elijah_vs_450_prophets/69_elijah_vs_450_prophets_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W14/reels/69_elijah_vs_450_prophets/69_elijah_vs_450_prophets_final_reel.mp4",
+          "rel_path": "W14/reels/tue_1_naaman_had_to_dip_7_times/tue_1_naaman_had_to_dip_7_times_final_reel.mp4",
+          "video_url": "/api/media/W14/reels/tue_1_naaman_had_to_dip_7_times/tue_1_naaman_had_to_dip_7_times_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W14/reels/tue_1_naaman_had_to_dip_7_times/tue_1_naaman_had_to_dip_7_times_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3492,9 +3780,9 @@
           "title": "The Call of Abram & The Promise of the Seed: Abraham Saw Christ's Day (Part 5)",
           "hook_type": "Bestselling Book CTA",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W14/reels/70_ruths_story_isnt_a_love_story/70_ruths_story_isnt_a_love_story_final_reel.mp4",
-          "video_url": "/api/media/W14/reels/70_ruths_story_isnt_a_love_story/70_ruths_story_isnt_a_love_story_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W14/reels/70_ruths_story_isnt_a_love_story/70_ruths_story_isnt_a_love_story_final_reel.mp4",
+          "rel_path": "W14/reels/wed_1_samsons_death_was_not_a_failure/wed_1_samsons_death_was_not_a_failure_final_reel.mp4",
+          "video_url": "/api/media/W14/reels/wed_1_samsons_death_was_not_a_failure/wed_1_samsons_death_was_not_a_failure_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W14/reels/wed_1_samsons_death_was_not_a_failure/wed_1_samsons_death_was_not_a_failure_final_reel.mp4",
           "has_video": true,
           "published": {}
         }
@@ -3623,7 +3911,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1472,
+          "script_word_count": 1501,
           "status": "in_production",
           "published": {}
         },
@@ -3641,7 +3929,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1469,
+          "script_word_count": 1498,
           "status": "in_production",
           "published": {}
         }
@@ -3688,69 +3976,9 @@
           "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W15/reels/71_the_unforgivable_sin/71_the_unforgivable_sin_final_reel.mp4",
-          "video_url": "/api/media/W15/reels/71_the_unforgivable_sin/71_the_unforgivable_sin_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W15/reels/71_the_unforgivable_sin/71_the_unforgivable_sin_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W15.2",
-          "num": 2,
-          "global_num": 72,
-          "day": "Tue",
-          "badge": "Bible Secrets #072 [W15.2]",
-          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 2)",
-          "hook_type": "Ancient Hebrew / Text",
-          "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W15/reels/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
-          "video_url": "/api/media/W15/reels/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W15/reels/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible/72_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W15.3",
-          "num": 3,
-          "global_num": 73,
-          "day": "Wed",
-          "badge": "Bible Secrets #073 [W15.3]",
-          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 3)",
-          "hook_type": "Prophecy / Scroll",
-          "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W15/reels/73_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names/73_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names_final_reel.mp4",
-          "video_url": "/api/media/W15/reels/73_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names/73_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W15/reels/73_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names/73_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W15.4",
-          "num": 4,
-          "global_num": 74,
-          "day": "Thu",
-          "badge": "Bible Secrets #074 [W15.4]",
-          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 4)",
-          "hook_type": "Christological Typology",
-          "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W15/reels/74_jesus_claimed_to_be_god/74_jesus_claimed_to_be_god_final_reel.mp4",
-          "video_url": "/api/media/W15/reels/74_jesus_claimed_to_be_god/74_jesus_claimed_to_be_god_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W15/reels/74_jesus_claimed_to_be_god/74_jesus_claimed_to_be_god_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W15.5",
-          "num": 5,
-          "global_num": 75,
-          "day": "Fri",
-          "badge": "Bible Secrets #075 [W15.5]",
-          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 5)",
-          "hook_type": "Bestselling Book CTA",
-          "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W15/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-          "video_url": "/api/media/W15/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W15/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+          "rel_path": "W15/reels/fri_1_the_jewish_feasts_are_a_timeline/fri_1_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+          "video_url": "/api/media/W15/reels/fri_1_the_jewish_feasts_are_a_timeline/fri_1_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W15/reels/fri_1_the_jewish_feasts_are_a_timeline/fri_1_the_jewish_feasts_are_a_timeline_final_reel.mp4",
           "has_video": true,
           "published": {
             "youtube": {
@@ -3768,6 +3996,66 @@
               }
             }
           }
+        },
+        {
+          "id": "R-W15.2",
+          "num": 2,
+          "global_num": 72,
+          "day": "Tue",
+          "badge": "Bible Secrets #072 [W15.2]",
+          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 2)",
+          "hook_type": "Ancient Hebrew / Text",
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W15/reels/mon_1_the_unforgivable_sin/mon_1_the_unforgivable_sin_final_reel.mp4",
+          "video_url": "/api/media/W15/reels/mon_1_the_unforgivable_sin/mon_1_the_unforgivable_sin_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W15/reels/mon_1_the_unforgivable_sin/mon_1_the_unforgivable_sin_final_reel.mp4",
+          "has_video": true,
+          "published": {}
+        },
+        {
+          "id": "R-W15.3",
+          "num": 3,
+          "global_num": 73,
+          "day": "Wed",
+          "badge": "Bible Secrets #073 [W15.3]",
+          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 3)",
+          "hook_type": "Prophecy / Scroll",
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W15/reels/thu_1_jesus_claimed_to_be_god/thu_1_jesus_claimed_to_be_god_final_reel.mp4",
+          "video_url": "/api/media/W15/reels/thu_1_jesus_claimed_to_be_god/thu_1_jesus_claimed_to_be_god_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W15/reels/thu_1_jesus_claimed_to_be_god/thu_1_jesus_claimed_to_be_god_final_reel.mp4",
+          "has_video": true,
+          "published": {}
+        },
+        {
+          "id": "R-W15.4",
+          "num": 4,
+          "global_num": 74,
+          "day": "Thu",
+          "badge": "Bible Secrets #074 [W15.4]",
+          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 4)",
+          "hook_type": "Christological Typology",
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W15/reels/tue_1_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible/tue_1_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
+          "video_url": "/api/media/W15/reels/tue_1_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible/tue_1_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W15/reels/tue_1_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible/tue_1_the_cross_is_hidden_in_the_first_word_of_the_hebrew_bible_final_reel.mp4",
+          "has_video": true,
+          "published": {}
+        },
+        {
+          "id": "R-W15.5",
+          "num": 5,
+          "global_num": 75,
+          "day": "Fri",
+          "badge": "Bible Secrets #075 [W15.5]",
+          "title": "The Enigma of Melchizedek: The Ageless Priest-King of Genesis 14 & 11QMelch (Part 5)",
+          "hook_type": "Bestselling Book CTA",
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W15/reels/wed_1_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names/wed_1_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names_final_reel.mp4",
+          "video_url": "/api/media/W15/reels/wed_1_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names/wed_1_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W15/reels/wed_1_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names/wed_1_the_genesis_5_genealogy_spells_a_sentence_when_you_translate_the_names_final_reel.mp4",
+          "has_video": true,
+          "published": {}
         }
       ],
       "stories": [
@@ -3894,7 +4182,7 @@
           "rel_path": "W15/long_form/01_the_enigma_of_melchizedek_ageless_priest_king/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4823,
+          "script_word_count": 4852,
           "status": "covered",
           "published": {}
         },
@@ -3912,7 +4200,7 @@
           "rel_path": null,
           "duration": "35 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1463,
+          "script_word_count": 1492,
           "status": "in_production",
           "published": {}
         }
@@ -3958,9 +4246,9 @@
           "title": "The Covenant of Pieces: When God Walked Alone Through Fire and Blood (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W16/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W16/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W16/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+          "rel_path": "W16/reels/fri_1_abraham_expected_resurrection/fri_1_abraham_expected_resurrection_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W16/reels/fri_1_abraham_expected_resurrection/fri_1_abraham_expected_resurrection_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W16/reels/fri_1_abraham_expected_resurrection/fri_1_abraham_expected_resurrection_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3973,9 +4261,9 @@
           "title": "The Covenant of Pieces: When God Walked Alone Through Fire and Blood (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W16/reels/77_david_bought_a_threshing_floor/77_david_bought_a_threshing_floor_final_reel.mp4",
-          "video_url": "/api/media/W16/reels/77_david_bought_a_threshing_floor/77_david_bought_a_threshing_floor_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W16/reels/77_david_bought_a_threshing_floor/77_david_bought_a_threshing_floor_final_reel.mp4",
+          "rel_path": "W16/reels/mon_1_the_first_death_in_the_bible_was_god_killing_an_animal/mon_1_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W16/reels/mon_1_the_first_death_in_the_bible_was_god_killing_an_animal/mon_1_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W16/reels/mon_1_the_first_death_in_the_bible_was_god_killing_an_animal/mon_1_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -3988,24 +4276,9 @@
           "title": "The Covenant of Pieces: When God Walked Alone Through Fire and Blood (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W16/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W16/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W16/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
-          "has_video": true,
-          "published": {}
-        },
-        {
-          "id": "R-W16.4",
-          "num": 4,
-          "global_num": 79,
-          "day": "Thu",
-          "badge": "Bible Secrets #079 [W16.4]",
-          "title": "The Covenant of Pieces: When God Walked Alone Through Fire and Blood (Part 4)",
-          "hook_type": "Christological Typology",
-          "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W16/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W16/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W16/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+          "rel_path": "W16/reels/thu_1_josephs_life_matches_jesus_in_30_details/thu_1_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W16/reels/thu_1_josephs_life_matches_jesus_in_30_details/thu_1_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W16/reels/thu_1_josephs_life_matches_jesus_in_30_details/thu_1_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {
             "youtube": {
@@ -4025,6 +4298,21 @@
           }
         },
         {
+          "id": "R-W16.4",
+          "num": 4,
+          "global_num": 79,
+          "day": "Thu",
+          "badge": "Bible Secrets #079 [W16.4]",
+          "title": "The Covenant of Pieces: When God Walked Alone Through Fire and Blood (Part 4)",
+          "hook_type": "Christological Typology",
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W16/reels/tue_1_david_bought_a_threshing_floor/tue_1_david_bought_a_threshing_floor_final_reel.mp4",
+          "video_url": "/api/media/W16/reels/tue_1_david_bought_a_threshing_floor/tue_1_david_bought_a_threshing_floor_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W16/reels/tue_1_david_bought_a_threshing_floor/tue_1_david_bought_a_threshing_floor_final_reel.mp4",
+          "has_video": true,
+          "published": {}
+        },
+        {
           "id": "R-W16.5",
           "num": 5,
           "global_num": 80,
@@ -4033,9 +4321,9 @@
           "title": "The Covenant of Pieces: When God Walked Alone Through Fire and Blood (Part 5)",
           "hook_type": "Bestselling Book CTA",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W16/reels/80_abraham_expected_resurrection/80_abraham_expected_resurrection_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W16/reels/80_abraham_expected_resurrection/80_abraham_expected_resurrection_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W16/reels/80_abraham_expected_resurrection/80_abraham_expected_resurrection_with_ads_final_reel.mp4",
+          "rel_path": "W16/reels/wed_1_jesuss_last_words_werent_despair/wed_1_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W16/reels/wed_1_jesuss_last_words_werent_despair/wed_1_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W16/reels/wed_1_jesuss_last_words_werent_despair/wed_1_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         }
@@ -4164,7 +4452,7 @@
           "rel_path": "W16/long_form/01_the_covenant_of_pieces_god_walks_alone/9-The_Covenant_of_Pieces_final_16x9.mp4",
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4819,
+          "script_word_count": 4848,
           "status": "covered",
           "published": {}
         },
@@ -4182,7 +4470,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1477,
+          "script_word_count": 1506,
           "status": "in_production",
           "published": {}
         }
@@ -4228,9 +4516,9 @@
           "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W17/reels/81_the_parables_of_the_treasure_and_pearl/81_the_parables_of_the_treasure_and_pearl_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W17/reels/81_the_parables_of_the_treasure_and_pearl/81_the_parables_of_the_treasure_and_pearl_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W17/reels/81_the_parables_of_the_treasure_and_pearl/81_the_parables_of_the_treasure_and_pearl_with_ads_final_reel.mp4",
+          "rel_path": "W17/reels/fri_1_jacobs_ladder_wasnt_a_ladder/fri_1_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W17/reels/fri_1_jacobs_ladder_wasnt_a_ladder/fri_1_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W17/reels/fri_1_jacobs_ladder_wasnt_a_ladder/fri_1_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4243,9 +4531,9 @@
           "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W17/reels/82_it_is_finished_was_not_a_dying_gasp/82_it_is_finished_was_not_a_dying_gasp_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W17/reels/82_it_is_finished_was_not_a_dying_gasp/82_it_is_finished_was_not_a_dying_gasp_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W17/reels/82_it_is_finished_was_not_a_dying_gasp/82_it_is_finished_was_not_a_dying_gasp_with_ads_final_reel.mp4",
+          "rel_path": "W17/reels/mon_1_the_parables_of_the_treasure_and_pearl/mon_1_the_parables_of_the_treasure_and_pearl_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W17/reels/mon_1_the_parables_of_the_treasure_and_pearl/mon_1_the_parables_of_the_treasure_and_pearl_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W17/reels/mon_1_the_parables_of_the_treasure_and_pearl/mon_1_the_parables_of_the_treasure_and_pearl_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4258,9 +4546,9 @@
           "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W17/reels/83_the_3_hours_of_darkness_werent_weather/83_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W17/reels/83_the_3_hours_of_darkness_werent_weather/83_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W17/reels/83_the_3_hours_of_darkness_werent_weather/83_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4",
+          "rel_path": "W17/reels/thu_1_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/thu_1_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W17/reels/thu_1_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/thu_1_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W17/reels/thu_1_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/thu_1_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4273,9 +4561,9 @@
           "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 4)",
           "hook_type": "Christological Typology",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W17/reels/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W17/reels/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W17/reels/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence/84_the_thief_on_the_cross_destroys_every_religious_system_in_one_sentence_with_ads_final_reel.mp4",
+          "rel_path": "W17/reels/tue_1_it_is_finished_was_not_a_dying_gasp/tue_1_it_is_finished_was_not_a_dying_gasp_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W17/reels/tue_1_it_is_finished_was_not_a_dying_gasp/tue_1_it_is_finished_was_not_a_dying_gasp_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W17/reels/tue_1_it_is_finished_was_not_a_dying_gasp/tue_1_it_is_finished_was_not_a_dying_gasp_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4288,9 +4576,9 @@
           "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 5)",
           "hook_type": "Bestselling Book CTA",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W17/reels/85_jacobs_ladder_wasnt_a_ladder/85_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W17/reels/85_jacobs_ladder_wasnt_a_ladder/85_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W17/reels/85_jacobs_ladder_wasnt_a_ladder/85_jacobs_ladder_wasnt_a_ladder_with_ads_final_reel.mp4",
+          "rel_path": "W17/reels/wed_1_the_3_hours_of_darkness_werent_weather/wed_1_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W17/reels/wed_1_the_3_hours_of_darkness_werent_weather/wed_1_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W17/reels/wed_1_the_3_hours_of_darkness_werent_weather/wed_1_the_3_hours_of_darkness_werent_weather_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         }
@@ -4419,7 +4707,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1487,
+          "script_word_count": 1516,
           "status": "in_production",
           "published": {}
         },
@@ -4437,7 +4725,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1484,
+          "script_word_count": 1513,
           "status": "in_production",
           "published": {}
         }
@@ -4483,9 +4771,9 @@
           "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 1)",
           "hook_type": "Mystery Hook",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W18/reels/86_the_tabernacle_layout_is_a_map/86_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
-          "video_url": "/api/media/W18/reels/86_the_tabernacle_layout_is_a_map/86_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W18/reels/86_the_tabernacle_layout_is_a_map/86_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
+          "rel_path": "W18/reels/mon_1_the_tabernacle_layout_is_a_map/mon_1_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W18/reels/mon_1_the_tabernacle_layout_is_a_map/mon_1_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W18/reels/mon_1_the_tabernacle_layout_is_a_map/mon_1_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4498,9 +4786,9 @@
           "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 2)",
           "hook_type": "Ancient Hebrew / Text",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W18/reels/87_the_virgin_birth_debate/87_the_virgin_birth_debate_final_reel.mp4",
-          "video_url": "/api/media/W18/reels/87_the_virgin_birth_debate/87_the_virgin_birth_debate_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W18/reels/87_the_virgin_birth_debate/87_the_virgin_birth_debate_final_reel.mp4",
+          "rel_path": "W18/reels/mon_1_the_tabernacle_layout_is_a_map/mon_1_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
+          "video_url": "/api/media/W18/reels/mon_1_the_tabernacle_layout_is_a_map/mon_1_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W18/reels/mon_1_the_tabernacle_layout_is_a_map/mon_1_the_tabernacle_layout_is_a_map_with_ads_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4513,9 +4801,9 @@
           "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 3)",
           "hook_type": "Prophecy / Scroll",
           "hook": "Watch to discover the decoded mystery.",
-          "rel_path": "W18/reels/88_god_put_adam_to_sleep_to_create_eve/88_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
-          "video_url": "/api/media/W18/reels/88_god_put_adam_to_sleep_to_create_eve/88_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W18/reels/88_god_put_adam_to_sleep_to_create_eve/88_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
+          "rel_path": "W18/reels/wed_1_god_put_adam_to_sleep_to_create_eve/wed_1_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
+          "video_url": "/api/media/W18/reels/wed_1_god_put_adam_to_sleep_to_create_eve/wed_1_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W18/reels/wed_1_god_put_adam_to_sleep_to_create_eve/wed_1_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -4527,7 +4815,12 @@
           "badge": "Bible Secrets #089 [W18.4]",
           "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 4)",
           "hook_type": "Christological Typology",
-          "hook": "Watch to discover the decoded mystery."
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W18/reels/tue_1_the_virgin_birth_debate/tue_1_the_virgin_birth_debate_final_reel.mp4",
+          "video_url": "/api/media/W18/reels/tue_1_the_virgin_birth_debate/tue_1_the_virgin_birth_debate_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W18/reels/tue_1_the_virgin_birth_debate/tue_1_the_virgin_birth_debate_final_reel.mp4",
+          "has_video": true,
+          "published": {}
         },
         {
           "id": "R-W18.5",
@@ -4537,7 +4830,12 @@
           "badge": "Bible Secrets #090 [W18.5]",
           "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 5)",
           "hook_type": "Bestselling Book CTA",
-          "hook": "Watch to discover the decoded mystery."
+          "hook": "Watch to discover the decoded mystery.",
+          "rel_path": "W18/reels/wed_1_god_put_adam_to_sleep_to_create_eve/wed_1_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
+          "video_url": "/api/media/W18/reels/wed_1_god_put_adam_to_sleep_to_create_eve/wed_1_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W18/reels/wed_1_god_put_adam_to_sleep_to_create_eve/wed_1_god_put_adam_to_sleep_to_create_eve_final_reel.mp4",
+          "has_video": true,
+          "published": {}
         }
       ],
       "stories": [
@@ -4664,7 +4962,7 @@
           "rel_path": "W18/long_form/01_jacobs_midnight_duel_wrestling_the_angel_at_peniel/8-Jacobs_Midnight_Duel_Peniel_final_16x9.mp4",
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4828,
+          "script_word_count": 4857,
           "status": "covered",
           "published": {}
         },
@@ -4682,7 +4980,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1469,
+          "script_word_count": 1498,
           "status": "in_production",
           "published": {}
         }
@@ -4892,7 +5190,7 @@
           "rel_path": null,
           "duration": "25 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1476,
+          "script_word_count": 1505,
           "status": "in_production",
           "published": {}
         },
@@ -4910,7 +5208,7 @@
           "rel_path": null,
           "duration": "25 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1480,
+          "script_word_count": 1509,
           "status": "in_production",
           "published": {}
         }
@@ -5121,7 +5419,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1473,
+          "script_word_count": 1502,
           "status": "in_production",
           "published": {}
         },
@@ -5139,7 +5437,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1471,
+          "script_word_count": 1500,
           "status": "in_production",
           "published": {}
         }
@@ -5350,7 +5648,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1487,
+          "script_word_count": 1516,
           "status": "in_production",
           "published": {}
         },
@@ -5368,7 +5666,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1485,
+          "script_word_count": 1514,
           "status": "in_production",
           "published": {}
         }
@@ -5578,7 +5876,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1486,
+          "script_word_count": 1515,
           "status": "in_production",
           "published": {}
         },
@@ -5596,7 +5894,7 @@
           "rel_path": null,
           "duration": "28 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1483,
+          "script_word_count": 1512,
           "status": "in_production",
           "published": {}
         }
@@ -5807,7 +6105,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1490,
+          "script_word_count": 1519,
           "status": "in_production",
           "published": {}
         },
@@ -5825,7 +6123,7 @@
           "rel_path": null,
           "duration": "30 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1488,
+          "script_word_count": 1517,
           "status": "in_production",
           "published": {}
         }
@@ -6036,7 +6334,7 @@
           "rel_path": null,
           "duration": "25 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1499,
+          "script_word_count": 1528,
           "status": "in_production",
           "published": {}
         },
@@ -6054,7 +6352,7 @@
           "rel_path": null,
           "duration": "25 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1501,
+          "script_word_count": 1530,
           "status": "in_production",
           "published": {}
         }
@@ -6265,7 +6563,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 4677,
+          "script_word_count": 4706,
           "status": "in_production",
           "published": {}
         },
@@ -6283,7 +6581,7 @@
           "rel_path": null,
           "duration": "32 min",
           "script_file": "script_30min.txt",
-          "script_word_count": 1492,
+          "script_word_count": 1521,
           "status": "in_production",
           "published": {}
         }
@@ -9774,7 +10072,7 @@
           "short_label": "V1: Cut 1",
           "has_video": true,
           "video_url": "/api/media/W43/long_form/11-The_Red_Heifer_Third_Temple_final_16x9.mp4",
-          "thumbnail_url": "/api/thumbnail/W43/long_form/11-The_Red_Heifer_Third_Temple_final_16x9.mp4",
+          "thumbnail_url": "/api/thumbnail/W43/long_form/thumbnail_option_1.jpg",
           "rel_path": "W43/long_form/11-The_Red_Heifer_Third_Temple_final_16x9.mp4",
           "duration": "32 min",
           "script_file": null,

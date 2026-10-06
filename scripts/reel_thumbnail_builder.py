@@ -190,10 +190,10 @@ def generate_composite_reel_thumbnail(
     draw = ImageDraw.Draw(canvas, "RGBA")
 
     # 3. Fonts
-    font_badge_size = int(44 * scale)
-    font_sub_size   = int(38 * scale)
-    font_brand_size = int(24 * scale)
-    font_scrip_size = int(28 * scale)
+    font_badge_size = int(56 * scale)
+    font_sub_size   = int(52 * scale)
+    font_brand_size = int(34 * scale)
+    font_scrip_size = int(42 * scale)
     max_title_size  = int(122 * scale)
 
     font_badge = _load_font(["impact.ttf", "arialbd.ttf"], font_badge_size)
@@ -207,8 +207,8 @@ def generate_composite_reel_thumbnail(
     # 4. Red Pill Badge (Top Left)
     effective_badge = badge_text or (week_tag if week_tag and not "WEEK" in week_tag.upper() else "THE SECRET BIBLE CODE")
     bw = draw.textlength(effective_badge, font=font_badge)
-    pill_h = int(68 * scale)
-    pill_w = int(bw + 48 * scale)
+    pill_h = int(84 * scale)
+    pill_w = int(bw + 56 * scale)
     pill_box = [start_x, start_y, start_x + pill_w, start_y + pill_h]
     
     pill_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -216,7 +216,7 @@ def generate_composite_reel_thumbnail(
     pdraw.rounded_rectangle(pill_box, radius=int(18 * scale), fill=RED_FILL, outline=RED_OUTLINE, width=max(2, int(3 * scale)))
     canvas = Image.alpha_composite(canvas, pill_layer)
     draw = ImageDraw.Draw(canvas, "RGBA")
-    draw.text((start_x + int(24 * scale), start_y + int(9 * scale)), effective_badge, font=font_badge, fill=WHITE)
+    draw.text((start_x + int(28 * scale), start_y + int(10 * scale)), effective_badge, font=font_badge, fill=WHITE)
 
     # 5. Channel Logo Watermark (Top Right)
     logo_file = _find_logo()
@@ -233,11 +233,11 @@ def generate_composite_reel_thumbnail(
     headline_1, headline_2 = split_headline(title, line1=line1, line2=line2)
     max_text_w = int(W * 0.88)
     
-    font_l1 = _fit_font(draw, headline_1, "impact.ttf", max_text_w, max_title_size, min_size=int(60 * scale))
-    font_l2 = _fit_font(draw, headline_2, "impact.ttf", max_text_w, max_title_size, min_size=int(60 * scale))
+    font_l1 = _fit_font(draw, headline_1, "impact.ttf", max_text_w, max_title_size, min_size=int(72 * scale))
+    font_l2 = _fit_font(draw, headline_2, "impact.ttf", max_text_w, max_title_size, min_size=int(72 * scale))
 
     # Calculate Y coordinates
-    y1 = start_y + int(115 * scale)
+    y1 = start_y + int(130 * scale)
     shadow_r = max(4, int(7 * scale))
 
     # Line 1: Pure White with heavy 8-directional drop shadow
@@ -257,25 +257,50 @@ def generate_composite_reel_thumbnail(
     draw.text((start_x, y2), headline_2, font=font_l2, fill=YELLOW)
 
     # 7. Subtitle / Kicker
-    effective_kicker = kicker or subtitle or "THE BANNED PRE-CREATION WAR EXPOSED"
+    effective_kicker = kicker or subtitle or ""
     effective_kicker = effective_kicker.upper()
-    font_sub = _fit_font(draw, effective_kicker, "arialbd.ttf", max_text_w, font_sub_size, min_size=int(26 * scale))
+    # Largest subtitle size that fits in at most two lines (wrapped below)
+    for sub_size in (font_sub_size, int(46 * scale), int(40 * scale)):
+        font_sub = _load_font(["arialbd.ttf", "impact.ttf"], sub_size)
+        words, lines_needed, current = effective_kicker.split(), 1, ""
+        for word in words:
+            test = f"{current} {word}".strip()
+            if current and draw.textlength(test, font=font_sub) > max_text_w:
+                lines_needed, current = lines_needed + 1, word
+            else:
+                current = test
+        if lines_needed <= 2:
+            break
 
     line2_h = font_l2.size if hasattr(font_l2, "size") else int(110 * scale)
     y3 = y2 + int(line2_h * 1.18)
     sub_shadow = max(2, int(4 * scale))
-    for ox in range(-sub_shadow, sub_shadow + 1):
-        for oy in range(-sub_shadow, sub_shadow + 1):
-            draw.text((start_x + ox, y3 + oy), effective_kicker, font=font_sub, fill=(0, 0, 0, 240))
-    draw.text((start_x, y3), effective_kicker, font=font_sub, fill=(240, 240, 240))
+    # A subtitle still too wide at the minimum size wraps onto a second line instead of running off the edge
+    sub_lines, current = [], ""
+    for word in effective_kicker.split():
+        test = f"{current} {word}".strip()
+        if current and draw.textlength(test, font=font_sub) > max_text_w:
+            sub_lines.append(current)
+            current = word
+        else:
+            current = test
+    sub_lines.append(current)
+    sub_line_h = int(font_sub.size * 1.2) if hasattr(font_sub, "size") else int(48 * scale)
+    for i, line in enumerate(sub_lines[:2]):
+        ly = y3 + i * sub_line_h
+        for ox in range(-sub_shadow, sub_shadow + 1):
+            for oy in range(-sub_shadow, sub_shadow + 1):
+                draw.text((start_x + ox, ly + oy), line, font=font_sub, fill=(0, 0, 0, 240))
+        draw.text((start_x, ly), line, font=font_sub, fill=(240, 240, 240))
 
     # 8. Scripture Pill (Below Subtitle)
     if scripture:
-        first_ref = scripture.split(",")[0].strip().upper()
+        # Only the first reference: lists are separated by ',' or '/'
+        first_ref = re.split(r"[,/;]", scripture)[0].strip().upper()
         sw = draw.textlength(first_ref, font=font_scrip)
-        sc_h = int(46 * scale)
-        sc_w = int(sw + 36 * scale)
-        sc_y = y3 + int(58 * scale)
+        sc_h = int(64 * scale)
+        sc_w = int(sw + 48 * scale)
+        sc_y = y3 + (len(sub_lines[:2]) - 1) * sub_line_h + int(74 * scale)
         sc_box = [start_x, sc_y, start_x + sc_w, sc_y + sc_h]
         
         sc_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -283,7 +308,7 @@ def generate_composite_reel_thumbnail(
         sc_draw.rounded_rectangle(sc_box, radius=int(12 * scale), fill=DARK_PILL_FILL, outline=YELLOW + (200,), width=max(1, int(2 * scale)))
         canvas = Image.alpha_composite(canvas, sc_layer)
         draw = ImageDraw.Draw(canvas, "RGBA")
-        draw.text((start_x + int(18 * scale), sc_y + int(8 * scale)), first_ref, font=font_scrip, fill=YELLOW)
+        draw.text((start_x + int(24 * scale), sc_y + int(10 * scale)), first_ref, font=font_scrip, fill=YELLOW)
 
     # 9. Brand Footer
     bw = draw.textlength(brand, font=font_brand)

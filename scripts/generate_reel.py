@@ -7,7 +7,7 @@ Standard: Episode 57 / Week 1 Reel 1 Benchmark Standard
 - Resolution: Native 768x1344 (9:16 vertical, FLUX native)
 - Motion: Smooth Ken Burns frame-by-frame easing zoom/pan (apply_motion)
 - Captions: Safe-zone (Y=74%) rounded black badge with white text & active gold word highlight
-- Audio: Broadcast master mixing with Demucs musical stems (other, bass, drums)
+- Audio: Broadcast-mastered narration only (no background music)
 - Visuals: FLUX.1 Schnell GGUF photorealistic scene images + text cards with scene background
 - Metadata: Dynamically ingests metadata.json, script.txt, and scene configs from each reel folder
 =============================================================================
@@ -136,6 +136,46 @@ class ProgressHeartbeat:
 PRONUNCIATION_MAP = {
     "Tetelestai": "Teh-tell-es-tie",
     "Heylel": "hay-LEL",
+    "Shachar": "shah-KHAR",
+    "Nachash": "nah-KHAHSH",
+    "Nechoshet": "neh-KHOH-shet",
+    "Nechashim": "neh-khah-SHEEM",
+    "Nehushtan": "neh-HOOSH-tahn",
+    "malum": "MAH-loom",
+    "Yehi Or": "yeh-HEE OR",
+    "Merachefet": "meh-rah-KHEH-fet",
+    "tohu": "TOH-hoo",
+    "yom": "yohm",
+    "phosteres": "foss-TEH-rays",
+    "tanninim": "tah-nee-NEEM",
+    "shavat": "shah-VAHT",
+    "vayehi": "vah-yeh-HEE",
+    "yom echad": "yohm eh-KHAHD",
+    "maor": "mah-OHR",
+    "moadim": "moh-ah-DEEM",
+    "Shamash": "shah-MAHSH",
+    "katelaben": "kah-TEH-lah-ben",
+    "Nisan": "nee-SAHN",
+    "1 John": "First John",
+    "2 John": "Second John",
+    "3 John": "Third John",
+    "Qayin": "KAH-yeen",
+    "qanah": "kah-NAH",
+    "Hevel": "HEH-vel",
+    "havalim": "hah-vah-LEEM",
+    "minchah": "min-KHAH",
+    "robets": "roh-VETS",
+    "rabisu": "rah-BEE-soo",
+    "teshuqah": "tesh-oo-KAH",
+    "shamar": "shah-MAR",
+    "demei": "deh-MAY",
+    "damim": "dah-MEEM",
+    "na va nad": "nah vah NAHD",
+    "avon": "ah-VOHN",
+    "Mishnah": "MEESH-nah",
+    "Sanhedrin": "san-HEH-drin",
+    "Jehoiada": "jeh-HOY-ah-dah",
+    "Septuagint": "SEP-too-ah-jint",
     "Ruach Elohim": "Roo-ahk Elohim",
     "Ruach": "Roo-ahk",
     "Bereshit": "Beh-ray-sheet",
@@ -204,31 +244,28 @@ AD_VARIANTS = {
         "title": "Bestselling Books Vol 1 & 2 + Sacred Merch",
         "graphic": "shared_assets/merch_book_ad.png",
         "script": (
-            " If this revelation blew your mind, this is just ONE of the one hundred hidden biblical secrets decoded inside our bestselling books. "
-            "Get your copy of Book One and Book Two on Amazon, and explore our exclusive sacred art and merch on Etsy. "
-            "Tap the link in the description right now."
+            " If this blew your mind, it's just one part of what we uncover in our books, Bible Hidden Gems in the "
+            "Old Testament and in the New Testament. They're linked in the bio and comments, along with our sacred art merch."
         ),
         "motion": {"type": "slow_push_in", "start_zoom": 1.0, "end_zoom": 1.05, "pan_y": [0.5, 0.5]}
     },
     2: {
         "id": "ad_2_book1_mysteries",
-        "title": "Book 1 Focus — 50 Old Testament Mysteries Decoded",
+        "title": "Book 1 Focus — Bible Hidden Gems in the Old Testament",
         "graphic": "shared_assets/merch_book_ad.png",
         "script": (
-            " If this revelation blew your mind, discover fifty more shocking Old Testament secrets decoded in Book One of Bible Hidden Secrets Revealed. "
-            "Available right now on Amazon, with exclusive sacred apparel on Etsy. "
-            "Click the link in the description right now."
+            " If this blew your mind, it's just one part of our book, Bible Hidden Gems in the Old Testament. "
+            "It's linked in the bio and comments, along with our sacred art merch."
         ),
         "motion": {"type": "slow_push_in", "start_zoom": 1.0, "end_zoom": 1.05, "pan_y": [0.5, 0.5]}
     },
     3: {
         "id": "ad_3_book2_prophecies",
-        "title": "Book 2 Focus — Hidden Prophecies from Genesis to Revelation",
+        "title": "Book 2 Focus — Bible Hidden Gems in the New Testament",
         "graphic": "shared_assets/merch_book_ad.png",
         "script": (
-            " Ready to go deeper? Book Two reveals the most controversial hidden prophecies from Genesis to Revelation. "
-            "Get your copy on Amazon, and explore our exclusive sacred art and apparel on Etsy. "
-            "Tap the link in the description right now."
+            " Ready to go deeper? Our second book, Bible Hidden Gems in the New Testament, picks up where this leaves off. "
+            "It's linked in the bio and comments, along with our sacred art merch."
         ),
         "motion": {"type": "slow_push_in", "start_zoom": 1.0, "end_zoom": 1.05, "pan_y": [0.5, 0.5]}
     }
@@ -255,6 +292,53 @@ def is_script_header_line(s: str) -> bool:
 
 def strip_narrator_label(s: str) -> str:
     return NARRATOR_LABEL_RE.sub("", s).replace("**", "")
+
+# =============================================================================
+# BOOKS / MERCH LINE & STALE-VOICE DETECTION
+# =============================================================================
+# Every video points to the books. Older wordings are upgraded and a missing line is added at render time.
+BOOKS_LINE = ("If this blew your mind, it's just one part of what we uncover in our books. "
+              "They're linked in the bio and comments, along with our sacred art merch.")
+OLD_BOOKS_LINES = (
+    "If this study opened your eyes, go deeper. Our books and sacred art merch are linked in the bio and comments.",
+    "Our books and sacred art merch are linked in the bio and comments.",
+)
+CLOSING_LINE_RE = re.compile(r"(?:Until next time|Thank you for watching|Thanks for watching|Follow for more secrets)",
+                             re.IGNORECASE)
+
+
+def ensure_books_cta(narration: str) -> str:
+    """Upgrades an older books/merch line, or adds the current one before the closing line (or at the end)."""
+    for old in OLD_BOOKS_LINES:
+        narration = narration.replace(old, BOOKS_LINE)
+    if "linked in the bio and comments" in narration:
+        return narration
+    closing = None
+    for closing in CLOSING_LINE_RE.finditer(narration):
+        pass
+    if closing and closing.start() >= len(narration) * 0.75:
+        return narration[:closing.start()] + BOOKS_LINE + " " + narration[closing.start():]
+    return narration.rstrip() + " " + BOOKS_LINE
+
+
+def retire_stale_audio(temp_dir, paths):
+    """Moves an outdated recording (and everything derived from it) to temp/_previous, keeping one generation."""
+    prev = Path(temp_dir) / "_previous"
+    if prev.exists():
+        shutil.rmtree(prev, ignore_errors=True)
+    prev.mkdir(parents=True, exist_ok=True)
+    for p in map(Path, paths):
+        if p.exists():
+            shutil.move(str(p), str(prev / p.name))
+
+
+def cached_script_differs(script_file, voice_script: str) -> bool:
+    """True when a cached recording was made from a different script (or pronunciation map) than the current one."""
+    script_file = Path(script_file)
+    if not script_file.exists():
+        return False
+    return script_file.read_text(encoding="utf-8", errors="replace").strip() != voice_script.strip()
+
 
 def clean_script_for_tts(raw_text: str, phonetic: bool = True) -> str:
     """
@@ -343,17 +427,116 @@ def prepare_voice_script(text: str) -> str:
 # =============================================================================
 # DYNAMIC METADATA & SCENE CONFIG RESOLVER
 # =============================================================================
-def find_reel_folder(week_dir: Path, reel_idx: int) -> Path:
-    r_dir = week_dir / "reels"
-    if not r_dir.exists():
-        return None
-    subdirs = sorted([d for d in r_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()])
-    prefix = f"0{reel_idx}"
-    for d in subdirs:
-        if d.name.startswith(prefix) or d.name.startswith(f"{reel_idx}_") or d.name.startswith(f"{reel_idx}-"):
+# -----------------------------------------------------------------------------
+# Reel folders: W06/reels/<day>_<n>_<name> (mon_1, mon_2, tue_1...). Posting order is day, then n.
+# Older numbered folders (01_name, 146_name) take Monday..Friday in number order, one a day.
+# Same rules as core/reels.py in KCT Studio: keep them in step.
+# -----------------------------------------------------------------------------
+REEL_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+_REEL_DAY_RE = re.compile(r"^(mon|tue|wed|thu|fri|sat|sun)_(\d+)_(.+)$", re.IGNORECASE)
+_REEL_NUMBERED_RE = re.compile(r"^(\d+)[_-](.+)$")
+
+
+def reel_slots(reels_dir: Path) -> list:
+    """(folder, day index 0=Mon, place in the day) for a week's reels, in posting order."""
+    if not reels_dir or not reels_dir.is_dir():
+        return []
+    named, numbered, other = [], [], []
+    for d in reels_dir.iterdir():
+        if not d.is_dir() or d.name.lower() in ("temp", "temp_slides") or d.name.startswith((".", "__")):
+            continue
+        m = _REEL_DAY_RE.match(d.name)
+        n = _REEL_NUMBERED_RE.match(d.name)
+        if m:
+            named.append((d, REEL_DAYS.index(m.group(1).lower()), int(m.group(2))))
+        elif n:
+            numbered.append((int(n.group(1)), d))
+        else:
+            other.append(d)
+    for rank, (_, d) in enumerate(sorted(numbered, key=lambda x: (x[0], x[1].name))):
+        named.append((d, rank % 7, rank // 7 + 1))
+    named.sort(key=lambda x: (x[1], x[2], x[0].name))
+    last = (named[-1][1], named[-1][2]) if named else (0, 0)
+    return named + [(d, last[0], last[1] + i + 1) for i, d in enumerate(sorted(other, key=lambda d: d.name))]
+
+
+def ordered_reels(reels_dir: Path) -> list:
+    """A week's reel folders in posting order."""
+    return [d for d, _, _ in reel_slots(reels_dir)]
+
+
+def find_reel(reels_dir: Path, which):
+    """A reel by its key ("tue_2"), folder name, or position in posting order (1 = first)."""
+    slots = reel_slots(reels_dir)
+    text = str(which).strip().lower()
+    for d, day, n in slots:
+        if text in (d.name.lower(), f"{REEL_DAYS[day]}_{n}"):
             return d
-    if 0 <= reel_idx - 1 < len(subdirs):
-        return subdirs[reel_idx - 1]
+    if text.isdigit() and 1 <= int(text) <= len(slots):
+        return slots[int(text) - 1][0]
+    return None
+
+
+def reel_key(folder: Path):
+    """"mon_2" for W06/reels/mon_2_name."""
+    for d, day, n in reel_slots(folder.parent):
+        if d.name == folder.name:
+            return f"{REEL_DAYS[day]}_{n}"
+    return None
+
+
+def find_reel_folder(week_dir: Path, which) -> Path:
+    return find_reel(week_dir / "reels", which)
+
+
+def _recorded_reel_number(folder: Path):
+    """A reel's "Bible Secrets #NNN" number: metadata.json global_episode, or an older metadata.txt's EPISODE line."""
+    try:
+        num = json.loads((folder / "metadata.json").read_text(encoding="utf-8")).get("global_episode")
+        if num is not None:
+            return int(num)
+    except (OSError, ValueError, TypeError):
+        pass
+    try:
+        m = re.search(r"^EPISODE\s+(\d+)", (folder / "metadata.txt").read_text(encoding="utf-8", errors="replace"), re.MULTILINE)
+        if m:
+            return int(m.group(1))
+    except OSError:
+        pass
+    return None
+
+
+def reel_global_number(target_dir: Path) -> int:
+    """The reel's global number. A new reel without one gets the next free number, saved in its metadata.json so it
+    never changes (reels are no longer numbered (week - 1) * 5 + n, since a week can hold any number of them)."""
+    num = _recorded_reel_number(target_dir)
+    if num is not None:
+        return num
+    # An older numbered folder (01_name) keeps the number it always had: (week - 1) * 5 + its rank
+    week = re.match(r"^W(\d+)$", target_dir.parent.parent.name, re.IGNORECASE)
+    if week and _REEL_NUMBERED_RE.match(target_dir.name):
+        numbered = [d for d in ordered_reels(target_dir.parent) if _REEL_NUMBERED_RE.match(d.name)]
+        if target_dir in numbered:
+            return (int(week.group(1)) - 1) * 5 + numbered.index(target_dir) + 1
+    taken = [_recorded_reel_number(d) for d in PROJECT_DIR.glob("W*/reels/*") if d.is_dir()]
+    num = max([n for n in taken if n is not None], default=0) + 1
+    meta_p = target_dir / "metadata.json"
+    try:
+        meta = json.loads(meta_p.read_text(encoding="utf-8")) if meta_p.exists() else {}
+        meta["global_episode"] = num
+        meta_p.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    except (OSError, ValueError):
+        pass
+    return num
+
+
+def find_reel_by_number(num: int):
+    """(week number, folder) of the reel whose global number is num."""
+    for d in sorted(PROJECT_DIR.glob("W*/reels/*")):
+        if d.is_dir() and _recorded_reel_number(d) == num:
+            m = re.match(r"^W(\d+)$", d.parent.parent.name, re.IGNORECASE)
+            if m:
+                return int(m.group(1)), d
     return None
 
 def build_scene_prompt(sentence: str, title: str = "") -> str:
@@ -507,7 +690,7 @@ def is_comfyui_running(url=COMFY_URL) -> bool:
     except Exception:
         return False
 
-def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=60) -> bool:
+def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=240) -> bool:
     if is_comfyui_running(url):
         return True
     print("\n[ComfyUI] Server offline. Auto-launching in background...", flush=True)
@@ -633,16 +816,8 @@ def generate_scene_image(prompt_text: str, scene_id: str, images_dir: Path, cust
     if is_valid_9_16(target_img):
         return target_img
 
-    # Fallback to high-res card image ONLY if ComfyUI is completely unavailable
-    print(f"  [Fallback Notice] ComfyUI unavailable; writing emergency placeholder for {scene_id}")
-    card_img = Image.new("RGB", (768, 1344), (10, 14, 24))
-    draw = ImageDraw.Draw(card_img)
-    for y in range(1344):
-        dist = abs(y / 1344.0 - 0.5) * 2
-        col = int(35 * (1.0 - dist))
-        draw.line([(0, y), (768, y)], fill=(col, col + 5, col + 15))
-    card_img.save(str(target_img), "PNG")
-    return target_img
+    # No placeholder images: a cached placeholder would be reused by every later render
+    raise RuntimeError(f"ComfyUI could not generate scene {scene_id} (is it running at http://127.0.0.1:8188?). No placeholder was saved: start ComfyUI and run the render again; finished scenes are kept.")
 
 
 # =============================================================================
@@ -690,32 +865,33 @@ def generate_text_card(card_type: str, ep_num: str, hook_text: str, thumb_text: 
 
     # 4. Fonts
     try:
-        font_badge = ImageFont.truetype("arialbd.ttf", 28)
-        font_main = ImageFont.truetype("arialbd.ttf", 50)
-        font_sub = ImageFont.truetype("arial.ttf", 30)
-        font_cta = ImageFont.truetype("arialbd.ttf", 32)
+        font_badge = ImageFont.truetype("arialbd.ttf", 36)
+        font_main = ImageFont.truetype("arialbd.ttf", 62)
+        font_sub = ImageFont.truetype("arialbd.ttf", 38)
+        font_cta = ImageFont.truetype("arialbd.ttf", 40)
+        font_small = ImageFont.truetype("arialbd.ttf", 28)
     except Exception:
-        font_badge = font_main = font_sub = font_cta = ImageFont.load_default()
+        font_badge = font_main = font_sub = font_cta = font_small = ImageFont.load_default()
 
     # 5. Episode Badge
     badge_text = f"EPISODE {ep_num}".upper()
     bw = draw.textlength(badge_text, font=font_badge)
-    draw.rounded_rectangle([W // 2 - bw // 2 - 24, 130, W // 2 + bw // 2 + 24, 180], radius=14, fill=(212, 175, 55, 255))
-    draw.text((W // 2, 155), badge_text, font=font_badge, fill=(0, 0, 0, 255), anchor="mm")
+    draw.rounded_rectangle([W // 2 - bw // 2 - 28, 126, W // 2 + bw // 2 + 28, 186], radius=16, fill=(212, 175, 55, 255))
+    draw.text((W // 2, 156), badge_text, font=font_badge, fill=(0, 0, 0, 255), anchor="mm")
 
     # 6. Headline Typography
     display_text = thumb_text if card_type == "thumbnail" else hook_text
     words = display_text.split()
     lines, current = [], ""
     for w in words:
-        if len(current) + len(w) + 1 <= 24:
+        if len(current) + len(w) + 1 <= 20:
             current = (current + " " + w).strip()
         else:
             if current: lines.append(current)
             current = w
     if current: lines.append(current)
 
-    line_h = 68
+    line_h = 80
     start_y = H // 2 - (len(lines) * line_h) // 2
 
     for i, line in enumerate(lines):
@@ -726,17 +902,17 @@ def generate_text_card(card_type: str, ep_num: str, hook_text: str, thumb_text: 
     # 7. Scripture Badge
     if scripture_ref:
         sw = draw.textlength(scripture_ref, font=font_sub)
-        draw.rounded_rectangle([W // 2 - sw // 2 - 20, H * 3 // 4 - 24, W // 2 + sw // 2 + 20, H * 3 // 4 + 24], radius=12, fill=(0, 0, 0, 190))
+        draw.rounded_rectangle([W // 2 - sw // 2 - 24, H * 3 // 4 - 30, W // 2 + sw // 2 + 24, H * 3 // 4 + 30], radius=14, fill=(0, 0, 0, 190))
         draw.text((W // 2, H * 3 // 4), scripture_ref, font=font_sub, fill=(255, 255, 255, 240), anchor="mm")
 
     # 8. Compelling CTA Button
-    cta_line = "WATCH FULL EPISODE - LINK IN DESCRIPTION"
+    cta_line = "FULL EPISODE ON OUR CHANNEL"
     cw = draw.textlength(cta_line, font=font_cta)
-    draw.rounded_rectangle([W // 2 - cw // 2 - 22, H - 210, W // 2 + cw // 2 + 22, H - 156], radius=16, fill=(212, 175, 55, 230))
+    draw.rounded_rectangle([W // 2 - cw // 2 - 26, H - 216, W // 2 + cw // 2 + 26, H - 150], radius=18, fill=(212, 175, 55, 230))
     draw.text((W // 2, H - 183), cta_line, font=font_cta, fill=(0, 0, 0, 255), anchor="mm")
 
     # 9. Channel Branding
-    draw.text((W // 2, H - 110), "FOLLOW & SUBSCRIBE FOR FULL EPISODES", font=font_sub, fill=(220, 220, 220, 230), anchor="mm")
+    draw.text((W // 2, H - 110), "FOLLOW & SUBSCRIBE FOR FULL EPISODES", font=font_small, fill=(220, 220, 220, 230), anchor="mm")
     draw.text((W // 2, H - 65), "BIBLE HIDDEN SECRETS REVEALED", font=font_badge, fill=(212, 175, 55, 220), anchor="mm")
 
     final_card = img.convert("RGB")
@@ -811,7 +987,7 @@ def load_chunked_captions(script_text: str, transcript_data: dict, max_words=4) 
     aligned_words = align_transcript_with_script(script_text, all_raw_words)
     formatted_words = format_scripture_words(aligned_words)
     max_chunk_width, word_spacing = 680, 14
-    try: font_word = ImageFont.truetype("arialbd.ttf", 44)
+    try: font_word = ImageFont.truetype("arialbd.ttf", 56)
     except Exception: font_word = ImageFont.load_default()
 
     draw = ImageDraw.Draw(Image.new("RGB", (768, 1344)))
@@ -868,6 +1044,10 @@ def synthesize_and_align_audio(script_text: str, temp_dir: Path, ep_title: str) 
 
     # 1. Synthesize Studio Voiceover with Microsoft VibeVoice Cloned Voice (Episode 80 Standard)
     chunks_dir = Path(str(raw_voice_path) + "_chunks")
+    if raw_voice_path.exists() and cached_script_differs(temp_dir / f"{ep_title}_voice_script.txt", voice_script):
+        print("[Voiceover] The script changed since the cached recording: re-recording the narration "
+              "(old audio kept in temp/_previous).", flush=True)
+        retire_stale_audio(temp_dir, [raw_voice_path, chunks_dir, transcript_path, master_audio_path])
     is_cloned_voice = raw_voice_path.exists() and chunks_dir.exists()
 
     if not is_cloned_voice:
@@ -951,40 +1131,22 @@ def synthesize_and_align_audio(script_text: str, temp_dir: Path, ep_title: str) 
     total_duration = transcript_res["segments"][-1]["end"]
     print(f"Audio Duration: {total_duration:.2f}s across {len(transcript_res['segments'])} segments.", flush=True)
 
-    # 3. Master Demucs Audio Mixing & Studio EQ (Episode 80 Standard)
-    cand_stems = [
-        PROJECT_DIR / "demucs_stems" / "htdemucs" / "original_audio",
-        Path(r"C:\Projects\BHSR\demucs_stems\htdemucs\original_audio"),
-        Path(r"C:\Projects\Bible Hidden Secrets Revealed\demucs_stems\htdemucs\original_audio"),
-    ]
-    stems_dir = next((d for d in cand_stems if d.exists()), cand_stems[0])
-    other_stem = stems_dir / "other.wav"
-    bass_stem = stems_dir / "bass.wav"
-    drums_stem = stems_dir / "drums.wav"
-
+    # 3. Master voice track: narration only, no background music (music beds caused copyright claims)
     if not master_audio_path.exists():
-        if other_stem.exists() and bass_stem.exists() and drums_stem.exists():
-            print("\n=== Mixing Voiceover with Cinematic Soundtrack ===", flush=True)
-            print("[Audio] Blending voiceover with soundtrack stems and mastering audio...", flush=True)
-            mix_cmd = [
-                FFMPEG_EXE, "-y",
-                "-hide_banner", "-loglevel", "error",
-                "-i", str(raw_voice_path),
-                "-stream_loop", "-1", "-i", str(other_stem),
-                "-stream_loop", "-1", "-i", str(bass_stem),
-                "-stream_loop", "-1", "-i", str(drums_stem),
-                "-filter_complex",
-                "[0:a]highpass=f=75,lowpass=f=7200,equalizer=f=220:t=q:w=1.2:g=2.5,equalizer=f=3400:t=q:w=1.8:g=-4.5,equalizer=f=5500:t=q:w=1.5:g=-5.0,deesser=i=0.6:m=0.5:f=0.5,compand=attacks=0.01:decays=0.08:points=-80/-80|-22/-10|-10/-3|0/0,volume=3.2[voice];[1:a][2:a][3:a]amix=inputs=3:duration=first:normalize=0,volume=0.25[bg];[voice][bg]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-11.5:TP=-0.5:LRA=5[out]",
-                "-map", "[out]",
-                "-ar", "44100",
-                str(master_audio_path)
-            ]
-            cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
-            with ProgressHeartbeat("Soundtrack Mastering", interval_sec=60):
-                subprocess.run(mix_cmd, check=True, creationflags=cf)
-            print(f"[Audio] Master soundtrack successfully mixed: {master_audio_path}", flush=True)
-        else:
-            shutil.copy2(raw_voice_path, master_audio_path)
+        print("\n=== Mastering Voiceover (voice only, no music) ===", flush=True)
+        master_cmd = [
+            FFMPEG_EXE, "-y",
+            "-hide_banner", "-loglevel", "error",
+            "-i", str(raw_voice_path),
+            "-filter_complex", "[0:a]highpass=f=75,lowpass=f=7200,equalizer=f=220:t=q:w=1.2:g=2.5,equalizer=f=3400:t=q:w=1.8:g=-4.5,equalizer=f=5500:t=q:w=1.5:g=-5.0,deesser=i=0.6:m=0.5:f=0.5,compand=attacks=0.01:decays=0.08:points=-80/-80|-22/-10|-10/-3|0/0,volume=3.2,loudnorm=I=-11.5:TP=-0.5:LRA=5[out]",
+            "-map", "[out]",
+            "-ar", "44100",
+            str(master_audio_path)
+        ]
+        cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+        with ProgressHeartbeat("Voice Mastering", interval_sec=60):
+            subprocess.run(master_cmd, check=True, creationflags=cf)
+        print(f"[Audio] Voice master ready: {master_audio_path}", flush=True)
     else:
         print(f"[Audio] Master soundtrack already exists: {master_audio_path}", flush=True)
 
@@ -993,6 +1155,32 @@ def synthesize_and_align_audio(script_text: str, temp_dir: Path, ep_title: str) 
 # =============================================================================
 # THUMBNAIL & FAST AD COMBINER ENGINES (NO FULL RE-RENDER)
 # =============================================================================
+def legacy_reel_metadata(txt_path: Path) -> dict:
+    """Thumbnail fields from an older reel's metadata.txt ("TITLE: Headline — Subtitle | Bible Secrets #51")."""
+    text = txt_path.read_text(encoding="utf-8", errors="replace")
+
+    def field(name):
+        m = re.search(rf"^{name}:[ \t]*(.+)$", text, re.MULTILINE)
+        return m.group(1).strip() if m else ""
+
+    title = re.sub(r"\s*\|\s*Bible Secrets\s*#\d+\s*$", "", field("TITLE"), flags=re.IGNORECASE)
+    head, _, sub = title.partition(" — ")
+    if not sub and len(title) > 26:
+        # A long title fits the 2-line headline only in part: keep ~24 characters up front, the rest as subtitle
+        words, n = title.split(), 1
+        while n < len(words) - 1 and len(" ".join(words[:n + 1])) <= 24:
+            n += 1
+        head, sub = " ".join(words[:n]), " ".join(words[n:])
+    desc = text.split("DESCRIPTION:", 1)[1].split("HASHTAGS:", 1)[0] if "DESCRIPTION:" in text else ""
+    verse = re.search(r"\b(?:[1-3] )?[A-Z][a-z]+ \d+:\d+(?:-\d+)?", desc)
+    meta = {"title": head.strip() or title, "hook": field("HOOK")}
+    if sub:
+        meta["thumbnail_kicker"] = sub.strip().upper()
+    if verse:
+        meta["thumbnail_scripture"] = verse.group(0).upper()
+    return meta
+
+
 def regenerate_thumbnail_only(target_dir: Path, week_num: int, reel_num: int) -> Path:
     """Regenerates the Option-C composite thumbnail and text cards in seconds without re-rendering video."""
     meta_p = target_dir / "metadata.json"
@@ -1002,8 +1190,10 @@ def regenerate_thumbnail_only(target_dir: Path, week_num: int, reel_num: int) ->
             meta = json.loads(meta_p.read_text(encoding="utf-8"))
         except Exception:
             pass
+    elif (target_dir / "metadata.txt").exists():
+        meta = legacy_reel_metadata(target_dir / "metadata.txt")
 
-    ep_num = f"{meta.get('global_episode', (week_num - 1) * 5 + reel_num):02d}"
+    ep_num = f"{reel_global_number(target_dir):02d}"
     title = meta.get("title") or target_dir.name.replace("_", " ").title()
     hook_text = meta.get("hook_text") or meta.get("hook") or title.upper()
     thumb_text = meta.get("thumbnail_text") or meta.get("hook") or title.upper()
@@ -1013,17 +1203,21 @@ def regenerate_thumbnail_only(target_dir: Path, week_num: int, reel_num: int) ->
     images_dir.mkdir(parents=True, exist_ok=True)
     target_thumb = target_dir / "thumbnail.jpg"
 
-    # Resolve background image
+    # Resolve background image: a scene image (never a text card, which carries old wording), first scene first.
+    # Older reels keep their scene images in the reel folder itself.
     bg_candidates = [
         images_dir / f"reel{ep_num}_dyn_1.png",
         images_dir / f"reel{int(ep_num)}_dyn_1.png",
         images_dir / f"reel{ep_num}_scene_01.png",
-        images_dir / f"reel{ep_num}_card_hook.png",
     ]
+    bg_candidates += [target_dir / p.name for p in bg_candidates]
     if not any(p.exists() for p in bg_candidates):
-        all_imgs = sorted(list(images_dir.glob("reel*.png")), key=lambda x: len(x.name))
-        if all_imgs:
-            bg_candidates.append(all_imgs[0])
+        def scene_order(p):
+            nums = re.findall(r"\d+", p.stem)
+            return (int(nums[-1]) if nums else 999, p.name)
+        scenes = [p for p in list(images_dir.glob("reel*.png")) + list(target_dir.glob("reel*.png")) if "card" not in p.name]
+        if scenes:
+            bg_candidates.append(sorted(scenes, key=scene_order)[0])
 
     bg_img = next((p for p in bg_candidates if p.exists()), None)
 
@@ -1066,7 +1260,9 @@ def render_ad_clip(ad_num: int, force: bool = False) -> Path:
     shared_dir.mkdir(parents=True, exist_ok=True)
     ad_clip_path = shared_dir / f"ad_outro_{ad_num}.mp4"
 
-    if ad_clip_path.exists() and ad_clip_path.stat().st_size > 100000 and not force:
+    cached_ad_script = shared_dir / f"temp_ad_{ad_num}" / f"ad_{ad_num}_voice_script.txt"
+    ad_wording_changed = cached_script_differs(cached_ad_script, prepare_voice_script(ad_cfg["script"].strip()))
+    if ad_clip_path.exists() and ad_clip_path.stat().st_size > 100000 and not force and not ad_wording_changed:
         print(f"[Ad Engine] Using pre-rendered ad outro clip: {ad_clip_path.name}", flush=True)
         return ad_clip_path
 
@@ -1096,7 +1292,7 @@ def render_ad_clip(ad_num: int, force: bool = False) -> Path:
             pass
 
     chunks = load_chunked_captions(ad_script, transcript_res, max_words=4)
-    try: font_word = ImageFont.truetype("arialbd.ttf", 44)
+    try: font_word = ImageFont.truetype("arialbd.ttf", 56)
     except Exception: font_word = ImageFont.load_default()
 
     total_ad_frames = int(ad_duration * FPS)
@@ -1124,13 +1320,13 @@ def render_ad_clip(ad_num: int, force: bool = False) -> Path:
             pad_x, pad_y, word_sp = 24, 12, 14
             total_w = sum(draw_ov.textlength(w["word"], font=font_word) for w in active_chunk["words"]) + word_sp * (len(active_chunk["words"]) - 1)
             card_w = int(total_w + pad_x * 2)
-            card_h = 68
+            card_h = font_word.size + 28
             card_x = (768 - card_w) // 2
             card_y = int(1344 * 0.74)
             draw_ov.rounded_rectangle([card_x, card_y, card_x + card_w, card_y + card_h], radius=18, fill=(0, 0, 0, 160))
 
             cur_x = card_x + pad_x
-            text_y = card_y + 11
+            text_y = card_y + 12
             for w in active_chunk["words"]:
                 wl = draw_ov.textlength(w["word"], font=font_word)
                 is_active = (w["start"] <= t <= w["end"] + 0.05)
@@ -1227,7 +1423,7 @@ def render_reel(
     combine_ad_only: bool = False
 ) -> Path:
     print(f"\n{'='*74}", flush=True)
-    print(f"▶ PRODUCING REEL W{week_num:02d}.0{reel_num}: {target_dir.name}", flush=True)
+    print(f"▶ PRODUCING REEL W{week_num:02d} {reel_key(target_dir) or reel_num}: {target_dir.name}", flush=True)
     print(f"Benchmark Standard: Episode 57 / 768x1344 Native Ken Burns + Safe Captions", flush=True)
     print(f"{'='*74}", flush=True)
 
@@ -1275,7 +1471,7 @@ def render_reel(
         except Exception:
             pass
 
-    ep_num = f"{meta.get('global_episode', (week_num - 1) * 5 + reel_num):02d}"
+    ep_num = f"{reel_global_number(target_dir):02d}"
     title = meta.get("title") or target_dir.name.replace("_", " ").title()
     hook_text = meta.get("hook_text") or meta.get("hook") or title.upper()
     thumb_text = meta.get("thumbnail_text") or meta.get("hook") or title.upper()
@@ -1289,6 +1485,7 @@ def render_reel(
         clean_narr = f"{title}. {hook_text}. In the scriptures, {scripture_ref}. Follow for more biblical secrets."
     # Captions show the script's real words, not the voice's pronunciation spellings
     caption_narr = clean_script_for_tts(raw_script, phonetic=False) or clean_narr
+    clean_narr, caption_narr = ensure_books_cta(clean_narr), ensure_books_cta(caption_narr)
 
     word_count = len(clean_narr.split())
     # Standard pacing for cinematic biblical reel voiceover is ~155 words/min (~2.58 words/sec)
@@ -1409,7 +1606,7 @@ def render_reel(
 
     # 9. Chunk Captions for Safe-Zone Rendering
     chunks = load_chunked_captions(caption_narr, transcript_res, max_words=4)
-    try: font_word = ImageFont.truetype("arialbd.ttf", 44)
+    try: font_word = ImageFont.truetype("arialbd.ttf", 56)
     except Exception: font_word = ImageFont.load_default()
 
     # 10. Frame-by-Frame Video Rendering (Ken Burns + Captions)
@@ -1448,13 +1645,13 @@ def render_reel(
             pad_x, pad_y, word_sp = 24, 12, 14
             total_w = sum(draw_ov.textlength(w["word"], font=font_word) for w in active_chunk["words"]) + word_sp * (len(active_chunk["words"]) - 1)
             card_w = int(total_w + pad_x * 2)
-            card_h = 68
+            card_h = font_word.size + 28
             card_x = (768 - card_w) // 2
             card_y = int(1344 * 0.74)
             draw_ov.rounded_rectangle([card_x, card_y, card_x + card_w, card_y + card_h], radius=18, fill=(0, 0, 0, 160))
 
             cur_x = card_x + pad_x
-            text_y = card_y + 11
+            text_y = card_y + 12
             for w in active_chunk["words"]:
                 wl = draw_ov.textlength(w["word"], font=font_word)
                 is_active = (w["start"] <= t <= w["end"] + 0.05)
@@ -1508,9 +1705,10 @@ def render_reel(
 def main():
     parser = argparse.ArgumentParser(description="Master Reel Video Generator (Episode 57 Benchmark Standard)")
     parser.add_argument("--week", "-w", type=str, default=None, help="Target week (e.g. 1 or W01)")
-    parser.add_argument("--reel", "-r", type=int, default=None, help="Target reel index (1 to 5)")
-    parser.add_argument("--episode", "-e", type=int, default=None, help="Global episode index (1 to 780)")
-    parser.add_argument("--all", "-a", action="store_true", help="Generate all 5 reels for the specified week")
+    parser.add_argument("--reel", "-r", type=str, default=None,
+                        help="Reel to render: its day key (mon_2), folder name, or place in the week's posting order (1 = first)")
+    parser.add_argument("--episode", "-e", type=int, default=None, help="Global reel number (the 'Bible Secrets #NNN')")
+    parser.add_argument("--all", "-a", action="store_true", help="Generate every reel of the specified week")
     parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild even if video exists")
     parser.add_argument("--force-images", action="store_true", help="Force ComfyUI FLUX re-generation of all scene images")
     parser.add_argument("--images-only", action="store_true", help="Generate scene images & text cards only")
@@ -1522,19 +1720,18 @@ def main():
     args = parser.parse_args()
 
     week_num = None
-    reel_indices = []
+    targets = []
 
     if args.episode is not None:
-        ep = args.episode
-        week_num = (ep - 1) // 5 + 1
-        reel_indices = [(ep - 1) % 5 + 1]
+        found = find_reel_by_number(args.episode)
+        if not found:
+            print(f"[ERROR] No reel has the number {args.episode}")
+            sys.exit(1)
+        week_num, folder = found
+        targets = [folder]
     elif args.week is not None:
         w_str = str(args.week).upper().replace("W", "")
         week_num = int(w_str)
-        if args.all or args.reel is None:
-            reel_indices = [1, 2, 3, 4, 5]
-        else:
-            reel_indices = [args.reel]
     else:
         parser.print_help()
         sys.exit(1)
@@ -1545,16 +1742,25 @@ def main():
         print(f"[ERROR] Week directory not found: {week_dir}")
         sys.exit(1)
 
+    if args.episode is None:
+        if args.all or args.reel is None:
+            targets = ordered_reels(week_dir / "reels")
+        else:
+            folder = find_reel_folder(week_dir, args.reel)
+            if folder:
+                targets = [folder]
+            else:
+                print(f"[SKIP] Reel {args.reel} folder not found in {week_dir / 'reels'}")
+    reel_indices = [reel_key(f) or f.name for f in targets]
+    all_reels = ordered_reels(week_dir / "reels")
+
     print(f"\n===========================================================================")
     print(f"MASTER REEL GENERATOR: Week {week_tag}, Reels {reel_indices}")
     print(f"===========================================================================")
 
     completed = []
-    for r_idx in reel_indices:
-        target_sub = find_reel_folder(week_dir, r_idx)
-        if not target_sub:
-            print(f"[SKIP] Reel {r_idx} folder not found in {week_dir / 'reels'}")
-            continue
+    for target_sub in targets:
+        r_idx = all_reels.index(target_sub) + 1 if target_sub in all_reels else 1
         try:
             out_p = render_reel(
                 week_num=week_num,

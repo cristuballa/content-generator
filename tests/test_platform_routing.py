@@ -163,5 +163,30 @@ class PublishVideoTests(unittest.TestCase):
         self.assertIsNot(calls[0]["thread"], threading.main_thread())
 
 
+
+class StoryDispatchTests(unittest.TestCase):
+    """Stories must reach Meta's Story endpoints, never the Reels/feed ones."""
+
+    def dispatch(self, platform):
+        with mock.patch("core.social_dispatcher.meta_uploader") as meta:
+            meta.page_token, meta.ig_user_id = "t", "2"
+            social_dispatcher._dispatch_to_platform(
+                platform=platform, config={}, video_path=Path("story.mp4"), title="T", description="D",
+                tags=[], is_short=True, is_story=True, pinned_comment="Links!"
+            )
+        return meta
+
+    def test_facebook_story_endpoint(self):
+        meta = self.dispatch("facebook")
+        meta.upload_facebook_story.assert_called_once()
+        meta.upload_facebook_reel.assert_not_called()
+        meta.upload_facebook_video.assert_not_called()
+
+    def test_instagram_story_media_type(self):
+        meta = self.dispatch("instagram")
+        meta.upload_instagram_reel.assert_called_once()
+        self.assertEqual(meta.upload_instagram_reel.call_args.kwargs["media_type"], "STORIES")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -191,6 +191,32 @@ class CommentAfterPostingTests(unittest.TestCase):
         threads.post_reply.assert_called_once_with("t1", "Links!")
         meta.post_comment.assert_called_once_with("ig1", "Links!")
 
+    def test_youtube_compliance_strips_shorteners_markdown_links_and_tags(self):
+        desc = (
+            "Watch this deep revelation! <Episode 1>\n"
+            "Grab the book: [Amazon Link](https://amazon.com/dp/B123)\n"
+            "Follow on Bitly: bit.ly/mychannel\n"
+            "Official Shop: www.shop.com/store\n\n"
+            "#BibleStudy #Revelation"
+        )
+        cleaned = SD.sanitize_urls_for_youtube(desc)
+        self.assertNotIn("http", cleaned)
+        self.assertNotIn("bit.ly", cleaned)
+        self.assertNotIn("<", cleaned)
+        self.assertNotIn(">", cleaned)
+        self.assertNotIn("[Amazon Link]()", cleaned)
+        self.assertIn("Watch this deep revelation! Episode 1", cleaned)
+
+    def test_youtube_compliance_with_ai_disclosure(self):
+        desc = "Educational documentary on Genesis.\n\n#Genesis"
+        compliant = SD.apply_youtube_compliance(desc, include_ai_disclosure=True)
+        self.assertIn("Altered or synthetic content", compliant)
+        self.assertTrue(compliant.endswith("#Genesis"))
+
+        # Idempotent: should not add duplicate disclosure
+        recompliant = SD.apply_youtube_compliance(compliant, include_ai_disclosure=True)
+        self.assertEqual(recompliant.count("Altered or synthetic content"), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -260,7 +260,7 @@ class StoryMapManager:
 
             # ----------------- 2. 5 Vertical Reels (Mon-Fri) -----------------
             r_dir = (w_dir / "reels") if (w_dir / "reels").exists() else ((w_dir / "reel") if (w_dir / "reel").exists() else None)
-            subdirs = sorted([d for d in r_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()]) if (r_dir and r_dir.exists()) else []
+            subdirs = sorted([d for d in r_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]) if (r_dir and r_dir.exists()) else []
 
             for i in range(min(5, len(reels))):
                 reel_obj = reels[i]
@@ -323,7 +323,7 @@ class StoryMapManager:
 
             # ----------------- 3. 5 Daily Stories (Mon-Fri) -----------------
             s_dir = (w_dir / "stories") if (w_dir / "stories").exists() else ((w_dir / "story") if (w_dir / "story").exists() else None)
-            s_subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and "temp" not in d.name.lower()]) if (s_dir and s_dir.exists()) else []
+            s_subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]) if (s_dir and s_dir.exists()) else []
 
             for i in range(min(5, len(stories))):
                 story_obj = stories[i]

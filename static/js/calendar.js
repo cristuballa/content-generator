@@ -71,6 +71,74 @@ function formatPostTitle(post) {
   return { epPrefix, title: cleanTitle || post.title || post.video_filename };
 }
 
+// ----------------- WEEK-AHEAD STAGING & BUSINESS SUITE STATUS -----------------
+const PLAT_NAMES = { youtube: "YouTube", facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", x: "X" };
+const BS_STEP_TEXT = {
+  todo: "not scheduled there yet",
+  scheduled: "scheduled ✓",
+  live: "live ✓",
+  missing: "not found on Instagram after 3 days"
+};
+
+function escapeHtml(text) {
+  return String(text ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function fmtWhen(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+// Platforms whose copy is uploaded and waiting on the platform to go live (not posted yet)
+function waitingPlatforms(post) {
+  return Object.entries(post?.platform_states || {}).filter(([, v]) => v.state === "staged").map(([k]) => k);
+}
+
+function platNames(list) {
+  return list.map(p => PLAT_NAMES[p] || p).join(" & ");
+}
+
+function stageSummaryLines(post) {
+  const lines = [];
+  const states = post?.platform_states || {};
+  const waiting = waitingPlatforms(post);
+  if (waiting.length) {
+    lines.push({ tone: "text-sky-300", icon: "cloud-check",
+      text: `${platNames(waiting)} uploaded. The platform publishes it ${fmtWhen(states[waiting[0]].live_at)}, even if this PC is off.` });
+  }
+  for (const [p, v] of Object.entries(states)) {
+    if (v.state === "stage_failed") {
+      lines.push({ tone: "text-amber-300", icon: "cloud-off",
+        text: `${PLAT_NAMES[p] || p}: couldn't upload ahead (${v.error}). ${v.gave_up ? "This PC posts it at its time." : "Retrying."}` });
+    } else if (v.state === "business_suite") {
+      lines.push({ tone: v.step === "missing" ? "text-rose-300" : "text-pink-300", icon: "list-checks",
+        text: `${PLAT_NAMES[p] || p}${post.video_rel_path?.includes("/stories/") ? " Story" : ""}: scheduled by hand in Business Suite, ${BS_STEP_TEXT[v.step] || v.step}.` });
+    }
+  }
+  if (post?.video_changed_since_staged) {
+    lines.push({ tone: "text-rose-300", icon: "alert-triangle",
+      text: "The video changed after it was uploaded. Use Re-stage to replace the waiting copies." });
+  }
+  return lines;
+}
+
+function renderStageSummaryHtml(post) {
+  return stageSummaryLines(post).map(l => `
+    <div class="flex items-start gap-1.5 ${l.tone}">
+      <i data-lucide="${l.icon}" class="w-3 h-3 mt-0.5 shrink-0"></i>
+      <span>${escapeHtml(l.text)}</span>
+    </div>
+  `).join("");
+}
+
+// Shows what the server did to copies waiting on platforms (moved, replaced, deleted) after a save or move
+function showChangeNotes(data) {
+  (data?.notes || []).forEach(n => showCalToast(n, "info"));
+  (data?.errors || []).forEach(e => showCalToast(e, "error"));
+}
+
 async function movePostToDate(post, targetDateStr) {
   try {
     const res = await fetch(`/api/calendar/schedule/${post.id}`, {
@@ -87,6 +155,7 @@ async function movePostToDate(post, targetDateStr) {
     if (res.ok && data.success) {
       const { epPrefix, title } = formatPostTitle(post);
       showCalToast(`📅 Moved ${epPrefix ? epPrefix + ' ' : ''}${title} to ${targetDateStr}`, "success");
+      showChangeNotes(data);
       await refreshSchedule();
     } else {
       const errMsg = data.detail || "Cannot move post to that date (daily limit conflict).";
@@ -593,6 +662,7 @@ function renderQueueView() {
               </span>
             ` : ''}
           </div>
+          ${stageSummaryLines(post).length ? `<div class="mt-1 space-y-0.5 text-[10.5px]">${renderStageSummaryHtml(post)}</div>` : ''}
         </div>
       </div>
 
@@ -893,9 +963,12 @@ function renderPlatformBadges(platforms, post = null) {
       svg: () => `<span class="text-[10px] font-bold">${p.toUpperCase()}</span>`
     };
 
+    const st = post?.platform_states?.[key];
+    const isWaiting = st?.state === "staged";
+
     let isSuccess = false;
     const pubList = post?.published_platforms || [];
-    if (pubList.includes(key)) {
+    if (pubList.includes(key) && !isWaiting) {
       isSuccess = true;
     } else if (isPostPosted) {
       if (post?.dispatch_result?.platforms?.[key]) {
@@ -904,16 +977,31 @@ function renderPlatformBadges(platforms, post = null) {
       }
     }
 
-    const badgeBg = isSuccess ? cfg.activeBg : cfg.disabledBg;
+    let badgeBg = isSuccess ? cfg.activeBg : cfg.disabledBg;
     const badgeColor = isSuccess ? cfg.activeColor : cfg.disabledColor;
     const statusText = post?.dispatch_result?.platforms?.[key]?.status || (isSuccess ? "posted" : "scheduled");
-    const title = isSuccess
+    let title = isSuccess
       ? `${cfg.name}: Successfully posted`
       : `${cfg.name}: ${statusText === 'queued' ? 'Queued / Not yet posted' : 'Not posted'}`;
 
+    // Corner dot: uploaded and waiting (sky), Business Suite step (pink / green / red), upload-ahead problem (amber)
+    let dot = "";
+    if (isWaiting) {
+      badgeBg = "bg-sky-500/15 border-sky-400/60 shadow-[0_0_8px_rgba(56,189,248,0.25)]";
+      dot = "bg-sky-400";
+      title = `${cfg.name}: uploaded, goes live ${fmtWhen(st.live_at)} (the platform publishes it, even if this PC is off)`;
+    } else if (st?.state === "business_suite") {
+      dot = st.step === "missing" ? "bg-rose-400" : (st.step === "todo" ? "bg-pink-400" : "bg-emerald-400");
+      title = `${cfg.name}: scheduled by hand in Business Suite, ${BS_STEP_TEXT[st.step] || st.step}`;
+    } else if (st?.state === "stage_failed") {
+      dot = "bg-amber-400";
+      title = `${cfg.name}: couldn't upload ahead (${st.error}). ${st.gave_up ? "This PC posts it at its time." : "Retrying."}`;
+    }
+
     return `
-      <span class="inline-flex items-center justify-center w-6 h-6 rounded-md border ${badgeBg} ${badgeColor} transition-all duration-200 shrink-0" title="${title}">
-        ${cfg.svg(isSuccess)}
+      <span class="relative inline-flex items-center justify-center w-6 h-6 rounded-md border ${badgeBg} ${isWaiting ? cfg.activeColor : badgeColor} transition-all duration-200 shrink-0" title="${escapeHtml(title)}">
+        ${cfg.svg(isSuccess || isWaiting)}
+        ${dot ? `<span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${dot} ring-1 ring-slate-950"></span>` : ''}
       </span>
     `;
   }).join('');
@@ -1158,9 +1246,18 @@ function openDetailModal(postId) {
     candidatePlatforms = ["youtube"];
   }
 
-  // Rule: Socmed icons outlined should ONLY be enabled by default if NOT posted to that platform
-  const unpostedPlatforms = candidatePlatforms.filter(p => !publishedPlatforms.includes(p));
+  // Rule: Socmed icons outlined should ONLY be enabled by default if NOT posted to that platform.
+  // A copy uploaded and waiting to go live is not posted yet, so it stays ticked (un-ticking it deletes that copy).
+  const waiting = waitingPlatforms(post);
+  const unpostedPlatforms = candidatePlatforms.filter(p => !publishedPlatforms.includes(p) || waiting.includes(p));
   activeModalPlatforms = new Set(unpostedPlatforms);
+
+  const stageInfo = document.getElementById("detailStageInfo");
+  if (stageInfo) {
+    const html = renderStageSummaryHtml(post);
+    stageInfo.innerHTML = html;
+    stageInfo.classList.toggle("hidden", !html);
+  }
 
   const modal = document.getElementById("modalPostDetail");
   const badgeStatus = document.getElementById("detailStatusBadge");
@@ -1300,9 +1397,12 @@ function renderDetailPlatformToggles() {
     },
   ];
 
+  const waiting = waitingPlatforms(activePostDetail);
+
   container.innerHTML = platformsList.map(p => {
     const isSelected = activeModalPlatforms.has(p.key);
-    const isPublished = publishedPlatforms.includes(p.key);
+    const isWaiting = waiting.includes(p.key);
+    const isPublished = publishedPlatforms.includes(p.key) && !isWaiting;
 
     const btnClass = isSelected
       ? `relative p-1.5 rounded-lg border cursor-pointer transition ${p.activeBg} hover:brightness-110`
@@ -1318,7 +1418,9 @@ function renderDetailPlatformToggles() {
       ? `<span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-slate-950" title="Already posted on ${p.name}"></span>`
       : ``;
 
-    const tooltip = isPublished 
+    const tooltip = isWaiting
+      ? `${p.name}: uploaded, waiting to go live. ${isSelected ? 'Un-ticking it and saving deletes that copy' : 'Will be deleted when you save (click to keep it)'}`
+      : isPublished
       ? `${p.name}: Already published. ${isSelected ? 'Selected to REPOST (Click to disable)' : 'Not selected (Click to enable repost)'}`
       : `${p.name}: ${isSelected ? 'Selected to post (Click to disable)' : 'Not selected (Click to enable)'}`;
 
@@ -1349,7 +1451,8 @@ function renderDetailPlatformToggles() {
 
 function updateDetailModalUI() {
   if (!activePostDetail) return;
-  const publishedPlatforms = activePostDetail.published_platforms || [];
+  const waiting = waitingPlatforms(activePostDetail);
+  const publishedPlatforms = (activePostDetail.published_platforms || []).filter(p => !waiting.includes(p));
   const selectedList = Array.from(activeModalPlatforms);
 
   const elPlatforms = document.getElementById("detailPlatforms");
@@ -1398,7 +1501,7 @@ function updateDetailModalUI() {
         btnPreUpload.disabled = true;
       } else {
         btnPreUpload.disabled = false;
-        const isStaged = activePostDetail.staged || activePostDetail.pre_uploaded;
+        const isStaged = schedulableSelected.some(p => waiting.includes(p));
         if (isStaged) {
           btnPreUpload.innerHTML = `<i data-lucide="cloud-check" class="w-3.5 h-3.5 text-cyan-300"></i><span>Re-Stage Cloud</span>`;
           btnPreUpload.className = "px-3.5 py-1.5 bg-cyan-700 hover:bg-cyan-600 text-cyan-100 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow cursor-pointer border border-cyan-500/50";
@@ -1421,12 +1524,17 @@ async function saveDetailChanges() {
   const platforms = Array.from(activeModalPlatforms);
   const finalPlatforms = platforms.length > 0 ? platforms : (activePostDetail.platforms || ["youtube"]);
 
+  const dropped = waitingPlatforms(activePostDetail).filter(p => !finalPlatforms.includes(p));
+  if (dropped.length && !confirm(`${platNames(dropped)} is un-ticked. Saving deletes the ${platNames(dropped)} copy that is uploaded and waiting to go live. Continue?`)) {
+    return;
+  }
+
   try {
     const res = await fetch(`/api/calendar/schedule/${activePostDetail.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        scheduled_date: newDate, 
+      body: JSON.stringify({
+        scheduled_date: newDate,
         scheduled_time: newTime,
         platforms: finalPlatforms
       })
@@ -1435,6 +1543,7 @@ async function saveDetailChanges() {
     if (res.ok && data.success) {
       document.getElementById("modalPostDetail").classList.add("hidden");
       showCalToast("Schedule and platforms updated successfully.", "success");
+      showChangeNotes(data);
       await refreshSchedule();
     } else {
       showCalToast(data.detail || "Failed to update schedule.", "error");
@@ -1481,7 +1590,8 @@ async function executePostNow(postId) {
   if (!targetId) return;
 
   const targetPost = scheduleData.find(p => p.id === targetId) || activePostDetail;
-  const publishedPlatforms = targetPost?.published_platforms || [];
+  // A copy waiting to go live isn't posted yet: Post Now publishes it instead of uploading a second one
+  const publishedPlatforms = (targetPost?.published_platforms || []).filter(p => !waitingPlatforms(targetPost).includes(p));
 
   let platforms = [];
   if (activePostDetail && activePostDetail.id === targetId) {
@@ -1566,10 +1676,16 @@ async function executePreUpload(postId) {
     return;
   }
 
+  // Copies already waiting are replaced (deleted, then uploaded again), e.g. after a re-render or caption change
+  const toReplace = waitingPlatforms(targetPost).filter(p => cloudPlatforms.includes(p));
+  if (toReplace.length && !confirm(`Re-stage replaces the ${platNames(toReplace)} copy waiting to go live: it is deleted and uploaded again. Continue?`)) {
+    return;
+  }
+
   try {
     showCalToast(`☁️ Pre-uploading & staging to ${cloudPlatforms.join(', ').toUpperCase()} in the cloud...`, "info");
     const platQuery = encodeURIComponent(cloudPlatforms.join(","));
-    const url = `/api/calendar/schedule/${targetId}/pre_upload?platforms=${platQuery}`;
+    const url = `/api/calendar/schedule/${targetId}/pre_upload?platforms=${platQuery}${toReplace.length ? "&replace=true" : ""}`;
     const res = await fetch(url, { method: "POST" });
     const text = await res.text();
     let data;
@@ -1610,13 +1726,19 @@ async function executeDeletePost(postId) {
   const targetId = postId || (activePostDetail ? activePostDetail.id : null);
   if (!targetId) return;
 
-  if (!confirm("Remove this video from the posting schedule?")) return;
+  const targetPost = scheduleData.find(p => p.id === targetId) || activePostDetail;
+  const waiting = waitingPlatforms(targetPost);
+  const question = waiting.length
+    ? `Remove this video from the posting schedule?\n\nIt is already uploaded and waiting to go live on ${platNames(waiting)}. Those copies will be deleted so it doesn't go out.`
+    : "Remove this video from the posting schedule?";
+  if (!confirm(question)) return;
 
   try {
     const res = await fetch(`/api/calendar/schedule/${targetId}`, { method: "DELETE" });
     const data = await res.json();
     if (res.ok && data.success) {
-      showCalToast("Post removed from schedule.", "info");
+      const deleted = data.deleted_copies || [];
+      showCalToast(deleted.length ? `Post removed, and its waiting ${platNames(deleted)} copy deleted.` : "Post removed from schedule.", "info");
       document.getElementById("modalPostDetail")?.classList.add("hidden");
       await refreshSchedule();
     } else {
@@ -1664,6 +1786,185 @@ async function runAutoScheduleBulk() {
       lucide.createIcons();
     }
   }
+}
+
+// ----------------- META BUSINESS SUITE CHECKLIST -----------------
+// Instagram (reels, stories) and Facebook Stories can't be held as scheduled posts through the API, so the project
+// schedules them by hand in Business Suite. This panel lists the coming week's ones with their captions.
+let bsTasks = [];
+
+function bsProjectPath() {
+  return selectedProject && selectedProject !== "all" ? selectedProject : null;
+}
+
+async function openBusinessSuitePanel() {
+  document.getElementById("modalBusinessSuite").classList.remove("hidden");
+  await Promise.all([loadBusinessSuiteSettings(), loadBusinessSuiteTasks()]);
+}
+
+async function loadBusinessSuiteSettings() {
+  const q = bsProjectPath() ? `?project_path=${encodeURIComponent(bsProjectPath())}` : "";
+  try {
+    const cfg = await (await fetch(`/api/social/config${q}`)).json();
+    document.getElementById("bsStageDays").value = cfg.stage_ahead_days ?? 0;
+    document.getElementById("bsReelTimes").value = (cfg.reel_posting_times || ["07:30", "17:30", "20:30"]).join(", ");
+    document.getElementById("bsIgToggle").checked = !!(cfg.business_suite || {}).instagram;
+    document.getElementById("bsFbStoriesToggle").checked = !!(cfg.business_suite || {}).facebook_stories;
+    document.getElementById("bsSettingsProject").textContent = cfg.project_name || "Active project";
+    document.getElementById("bsDryRunNote").classList.toggle("hidden", cfg.dry_run === false);
+  } catch (e) {
+    showCalToast(`Couldn't load the scheduling settings: ${e.message}`, "error");
+  }
+}
+
+async function saveBusinessSuiteSettings() {
+  const days = Math.max(0, Math.min(30, parseInt(document.getElementById("bsStageDays").value, 10) || 0));
+  const reelTimes = document.getElementById("bsReelTimes").value.split(/[,\s]+/).map(t => t.trim()).filter(Boolean);
+  const badTime = reelTimes.find(t => !/^([01]\d|2[0-3]):[0-5]\d$/.test(t));
+  if (badTime || !reelTimes.length) {
+    showCalToast(`Reel times must look like 07:30, 17:30${badTime ? ` ("${badTime}" doesn't)` : ""}.`, "error");
+    return;
+  }
+  const body = {
+    project_path: bsProjectPath(),
+    stage_ahead_days: days,
+    reel_posting_times: reelTimes,
+    business_suite: {
+      instagram: document.getElementById("bsIgToggle").checked,
+      facebook_stories: document.getElementById("bsFbStoriesToggle").checked
+    }
+  };
+  try {
+    const res = await fetch("/api/social/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showCalToast(days > 0
+      ? `Saved. Posts in the next ${days} day${days === 1 ? "" : "s"} are uploaded to YouTube & Facebook ahead of time.`
+      : "Saved. Uploading ahead is off.", "success");
+    await Promise.all([loadBusinessSuiteSettings(), loadBusinessSuiteTasks(), refreshSchedule()]);
+  } catch (e) {
+    showCalToast(`Couldn't save the settings: ${e.message}`, "error");
+  }
+}
+
+async function loadBusinessSuiteTasks() {
+  const list = document.getElementById("bsTaskList");
+  list.innerHTML = `<div class="text-xs text-slate-500 p-4 text-center">Loading…</div>`;
+  const q = new URLSearchParams({ days: "7" });
+  if (bsProjectPath()) q.set("project_path", bsProjectPath());
+  try {
+    const data = await (await fetch(`/api/calendar/business_suite?${q.toString()}`)).json();
+    if (data.planner_url) document.getElementById("bsPlannerLink").href = data.planner_url;
+    bsTasks = data.tasks || [];
+    renderBusinessSuiteTasks();
+  } catch (e) {
+    list.innerHTML = `<div class="text-xs text-rose-300 p-4">Couldn't load the checklist: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function renderBusinessSuiteTasks() {
+  const list = document.getElementById("bsTaskList");
+  if (!bsTasks.length) {
+    list.innerHTML = `
+      <div class="p-6 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl text-xs">
+        Nothing to schedule by hand in the next 7 days.<br>
+        <span class="text-[11px] text-slate-600">Tick Instagram / Facebook Stories above, and put the week's posts on the calendar.</span>
+      </div>`;
+    return;
+  }
+
+  const byDay = {};
+  bsTasks.forEach((t, i) => {
+    const day = t.due.slice(0, 10);
+    (byDay[day] = byDay[day] || []).push({ ...t, idx: i });
+  });
+
+  list.innerHTML = Object.entries(byDay).map(([day, tasks]) => {
+    const [y, m, d] = day.split("-").map(Number);
+    const dayLabel = new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+    return `
+      <div>
+        <div class="text-[11px] font-bold text-amber-300 uppercase tracking-wide mb-2">${dayLabel}</div>
+        <div class="space-y-2">
+          ${tasks.map(t => {
+            const done = t.step === "scheduled" || t.step === "live";
+            const stepBadge = t.step === "live"
+              ? `<a href="${escapeHtml(t.url || '#')}" target="_blank" rel="noopener noreferrer" class="text-emerald-300 font-bold">✓ Live</a>`
+              : t.step === "missing"
+              ? `<span class="text-rose-300 font-bold" title="No Instagram reel with this caption was found within 3 days of its time">Not found on Instagram</span>`
+              : `<label class="flex items-center gap-1.5 cursor-pointer ${done ? 'text-emerald-300' : 'text-slate-300'}">
+                   <input type="checkbox" class="bs-tick accent-emerald-500" data-idx="${t.idx}" ${done ? 'checked' : ''}>
+                   Scheduled in Business Suite
+                 </label>`;
+            return `
+              <div class="flex gap-3 p-3 rounded-xl border ${done ? 'border-emerald-900/50 bg-emerald-950/10' : 'border-[#242f44] bg-[#151b28]'}">
+                <img src="${escapeHtml(t.thumbnail_url || '')}" alt="" class="w-12 h-20 object-cover rounded-lg bg-black border border-slate-800 shrink-0" onerror="this.src='/static/favicon.png';">
+                <div class="min-w-0 flex-1 space-y-1.5">
+                  <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="font-mono font-bold text-amber-300">${t.due.slice(11, 16)}</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${t.platform === 'instagram' ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' : 'bg-[#1877F2]/15 text-blue-300 border border-[#1877F2]/30'}">${escapeHtml(t.label)}</span>
+                    <span class="font-semibold text-slate-100 truncate">${escapeHtml(t.title || t.video_rel_path)}</span>
+                  </div>
+                  ${t.caption ? `<pre class="font-sans text-[11px] text-slate-300 whitespace-pre-wrap bg-slate-950/60 border border-slate-800 rounded-lg p-2 max-h-24 overflow-y-auto custom-scrollbar">${escapeHtml(t.caption)}</pre>` : ''}
+                  ${t.caption_error ? `<div class="text-[11px] text-rose-300">Couldn't build the caption: ${escapeHtml(t.caption_error)}</div>` : ''}
+                  <div class="flex flex-wrap items-center gap-2 text-[11px]">
+                    ${t.caption ? `<button class="bs-copy px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center gap-1" data-idx="${t.idx}"><i data-lucide="copy" class="w-3 h-3"></i>Copy caption</button>` : ''}
+                    <button class="bs-reveal px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center gap-1" data-idx="${t.idx}"><i data-lucide="folder-open" class="w-3 h-3"></i>Show video</button>
+                    ${!t.is_story ? `<a href="${escapeHtml(t.thumbnail_url || '#')}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center gap-1"><i data-lucide="image" class="w-3 h-3"></i>Cover image</a>` : ''}
+                    <span class="ml-auto">${stepBadge}</span>
+                  </div>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }).join("");
+
+  list.querySelectorAll(".bs-copy").forEach(btn => {
+    btn.onclick = async () => {
+      const t = bsTasks[+btn.dataset.idx];
+      try {
+        await navigator.clipboard.writeText(t.caption);
+        showCalToast("Caption copied. Paste it into Business Suite.", "success");
+      } catch (e) {
+        showCalToast(`Couldn't copy: ${e.message}`, "error");
+      }
+    };
+  });
+  list.querySelectorAll(".bs-reveal").forEach(btn => {
+    btn.onclick = async () => {
+      const t = bsTasks[+btn.dataset.idx];
+      try {
+        const res = await fetch("/api/calendar/reveal_video", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ project_path: t.project_path, video_rel_path: t.video_rel_path })
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || `HTTP ${res.status}`);
+      } catch (e) {
+        showCalToast(`Couldn't open the folder: ${e.message}`, "error");
+      }
+    };
+  });
+  list.querySelectorAll(".bs-tick").forEach(cb => {
+    cb.onchange = async () => {
+      const t = bsTasks[+cb.dataset.idx];
+      try {
+        const res = await fetch(`/api/calendar/schedule/${t.post_id}/manual/${t.platform}?done=${cb.checked}`, { method: "POST" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        t.step = cb.checked ? "scheduled" : "todo";
+        renderBusinessSuiteTasks();
+        refreshSchedule();
+      } catch (e) {
+        cb.checked = !cb.checked;
+        showCalToast(`Couldn't save: ${e.message}`, "error");
+      }
+    };
+  });
+  lucide.createIcons();
 }
 
 // ----------------- EVENT LISTENERS SETUP -----------------
@@ -1726,6 +2027,12 @@ function updatePlatformFilterUI() {
   document.getElementById("btnOpenAddPost").onclick = () => openAddPostModal();
   document.getElementById("btnAutoSchedule").onclick = runAutoScheduleBulk;
 
+  // Business Suite checklist
+  document.getElementById("btnBusinessSuite").onclick = openBusinessSuitePanel;
+  document.getElementById("btnCloseBusinessSuite").onclick = () => document.getElementById("modalBusinessSuite").classList.add("hidden");
+  document.getElementById("btnRefreshBusinessSuite").onclick = loadBusinessSuiteTasks;
+  document.getElementById("btnSaveBsSettings").onclick = saveBusinessSuiteSettings;
+
   // Add post modal
   document.getElementById("btnCloseAddPostModal").onclick = () => document.getElementById("modalAddPost").classList.add("hidden");
   document.getElementById("btnCancelAddPost").onclick = () => document.getElementById("modalAddPost").classList.add("hidden");
@@ -1774,6 +2081,7 @@ function updatePlatformFilterUI() {
     if (e.key === "Escape") {
       document.getElementById("modalAddPost")?.classList.add("hidden");
       document.getElementById("modalPostDetail")?.classList.add("hidden");
+      document.getElementById("modalBusinessSuite")?.classList.add("hidden");
     }
   });
 }

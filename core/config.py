@@ -54,6 +54,12 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "auto_publish_on_approve": False,
         "auto_schedule_on_approve": True,
         "default_posting_time": "18:00",
+        # Upload scheduled posts this many days ahead to YouTube / Facebook, which then publish them on time (0 = off)
+        "stage_ahead_days": 0,
+        # Platforms scheduled by hand in Meta Business Suite: the calendar never posts these itself
+        "business_suite": {"instagram": False, "facebook_stories": False},
+        # Reel times by place in the day: reels/mon_1_x posts at the 1st time, mon_2_x at the 2nd, and so on
+        "reel_posting_times": ["07:30", "17:30", "20:30"],
         "webhook_url": "",
         "webhook_auth_header": "",
         "youtube": {

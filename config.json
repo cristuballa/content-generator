@@ -20,7 +20,7 @@
         "dry_run": false,
         "auto_publish_on_approve": false,
         "auto_schedule_on_approve": true,
-        "default_posting_time": "19:15",
+        "default_posting_time": "07:30",
         "webhook_url": "http://localhost:5678/webhook/kct-social-publish",
         "webhook_auth_header": "",
         "youtube": {

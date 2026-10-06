@@ -39,6 +39,18 @@
     }
   </script>
   <style>
+    /* Native dropdown lists: dark popup with readable text (transparent selects otherwise open white-on-white) */
+    select {
+      color-scheme: dark;
+    }
+    select option {
+      background-color: #121620;
+      color: #e2e8f0;
+    }
+    select option:checked {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
     .aspect-9-16 {
       aspect-ratio: 9 / 16;
     }
@@ -152,7 +164,7 @@
               Cosmic Divine Council & Pre-Creation
             </span>
             <span id="heroProgressBadge" class="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
-              <span id="heroRenderedCount" class="text-emerald-400 font-black">1</span> / 11 Videos Rendered
+              <span id="heroRenderedCount" class="text-emerald-400 font-black">1</span> / <span id="heroTotalVideos">11</span> Videos Rendered
             </span>
           </div>
 
@@ -183,10 +195,10 @@
             <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-700/60">
               <div id="heroProgressBar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-2.5 rounded-full transition-all duration-500" style="width: 9%"></div>
             </div>
-            <div class="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
+            <div class="text-[11px] text-slate-400 mt-2 flex items-center justify-between gap-3">
               <span>1 Flagship (16:9)</span>
-              <span>5 Reels (9:16)</span>
-              <span>5 Stories (9:16)</span>
+              <span id="heroReelsLabel">5 Reels (9:16)</span>
+              <span id="heroStoriesLabel">5 Stories (9:16)</span>
             </div>
           </div>
 
@@ -317,15 +329,15 @@
         <!-- Generate All Reels Button -->
         <button id="btnGenerateAllReels" class="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 hover:text-emerald-200 border border-emerald-500/35 text-xs font-bold flex items-center gap-2 transition active:scale-[0.98]">
           <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-          <span>Generate All 5 Reels</span>
+          <span id="btnGenerateAllReelsLabel">Generate All Reels</span>
         </button>
       </div>
 
-      <!-- 5-Card Grid for Daily Reels -->
+      <!-- Daily Reels: one column per weekday when a day has more than one reel -->
       <div id="reelsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <!-- Rendered via JS -->
         <div class="col-span-full py-12 text-center text-slate-500 text-xs font-mono">
-          Loading 5 daily reels for this week...
+          Loading this week's reels...
         </div>
       </div>
     </section>
@@ -346,7 +358,7 @@
         <!-- Generate All Stories Button -->
         <button id="btnGenerateAllStories" class="px-4 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 hover:text-purple-200 border border-purple-500/35 text-xs font-bold flex items-center gap-2 transition active:scale-[0.98]">
           <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
-          <span>Generate All 5 Stories</span>
+          <span id="btnGenerateAllStoriesLabel">Generate All 5 Stories</span>
         </button>
       </div>
 
@@ -354,7 +366,7 @@
       <div id="storiesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <!-- Rendered via JS -->
         <div class="col-span-full py-12 text-center text-slate-500 text-xs font-mono">
-          Loading 5 daily stories for this week...
+          Loading this week's stories...
         </div>
       </div>
     </section>
@@ -948,7 +960,7 @@
         allWeeks.forEach(w => {
           const opt = document.createElement("option");
           opt.value = w.week_tag;
-          const statusTag = w.rendered_count > 0 ? `(${w.rendered_count}/11 Rendered)` : (w.has_scripts ? `(Scripts Ready)` : `(Planned)`);
+          const statusTag = w.rendered_count > 0 ? `(${w.rendered_count}/${w.total_videos || 11} Rendered)` : (w.has_scripts ? `(Scripts Ready)` : `(Planned)`);
           opt.textContent = `${w.week_tag}: ${w.title.substring(0, 42)}... ${statusTag}`;
           if (w.week_tag === currentWeekId) {
             opt.selected = true;
@@ -1000,13 +1012,16 @@
 
       const renderedCount = data.rendered_count || 0;
       const totalVideos = data.total_videos || 11;
-      const percent = Math.round((renderedCount / totalVideos) * 100);
+      const percent = Math.min(100, Math.round((renderedCount / totalVideos) * 100));
 
       document.getElementById("heroRenderedCount").textContent = renderedCount;
+      document.getElementById("heroTotalVideos").textContent = totalVideos;
+      document.getElementById("heroReelsLabel").textContent = `${(data.reels || []).length || 5} Reels (9:16)`;
+      document.getElementById("heroStoriesLabel").textContent = `${(data.stories || []).length || 5} Stories (9:16)`;
       document.getElementById("heroPercentText").textContent = `${percent}%`;
       document.getElementById("heroProgressBar").style.width = `${percent}%`;
 
-      btnGenerateAllWeek.onclick = () => triggerGeneration(data.week_num, "all_week", null, `All 11 Videos for ${data.week_tag}`);
+      btnGenerateAllWeek.onclick = () => triggerGeneration(data.week_num, "all_week", null, `the whole week ${data.week_tag} (${totalVideos} videos: long-form, then reels, then stories; up-to-date videos are skipped)`);
 
       // 4.2 Flagship Long-Form
       renderLongForm(data.long_form, data.week_num);
@@ -1270,17 +1285,18 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // Render 5 Reels
+    // Render the week's reels (reels/mon_1_..., mon_2_..., tue_1_... in posting order; any number a day)
     function renderReels(reels, weekNum) {
       const grid = document.getElementById("reelsGrid");
-      btnGenerateAllReels.onclick = () => triggerGeneration(weekNum, "all_reels", null, `All 5 Daily Reels for W${weekNum.toString().padStart(2, "0")}`);
+      document.getElementById("btnGenerateAllReelsLabel").textContent = `Generate All ${reels?.length || 5} Reels`;
+      btnGenerateAllReels.onclick = () => triggerGeneration(weekNum, "all_reels", null, `All ${reels?.length || 5} Reels for W${weekNum.toString().padStart(2, "0")}`);
 
       if (!reels || reels.length === 0) {
         grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-xs">No reels defined for this week.</div>`;
         return;
       }
 
-      grid.innerHTML = reels.map(r => {
+      const reelCard = (r) => {
         const isRendered = r.is_rendered && r.video_url;
         const cacheBuster = Date.now();
         const thumbBg = r.thumbnail_url ? `${r.thumbnail_url}?t=${cacheBuster}` : '';
@@ -1312,7 +1328,7 @@
             <!-- Card Header: Day & ID -->
             <div>
               <div class="flex items-center justify-between text-[10px] font-mono mb-1.5">
-                <span class="font-bold text-emerald-400 uppercase tracking-wider">${r.day} • Reel 0${r.num}</span>
+                <span class="font-bold text-emerald-400 uppercase tracking-wider" title="Folder: ${r.folder_name || ''}">${(r.day || '').slice(0, 3)} ${r.post_time || ''} • ${r.key || `Reel ${r.num}`}</span>
                 <span class="text-slate-500">${r.reel_id}</span>
               </div>
               
@@ -1341,7 +1357,7 @@
 
             <!-- Card Actions -->
             <div class="flex items-center gap-1.5 pt-1">
-              <button onclick="triggerGeneration(${weekNum}, 'reel', ${r.num}, 'Reel 0${r.num} (${r.day})')" class="flex-1 py-2 px-2.5 rounded-lg ${isRendered ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold'} text-xs flex items-center justify-center gap-1.5 transition">
+              <button onclick="triggerGeneration(${weekNum}, 'reel', ${r.num}, 'Reel ${r.key || r.num} (${r.day} ${r.post_time || ''})', '${r.key || ''}')" class="flex-1 py-2 px-2.5 rounded-lg ${isRendered ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold'} text-xs flex items-center justify-center gap-1.5 transition">
                 <i data-lucide="${isRendered ? 'refresh-cw' : 'play'}" class="w-3.5 h-3.5"></i>
                 <span>${isRendered ? 'Regenerate' : 'Generate'}</span>
               </button>
@@ -1367,20 +1383,54 @@
 
           </div>
         `;
+      };
+
+      // One reel a day: a single row. Several a day: one column per weekday, each day's reels stacked by time
+      const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const days = dayOrder.filter(d => reels.some(r => r.day === d));
+      if (reels.length <= days.length) {
+        grid.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4";
+        grid.style.gridTemplateColumns = "";
+        grid.innerHTML = reels.map(reelCard).join("");
+        return;
+      }
+      grid.className = "grid gap-3 overflow-x-auto pb-2";
+      grid.style.gridTemplateColumns = `repeat(${days.length}, minmax(200px, 1fr))`;
+      grid.innerHTML = days.map(day => {
+        const dayReels = reels.filter(r => r.day === day);
+        return `
+          <div class="flex flex-col gap-3 min-w-0">
+            <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-emerald-300 px-1">
+              <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>${day}
+              <span class="font-normal normal-case tracking-normal text-slate-500">${dayReels.length} reel${dayReels.length === 1 ? '' : 's'}</span>
+            </div>
+            ${dayReels.map(reelCard).join("")}
+          </div>`;
       }).join("");
     }
 
-    // Render 5 Stories
+    const STORIES_GRID_CLASS = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4";
+
+    // Render the week's stories (5 daily, or 15 when posting 3 a day)
     function renderStories(stories, weekNum) {
       const grid = document.getElementById("storiesGrid");
-      btnGenerateAllStories.onclick = () => triggerGeneration(weekNum, "all_stories", null, `All 5 Daily Stories for W${weekNum.toString().padStart(2, "0")}`);
+      document.getElementById("btnGenerateAllStoriesLabel").textContent = `Generate All ${stories?.length || 5} Stories`;
+      btnGenerateAllStories.onclick = () => triggerGeneration(weekNum, "all_stories", null, `All ${stories?.length || 5} Stories for W${weekNum.toString().padStart(2, "0")}`);
 
       if (!stories || stories.length === 0) {
         grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-xs">No stories defined for this week.</div>`;
         return;
       }
 
-      grid.innerHTML = stories.map(s => {
+      // Show the week in posting order (Mon 08:00, 13:00, 20:00, Tue ...); buttons still address stories by s.num
+      const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const ordered = [...stories].sort((a, b) =>
+        (dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)) || (a.post_time || "").localeCompare(b.post_time || "") || (a.num - b.num));
+
+      // 3 stories a day: one column per weekday (Mon-Fri in a single row), each day's stories stacked by time
+      const groupByDay = stories.length > 5;
+
+      const storyCard = (s) => {
         const isRendered = s.is_rendered && s.video_url;
         const cacheBuster = Date.now();
         const thumbBg = s.thumbnail_url ? `${s.thumbnail_url}?t=${cacheBuster}` : '';
@@ -1412,7 +1462,7 @@
             <!-- Card Header: Day & ID -->
             <div>
               <div class="flex items-center justify-between text-[10px] font-mono mb-1.5">
-                <span class="font-bold text-purple-400 uppercase tracking-wider">${s.day} • Story 0${s.num}</span>
+                <span class="font-bold text-purple-400 uppercase tracking-wider">${groupByDay ? (s.post_time || s.day) : s.day + (s.post_time ? " " + s.post_time : "")} • Story ${String(s.num).padStart(2, "0")}</span>
                 <span class="text-slate-500">${s.story_id}</span>
               </div>
               
@@ -1441,7 +1491,7 @@
 
             <!-- Card Actions -->
             <div class="flex items-center gap-1.5 pt-1">
-              <button onclick="triggerGeneration(${weekNum}, 'story', ${s.num}, 'Story 0${s.num} (${s.day})')" class="flex-1 py-2 px-2.5 rounded-lg ${isRendered ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-purple-600 hover:bg-purple-500 text-white font-bold'} text-xs flex items-center justify-center gap-1.5 transition">
+              <button onclick="triggerGeneration(${weekNum}, 'story', ${s.num}, 'Story ${String(s.num).padStart(2, "0")} (${s.day})')" class="flex-1 py-2 px-2.5 rounded-lg ${isRendered ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-purple-600 hover:bg-purple-500 text-white font-bold'} text-xs flex items-center justify-center gap-1.5 transition">
                 <i data-lucide="${isRendered ? 'refresh-cw' : 'play'}" class="w-3.5 h-3.5"></i>
                 <span>${isRendered ? 'Regenerate' : 'Generate'}</span>
               </button>
@@ -1463,11 +1513,33 @@
 
           </div>
         `;
+      };
+
+      if (!groupByDay) {
+        grid.className = STORIES_GRID_CLASS;
+        grid.style.gridTemplateColumns = "";
+        grid.innerHTML = ordered.map(storyCard).join("");
+        return;
+      }
+
+      const days = dayOrder.filter(d => ordered.some(s => s.day === d));
+      grid.className = "grid gap-3 overflow-x-auto pb-2";
+      grid.style.gridTemplateColumns = `repeat(${days.length}, minmax(200px, 1fr))`;
+      grid.innerHTML = days.map(day => {
+        const dayStories = ordered.filter(s => s.day === day);
+        return `
+          <div class="flex flex-col gap-3 min-w-0">
+            <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-purple-300 px-1">
+              <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>${day}
+              <span class="font-normal normal-case tracking-normal text-slate-500">${dayStories.length} stories</span>
+            </div>
+            ${dayStories.map(storyCard).join("")}
+          </div>`;
       }).join("");
     }
 
     // 5. Trigger Video Generation
-    async function triggerGeneration(weekNum, type, targetNum, label) {
+    async function triggerGeneration(weekNum, type, targetNum, label, targetKey = null) {
       if (isJobRunning) {
         if (!confirm("A pipeline task is already executing. Do you want to check its progress?")) return;
         showDrawer();
@@ -1487,7 +1559,8 @@
           body: JSON.stringify({
             week: weekNum,
             type: type,
-            target_num: targetNum
+            target_num: targetNum,
+            target_key: targetKey || null
           })
         });
 

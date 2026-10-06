@@ -7,6 +7,7 @@ import os
 import json
 import time
 import logging
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 import requests
@@ -16,8 +17,14 @@ BHSR_IG_ID = "17841429371050878"
 META_TOKEN_FILE = Path(__file__).resolve().parent.parent / "data" / "meta_token.json"
 # Meta's upload server fails any single request that runs past ~40s, so videos go up in pieces this size
 UPLOAD_CHUNK = 4 * 1024 * 1024
+# Facebook Page videos (long-form) go up through this host in the byte ranges Facebook asks for; each piece is retried
+VIDEO_UPLOAD_HOST = "https://graph-video.facebook.com"
+TRANSFER_ATTEMPTS = 3
 # Above this video bitrate, Instagram uploads are re-encoded to ~5 Mbps first (Instagram recompresses Reels anyway)
 IG_MAX_UPLOAD_BITRATE = 8_000_000
+# Thumbnails / covers: JPEG up to 8 MB (Instagram's cover limit); Facebook may need a moment before it accepts one
+THUMB_MAX_BYTES = 8 * 1024 * 1024
+THUMB_RETRY_SEC = 5
 
 
 def load_meta_credentials() -> Dict[str, str]:
@@ -170,6 +177,22 @@ class MetaUploader:
             logging.warning(f"[MetaUploader] Comment error on {object_id}: {e}")
             return {"success": False, "error": str(e)}
 
+    def update_comment(self, comment_id: str, text: str) -> Dict[str, Any]:
+        """Edits the Page's own comment on a Facebook post (Instagram comments cannot be edited)."""
+        try:
+            resp = requests.post(
+                f"{self.base_url}/{comment_id}",
+                data={"message": text.strip(), "access_token": self.page_token},
+                timeout=20
+            ).json()
+            if resp.get("success"):
+                logging.info(f"[MetaUploader] Comment {comment_id} updated")
+                return {"success": True, "id": comment_id}
+            return {"success": False, "error": resp.get("error", {}).get("message", "Comment update rejected")}
+        except Exception as e:
+            logging.warning(f"[MetaUploader] Comment update error on {comment_id}: {e}")
+            return {"success": False, "error": str(e)}
+
     def _first_comment(self, object_id: str, text: Optional[str], scheduled_timestamp: Optional[int]) -> Optional[Dict[str, Any]]:
         """Posts the links comment now, or reports it as queued when the post is scheduled (not live yet)."""
         if not text or not text.strip():
@@ -187,6 +210,89 @@ class MetaUploader:
             return {}
         return {"pending_comment": text.strip(), "comment_due_at": int(scheduled_timestamp) + 60}
 
+    # ------------------------------------------------------------------------------------------------------------
+    # Custom thumbnails. Facebook videos take the image with the upload, Facebook Reels through /{video-id}/thumbnails,
+    # and Instagram Reels only by URL (cover_url), so the image is hosted briefly as an unpublished Page photo.
+    # A thumbnail problem never fails the post itself.
+    # ------------------------------------------------------------------------------------------------------------
+    @staticmethod
+    def _thumbnail_jpeg(thumbnail_path: Optional[Path]) -> tuple:
+        """(JPEG path, is_temp_copy) that both platforms accept, or (None, False) when there is no usable thumbnail."""
+        from core.thumbnails import jpeg_copy
+        return jpeg_copy(thumbnail_path, THUMB_MAX_BYTES)
+
+    def _set_video_thumbnail(self, video_id: str, thumbnail_path: Optional[Path], attempts: int = 3) -> bool:
+        """Sets the custom thumbnail of an uploaded Facebook video or Reel (retries while Meta is still processing it)."""
+        thumb, is_temp = self._thumbnail_jpeg(thumbnail_path)
+        if not thumb:
+            return False
+        try:
+            for attempt in range(1, attempts + 1):
+                try:
+                    with open(thumb, "rb") as f:
+                        resp = requests.post(
+                            f"{self.base_url}/{video_id}/thumbnails",
+                            data={"is_preferred": "true", "access_token": self.page_token},
+                            files={"source": (thumb.name, f, "image/jpeg")},
+                            timeout=60,
+                        )
+                    body = resp.json() if resp.content else {}
+                    if resp.status_code == 200 and "error" not in body:
+                        logging.info(f"[MetaUploader] Custom thumbnail set on Facebook video {video_id}")
+                        return True
+                    logging.warning(f"[MetaUploader] Thumbnail attempt {attempt} for {video_id} failed: {body or resp.status_code}")
+                except Exception as e:
+                    logging.warning(f"[MetaUploader] Thumbnail attempt {attempt} for {video_id} failed: {e}")
+                if attempt < attempts:
+                    time.sleep(THUMB_RETRY_SEC * attempt)
+            return False
+        finally:
+            if is_temp:
+                thumb.unlink(missing_ok=True)
+
+    def _host_cover(self, thumbnail_path: Optional[Path]) -> tuple:
+        """Uploads the thumbnail as an unpublished Page photo and returns (public image URL, photo id) for an Instagram
+        cover_url, or (None, None)."""
+        thumb, is_temp = self._thumbnail_jpeg(thumbnail_path)
+        if not thumb:
+            return None, None
+        photo_id = None
+        try:
+            with open(thumb, "rb") as f:
+                up = requests.post(
+                    f"{self.base_url}/{self.page_id}/photos",
+                    data={"published": "false", "access_token": self.page_token},
+                    files={"source": (thumb.name, f, "image/jpeg")},
+                    timeout=60,
+                ).json()
+            photo_id = up.get("id")
+            if not photo_id:
+                logging.warning(f"[MetaUploader] Could not host the Instagram cover: {up}")
+                return None, None
+            info = requests.get(f"{self.base_url}/{photo_id}",
+                                params={"fields": "images", "access_token": self.page_token}, timeout=15).json()
+            images = sorted(info.get("images") or [], key=lambda i: i.get("width", 0) * i.get("height", 0), reverse=True)
+            url = images[0].get("source") if images else None
+            if not url:
+                self._delete_object(photo_id)
+                return None, None
+            return url, photo_id
+        except Exception as e:
+            logging.warning(f"[MetaUploader] Could not host the Instagram cover: {e}")
+            if photo_id:
+                self._delete_object(photo_id)
+            return None, None
+        finally:
+            if is_temp:
+                thumb.unlink(missing_ok=True)
+
+    def _delete_object(self, object_id: str):
+        """Removes the temporary unpublished photo that carried an Instagram cover."""
+        try:
+            requests.delete(f"{self.base_url}/{object_id}", params={"access_token": self.page_token}, timeout=15)
+        except Exception as e:
+            logging.warning(f"[MetaUploader] Could not remove temporary cover photo {object_id}: {e}")
+
     def upload_facebook_video(
         self,
         video_path: Path,
@@ -194,11 +300,14 @@ class MetaUploader:
         description: str,
         tags: Optional[List[str]] = None,
         scheduled_timestamp: Optional[int] = None,
-        pinned_comment: Optional[str] = None
+        pinned_comment: Optional[str] = None,
+        thumbnail_path: Optional[Path] = None
     ) -> Dict[str, Any]:
         """
-        Uploads a video directly to the Facebook Page using Graph API.
-        Supports both immediate publishing and native cloud scheduling.
+        Uploads a video to the Facebook Page in pieces (start -> transfer -> finish) and publishes or schedules it with
+        its custom thumbnail. Facebook refuses a long-form file sent as one request (HTTP 413), so every video goes up
+        in the byte ranges Facebook asks for. If anything fails after the upload started, the half-made video is deleted
+        so a retry never leaves two copies.
         Automatically posts Strategy B first comment (merch & store links) if provided.
         """
         if not video_path.exists():
@@ -207,70 +316,155 @@ class MetaUploader:
         file_size = video_path.stat().st_size
         logging.info(f"[MetaUploader] Uploading to Facebook Page {self.page_id}: '{title}' ({round(file_size/(1024*1024), 1)} MB)")
 
-        upload_url = f"https://graph-video.facebook.com/{self.api_version}/{self.page_id}/videos"
+        upload_url = f"{VIDEO_UPLOAD_HOST}/{self.api_version}/{self.page_id}/videos"
 
         # The caption arrives complete (house format incl. its hashtag line)
         full_desc = description.strip()
 
-        # Build payload
-        data = {
-            "title": title,
-            "description": full_desc,
-            "access_token": self.page_token
-        }
-
-        if scheduled_timestamp:
-            data["published"] = "false"
-            data["scheduled_publish_time"] = str(scheduled_timestamp)
-        else:
-            data["published"] = "true"
-
-        # Direct multipart upload for reliable single-step transfer
+        video_id = None
         try:
-            with open(video_path, "rb") as f:
-                files = {"source": (video_path.name, f, "video/mp4")}
-                resp = requests.post(upload_url, data=data, files=files, timeout=max(600, int(file_size / (50 * 1024))))
-                
-            try:
-                res_json = resp.json()
-            except Exception:
-                res_json = {"error": {"message": f"HTTP {resp.status_code}: {resp.text[:300]}"}}
+            start = self._graph_post(upload_url, {"upload_phase": "start", "file_size": str(file_size)}, timeout=60)
+            video_id = start.get("video_id")
+            session_id = start.get("upload_session_id")
+            if not video_id or not session_id:
+                err_msg = start.get("error", {}).get("message", "Could not start the Facebook upload")
+                logging.error(f"[MetaUploader] Facebook upload start failed: {start}")
+                return {"status": "failed", "platform": "Facebook", "error": err_msg, "details": start}
 
-            if "id" in res_json:
-                fb_id = res_json["id"]
-                watch_url = f"https://www.facebook.com/watch/?v={fb_id}"
-                msg = f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook Page: {watch_url}"
-                logging.info(f"[MetaUploader] Facebook upload successful: {fb_id}")
+            transfer = self._transfer_video(upload_url, session_id, video_path, start)
+            if not transfer["success"]:
+                self.delete_video(video_id)
+                return {"status": "failed", "platform": "Facebook", "error": f"Upload failed: {transfer['error']}"}
 
-                first_comment_info = self._first_comment(fb_id, pinned_comment, scheduled_timestamp)
-
-                return {
-                    "status": "published",
-                    "platform": "Facebook",
-                    "id": fb_id,
-                    "url": watch_url,
-                    "scheduled": bool(scheduled_timestamp),
-                    "scheduled_timestamp": scheduled_timestamp,
-                    "first_comment": first_comment_info,
-                    **self._pending_comment_fields(pinned_comment, scheduled_timestamp),
-                    "message": msg
-                }
+            finish = {"upload_phase": "finish", "upload_session_id": session_id, "title": title, "description": full_desc}
+            if scheduled_timestamp:
+                finish["published"] = "false"
+                finish["scheduled_publish_time"] = str(scheduled_timestamp)
             else:
-                err_msg = res_json.get("error", {}).get("message", "Unknown Graph API error")
-                logging.error(f"[MetaUploader] Facebook upload failed: {res_json}")
-                return {
-                    "status": "failed",
-                    "platform": "Facebook",
-                    "error": err_msg,
-                    "details": res_json
-                }
+                finish["published"] = "true"
+            res_json, thumb_attached = self._finish_with_thumbnail(upload_url, finish, thumbnail_path)
+
+            if not res_json.get("success"):
+                err_msg = res_json.get("error", {}).get("message", "Facebook did not accept the finished upload")
+                logging.error(f"[MetaUploader] Facebook upload finish failed for {video_id}: {res_json}")
+                self.delete_video(video_id)
+                return {"status": "failed", "platform": "Facebook", "error": err_msg, "details": res_json}
+
+            if thumbnail_path and not thumb_attached:
+                thumb_attached = self._set_video_thumbnail(video_id, thumbnail_path)
+
+            watch_url = f"https://www.facebook.com/watch/?v={video_id}"
+            msg = f"{'Scheduled on' if scheduled_timestamp else 'Published to'} Facebook Page: {watch_url}"
+            logging.info(f"[MetaUploader] Facebook upload successful: {video_id}")
+
+            first_comment_info = self._first_comment(video_id, pinned_comment, scheduled_timestamp)
+
+            return {
+                "status": "published",
+                "platform": "Facebook",
+                "id": video_id,
+                "url": watch_url,
+                "thumbnail_attached": thumb_attached,
+                "scheduled": bool(scheduled_timestamp),
+                "scheduled_timestamp": scheduled_timestamp,
+                "first_comment": first_comment_info,
+                **self._pending_comment_fields(pinned_comment, scheduled_timestamp),
+                "message": msg
+            }
         except Exception as e:
             logging.error(f"[MetaUploader] Facebook upload exception: {e}")
+            if video_id:
+                self.delete_video(video_id)
             return {
                 "status": "failed",
                 "platform": "Facebook",
                 "error": str(e)
             }
+
+    def _graph_post(self, url: str, data: Dict[str, Any], files: Optional[Dict[str, Any]] = None, timeout: int = 120) -> Dict[str, Any]:
+        """POST with the Page token; an answer that isn't JSON comes back as an error dict with the HTTP status."""
+        resp = requests.post(url, data={**data, "access_token": self.page_token}, files=files, timeout=timeout)
+        try:
+            return resp.json()
+        except Exception:
+            return {"error": {"message": f"HTTP {resp.status_code}: {resp.text[:300]}"}}
+
+    def _transfer_video(self, upload_url: str, session_id: str, video_path: Path, start: Dict[str, Any]) -> Dict[str, Any]:
+        """Sends the byte ranges Facebook asks for (start_offset..end_offset) until both meet; a failed piece is retried."""
+        size = video_path.stat().st_size
+        start_offset, end_offset = int(start.get("start_offset", 0)), int(start.get("end_offset", 0))
+        failures = 0
+        with open(video_path, "rb") as f:
+            while start_offset < end_offset:
+                f.seek(start_offset)
+                chunk = f.read(end_offset - start_offset)
+                try:
+                    body = self._graph_post(
+                        upload_url,
+                        {"upload_phase": "transfer", "upload_session_id": session_id, "start_offset": str(start_offset)},
+                        files={"video_file_chunk": (video_path.name, chunk, "application/octet-stream")},
+                        timeout=300,
+                    )
+                except requests.RequestException as e:
+                    body = {"error": {"message": str(e)}}
+                if "start_offset" in body and "end_offset" in body:
+                    start_offset, end_offset = int(body["start_offset"]), int(body["end_offset"])
+                    failures = 0
+                    logging.info(f"[MetaUploader] Uploaded {round(start_offset / max(size, 1) * 100)}% of {video_path.name}")
+                    continue
+                failures += 1
+                error = body.get("error", {}).get("message", str(body)[:300])
+                logging.warning(f"[MetaUploader] Facebook upload piece at {start_offset} failed ({error}), attempt {failures}")
+                if failures > TRANSFER_ATTEMPTS:
+                    return {"success": False, "error": error}
+                time.sleep(2 * failures)
+        return {"success": True}
+
+    def _finish_with_thumbnail(self, upload_url: str, finish: Dict[str, Any], thumbnail_path: Optional[Path]) -> tuple:
+        """Finishes the upload with the thumbnail attached; if Facebook rejects that, finishes without it.
+        Returns (response, thumbnail_attached)."""
+        thumb, is_temp = self._thumbnail_jpeg(thumbnail_path)
+        try:
+            if thumb:
+                with open(thumb, "rb") as tf:
+                    body = self._graph_post(upload_url, finish, files={"thumb": (thumb.name, tf, "image/jpeg")})
+                if body.get("success"):
+                    return body, True
+                logging.warning(f"[MetaUploader] Finishing with the thumbnail was rejected ({body}); finishing without it")
+            return self._graph_post(upload_url, finish), False
+        finally:
+            if is_temp:
+                thumb.unlink(missing_ok=True)
+
+    def delete_video(self, video_id: str) -> Dict[str, Any]:
+        """Deletes a Facebook video or Reel (a scheduled copy that is cancelled, or a half-made upload)."""
+        try:
+            resp = requests.delete(f"{self.base_url}/{video_id}", params={"access_token": self.page_token}, timeout=30)
+            body = resp.json() if resp.content else {}
+            if resp.status_code == 200 and body.get("success", True) and "error" not in body:
+                logging.info(f"[MetaUploader] Deleted Facebook video {video_id}")
+                return {"success": True}
+            return {"success": False, "error": body.get("error", {}).get("message", f"HTTP {resp.status_code}")}
+        except Exception as e:
+            logging.warning(f"[MetaUploader] Could not delete Facebook video {video_id}: {e}")
+            return {"success": False, "error": str(e)}
+
+    def recent_instagram_media(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """The account's latest posts (newest first), used to find reels that were scheduled in Business Suite."""
+        try:
+            body = requests.get(
+                f"{self.base_url}/{self.ig_user_id}/media",
+                params={"fields": "id,caption,permalink,timestamp,media_product_type", "limit": limit,
+                        "access_token": self.page_token},
+                timeout=30,
+            ).json()
+            if "error" in body:
+                logging.warning(f"[MetaUploader] Could not list Instagram posts: {body['error'].get('message')}")
+                return []
+            return body.get("data") or []
+        except Exception as e:
+            logging.warning(f"[MetaUploader] Could not list Instagram posts: {e}")
+            return []
 
     def upload_facebook_reel(
         self,
@@ -279,7 +473,8 @@ class MetaUploader:
         description: str,
         tags: Optional[List[str]] = None,
         scheduled_timestamp: Optional[int] = None,
-        pinned_comment: Optional[str] = None
+        pinned_comment: Optional[str] = None,
+        thumbnail_path: Optional[Path] = None
     ) -> Dict[str, Any]:
         """
         Uploads a short vertical video (Reel) directly to the Facebook Page Reels feed
@@ -310,13 +505,15 @@ class MetaUploader:
             init_data = init_resp.json()
         except Exception as e:
             logging.warning(f"[MetaUploader] Facebook video_reels start exception ({e}). Falling back to upload_facebook_video.")
-            return self.upload_facebook_video(video_path, title, description, tags, scheduled_timestamp, pinned_comment)
+            return self.upload_facebook_video(video_path, title, description, tags, scheduled_timestamp, pinned_comment,
+                                              thumbnail_path=thumbnail_path)
 
         video_id = init_data.get("video_id")
         upload_url = init_data.get("upload_url")
         if not video_id:
             logging.warning(f"[MetaUploader] Facebook video_reels start failed ({init_data}). Falling back to upload_facebook_video.")
-            return self.upload_facebook_video(video_path, title, description, tags, scheduled_timestamp, pinned_comment)
+            return self.upload_facebook_video(video_path, title, description, tags, scheduled_timestamp, pinned_comment,
+                                              thumbnail_path=thumbnail_path)
 
         try:
             # Step 2: Binary Video Upload to rupload endpoint
@@ -359,6 +556,7 @@ class MetaUploader:
                 msg = f"{'Scheduled Reel on' if scheduled_timestamp else 'Published Reel to'} Facebook Page: {reel_url}"
                 logging.info(f"[MetaUploader] Facebook Reel published successfully: {video_id}")
 
+                thumb_attached = self._set_video_thumbnail(video_id, thumbnail_path) if thumbnail_path else False
                 first_comment_info = self._first_comment(video_id, pinned_comment, scheduled_timestamp)
 
                 return {
@@ -367,6 +565,7 @@ class MetaUploader:
                     "id": video_id,
                     "url": reel_url,
                     "is_reel": True,
+                    "thumbnail_attached": thumb_attached,
                     "scheduled": bool(scheduled_timestamp),
                     "scheduled_timestamp": scheduled_timestamp,
                     "first_comment": first_comment_info,
@@ -564,7 +763,35 @@ class MetaUploader:
         caption: str,
         tags: Optional[List[str]] = None,
         pinned_comment: Optional[str] = None,
-        media_type: str = "REELS"
+        media_type: str = "REELS",
+        thumbnail_path: Optional[Path] = None
+    ) -> Dict[str, Any]:
+        """Instagram Reel (or Story) upload. A Reel's thumbnail becomes its cover; Stories have no cover."""
+        cover_url, cover_photo = (None, None)
+        if thumbnail_path and media_type != "STORIES":
+            cover_url, cover_photo = self._host_cover(thumbnail_path)
+        try:
+            res = self._upload_instagram_media(video_path, caption, tags, pinned_comment, media_type, cover_url)
+            if cover_url and res.get("status") == "failed" and str(res.get("error", "")).startswith("Meta video processing failed"):
+                # Nothing was published; make sure the cover is not what Meta rejected
+                logging.warning("[MetaUploader] Instagram processing failed with a cover; retrying once without it.")
+                res = self._upload_instagram_media(video_path, caption, tags, pinned_comment, media_type, None)
+                cover_url = None
+        finally:
+            if cover_photo:
+                self._delete_object(cover_photo)
+        if media_type != "STORIES":
+            res["thumbnail_attached"] = bool(cover_url) and res.get("status") == "published"
+        return res
+
+    def _upload_instagram_media(
+        self,
+        video_path: Path,
+        caption: str,
+        tags: Optional[List[str]],
+        pinned_comment: Optional[str],
+        media_type: str,
+        cover_url: Optional[str]
     ) -> Dict[str, Any]:
         """
         media_type="STORIES" publishes an Instagram Story instead (no caption or comment, max 60s).
@@ -612,6 +839,8 @@ class MetaUploader:
         }
         if not is_story:
             init_params["caption"] = full_caption
+        if cover_url:
+            init_params["cover_url"] = cover_url
 
         try:
             init_res = requests.post(init_url, data=init_params, timeout=30).json()
