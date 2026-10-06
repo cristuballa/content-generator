@@ -258,124 +258,115 @@ class StoryMapManager:
                         doc["status"] = "in_production" if has_scripts else "planned"
                         updated = True
 
-            # ----------------- 2. 5 Vertical Reels (Mon-Fri) -----------------
-            r_dir = (w_dir / "reels") if (w_dir / "reels").exists() else ((w_dir / "reel") if (w_dir / "reel").exists() else None)
-            subdirs = sorted([d for d in r_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]) if (r_dir and r_dir.exists()) else []
-
-            for i in range(min(5, len(reels))):
-                reel_obj = reels[i]
-                target_sub = None
-                day_prefix = f"0{i+1}"
-                global_reel_num = (w_num - 1) * 5 + (i + 1)
-                for d in subdirs:
-                    if (d.name.startswith(day_prefix) or 
-                        d.name.startswith(f"{i+1}_") or 
-                        d.name.startswith(f"{global_reel_num}_") or
-                        f"reel_{i+1}" in d.name.lower() or 
-                        f"reel{i+1}" in d.name.lower()):
-                        target_sub = d
-                        break
-                if not target_sub and i < len(subdirs):
-                    target_sub = subdirs[i]
-
-                chosen_reel = None
-                if target_sub:
-                    r_mp4s = [p for p in target_sub.glob("*.mp4") if "temp" not in p.parts]
-                    if r_mp4s:
-                        r_mp4s.sort(key=lambda x: (
-                            0 if "final_reel" in x.name.lower()
-                            else (1 if "perfect_master" in x.name.lower()
-                            else (2 if "master" in x.name.lower()
-                            else (3 if "final" in x.name.lower() else 4)))
-                        ))
-                        chosen_reel = r_mp4s[0]
-
-                if chosen_reel:
-                    r_rel = str(chosen_reel.relative_to(BHSR_ROOT)).replace("\\", "/")
-                    pub = asset_manager.get_asset_record(r_rel).get("published", {})
-                    if (reel_obj.get("rel_path") != r_rel or 
-                        reel_obj.get("published") != pub or 
-                        not reel_obj.get("has_video") or
-                        not reel_obj.get("video_url")):
-                        reel_obj["rel_path"] = r_rel
-                        reel_obj["video_url"] = f"/api/media/{r_rel}"
-                        reel_obj["thumbnail_url"] = f"/api/thumbnail/{r_rel}"
-                        reel_obj["has_video"] = True
-                        reel_obj["published"] = pub
-                        updated = True
-                else:
-                    existing_r = reel_obj.get("rel_path")
-                    if existing_r and (BHSR_ROOT / existing_r).is_file() and existing_r.lower().endswith(".mp4"):
-                        pub = asset_manager.get_asset_record(existing_r).get("published", {})
-                        if not reel_obj.get("has_video") or not reel_obj.get("video_url"):
-                            reel_obj["has_video"] = True
-                            reel_obj["video_url"] = f"/api/media/{existing_r}"
-                            reel_obj["thumbnail_url"] = f"/api/thumbnail/{existing_r}"
-                            reel_obj["published"] = pub
-                            updated = True
-                    else:
-                        if reel_obj.get("has_video") or reel_obj.get("video_url"):
-                            reel_obj["has_video"] = False
-                            reel_obj["video_url"] = None
-                            reel_obj["thumbnail_url"] = None
-                            reel_obj["rel_path"] = None
-                            updated = True
-
-            # ----------------- 3. 5 Daily Stories (Mon-Fri) -----------------
-            s_dir = (w_dir / "stories") if (w_dir / "stories").exists() else ((w_dir / "story") if (w_dir / "story").exists() else None)
-            s_subdirs = sorted([d for d in s_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]) if (s_dir and s_dir.exists()) else []
-
-            for i in range(min(5, len(stories))):
-                story_obj = stories[i]
-                target_s_sub = None
-                day_prefix = f"0{i+1}"
-                for d in s_subdirs:
-                    if d.name.startswith(day_prefix) or d.name.startswith(f"{i+1}-") or f"story_{i+1}" in d.name.lower():
-                        target_s_sub = d
-                        break
-                if not target_s_sub and i < len(s_subdirs):
-                    target_s_sub = s_subdirs[i]
-
-                chosen_story = None
-                if target_s_sub:
-                    s_mp4s = [p for p in target_s_sub.glob("*.mp4") if "temp" not in p.parts]
-                    if s_mp4s:
-                        s_mp4s.sort(key=lambda x: (0 if "story_video" in x.name.lower() else (1 if "final" in x.name.lower() else 2)))
-                        chosen_story = s_mp4s[0]
-
-                if chosen_story:
-                    s_rel = str(chosen_story.relative_to(BHSR_ROOT)).replace("\\", "/")
-                    pub = asset_manager.get_asset_record(s_rel).get("published", {})
-                    if (story_obj.get("rel_path") != s_rel or 
-                        story_obj.get("published") != pub or 
-                        not story_obj.get("has_video") or
-                        not story_obj.get("video_url")):
-                        story_obj["rel_path"] = s_rel
-                        story_obj["video_url"] = f"/api/media/{s_rel}"
-                        story_obj["thumbnail_url"] = f"/api/thumbnail/{s_rel}"
-                        story_obj["has_video"] = True
-                        story_obj["published"] = pub
-                        updated = True
-                else:
-                    existing_s = story_obj.get("rel_path")
-                    if existing_s and (BHSR_ROOT / existing_s).is_file() and existing_s.lower().endswith(".mp4"):
-                        pub = asset_manager.get_asset_record(existing_s).get("published", {})
-                        if not story_obj.get("has_video") or not story_obj.get("video_url"):
-                            story_obj["has_video"] = True
-                            story_obj["video_url"] = f"/api/media/{existing_s}"
-                            story_obj["thumbnail_url"] = f"/api/thumbnail/{existing_s}"
-                            story_obj["published"] = pub
-                            updated = True
-                    else:
-                        if story_obj.get("has_video") or story_obj.get("video_url"):
-                            story_obj["has_video"] = False
-                            story_obj["video_url"] = None
-                            story_obj["thumbnail_url"] = None
-                            story_obj["rel_path"] = None
-                            updated = True
+            # ----------------- 2. Reels and 3. Stories: what the week's folders hold -----------------
+            # Every reel (mon_1, mon_2, tue_1...) in posting order and every story with its day and time. A week
+            # without reel / story folders keeps its planned placeholders.
+            new_reels = self._week_reels(w_num, w_dir, reels)
+            if new_reels is not None and new_reels != reels:
+                w["reels"] = new_reels
+                updated = True
+            new_stories = self._week_stories(w_num, w_dir, stories)
+            if new_stories is not None and new_stories != stories:
+                w["stories"] = new_stories
+                updated = True
 
         if updated:
             self._save_data(data)
+
+    @staticmethod
+    def _video_fields(folder: Path, prefer) -> Dict[str, Any]:
+        """rel_path / video_url / thumbnail_url / has_video / published for the folder's rendered video."""
+        mp4s = sorted((m for m in folder.glob("*.mp4") if "temp" not in m.parts), key=prefer)
+        if not mp4s:
+            return {"rel_path": None, "video_url": None, "thumbnail_url": None, "has_video": False, "published": {}}
+        rel = str(mp4s[0].relative_to(BHSR_ROOT)).replace("\\", "/")
+        return {"rel_path": rel, "video_url": f"/api/media/{rel}", "thumbnail_url": f"/api/thumbnail/{rel}",
+                "has_video": True, "published": asset_manager.get_asset_record(rel).get("published", {})}
+
+    def _week_reels(self, w_num: int, w_dir: Path, planned: List[Dict[str, Any]]) -> Optional[List[Dict[str, Any]]]:
+        """The week's reels from its folders, in posting order (None when the week has no reel folders yet)."""
+        from core.config import config_manager
+        from core.reels import DAY_NAMES, DAYS, recorded_reel_number, reel_day_and_time, reel_posting_times, reel_slots
+        slots = reel_slots(w_dir / "reels")
+        if not slots:
+            return None
+        times = reel_posting_times(config_manager.get_project_social_config(str(BHSR_ROOT)))
+        out = []
+        for pos, (folder, day, n) in enumerate(slots, 1):
+            meta: Dict[str, Any] = {}
+            try:
+                if (folder / "metadata.json").exists():
+                    meta = json.loads((folder / "metadata.json").read_text(encoding="utf-8"))
+                elif (folder / "metadata.txt").exists():
+                    from core.social_dispatcher import SocialDispatcher
+                    meta = SocialDispatcher.parse_metadata_txt((folder / "metadata.txt").read_text(encoding="utf-8", errors="replace"))
+            except Exception:
+                meta = {}
+            plan = planned[day] if n == 1 and day < len(planned) else {}
+            number = recorded_reel_number(folder) or (w_num - 1) * 5 + pos
+            key = f"{DAYS[day]}_{n}"
+            out.append({
+                "id": f"R-W{w_num:02d}.{key}",
+                "num": pos,
+                "key": key,
+                "slot": n,
+                "global_num": number,
+                "day": DAY_NAMES[day][:3],
+                "post_time": reel_day_and_time(folder, times)[1],
+                "badge": f"Bible Secrets #{number:03d} [W{w_num:02d} {key}]",
+                "title": meta.get("title") or plan.get("title") or folder.name.split("_", 2)[-1].replace("_", " ").title(),
+                "hook_type": plan.get("hook_type", "") if n == 1 else "",
+                "hook": meta.get("hook") or plan.get("hook", ""),
+                "folder": folder.name,
+                **self._video_fields(folder, lambda x: (
+                    0 if "final_reel" in x.name.lower() else (1 if "perfect_master" in x.name.lower()
+                    else (2 if "master" in x.name.lower() else (3 if "final" in x.name.lower() else 4))))),
+            })
+        return out
+
+    def _week_stories(self, w_num: int, w_dir: Path, planned: List[Dict[str, Any]]) -> Optional[List[Dict[str, Any]]]:
+        """The week's stories from their folders, by day and time (None when the week has no story folders yet).
+        A story's metadata.json gives its day / post_time / reel; older stories 1-5 take Monday to Friday."""
+        import re
+        s_dir = w_dir / "stories"
+        folders = sorted(d for d in s_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")) if s_dir.is_dir() else []
+        if not folders:
+            return None
+        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        out = []
+        for idx, folder in enumerate(folders, 1):
+            meta: Dict[str, Any] = {}
+            try:
+                meta = json.loads((folder / "metadata.json").read_text(encoding="utf-8"))
+            except Exception:
+                pass
+            plan = planned[idx - 1] if idx <= min(5, len(planned)) else {}
+            day = str(meta.get("day") or "")[:3].title() or (days[idx - 1] if idx <= 5 else "")
+            sticker = ""
+            try:
+                found = re.search(r"Interactive Sticker:\*\*\s*([A-Za-z_]+)", (folder / "story_script.md").read_text(encoding="utf-8", errors="replace"))
+                sticker = found.group(1).lower() if found else ""
+            except OSError:
+                pass
+            if not sticker:
+                sticker = "new_reel" if str(meta.get("final_cta", "")).upper().startswith("NEW REEL") else plan.get("sticker_type", "documentary")
+            post_time = str(meta.get("post_time") or "")[:5]
+            out.append({
+                "id": f"S-W{w_num:02d}.{idx}",
+                "num": idx,
+                "day": day,
+                "post_time": post_time,
+                "slot": meta.get("slot") or "",
+                "reel": meta.get("reel") or "",
+                "badge": f"Story {idx:02d} [W{w_num:02d}{' ' + post_time if post_time else ''}]",
+                "sticker_type": sticker,
+                "caption": meta.get("title") or re.sub(r"^\d+[_-]+", "", folder.name).replace("_", " ").replace("-", " ").title(),
+                "folder": folder.name,
+                **self._video_fields(folder, lambda x: (0 if "story_video" in x.name.lower() else (1 if "final" in x.name.lower() else 2))),
+            })
+        order = {d: i for i, d in enumerate(days)}
+        out.sort(key=lambda st: (order.get(st["day"], 9), st["post_time"] or "99:99", st["num"]))
+        return out
 
     def get_curriculum(
         self,
@@ -427,8 +418,8 @@ class StoryMapManager:
             "total_weeks": len(all_weeks),
             "total_years": 3,
             "total_documentaries": len(all_weeks),
-            "total_reels": len(all_weeks) * 5,
-            "total_stories": len(all_weeks) * 5,
+            "total_reels": sum(len(w.get("reels") or []) for w in all_weeks),
+            "total_stories": sum(len(w.get("stories") or []) for w in all_weeks),
             "total_community_posts": len(all_weeks) * 5,
             "total_substack_issues": len(all_weeks) * 2,
             "total_covered": covered_count,

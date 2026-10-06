@@ -288,6 +288,9 @@
                 <span id="lfWordCountSpec" class="font-bold text-amber-300">-- words</span>
               </div>
             </div>
+
+            <!-- Where this cut is posted -->
+            <div id="lfPostIcons" class="pt-1"></div>
           </div>
 
           <!-- Action Buttons -->
@@ -1040,6 +1043,114 @@
     let currentLfVideos = [];
     let selectedLfVideoIndex = 0;
 
+    // ----------------- WHERE EACH VIDEO IS POSTED -----------------
+    // Green = posted (click to open it), sky = uploaded and waiting to go live, grey = not posted there yet
+    const POST_ICON_SVGS = {
+      youtube: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`,
+      facebook: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
+      instagram: `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`,
+      threads: `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>`,
+      tiktok: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`,
+      x: `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`
+    };
+    const POST_PLATFORMS = {
+      long_form: [["youtube", "YouTube"], ["facebook", "Facebook Video"]],
+      reel: [["facebook", "Facebook Reels"], ["instagram", "Instagram Reels"], ["threads", "Threads"], ["tiktok", "TikTok"], ["x", "X"], ["youtube", "YouTube Shorts"]],
+      story: [["facebook", "Facebook Stories"], ["instagram", "Instagram Stories"], ["youtube", "YouTube Shorts"]]
+    };
+
+    // Each rendered video's posting state by its path, so a row can be redrawn after a manual change
+    const POSTS_BY_REL = {};
+
+    function attrSafe(text) {
+      return String(text ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function postWhen(iso) {
+      return iso ? new Date(iso).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "soon";
+    }
+
+    // Click an icon to switch it on (posted by hand, e.g. in Business Suite) or off. Waiting uploads are managed
+    // in the Calendar, since un-marking them would not stop the platform from publishing.
+    function renderPostIcons(posts, kind, relPath) {
+      if (relPath) POSTS_BY_REL[relPath] = { ...(posts || {}) };
+      const current = relPath ? POSTS_BY_REL[relPath] : (posts || {});
+      const icons = POST_PLATFORMS[kind].map(([key, label]) => {
+        const p = current[key];
+        // Reels and stories use slightly smaller icons than the long-form panel
+        const compact = kind !== "long_form";
+        const svg = POST_ICON_SVGS[key].replace('class="w-3.5 h-3.5', compact ? 'class="w-4 h-4' : 'class="w-5 h-5');
+        const state = p ? p.state : "none";
+        const data = `data-rel="${attrSafe(relPath || '')}" data-kind="${kind}" data-platform="${key}" data-label="${attrSafe(label)}" data-state="${state}"`;
+        let cls, title, extra = "";
+        if (state === "posted") {
+          cls = "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 hover:bg-emerald-500/30";
+          title = `Posted on ${label}${p.manual ? " (marked by hand)" : ""}. Click to mark as not posted.`;
+          if (p.url) {
+            extra = `<a href="${attrSafe(p.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-emerald-500 text-slate-950 text-[9px] font-black flex items-center justify-center shadow hover:scale-110" title="Open the post on ${attrSafe(label)}">↗</a>`;
+          }
+        } else if (state === "scheduled") {
+          cls = "bg-sky-500/15 text-sky-300 border-sky-500/50";
+          title = `Uploaded to ${label}: goes live ${postWhen(p.live_at)}. Change it in the Calendar.`;
+        } else {
+          cls = "text-slate-500 border-[#2a3347] opacity-70 hover:opacity-100 hover:text-slate-300";
+          title = relPath ? `Not posted on ${label}. Click to mark as posted by hand.` : `Not posted on ${label}. Render the video first.`;
+        }
+        return `<button type="button" ${data} onclick="togglePostIcon(this)" ${relPath ? "" : "disabled"} class="relative w-full flex items-center justify-center ${compact ? 'py-1' : 'py-1.5'} rounded-lg border transition hover:scale-105 ${cls}" title="${attrSafe(title)}">${svg}${extra}</button>`;
+      }).join("");
+      // Always one row: each icon gets an equal column (up to 44px) that narrows on smaller cards
+      const count = POST_PLATFORMS[kind].length;
+      return `<div class="post-icons grid gap-1.5" style="grid-template-columns: repeat(${count}, minmax(0, ${kind === "long_form" ? "2.75rem" : "2.25rem"}));" data-rel="${attrSafe(relPath || '')}" data-kind="${kind}">${icons}</div>`;
+    }
+
+    async function togglePostIcon(btn) {
+      const { rel, kind, platform, label, state } = btn.dataset;
+      if (!rel) return;
+      const p = (POSTS_BY_REL[rel] || {})[platform] || {};
+      if (state === "scheduled") {
+        alert(`This video is uploaded to ${label} and goes live ${postWhen(p.live_at)}.\n\nTo cancel or move it, change the post in the Calendar.`);
+        return;
+      }
+      let body;
+      if (state === "posted") {
+        const forget = p.url ? `\n\nKCT Studio will forget its link:\n${p.url}\n\nThe post itself stays on ${label}.` : "";
+        if (!confirm(`Mark this video as NOT posted on ${label}?${forget}`)) return;
+        body = { rel_path: rel, platform, posted: false };
+      } else {
+        const link = prompt(`Mark this video as posted on ${label}.\n\nPaste the post's link (optional), then OK:`, "");
+        if (link === null) return;
+        body = { rel_path: rel, platform, posted: true, details: { manual: true, ...(link.trim() ? { url: link.trim() } : {}) } };
+      }
+      try {
+        const res = await fetch("/api/assets/social_toggle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const posts = POSTS_BY_REL[rel] || (POSTS_BY_REL[rel] = {});
+        if (body.posted) {
+          posts[platform] = { state: "posted", url: body.details.url || null, manual: true };
+        } else {
+          delete posts[platform];
+        }
+        document.querySelectorAll(".post-icons").forEach(row => {
+          if (row.dataset.rel === rel) row.outerHTML = renderPostIcons(posts, row.dataset.kind, rel);
+        });
+        showToast(`${label}: marked as ${body.posted ? "posted" : "not posted"}.`, "success");
+      } catch (e) {
+        showToast(`Couldn't update ${label}: ${e.message}`, "error");
+      }
+    }
+
+    // Reels must stay under 2 minutes: a longer render shows its length in amber
+    function reelLengthLabel(r) {
+      if (!r.video_duration) return `<span>9:16 • ~1:45</span>`;
+      const [m, s] = r.video_duration.split(":").map(Number);
+      const over = m * 60 + s > 120;
+      return `<span class="${over ? 'text-amber-400 font-bold' : ''}" title="${over ? 'Over the 2-minute reel limit' : 'Rendered length'}">9:16 • ${r.video_duration}${over ? ' ⚠' : ''}</span>`;
+    }
+
     function renderLongForm(lf, weekNum) {
       const container = document.getElementById("lfMediaContainer");
       const titleEl = document.getElementById("lfTitleText");
@@ -1115,6 +1226,8 @@
         btnGen.className = "flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md shadow-amber-500/10 active:scale-[0.98]";
 
         durationSpec.textContent = lf.duration_target || "30–35 min";
+        const lfPostIconsEmpty = document.getElementById("lfPostIcons");
+        if (lfPostIconsEmpty) lfPostIconsEmpty.innerHTML = renderPostIcons(lf.posts, "long_form", lf.video_path);
         wordCountSpec.textContent = lf.script_word_count ? `${lf.script_word_count.toLocaleString()} words` : "--";
         resText.textContent = `${lf.resolution || "1920x1080"} Full HD`;
         sizeText.textContent = "-- MB";
@@ -1224,6 +1337,8 @@
       document.getElementById("lfFileSizeText").textContent = vid.size_mb ? `${vid.size_mb} MB` : "-- MB";
       document.getElementById("lfDurationSpec").textContent = vid.duration_formatted || vid.duration_target || "30–35 min";
       document.getElementById("lfWordCountSpec").textContent = vid.script_word_count ? `${vid.script_word_count.toLocaleString()} words` : "-- words";
+      const lfPostIcons = document.getElementById("lfPostIcons");
+      if (lfPostIcons) lfPostIcons.innerHTML = renderPostIcons(vid.posts || (index === 0 ? lf.posts : null), "long_form", vid.video_path);
 
       const scriptBadge = document.getElementById("lfScriptBadge");
       if (scriptBadge) {
@@ -1348,11 +1463,12 @@
                 "${r.hook}"
               </p>
               <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
-                <span>9:16 • ~55s</span>
+                ${reelLengthLabel(r)}
                 <span class="${r.script_status === 'Ready' ? 'text-emerald-400' : 'text-slate-500'}">
                   ${r.script_status === 'Ready' ? `✔ Script (${r.script_word_count}w)` : 'Missing'}
                 </span>
               </div>
+              ${renderPostIcons(r.posts, "reel", r.video_path)}
             </div>
 
             <!-- Card Actions -->
@@ -1487,6 +1603,7 @@
                   ${s.script_status === 'Ready' ? `✔ Slides Script` : 'Pending'}
                 </span>
               </div>
+              ${renderPostIcons(s.posts, "story", s.video_path)}
             </div>
 
             <!-- Card Actions -->

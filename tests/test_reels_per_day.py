@@ -108,10 +108,34 @@ class ReelGeneratorTests(unittest.TestCase):
         self.assertNotIn("global_episode", json.loads((old / "metadata.json").read_text(encoding="utf-8")))
 
     def run_main(self, *argv):
-        with mock.patch.object(gr, "render_reel", return_value=None) as render, \
+        with mock.patch.object(gr, "render_reel", return_value=Path("final_reel.mp4")) as render, \
                 mock.patch.object(sys, "argv", ["generate_reel.py", *argv]):
             gr.main()
         return [c.kwargs["target_dir"].name for c in render.call_args_list]
+
+    def test_a_failed_reel_fails_the_run(self):
+        with mock.patch.object(gr, "render_reel", side_effect=RuntimeError("ComfyUI could not generate scene")), \
+                mock.patch.object(sys, "argv", ["generate_reel.py", "--week", "6", "--reel", "mon_1"]), \
+                self.assertRaises(SystemExit) as stop:
+            gr.main()
+        self.assertEqual(stop.exception.code, 1)
+
+    def test_scenes_json_prompts_follow_the_narration(self):
+        folder = self.week / "reels" / "mon_1_a"
+        (folder / "scenes.json").write_text(json.dumps({"prompts": ["first picture", "middle picture", "last picture"]}),
+                                            encoding="utf-8")
+        sentences = [f"Sentence number {i} has enough words to stand alone here." for i in range(18)]
+        scenes = gr.load_or_build_scenes(folder, sentences, "26")
+        firsts = [s["prompt"].split(",")[0] for s in scenes]
+        self.assertEqual((firsts[0], firsts[9], firsts[-1]), ("first picture", "middle picture", "last picture"))
+        self.assertEqual(firsts, sorted(firsts, key=["first picture", "middle picture", "last picture"].index))
+
+    def test_fallback_prompt_reads_the_sentence_and_cta_gets_books(self):
+        prompt = gr.build_scene_prompt("Jesus humbled Himself and became obedient unto death.", title="The Morning Star")
+        self.assertIn("Jesus humbled Himself and became obedient unto death", prompt)
+        self.assertIn("The Morning Star", prompt)
+        cta = gr.build_scene_prompt("If this blew your mind, it's just one part of what we uncover in our books.")
+        self.assertIn("leather-bound books", cta)
 
     def test_all_renders_every_reel_in_posting_order(self):
         self.assertEqual(self.run_main("--week", "6", "--all"), ["mon_1_a", "mon_2_b", "tue_1_c", "tue_2_d"])
@@ -119,6 +143,76 @@ class ReelGeneratorTests(unittest.TestCase):
     def test_single_reel_by_key_and_by_number(self):
         self.assertEqual(self.run_main("--week", "6", "--reel", "tue_1"), ["tue_1_c"])
         self.assertEqual(self.run_main("--episode", "27"), ["tue_1_c"])
+
+
+class ComfyWaitTests(unittest.TestCase):
+    """A scene waits while it is in ComfyUI's queue (other tools may be using ComfyUI) instead of giving up at 6 min."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.images = Path(self.tmp.name)
+        for target, value in (("time.sleep", None),):
+            p = mock.patch.object(gr.time, "sleep", return_value=value)
+            p.start()
+            self.addCleanup(p.stop)
+
+    def fake_comfy(self, waits_in_queue, final_history):
+        """urlopen stand-in: the job sits in the queue for `waits_in_queue` polls, then history shows final_history."""
+        state = {"polls": 0}
+
+        class Resp:
+            def __init__(self, body):
+                self.body = json.dumps(body).encode("utf-8")
+
+            def read(self):
+                return self.body
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        def urlopen(req, timeout=None):
+            url = req.full_url if hasattr(req, "full_url") else req
+            if url.endswith("/system_stats"):
+                return Resp({})
+            if url.endswith("/prompt"):
+                return Resp({"prompt_id": "p1"})
+            if url.endswith("/history"):
+                return Resp({})
+            if "/history/p1" in url:
+                state["polls"] += 1
+                return Resp({"p1": final_history} if state["polls"] > waits_in_queue else {})
+            if url.endswith("/queue"):
+                done = state["polls"] > waits_in_queue
+                return Resp({"queue_running": [] if done else [[1, "other-tool-job", {}]],
+                             "queue_pending": [] if done else [[2, "p1", {}]]})
+            raise AssertionError(url)
+
+        def urlretrieve(url, path):
+            from PIL import Image
+            Image.new("RGB", (768, 1344), (120, 90, 30)).save(path)
+            Image.effect_noise((768, 1344), 80).convert("RGB").save(path)
+        return urlopen, urlretrieve
+
+    def generate(self, waits, history):
+        urlopen, urlretrieve = self.fake_comfy(waits, history)
+        with mock.patch.object(gr.urllib.request, "urlopen", side_effect=urlopen), \
+                mock.patch.object(gr.urllib.request, "urlretrieve", side_effect=urlretrieve), \
+                mock.patch.object(gr, "is_comfyui_running", return_value=True):
+            return gr.generate_scene_image("a scene", "reel301_dyn_8", self.images)
+
+    def test_keeps_waiting_behind_other_jobs_past_the_old_limit(self):
+        done = {"outputs": {"9": {"images": [{"filename": "x.png"}]}}, "status": {"status_str": "success"}}
+        img = self.generate(waits=400, history=done)  # 400 polls x 2 s = well past the old 6-minute cap
+        self.assertTrue(img.exists())
+
+    def test_comfyui_error_fails_the_scene(self):
+        failed = {"outputs": {}, "status": {"status_str": "error"}}
+        with self.assertRaises(RuntimeError):
+            self.generate(waits=3, history=failed)
 
 
 class StoryReelTests(unittest.TestCase):
@@ -193,6 +287,62 @@ class WeekEndpointTests(unittest.TestCase):
         self.assertEqual(got, [("mon_1", "Monday", "07:30", "mon_1_a"), ("mon_2", "Monday", "17:30", "mon_2_b"),
                                ("tue_1", "Tuesday", "07:30", "tue_1_c")])
         self.assertEqual(data["reels"][0]["global_num"], 26)
+
+
+class PostStatusTests(unittest.TestCase):
+    def test_posted_waiting_and_not_posted(self):
+        import app as app_module
+        future = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        record = {"published": {
+            "youtube": {"status": "published", "details": {"url": "https://youtu.be/a", "scheduled": True, "scheduled_for": future}},
+            "facebook": {"status": "published", "details": {"url": "https://facebook.com/reel/1"}},
+            "instagram": {"status": "published", "details": {"url": "https://instagram.com/reel/2", "scheduled": True,
+                                                             "scheduled_for": "2020-01-01T00:00:00.000Z"}},
+        }}
+        with mock.patch.object(app_module.asset_manager, "get_asset_record", return_value=record):
+            posts = app_module.video_post_status("W03/reels/mon_1_a/mon_1_a_final_reel.mp4")
+        self.assertEqual(posts["youtube"]["state"], "scheduled")
+        self.assertTrue(posts["youtube"]["live_at"])
+        self.assertEqual((posts["facebook"]["state"], posts["facebook"]["url"]), ("posted", "https://facebook.com/reel/1"))
+        self.assertEqual(posts["instagram"]["state"], "posted")  # its time has passed: it's live
+        self.assertNotIn("tiktok", posts)
+        self.assertEqual(app_module.video_post_status(None), {})
+
+
+class StoryMapWeekTests(unittest.TestCase):
+    """The dashboard's week table lists what the week's folders hold, not the 5-a-week placeholders."""
+
+    def test_reels_and_stories_come_from_the_folders(self):
+        import core.story_map_manager as smm
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "BHSR"
+            reels = root / "W03" / "reels"
+            make(reels, "tue_1_c", "mon_2_b", "mon_1_a",
+                 meta={"mon_1_a": {"title": "A", "global_episode": 11}, "mon_2_b": {"title": "B", "global_episode": 301},
+                       "tue_1_c": {"title": "C"}})
+            stories = root / "W03" / "stories"
+            make(stories, "01_old", "06_new_morning", "07_new_evening",
+                 meta={"01_old": {"title": "Old", "day": "Wednesday", "post_time": "13:00"},
+                       "06_new_morning": {"title": "Morning", "day": "Monday", "post_time": "08:00", "final_cta": "NEW REEL ON OUR PAGE"},
+                       "07_new_evening": {"title": "Evening", "day": "Monday", "post_time": "20:00"}})
+            plan = [{"week": 3, "documentary": {}, "reels": [{"id": f"R{i}", "hook_type": f"H{i}", "title": f"Part {i}"} for i in range(5)],
+                     "stories": [{"id": f"S{i}", "caption": f"Placeholder {i}"} for i in range(5)], "community_posts": []},
+                    {"week": 4, "documentary": {}, "reels": [{"id": "keep"}], "stories": [{"id": "keep"}], "community_posts": []}]
+            data_file = Path(tmp) / "story_map_data.json"
+            data_file.write_text(json.dumps({"weeks": plan}), encoding="utf-8")
+            with mock.patch.object(smm, "BHSR_ROOT", root), \
+                    mock.patch.object(smm.asset_manager, "get_asset_record", return_value={"published": {}}):
+                smm.StoryMapManager(data_file=data_file).refresh_covered_status()
+            weeks = json.loads(data_file.read_text(encoding="utf-8"))["weeks"]
+        w3, w4 = weeks
+        self.assertEqual([(r["key"], r["title"], r["post_time"]) for r in w3["reels"]],
+                         [("mon_1", "A", "07:30"), ("mon_2", "B", "17:30"), ("tue_1", "C", "07:30")])
+        self.assertEqual(w3["reels"][1]["badge"], "Bible Secrets #301 [W03 mon_2]")
+        self.assertEqual(w3["reels"][0]["hook_type"], "H0")  # Monday's first reel keeps its planned hook label
+        self.assertEqual([(s["day"], s["post_time"], s["caption"]) for s in w3["stories"]],
+                         [("Mon", "08:00", "Morning"), ("Mon", "20:00", "Evening"), ("Wed", "13:00", "Old")])
+        self.assertEqual(w3["stories"][0]["sticker_type"], "new_reel")
+        self.assertEqual(w4["reels"], [{"id": "keep"}])  # no folders yet: the plan stays
 
 
 class RenameTests(unittest.TestCase):

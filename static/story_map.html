@@ -1192,14 +1192,17 @@
       const stories = w.stories || [];
       const comms = w.community_posts || [];
 
-      let rowsHtml = "";
-      for (let i = 0; i < 5; i++) {
-        const r = reels[i] || {};
-        const s = stories[i] || {};
-        const c = comms[i] || {};
-        const day = ["Mon", "Tue", "Wed", "Thu", "Fri"][i];
+      // One row per day, holding every reel (mon_1, mon_2...) and story (3 a day) of that day in posting order
+      const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const dayOf = (x, i) => { const d = (x.day || "").slice(0, 3); return dayOrder.includes(d) ? d : dayOrder[i % 5]; };
+      const byTime = (a, b) => (a.post_time || "").localeCompare(b.post_time || "") || ((a.num || 0) - (b.num || 0));
+      const group = (list) => list.reduce((acc, x, i) => { (acc[dayOf(x, i)] = acc[dayOf(x, i)] || []).push(x); return acc; }, {});
+      const reelsByDay = group(reels), storiesByDay = group(stories), commsByDay = group(comms);
+      const weekDays = dayOrder.filter(d => reelsByDay[d] || storiesByDay[d] || commsByDay[d]);
+      const divider = `<div class="my-3 border-t border-dashed border-brand-border/60"></div>`;
+      const none = `<span class="text-[11px] text-slate-600">—</span>`;
 
-        // Reel Action Buttons
+      const reelBlock = (r) => {
         let reelActions = "";
         if (r.has_video && r.video_url) {
           const rDataObj = {
@@ -1211,7 +1214,6 @@
             description: `${r.title}\n\n${r.hook || ''}\n\n#BibleSecrets #Shorts #Reels`,
             tags: ['BibleSecrets', 'Shorts', 'Reels', 'Christianity']
           };
-
           reelActions = `
             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-brand-border/40">
               <button onclick="playVideo('${safeAttr(r.title)}', '${r.video_url}', '${safeAttr(r.hook || '')}', 'reel', '${safeAttr(r.rel_path || '')}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[11px] font-bold flex items-center gap-1 border border-emerald-500/30 transition-all shadow-sm">
@@ -1232,8 +1234,32 @@
             </div>
           `;
         }
+        return `
+          <div>
+            <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+              <span class="px-1.5 py-0.5 rounded bg-brand-dark text-brand-gold font-mono text-[10px] font-bold border border-brand-border">${r.badge || r.id}</span>
+              ${r.post_time ? `<span class="text-[10px] font-mono text-slate-400">${r.post_time}</span>` : ''}
+              <span class="text-[10px] text-sky-400 font-semibold uppercase">${r.hook_type || ''}</span>
+            </div>
+            <div class="font-semibold text-slate-200">${r.title || ''}</div>
+            <div class="text-[11px] text-slate-400 italic mt-0.5">${r.hook || ''}</div>
+            ${reelActions}
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Syndication:</span>
+              <div class="flex items-center gap-1">
+                ${renderPlatformIcon(r.published, 'facebook', SVG_ICONS.facebook, 'Facebook Reels')}
+                ${renderPlatformIcon(r.published, 'instagram', SVG_ICONS.instagram, 'Instagram Reels')}
+                ${SVG_ICONS.threads ? renderPlatformIcon(r.published, 'threads', SVG_ICONS.threads, 'Threads') : ''}
+                ${renderPlatformIcon(r.published, 'tiktok', SVG_ICONS.tiktok, 'TikTok')}
+                ${renderPlatformIcon(r.published, 'x', SVG_ICONS.x, 'X (Twitter)')}
+                ${renderPlatformIcon(r.published, 'youtube', SVG_ICONS.youtube, 'YouTube Shorts')}
+              </div>
+            </div>
+          </div>
+        `;
+      };
 
-        // Story Action Buttons
+      const storyBlock = (s) => {
         let storyActions = "";
         if (s.has_video && s.video_url) {
           const sDataObj = {
@@ -1245,7 +1271,6 @@
             description: `${s.caption || ''}\n\nCheck out the full episode! #Stories`,
             tags: ['Stories', 'BibleSecrets']
           };
-
           storyActions = `
             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-brand-border/40">
               <button onclick="playVideo('${safeAttr(s.caption || s.badge)}', '${s.video_url}', '${safeAttr(s.sticker_type || '')}', 'story', '${safeAttr(s.rel_path || '')}')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-bold flex items-center gap-1 border border-amber-500/30 transition-all shadow-sm">
@@ -1262,72 +1287,55 @@
           storyActions = `
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-1 border-t border-brand-border/40 flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
-              <span>Graphic / sticker draft</span>
+              <span>Video pending generation</span>
             </div>
           `;
         }
+        return `
+          <div>
+            <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+              <span class="px-1.5 py-0.5 rounded bg-brand-dark text-slate-300 font-mono text-[10px] font-bold border border-brand-border">${s.badge || s.id}</span>
+              <span class="text-[10px] text-amber-400 font-semibold uppercase">${(s.sticker_type || '').replace(/_/g, ' ')}</span>
+            </div>
+            <div class="text-[11px] text-slate-300 leading-relaxed">${s.caption || ''}</div>
+            ${storyActions}
+            <div class="flex items-center gap-1.5 mt-2">
+              <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Stories:</span>
+              <div class="flex items-center gap-1">
+                ${renderPlatformIcon(s.published, 'instagram', SVG_ICONS.instagram, 'Instagram Stories')}
+                ${renderPlatformIcon(s.published, 'facebook', SVG_ICONS.facebook, 'Facebook Stories')}
+                ${renderPlatformIcon(s.published, 'youtube', SVG_ICONS.youtube, 'YouTube Shorts')}
+              </div>
+            </div>
+          </div>
+        `;
+      };
 
+      const commBlock = (c) => `
+        <div>
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="px-1.5 py-0.5 rounded bg-brand-dark text-purple-400 font-mono text-[10px] font-bold border border-brand-border">${c.badge || c.id}</span>
+            <span class="text-[10px] text-purple-300 font-semibold uppercase">${c.type_label || c.post_type || ''}</span>
+          </div>
+          <div class="text-[11px] text-slate-300 leading-relaxed">${c.prompt || ''}</div>
+          <button onclick="copyTextToClipboard('${encodeURIComponent(c.prompt || '')}')" class="mt-2 px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardHover border border-brand-border text-[10px] text-slate-400 hover:text-white flex items-center gap-1 transition">
+            <i data-lucide="copy" class="w-2.5 h-2.5"></i>
+            <span>Copy Post Prompt</span>
+          </button>
+        </div>
+      `;
+
+      let rowsHtml = "";
+      for (const day of (weekDays.length ? weekDays : dayOrder.slice(0, 5))) {
+        const dayReels = (reelsByDay[day] || []).slice().sort(byTime);
+        const dayStories = (storiesByDay[day] || []).slice().sort(byTime);
+        const dayComms = commsByDay[day] || [];
         rowsHtml += `
           <tr class="border-b border-brand-border/40 hover:bg-brand-surface/30 text-xs">
             <td class="p-3 font-bold text-brand-gold font-mono whitespace-nowrap align-top">${day}</td>
-            
-            <!-- Reel Asset + Platform Logos -->
-            <td class="p-3 align-top">
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="px-1.5 py-0.5 rounded bg-brand-dark text-brand-gold font-mono text-[10px] font-bold border border-brand-border">${r.badge || r.id}</span>
-                <span class="text-[10px] text-sky-400 font-semibold uppercase">${r.hook_type || ''}</span>
-              </div>
-              <div class="font-semibold text-slate-200">${r.title || ''}</div>
-              <div class="text-[11px] text-slate-400 italic mt-0.5">${r.hook || ''}</div>
-
-              <!-- Reel Action Buttons -->
-              ${reelActions}
-
-              <!-- 5 Social Platforms Syndication Badges with live status -->
-              <div class="flex items-center gap-2 mt-2">
-                <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Syndication:</span>
-                <div class="flex items-center gap-1">
-                  ${renderPlatformIcon(r.published, 'facebook', SVG_ICONS.facebook, 'Facebook Reels')}
-                  ${renderPlatformIcon(r.published, 'instagram', SVG_ICONS.instagram, 'Instagram Reels')}
-                  ${renderPlatformIcon(r.published, 'tiktok', SVG_ICONS.tiktok, 'TikTok')}
-                  ${renderPlatformIcon(r.published, 'x', SVG_ICONS.x, 'X (Twitter)')}
-                  ${renderPlatformIcon(r.published, 'youtube', SVG_ICONS.youtube, 'YouTube Shorts')}
-                </div>
-              </div>
-            </td>
-
-            <!-- Story Asset -->
-            <td class="p-3 align-top">
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="px-1.5 py-0.5 rounded bg-brand-dark text-slate-300 font-mono text-[10px] font-bold border border-brand-border">${s.badge || s.id}</span>
-                <span class="text-[10px] text-amber-400 font-semibold uppercase">${s.sticker_type || ''}</span>
-              </div>
-              <div class="text-[11px] text-slate-300 leading-relaxed">${s.caption || ''}</div>
-
-              <!-- Story Action Buttons -->
-              ${storyActions}
-
-              <div class="flex items-center gap-1.5 mt-2">
-                <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Stories:</span>
-                <div class="flex items-center gap-1">
-                  ${renderPlatformIcon(s.published, 'instagram', SVG_ICONS.instagram, 'Instagram Stories')}
-                  ${renderPlatformIcon(s.published, 'facebook', SVG_ICONS.facebook, 'Facebook Stories')}
-                </div>
-              </div>
-            </td>
-
-            <!-- Community Tab Asset -->
-            <td class="p-3 align-top">
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="px-1.5 py-0.5 rounded bg-brand-dark text-purple-400 font-mono text-[10px] font-bold border border-brand-border">${c.badge || c.id}</span>
-                <span class="text-[10px] text-purple-300 font-semibold uppercase">${c.type_label || c.post_type || ''}</span>
-              </div>
-              <div class="text-[11px] text-slate-300 leading-relaxed">${c.prompt || ''}</div>
-              <button onclick="copyTextToClipboard('${encodeURIComponent(c.prompt || '')}')" class="mt-2 px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardHover border border-brand-border text-[10px] text-slate-400 hover:text-white flex items-center gap-1 transition">
-                <i data-lucide="copy" class="w-2.5 h-2.5"></i>
-                <span>Copy Post Prompt</span>
-              </button>
-            </td>
+            <td class="p-3 align-top">${dayReels.map(reelBlock).join(divider) || none}</td>
+            <td class="p-3 align-top">${dayStories.map(storyBlock).join(divider) || none}</td>
+            <td class="p-3 align-top">${dayComms.map(commBlock).join(divider) || none}</td>
           </tr>
         `;
       }
@@ -1358,9 +1366,9 @@
               <thead>
                 <tr class="border-b border-brand-border bg-brand-surface/90 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   <th class="p-3 w-16">Day</th>
-                  <th class="p-3 w-1/3">5 Vertical Reels / Shorts (9:16)</th>
-                  <th class="p-3 w-1/3">5 Daily Stories & Link Stickers</th>
-                  <th class="p-3 w-1/3">5 Community Tab Posts & Polls</th>
+                  <th class="p-3 w-1/3">${reels.length} Vertical Reels / Shorts (9:16)</th>
+                  <th class="p-3 w-1/3">${stories.length} Daily Stories & Link Stickers</th>
+                  <th class="p-3 w-1/3">${comms.length} Community Tab Posts & Polls</th>
                 </tr>
               </thead>
               <tbody>
@@ -1864,14 +1872,15 @@
         platforms: ["youtube", "facebook"]
       });
 
-      // Mon-Fri Reels & Stories
-      const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-      for (let i = 0; i < 5; i++) {
-        const r = (w.reels || [])[i] || {};
+      // Every reel and story of the week, on its own day and time (reels mon_1, mon_2...; stories 3 a day)
+      const syndDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const syndDayIndex = (x, i) => { const d = syndDays.indexOf((x.day || "").slice(0, 3)); return d >= 0 ? d : i % 5; };
+      (w.reels || []).forEach((r, i) => {
+        const d = syndDayIndex(r, i);
         items.push({
-          day: days[i],
-          dayOffset: i + 1,
-          time: "12:00",
+          day: syndDays[d],
+          dayOffset: d + 1,
+          time: r.post_time || "12:00",
           badge: r.badge || `Reel #${i+1}`,
           title: r.title || `Reel ${i+1}`,
           type: "Reel (9:16)",
@@ -1879,12 +1888,13 @@
           has_video: !!r.has_video,
           platforms: ["youtube", "facebook", "instagram", "tiktok", "x"]
         });
-
-        const s = (w.stories || [])[i] || {};
+      });
+      (w.stories || []).forEach((s, i) => {
+        const d = syndDayIndex(s, i);
         items.push({
-          day: days[i],
-          dayOffset: i + 1,
-          time: "14:00",
+          day: syndDays[d],
+          dayOffset: d + 1,
+          time: s.post_time || "14:00",
           badge: s.badge || `Story #${i+1}`,
           title: s.caption || `Daily Story ${i+1}`,
           type: "Story (9:16)",
@@ -1892,7 +1902,8 @@
           has_video: !!s.has_video,
           platforms: ["instagram", "facebook"]
         });
-      }
+      });
+      items.sort((a, b) => (a.dayOffset - b.dayOffset) || a.time.localeCompare(b.time));
 
       currentSyndicateWeek._items = items;
       const readyCount = items.filter(it => it.has_video && it.rel_path).length;

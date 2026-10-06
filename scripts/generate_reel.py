@@ -32,6 +32,7 @@ import difflib
 import argparse
 import subprocess
 import urllib.request
+import urllib.error
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -591,17 +592,36 @@ def build_scene_prompt(sentence: str, title: str = "") -> str:
         scene = "lush sacred mountain of God in primeval Eden, majestic ancient cedar trees, crystal rivers of life bathed in golden mist"
     elif any(w in kw for w in ["hebrew", "letter", "bereshit", "bara", "scripture", "written", "scroll"]):
         scene = "ancient weathered Hebrew parchment scroll with glowing Paleo-Hebrew characters carved in Jerusalem stone illuminated by warm candlelight"
+    elif any(w in kw for w in ["blew your mind", "our books", "linked in the bio", "sacred art merch", "in the bio"]):
+        scene = "stack of antique leather-bound books with gold-embossed spines beside framed sacred art prints on a warm wooden desk, soft candlelight and floating golden particles"
     elif any(w in kw for w in ["watch", "link is in the description", "full episode"]):
         scene = "ancient illuminated Holy Bible open on rustic olive wood desk beside burning brass oil lamp with soft floating golden particles"
     elif any(w in kw for w in ["follow", "subscribe", "secrets hidden"]):
         scene = "majestic sacred scripture library with ancient parchment scrolls, warm glowing candles, and radiant divine golden atmosphere"
     else:
-        clean_words = [w for w in re.sub(r'[^\w\s]', '', s).split() if len(w) > 3 and w.lower() not in ["this", "that", "with", "from", "they", "were", "been", "have"]]
-        kw_phrase = " ".join(clean_words[:6])
-        scene = f"epic biblical scene depicting {kw_phrase}, ancient Near Eastern atmosphere, majestic limestone hills and celestial dramatic clouds"
+        sentence_text = re.sub(r"\s+", " ", s).strip().rstrip(".!?")[:180]
+        about = f" in a Bible documentary about {title}" if title else ""
+        scene = f"cinematic biblical illustration of this moment{about}: {sentence_text}, ancient Near Eastern setting, no text or lettering"
 
 
     return f"{scene}, {style}"
+
+REEL_IMAGE_STYLE = "cinematic vertical 9:16 shot, epic biblical aesthetic, highly detailed, dramatic atmospheric lighting, 8k resolution, photorealistic"
+
+
+def load_curated_prompts(target_dir: Path) -> list:
+    """Hand-written image prompts for a reel, in narration order: scenes.json as ["...", ...] or {"prompts": [...]}."""
+    p = target_dir / "scenes.json"
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        prompts = data.get("prompts") if isinstance(data, dict) else data
+        return [str(x).strip() for x in (prompts or []) if str(x).strip()]
+    except Exception as e:
+        print(f"[Scenes] Could not read {p.name}: {e}", flush=True)
+        return []
+
 
 def load_or_build_scenes(target_dir: Path, sentences: list, ep_num: str, title: str = "") -> list:
     """Constructs strictly 18-20 distinct visual scenes from the script, with accurate biblical prompts."""
@@ -664,10 +684,18 @@ def load_or_build_scenes(target_dir: Path, sentences: list, ep_num: str, title: 
             raw_scenes[split_idx] = [" ".join(words[:mid])]
             raw_scenes.insert(split_idx + 1, [" ".join(words[mid:])])
 
+    # scenes.json prompts follow the narration: scene i takes the prompt at the same point of the reel
+    curated = load_curated_prompts(target_dir)
+    if curated:
+        print(f"[Scenes] Using {len(curated)} hand-written prompts from scenes.json", flush=True)
+
     scenes = []
     for idx, sc_group in enumerate(raw_scenes):
         sc_text = " ".join(sc_group).strip()
-        prompt = build_scene_prompt(sc_text, title=title)
+        if curated:
+            prompt = f"{curated[min(len(curated) - 1, idx * len(curated) // len(raw_scenes))]}, {REEL_IMAGE_STYLE}"
+        else:
+            prompt = build_scene_prompt(sc_text, title=title)
         words_count = len(sc_text.split())
         weight = round(max(1.8, words_count * 0.13), 2)
         scenes.append({
@@ -710,7 +738,7 @@ def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=240) -> bool:
     print(f"[ComfyUI Error] Timed out waiting for server.", flush=True)
     return False
 
-def create_flux_prompt(prompt_text, width=768, height=1344, steps=4, seed=None):
+def create_flux_prompt(prompt_text, width=768, height=1344, steps=4, seed=None, filename_prefix="Reel_Scene"):
     if seed is None:
         import random
         seed = random.randint(1, 1000000000)
@@ -730,8 +758,72 @@ def create_flux_prompt(prompt_text, width=768, height=1344, steps=4, seed=None):
             "class_type": "KSampler"
         },
         "8": {"inputs": {"samples": ["7", 0], "vae": ["3", 0]}, "class_type": "VAEDecode"},
-        "9": {"inputs": {"filename_prefix": "Reel_Scene", "images": ["8", 0]}, "class_type": "SaveImage"}
+        "9": {"inputs": {"filename_prefix": filename_prefix, "images": ["8", 0]}, "class_type": "SaveImage"}
     }
+
+# A scene may wait behind other ComfyUI jobs; it is abandoned only past this (or on an error / lost job)
+SCENE_MAX_WAIT_SEC = 45 * 60
+
+
+def comfy_queue_position(prompt_id: str):
+    """0 = running now, n = n jobs ahead of it, None = not in ComfyUI's queue."""
+    with urllib.request.urlopen(f"{COMFY_URL}/queue", timeout=15) as resp:
+        queue = json.loads(resp.read().decode("utf-8"))
+    running = queue.get("queue_running") or []
+    if any(item[1] == prompt_id for item in running):
+        return 0
+    pending = sorted(queue.get("queue_pending") or [], key=lambda item: item[0])
+    for i, item in enumerate(pending):
+        if item[1] == prompt_id:
+            return len(running) + i
+    return None
+
+
+def _render_scene_in_comfyui(prompt_text: str, scene_id: str, target_img: Path, is_valid) -> Path:
+    """Submits one scene and waits for its image. Returns the saved image, or None if ComfyUI dropped the job."""
+    print(f"  [FLUX] Generating scene {scene_id} via ComfyUI: \"{prompt_text[:65]}...\"", flush=True)
+    workflow = create_flux_prompt(prompt_text, width=768, height=1344, steps=4, filename_prefix=f"Reel_{scene_id}")
+    data = json.dumps({"prompt": workflow}).encode("utf-8")
+    req = urllib.request.Request(f"{COMFY_URL}/prompt", data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        prompt_id = json.loads(resp.read().decode("utf-8"))["prompt_id"]
+
+    t0 = time.time()
+    last_note = 0.0
+    missing_since = None
+    while True:
+        time.sleep(2.0)
+        elapsed = time.time() - t0
+        with urllib.request.urlopen(f"{COMFY_URL}/history/{prompt_id}", timeout=15) as resp:
+            history = json.loads(resp.read().decode("utf-8"))
+        if prompt_id in history:
+            entry = history[prompt_id]
+            outputs = entry.get("outputs", {})
+            if "9" in outputs and outputs["9"].get("images"):
+                info = outputs["9"]["images"][0]
+                url = f"{COMFY_URL}/view?filename={info['filename']}&subfolder={info.get('subfolder', '')}&type={info.get('type', 'output')}"
+                urllib.request.urlretrieve(url, str(target_img))
+                if is_valid(target_img):
+                    print(f"  ✔ [FLUX Saved] {scene_id}.png in {elapsed:.1f}s ({target_img.stat().st_size // 1024} KB)", flush=True)
+                    return target_img
+            if (entry.get("status") or {}).get("status_str") == "error":
+                raise RuntimeError(f"ComfyUI reported an error while drawing {scene_id}")
+        position = comfy_queue_position(prompt_id)
+        if position is None and prompt_id not in history:
+            # Not queued, not finished: give ComfyUI a moment (it moves jobs between lists), then treat as dropped
+            missing_since = missing_since or time.time()
+            if time.time() - missing_since > 30:
+                print(f"  [FLUX Notice] ComfyUI dropped {scene_id} from its queue", flush=True)
+                return None
+        else:
+            missing_since = None
+        if elapsed - last_note >= 12:
+            last_note = elapsed
+            where = "drawing now" if position == 0 else (f"{position} job(s) ahead in ComfyUI's queue" if position else "finishing")
+            print(f"    [FLUX Waiting] {scene_id}: {int(elapsed)}s elapsed, {where}...", flush=True)
+        if elapsed > SCENE_MAX_WAIT_SEC:
+            raise RuntimeError(f"{scene_id} waited over {SCENE_MAX_WAIT_SEC // 60} minutes in ComfyUI")
+
 
 def generate_scene_image(prompt_text: str, scene_id: str, images_dir: Path, custom_image: str = None, force: bool = False) -> Path:
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -763,7 +855,8 @@ def generate_scene_image(prompt_text: str, scene_id: str, images_dir: Path, cust
         ensure_comfyui_running()
 
     if is_comfyui_running():
-        # Step A: Check if an image with this exact prompt was already rendered in ComfyUI history
+        # Step A: An image ComfyUI already made for THIS scene with this exact prompt (e.g. the render stopped before
+        # saving it) is reused. Never another scene's image: a shared prompt would repeat the same picture.
         try:
             req_hist = urllib.request.Request(f"{COMFY_URL}/history")
             with urllib.request.urlopen(req_hist, timeout=3.0) as resp:
@@ -772,7 +865,8 @@ def generate_scene_image(prompt_text: str, scene_id: str, images_dir: Path, cust
                 p_wf = h_item.get("prompt", [])
                 if len(p_wf) > 2:
                     h_txt = p_wf[2].get("4", {}).get("inputs", {}).get("text", "").strip()
-                    if prompt_text[:40].lower() in h_txt.lower() or h_txt[:40].lower() in prompt_text.lower():
+                    h_prefix = p_wf[2].get("9", {}).get("inputs", {}).get("filename_prefix", "")
+                    if h_prefix == f"Reel_{scene_id}" and h_txt == prompt_text.strip():
                         outputs = h_item.get("outputs", {})
                         if "9" in outputs and outputs["9"].get("images"):
                             info = outputs["9"]["images"][0]
@@ -784,40 +878,30 @@ def generate_scene_image(prompt_text: str, scene_id: str, images_dir: Path, cust
         except Exception:
             pass
 
-        # Step B: Submit workflow to ComfyUI and wait patiently for KSampler
-        try:
-            print(f"  [FLUX] Generating scene {scene_id} via ComfyUI: \"{prompt_text[:65]}...\"", flush=True)
-            workflow = create_flux_prompt(prompt_text, width=768, height=1344, steps=4)
-            data = json.dumps({"prompt": workflow}).encode("utf-8")
-            req = urllib.request.Request(f"{COMFY_URL}/prompt", data=data, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req) as resp:
-                res = json.loads(resp.read().decode("utf-8"))
-                prompt_id = res["prompt_id"]
-
-            t0 = time.time()
-            for wait_i in range(180):
-                time.sleep(2.0)
-                if wait_i > 0 and wait_i % 6 == 0:
-                    print(f"    [FLUX Waiting] {scene_id}: {int(time.time() - t0)}s elapsed...", flush=True)
-                with urllib.request.urlopen(f"{COMFY_URL}/history/{prompt_id}") as resp:
-                    history = json.loads(resp.read().decode("utf-8"))
-                    if prompt_id in history:
-                        outputs = history[prompt_id].get("outputs", {})
-                        if "9" in outputs and outputs["9"].get("images"):
-                            info = outputs["9"]["images"][0]
-                            url = f"{COMFY_URL}/view?filename={info['filename']}&subfolder={info.get('subfolder', '')}&type={info.get('type', 'output')}"
-                            urllib.request.urlretrieve(url, str(target_img))
-                            if is_valid_9_16(target_img):
-                                print(f"  ✔ [FLUX Saved] {scene_id}.png in {time.time()-t0:.1f}s ({target_img.stat().st_size // 1024} KB)", flush=True)
-                                return target_img
-        except Exception as e:
-            print(f"  [FLUX Notice] ComfyUI generation skipped: {e}")
+        # Step B: Submit the workflow and wait while the scene is in ComfyUI's queue. Other tools may share ComfyUI,
+        # so a scene can wait behind their jobs: keep waiting as long as it is queued or running (up to
+        # SCENE_MAX_WAIT_SEC). If ComfyUI goes down, relaunch it and submit the scene once more.
+        for attempt in (1, 2):
+            try:
+                img = _render_scene_in_comfyui(prompt_text, scene_id, target_img, is_valid_9_16)
+                if img:
+                    return img
+                break
+            except (urllib.error.URLError, ConnectionError, OSError) as e:
+                print(f"  [FLUX Notice] ComfyUI connection lost on {scene_id} ({e})", flush=True)
+                if attempt == 1 and ensure_comfyui_running():
+                    print(f"  [FLUX] ComfyUI is back; submitting {scene_id} again", flush=True)
+                    continue
+                break
+            except RuntimeError as e:
+                print(f"  [FLUX Notice] {e}", flush=True)
+                break
 
     if is_valid_9_16(target_img):
         return target_img
 
     # No placeholder images: a cached placeholder would be reused by every later render
-    raise RuntimeError(f"ComfyUI could not generate scene {scene_id} (is it running at http://127.0.0.1:8188?). No placeholder was saved: start ComfyUI and run the render again; finished scenes are kept.")
+    raise RuntimeError(f"ComfyUI could not generate scene {scene_id} (is it running at http://127.0.0.1:8188, and not busy with another tool's jobs?). No placeholder was saved: run the render again; finished scenes are kept.")
 
 
 # =============================================================================
@@ -1488,8 +1572,8 @@ def render_reel(
     clean_narr, caption_narr = ensure_books_cta(clean_narr), ensure_books_cta(caption_narr)
 
     word_count = len(clean_narr.split())
-    # Standard pacing for cinematic biblical reel voiceover is ~155 words/min (~2.58 words/sec)
-    est_dur_sec = word_count / 2.58
+    # Measured narration pace on rendered reels is ~130 words/min (~2.17 words/sec); reels must stay under 2:00
+    est_dur_sec = word_count / 2.17
     est_dur_min = est_dur_sec / 60.0
 
     print("=" * 74, flush=True)
@@ -1499,10 +1583,10 @@ def render_reel(
     print(f"  • Estimated Duration: {est_dur_min:.2f} min ({est_dur_sec:.1f}s)", flush=True)
     if not script_p.exists():
         print(f"  • Status: [FAILED] No script.txt found in {target_dir.name}!", flush=True)
-    elif 1.60 <= est_dur_min <= 2.35:
-        print(f"  • Status: [PASSED] Script duration strictly matches 1.75 - 2.00 min standard!", flush=True)
+    elif 1.50 <= est_dur_min <= 2.00:
+        print(f"  • Status: [PASSED] Script fits the 1:30 - 2:00 reel length.", flush=True)
     else:
-        print(f"  • Status: [NOTICE] Script duration ({est_dur_min:.2f} min) deviates from 1.75 - 2.00 min target (~260-320 words).", flush=True)
+        print(f"  • Status: [NOTICE] Script runs ~{est_dur_min:.2f} min; reels should be 1:30 - 2:00 (~200-260 words).", flush=True)
     print("=" * 74, flush=True)
 
     sentences = split_into_sentences(clean_narr)
@@ -1783,6 +1867,8 @@ def main():
     print(f"\n===========================================================================")
     print(f"SUMMARY: Successfully processed {len(completed)} / {len(reel_indices)} reels for {week_tag}")
     print(f"===========================================================================\n")
+    if len([p for p in completed if p]) < len(targets):
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

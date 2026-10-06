@@ -1042,6 +1042,40 @@ def get_video_duration_fast(path: Path) -> float:
         pass
     return 0.0
 
+def video_post_status(rel_path: Optional[str]) -> Dict[str, Dict[str, Any]]:
+    """{platform: {"state": "posted" | "scheduled", "url", "live_at"}} for a rendered video, from its publish records.
+    "scheduled" is a copy uploaded ahead that the platform hasn't published yet."""
+    import datetime
+    if not rel_path:
+        return {}
+    now = datetime.datetime.now(datetime.timezone.utc)
+    out: Dict[str, Dict[str, Any]] = {}
+    for platform, entry in (asset_manager.get_asset_record(rel_path).get("published") or {}).items():
+        if not isinstance(entry, dict) or entry.get("status") != "published":
+            continue
+        details = entry.get("details") if isinstance(entry.get("details"), dict) else {}
+        live_at = None
+        if details.get("scheduled"):
+            try:
+                if details.get("scheduled_for"):
+                    live_at = datetime.datetime.fromisoformat(str(details["scheduled_for"]).replace("Z", "+00:00"))
+                elif details.get("scheduled_timestamp"):
+                    live_at = datetime.datetime.fromtimestamp(float(details["scheduled_timestamp"]), datetime.timezone.utc)
+            except (TypeError, ValueError):
+                live_at = None
+        waiting = bool(live_at and live_at > now)
+        out[platform] = {"state": "scheduled" if waiting else "posted", "url": details.get("url"),
+                         "live_at": live_at.isoformat() if waiting else None, "manual": bool(details.get("manual"))}
+    return out
+
+
+def video_duration(base_p: Path, rel_path: Optional[str]) -> Optional[str]:
+    """The rendered video's length ("2:15"), cached in its catalog record after the first probe."""
+    if not rel_path or not (base_p / rel_path).is_file():
+        return None
+    return asset_manager.get_media_info(base_p / rel_path, asset_manager.get_asset_record(rel_path)).get("duration")
+
+
 @app.get("/api/generator/week/{week_id}")
 async def get_generator_week_api(week_id: str):
     active_path = config_manager.get_active_project()
@@ -1631,6 +1665,14 @@ async def get_generator_week_api(week_id: str):
         stories_list.append(s_info)
 
     rendered_count = (1 if lf_data["is_rendered"] else 0) + sum(1 for r in reels_list if r["is_rendered"]) + sum(1 for s in stories_list if s["is_rendered"])
+
+    # Where each rendered video is already posted (or uploaded and waiting), for the platform icons on its card
+    for v in lf_data["videos"]:
+        v["posts"] = video_post_status(v.get("video_path"))
+    lf_data["posts"] = video_post_status(lf_data.get("video_path"))
+    for item in reels_list + stories_list:
+        item["posts"] = video_post_status(item.get("video_path"))
+        item["video_duration"] = video_duration(base_p, item.get("video_path"))
 
     return {
         "week_num": w_num,
