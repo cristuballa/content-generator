@@ -38,3 +38,9 @@ These rules apply whenever drafting scripts, generating episode metadata, or cre
 * **Reel length:** under 2:00 at the narration pace, i.e. about 235–255 words including the closing CTA ("Watch the full episode on our channel." + the books line + "Follow for more secrets hidden in Scripture.").
 * **Accuracy:** quote Scripture (KJV wording unless the documentary uses another), and attribute rabbinic and historical claims only as far as the sources support. When unsure, say "the rabbis debated" rather than naming who said what.
 
+## 7. Long-Form Pictures Follow the Narration
+* **Voice first:** `generate_video.py` records the narration, then writes `scene_plan.json` in the episode folder: scenes of about 20 s cut at sentence ends, each with its `start`/`end` and the exact `text` spoken. It stops (exit code 3, "Voice Ready • N Scene Prompts Needed" in KCT Studio) until every scene has a `"prompt"`.
+* **Automatic prompts:** after the voice, Claude Code and/or Gemini CLI write the prompts headless (order set by "Scene prompts" in KCT Studio) and the render continues; it pauses only when neither is signed in or the setting is "Pause for me". Never write "cherub" in a prompt (FLUX draws baby angels); use "towering angelic guardian".
+* **Writing the prompts:** one FLUX prompt per scene that shows what that scene's `text` says: the people, place and action named in it, in narration order. No text or lettering, no gore. Change only `"prompt"`; the next render draws the pictures and times each one to its words.
+* **Script length:** 28 minutes is about 4,100 narration words at the long-form pace (145–150 wpm). Keep parentheses and square brackets out of narration lines (the generator strips them); put sources after a `SOURCES` line, which is never narrated.
+

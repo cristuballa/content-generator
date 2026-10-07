@@ -9,6 +9,9 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Set
 from fastapi import WebSocket
 
+# A generator's exit code for "stopped on purpose, waiting for input" (generate_video.py: voice ready, scene prompts needed)
+EXIT_NEEDS_INPUT = 3
+
 class ProcessRunner:
     def __init__(self, max_log_history: int = 2500):
         self.max_log_history = max_log_history
@@ -218,6 +221,10 @@ class ProcessRunner:
                 if exit_code == 0:
                     self.status = "completed"
                     self.log(f"=== [PROCESS COMPLETED SUCCESSFULLY] Exit Code: 0 | Duration: {duration}s ===", stream="system")
+                elif exit_code == EXIT_NEEDS_INPUT:
+                    # generate_video.py recorded the narration and is waiting for its scene prompts
+                    self.status = "paused"
+                    self.log(f"=== [PAUSED: VOICE READY, SCENE PROMPTS NEEDED] Duration: {duration}s ===", stream="system")
                 else:
                     self.status = "error"
                     self.log(f"=== [PROCESS FAILED] Exit Code: {exit_code} | Duration: {duration}s ===", stream="error")
@@ -237,7 +244,7 @@ class ProcessRunner:
             if sys.platform == "win32":
                 try:
                     import winsound
-                    if self.status == "completed":
+                    if self.status in ("completed", "paused"):
                         winsound.MessageBeep(winsound.MB_ICONASTERISK)
                     elif self.status == "error":
                         winsound.MessageBeep(winsound.MB_ICONHAND)

@@ -28,11 +28,15 @@ import re
 import math
 import time
 import json
+import glob
+import hashlib
+import tempfile
 import shutil
 import difflib
 import argparse
 import subprocess
 import urllib.request
+import urllib.error
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -238,7 +242,26 @@ PRONUNCIATION_MAP = {
     "Protoevangelium": "pro-toh-ee-van-JEH-lee-um",
     "Etemenanki": "eh-teh-meh-nahn-kee",
     "Bab-Ilu": "bahb EE-loo",
-    "Rujm el-Hiri": "rooj-m el HEER-ee"
+    "Rujm el-Hiri": "rooj-m el HEER-ee",
+    "Shachar": "shah-KHAR",
+    "Nachash": "nah-KHAHSH",
+    "mimshach": "mim-SHAKH",
+    "sokek": "soh-KAYK",
+    "sokekim": "soh-keh-KEEM",
+    "keruv": "keh-ROOV",
+    "mashach": "mah-SHAKH",
+    "kaphar": "kah-FAR",
+    "diabolos": "dee-AH-boh-los",
+    "harpagmos": "har-pag-MOS",
+    "Ithobaal": "ee-toh-BAH-al",
+    "chalal": "khah-LAHL",
+    "kapporet": "kah-POH-ret",
+    "hilasterion": "hil-ah-STAIR-ee-on",
+    "rekullah": "reh-koo-LAH",
+    "rakil": "rah-KEEL",
+    "Mashiach": "mah-SHEE-akh",
+    "Zaphon": "tsah-FOHN",
+    "Tyrus": "TY-rus"
 }
 
 ACRONYMS = {"USA", "UK", "DNA", "BC", "AD", "B.C.", "A.D.", "AI"}
@@ -329,6 +352,18 @@ MOTION_PRESETS = [
     {"type": "pan_left_to_right", "start_zoom": 1.08, "end_zoom": 1.12, "pan_y": (0.5, 0.5), "pan_x": (0.4, 0.6)}
 ]
 
+# Narration-timed scenes: the voice is recorded first, then split at sentence ends into scenes of about this length.
+# Each scene's picture prompt (written by Claude Code into scene_plan.json) describes exactly what is said in it.
+SCENE_TARGET_SEC = 20.0
+SCENE_MIN_SEC = 8.0
+SCENE_MAX_SEC = 32.0
+SCENE_PLAN_FILE = "scene_plan.json"
+EXIT_NEEDS_PROMPTS = 3
+DOC_IMAGE_STYLE = "cinematic 16:9 composition, ancient biblical mystery aesthetic, photorealistic, dramatic atmospheric lighting, 8k resolution, no text or lettering"
+# A scene may wait behind other ComfyUI jobs; it is abandoned only past this (or on an error / lost job)
+FLUX_SCENE_MAX_WAIT_SEC = 45 * 60
+
+
 def build_scene_prompt_16x9(sentence: str, title: str = "") -> str:
     s = sentence.strip()
     kw = s.lower()
@@ -414,6 +449,34 @@ def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=240) -> bool:
     print(f"[ComfyUI Notice] Timed out after {max_wait_sec}s waiting for the server.", flush=True)
     return False
 
+def free_comfyui_memory():
+    """Asks ComfyUI to unload its models before the narration, so VibeVoice gets the GPU's memory. On a 4 GB card a
+    loaded FLUX model makes the narration swap, and single sections can stall for 20 minutes."""
+    if not is_comfyui_running():
+        return
+    try:
+        req = urllib.request.Request(f"{COMFY_URL}/free", data=json.dumps({"unload_models": True, "free_memory": True}).encode("utf-8"),
+                                     headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=15).read()
+        print("[ComfyUI] Models unloaded so the narration gets the GPU memory.", flush=True)
+    except Exception as e:
+        print(f"[ComfyUI Notice] Could not free GPU memory ({e})", flush=True)
+
+
+def comfy_queue_position(prompt_id: str):
+    """0 = running now, n = n jobs ahead of it, None = not in ComfyUI's queue."""
+    with urllib.request.urlopen(f"{COMFY_URL}/queue", timeout=15) as resp:
+        queue = json.loads(resp.read().decode("utf-8"))
+    running = queue.get("queue_running") or []
+    if any(item[1] == prompt_id for item in running):
+        return 0
+    pending = sorted(queue.get("queue_pending") or [], key=lambda item: item[0])
+    for i, item in enumerate(pending):
+        if item[1] == prompt_id:
+            return len(running) + i
+    return None
+
+
 def build_flux_workflow_16x9(prompt_text, width=FLUX_WIDTH, height=FLUX_HEIGHT, steps=4, seed=None):
     if seed is None:
         import random
@@ -437,6 +500,55 @@ def build_flux_workflow_16x9(prompt_text, width=FLUX_WIDTH, height=FLUX_HEIGHT, 
         "9": {"inputs": {"filename_prefix": "Doc_16x9_Scene", "images": ["8", 0]}, "class_type": "SaveImage"}
     }
 
+def _render_16x9_in_comfyui(prompt_text: str, scene_id: str, target_file: Path) -> bool:
+    """Submits one scene and waits for its image. True when saved, False if ComfyUI dropped the job."""
+    print(f"  [FLUX 16:9] Generating {scene_id} via ComfyUI: \"{prompt_text[:65]}...\"", flush=True)
+    workflow = build_flux_workflow_16x9(prompt_text)
+    data = json.dumps({"prompt": workflow}).encode("utf-8")
+    req = urllib.request.Request(f"{COMFY_URL}/prompt", data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        prompt_id = json.loads(resp.read().decode("utf-8"))["prompt_id"]
+
+    t0 = time.time()
+    last_note = 0.0
+    missing_since = None
+    while True:
+        time.sleep(2.5)
+        elapsed = time.time() - t0
+        with urllib.request.urlopen(f"{COMFY_URL}/history/{prompt_id}", timeout=15) as resp:
+            history = json.loads(resp.read().decode("utf-8"))
+        if prompt_id in history:
+            entry = history[prompt_id]
+            outputs = entry.get("outputs", {})
+            if "9" in outputs and outputs["9"].get("images"):
+                info = outputs["9"]["images"][0]
+                src_on_disk = os.path.join(COMFY_OUTPUT_DIR, info["filename"])
+                if os.path.exists(src_on_disk):
+                    shutil.copy2(src_on_disk, str(target_file))
+                else:
+                    url = f"{COMFY_URL}/view?filename={info['filename']}&subfolder={info.get('subfolder', '')}&type={info.get('type', 'output')}"
+                    urllib.request.urlretrieve(url, str(target_file))
+                if target_file.exists() and target_file.stat().st_size > 40000:
+                    print(f"  ✔ [FLUX Saved] {scene_id}.png in {elapsed:.1f}s ({target_file.stat().st_size // 1024} KB)", flush=True)
+                    return True
+            if (entry.get("status") or {}).get("status_str") == "error":
+                raise RuntimeError(f"ComfyUI reported an error while drawing {scene_id}")
+        position = comfy_queue_position(prompt_id)
+        if position is None and prompt_id not in history:
+            missing_since = missing_since or time.time()
+            if time.time() - missing_since > 30:
+                print(f"  [FLUX Notice] ComfyUI dropped {scene_id} from its queue", flush=True)
+                return False
+        else:
+            missing_since = None
+        if elapsed - last_note >= 15:
+            last_note = elapsed
+            where = "drawing now" if position == 0 else (f"{position} job(s) ahead in ComfyUI's queue" if position else "finishing")
+            print(f"    ... rendering {scene_id} ({int(elapsed)}s elapsed, {where})", flush=True)
+        if elapsed > FLUX_SCENE_MAX_WAIT_SEC:
+            raise RuntimeError(f"{scene_id} waited over {FLUX_SCENE_MAX_WAIT_SEC // 60} minutes in ComfyUI")
+
+
 def generate_flux_image_16x9(prompt_text: str, scene_id: str, target_file: Path) -> Path:
     target_file = Path(target_file)
     target_file.parent.mkdir(parents=True, exist_ok=True)
@@ -445,42 +557,25 @@ def generate_flux_image_16x9(prompt_text: str, scene_id: str, target_file: Path)
         ensure_comfyui_running()
 
     if is_comfyui_running():
-        # Submit generation workflow
-        try:
-            print(f"  [FLUX 16:9] Generating {scene_id} via ComfyUI: \"{prompt_text[:65]}...\"", flush=True)
-            workflow = build_flux_workflow_16x9(prompt_text)
-            data = json.dumps({"prompt": workflow}).encode("utf-8")
-            req = urllib.request.Request(f"{COMFY_URL}/prompt", data=data, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req) as resp:
-                res = json.loads(resp.read().decode("utf-8"))
-                prompt_id = res["prompt_id"]
-
-            t0 = time.time()
-            for wait_i in range(120):
-                time.sleep(2.5)
-                if wait_i > 0 and wait_i % 6 == 0:
-                    print(f"    ... rendering {scene_id} ({int(time.time() - t0)}s elapsed)", flush=True)
-                with urllib.request.urlopen(f"{COMFY_URL}/history/{prompt_id}") as resp:
-                    history = json.loads(resp.read().decode("utf-8"))
-                    if prompt_id in history:
-                        outputs = history[prompt_id].get("outputs", {})
-                        if "9" in outputs and outputs["9"].get("images"):
-                            info = outputs["9"]["images"][0]
-                            src_on_disk = os.path.join(COMFY_OUTPUT_DIR, info["filename"])
-                            if os.path.exists(src_on_disk):
-                                shutil.copy2(src_on_disk, str(target_file))
-                            else:
-                                url = f"{COMFY_URL}/view?filename={info['filename']}&subfolder={info.get('subfolder', '')}&type={info.get('type', 'output')}"
-                                urllib.request.urlretrieve(url, str(target_file))
-
-                            if target_file.exists() and target_file.stat().st_size > 40000:
-                                print(f"  ✔ [FLUX Saved] {scene_id}.png in {time.time()-t0:.1f}s ({target_file.stat().st_size // 1024} KB)", flush=True)
-                                return target_file
-        except Exception as e:
-            print(f"  [FLUX Notice] ComfyUI submission skipped for {scene_id}: {e}", flush=True)
+        # Wait while the scene is queued or drawing (other tools may share ComfyUI); if ComfyUI goes down,
+        # relaunch it and submit the scene once more
+        for attempt in (1, 2):
+            try:
+                if _render_16x9_in_comfyui(prompt_text, scene_id, target_file):
+                    return target_file
+                break
+            except (urllib.error.URLError, ConnectionError, OSError) as e:
+                print(f"  [FLUX Notice] ComfyUI connection lost on {scene_id} ({e})", flush=True)
+                if attempt == 1 and ensure_comfyui_running():
+                    print(f"  [FLUX] ComfyUI is back; submitting {scene_id} again", flush=True)
+                    continue
+                break
+            except RuntimeError as e:
+                print(f"  [FLUX Notice] {e}", flush=True)
+                break
 
     # No placeholder images: a cached placeholder would be reused by every later render
-    raise RuntimeError(f"ComfyUI could not generate scene {scene_id} (is it running at http://127.0.0.1:8188?). No placeholder was saved: start ComfyUI and run the render again; finished scenes are kept.")
+    raise RuntimeError(f"ComfyUI could not generate scene {scene_id} (is it running at http://127.0.0.1:8188, and not busy with another tool's jobs?). No placeholder was saved: run the render again; finished scenes are kept.")
 
 # =============================================================================
 # SCRIPT PARSER & 16:9 SCENE CHOREOGRAPHY
@@ -504,7 +599,7 @@ def is_script_header_line(s: str) -> bool:
 def strip_narrator_label(s: str) -> str:
     return NARRATOR_LABEL_RE.sub("", s).replace("**", "")
 
-def parse_episode_folder(ep_dir):
+def parse_episode_folder(ep_dir, build_dynamic=True):
     ep_p = Path(ep_dir)
     candidates = [
         ep_p / "script_35min.txt",
@@ -595,7 +690,7 @@ def parse_episode_folder(ep_dir):
             scenes = []
 
     # If no pre-existing prompts JSON (or less than 10 scenes), construct 40-78 scenes dynamically
-    if not scenes:
+    if not scenes and build_dynamic:
         raw_sents = re.split(r'(?<=[.!?])\s+', full_narrative)
         sents = [s.strip() for s in raw_sents if len(s.strip()) > 8]
 
@@ -626,12 +721,13 @@ def parse_episode_folder(ep_dir):
 # =============================================================================
 # IMAGE VERIFIER & MULTI-SOURCE RETRIEVER
 # =============================================================================
-def ensure_scene_images(scenes, ep_dir, ep_num):
+def ensure_scene_images(scenes, ep_dir, ep_num, allow_legacy_copy=True):
     images_dir = Path(ep_dir) / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     images_paths = {}
 
-    bhrs_folder_name = BHSR_EPISODE_MAP.get(ep_num)
+    # Narration-timed scenes are drawn for this episode only: never borrow another folder's scene_NNN.png
+    bhrs_folder_name = BHSR_EPISODE_MAP.get(ep_num) if allow_legacy_copy else None
     bhrs_cand_dirs = []
     if bhrs_folder_name:
         bhrs_cand_dirs.append(BHSR_YOUTUBE_DIR / bhrs_folder_name / "images")
@@ -1085,7 +1181,400 @@ def _render_segment_worker(worker_id, s_frame, e_frame, total_frames, timeline, 
 # =============================================================================
 # MASTER 16:9 VIDEO BUILDER
 # =============================================================================
-def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebuild=False):
+def narration_hash(text: str) -> str:
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
+
+
+def plan_scenes_from_transcript(narration_text, transcript_path, total_duration, target_sec=SCENE_TARGET_SEC):
+    """Splits the recorded narration into scenes at sentence ends, averaging about target_sec each. Every scene has the
+    exact words spoken in it and its start/end in the audio, so its picture can show what is being said."""
+    with open(transcript_path, "r", encoding="utf-8") as f:
+        transcript = json.load(f)
+    words = [{"word": w["word"].strip(), "start": w["start"], "end": w["end"]}
+             for seg in transcript.get("segments", []) for w in seg.get("words", [])]
+    aligned = align_transcript_with_script(narration_text, words)
+    close_at = target_sec * 0.8  # a scene closes at the first sentence end past this, so they average ~target_sec
+
+    # Groups are [first, last) word positions in the script (the alignment has one entry per script word)
+    groups, first = [], 0
+    for i, w in enumerate(aligned):
+        dur = w["end"] - aligned[first]["start"]
+        token = w["word"].rstrip("\"'”’)]")
+        sentence_end = token.endswith((".", "!", "?"))
+        clause_end = token.endswith((",", ";", ":"))
+        if (sentence_end and dur >= close_at) or (clause_end and dur >= SCENE_MAX_SEC) or dur >= SCENE_MAX_SEC * 1.5:
+            groups.append([first, i + 1])
+            first = i + 1
+    if first < len(aligned):
+        groups.append([first, len(aligned)])
+    # A short last scene (usually the sign-off) joins the one before it
+    if len(groups) > 1 and aligned[groups[-1][1] - 1]["end"] - aligned[groups[-1][0]]["start"] < SCENE_MIN_SEC:
+        last = groups.pop()
+        groups[-1][1] = last[1]
+
+    scenes = [{"id": f"scene_{i + 1:03d}", "words": [w0, w1], "start": 0.0, "end": 0.0,
+               "text": " ".join(x["word"] for x in aligned[w0:w1]), "prompt": ""} for i, (w0, w1) in enumerate(groups)]
+    time_scenes(scenes, aligned, total_duration)
+    return scenes
+
+
+def time_scenes(scenes, aligned, total_duration):
+    """Each scene starts when its first word is spoken and lasts until the next scene starts."""
+    starts = []
+    for i, sc in enumerate(scenes):
+        t = 0.0 if i == 0 else aligned[min(sc["words"][0], len(aligned) - 1)]["start"]
+        starts.append(max(t, starts[-1] + 0.5) if starts else t)  # never out of order
+    for i, sc in enumerate(scenes):
+        sc["start"] = round(starts[i], 2)
+        sc["end"] = round(starts[i + 1] if i + 1 < len(scenes) else max(total_duration, starts[i] + 0.5), 2)
+
+
+def file_hash(path) -> str:
+    return hashlib.md5(Path(path).read_bytes()).hexdigest()
+
+
+def load_or_build_scene_plan(ep_p: Path, narration_text, transcript_path, total_duration, target_sec=SCENE_TARGET_SEC) -> dict:
+    """scene_plan.json in the episode folder: reused while the narration is unchanged; rebuilt (old copy kept, prompts
+    carried over for scenes whose words are the same) when it changes."""
+    plan_p = ep_p / SCENE_PLAN_FILE
+    current_hash = narration_hash(narration_text)
+    transcript_hash = file_hash(transcript_path)
+    old_prompts = {}
+    if plan_p.exists():
+        try:
+            plan = json.loads(plan_p.read_text(encoding="utf-8"))
+        except Exception:
+            plan = None
+        if plan and plan.get("narration_hash") == current_hash and plan.get("scenes"):
+            if plan.get("transcript_hash") != transcript_hash and all("words" in sc for sc in plan["scenes"]):
+                # Same words, new recording: keep the scenes and prompts, move them to the new timing
+                with open(transcript_path, "r", encoding="utf-8") as f:
+                    transcript = json.load(f)
+                words = [{"word": w["word"].strip(), "start": w["start"], "end": w["end"]}
+                         for seg in transcript.get("segments", []) for w in seg.get("words", [])]
+                time_scenes(plan["scenes"], align_transcript_with_script(narration_text, words), total_duration)
+                plan["transcript_hash"] = transcript_hash
+                plan["audio_duration"] = round(total_duration, 2)
+                plan_p.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+                print("[Scene Plan] New recording of the same narration: scenes re-timed to it, prompts kept.", flush=True)
+            return plan
+        if plan:
+            shutil.copy2(plan_p, ep_p / "scene_plan.previous.json")
+            old_prompts = {sc.get("text"): sc.get("prompt") for sc in plan.get("scenes", []) if sc.get("prompt")}
+            print("[Scene Plan] The narration changed since the plan was made: building a new one "
+                  "(previous plan kept in scene_plan.previous.json).", flush=True)
+    scenes = plan_scenes_from_transcript(narration_text, transcript_path, total_duration, target_sec)
+    for sc in scenes:
+        sc["prompt"] = old_prompts.get(sc["text"], "")
+    plan = {
+        "version": 1,
+        "narration_hash": current_hash,
+        "transcript_hash": transcript_hash,
+        "audio_duration": round(total_duration, 2),
+        "target_scene_sec": target_sec,
+        "instructions": ("Write one FLUX image prompt per scene in 'prompt' that shows exactly what the narration says in "
+                         "'text' (who, where, what is happening). No text or lettering, no gore. Then render again."),
+        "scenes": scenes,
+    }
+    plan_p.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+    avg = total_duration / max(len(scenes), 1)
+    print(f"[Scene Plan] {len(scenes)} narration-timed scenes (about {avg:.0f}s each) saved to {plan_p.name}", flush=True)
+    return plan
+
+
+SCENE_PROMPTS_RECORD = "scene_prompts.json"
+
+
+def retire_stale_scene_images(scenes, ep_p: Path):
+    """images/scene_prompts.json records the prompt each picture was drawn from. A picture drawn from another prompt
+    (an older prompt file, or a prompt rewritten since) is moved to images/_replaced/ so the scene is drawn again."""
+    images_dir = ep_p / "images"
+    record_p = images_dir / SCENE_PROMPTS_RECORD
+    try:
+        record = json.loads(record_p.read_text(encoding="utf-8")) if record_p.exists() else {}
+    except Exception:
+        record = {}
+    # Pictures set aside, by the prompt they were drawn from: a scene that moved to a new number gets its picture back
+    set_aside = {}
+    for sc in scenes:
+        img = images_dir / f"{sc['id']}.png"
+        if img.exists() and record.get(sc["id"]) != sc["prompt"]:
+            replaced = images_dir / "_replaced"
+            replaced.mkdir(parents=True, exist_ok=True)
+            dest = replaced / f"{sc['id']}_{int(time.time())}.png"
+            shutil.move(str(img), str(dest))
+            if record.get(sc["id"]):
+                set_aside[record[sc["id"]]] = dest
+            record.pop(sc["id"], None)
+    reused = 0
+    for sc in scenes:
+        img = images_dir / f"{sc['id']}.png"
+        if not img.exists() and sc["prompt"] in set_aside:
+            shutil.copy2(set_aside[sc["prompt"]], img)
+            record[sc["id"]] = sc["prompt"]
+            reused += 1
+    if set_aside or reused:
+        record_p.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
+    redraw = sum(1 for sc in scenes if not (images_dir / f"{sc['id']}.png").exists())
+    if set_aside:
+        print(f"[Scenes] Pictures from older prompts moved to images/_replaced ({reused} matched a renumbered scene); "
+              f"{redraw} scene(s) to draw.", flush=True)
+
+
+def record_scene_prompts(scenes, ep_p: Path):
+    images_dir = ep_p / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+    record_p = images_dir / SCENE_PROMPTS_RECORD
+    try:
+        record = json.loads(record_p.read_text(encoding="utf-8")) if record_p.exists() else {}
+    except Exception:
+        record = {}
+    for sc in scenes:
+        if (images_dir / f"{sc['id']}.png").exists():
+            record[sc["id"]] = sc["prompt"]
+    record_p.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+# =============================================================================
+# SCENE PROMPT WRITERS: Claude Code / Gemini CLI, run headless on their own sign-ins
+# =============================================================================
+# After the voice, the scene prompts are written by these CLIs in the chosen order. If none can, the render pauses
+# for prompts as before. The order is set in KCT Studio (generator_settings.json in the project) or --prompt-writer.
+GENERATOR_SETTINGS_FILE = BHSR_ROOT / "generator_settings.json"
+DEFAULT_PROMPT_WRITERS = "claude,gemini"
+PROMPT_BATCH_SIZE = 25
+PROMPT_WRITER_TIMEOUT_SEC = 600
+CLAUDE_PROMPT_MODEL = "sonnet"
+PROMPT_MIN_WORDS, PROMPT_MAX_WORDS = 8, 90
+
+SCENE_PROMPT_GUIDE = """You write image prompts for FLUX, an AI image model, for a Bible documentary video (Bible Hidden Secrets Revealed). Each scene below is the narration heard while one picture is on screen.
+
+For every scene, write one prompt that shows what that scene's narration says, so the picture matches the words being heard:
+- Show the concrete people, places, objects and actions named in the scene. If it holds several ideas, picture the most concrete or most important one.
+- When the narration quotes a verse, picture what the verse describes, not someone reading it.
+- Start with the main subject, then the setting, the action, the lighting and the camera view. 30 to 60 words, one paragraph.
+- Ancient Near Eastern, biblical-era settings, clothing and architecture.
+- No text, letters, numbers, inscriptions or writing anywhere in the picture. Never ask for readable scrolls, signs or book titles.
+- No gore, wounds or nudity (Adam and Eve framed from the shoulders up or clothed in garments of skin). Keep it reverent.
+- Never write cherub or cherubim (the image model draws baby angels). Write "towering angelic guardian with four vast wings" instead.
+- Angels are majestic adult beings with great feathered wings. Satan or fallen angels: a once-glorious winged being, dimmed and scorched, or a dark-robed figure with a shadowed face, never a cartoon devil.
+- Jesus: a Middle Eastern man with dark hair and beard in a simple cream linen robe, shown with dignity.
+- Describe each recurring figure or place with the same words every time, so the pictures stay consistent.
+- Do not add style words (cinematic, 8k, photorealistic): they are added automatically."""
+
+
+class PromptWriterUnavailable(Exception):
+    """The writer is missing or not signed in: don't try it again in this run."""
+
+
+def prompt_writer_order(cli_value=None):
+    """['claude', 'gemini'] from --prompt-writer, else generator_settings.json, else the default. 'manual' = []."""
+    value = cli_value
+    if value is None:
+        try:
+            value = json.loads(GENERATOR_SETTINGS_FILE.read_text(encoding="utf-8")).get("scene_prompt_writer")
+        except Exception:
+            value = None
+    names = [n.strip().lower() for n in str(value or DEFAULT_PROMPT_WRITERS).split(",") if n.strip()]
+    return [n for n in names if n in PROMPT_WRITERS]
+
+
+def find_claude_cli():
+    """`claude` on PATH, else the native install (~/.local/bin, which may not be on PATH), else the newest copy
+    bundled with the Claude desktop app."""
+    found = shutil.which("claude")
+    if found:
+        return found
+    native = Path.home() / ".local" / "bin" / "claude.exe"
+    if native.exists():
+        return str(native)
+    pattern = os.path.join(os.environ.get("APPDATA", ""), "Claude", "claude-code", "*", "*", "claude.exe")
+
+    def version(path):
+        return tuple(int(x) for x in re.findall(r"\d+", Path(path).parent.parent.name))
+    found = sorted(glob.glob(pattern), key=version)
+    return found[-1] if found else None
+
+
+def find_gemini_cli():
+    found = shutil.which("gemini")
+    if found:
+        return found
+    cmd = os.path.join(os.environ.get("APPDATA", ""), "npm", "gemini.cmd")
+    return cmd if os.path.exists(cmd) else None
+
+
+def _run_cli(cmd, request, timeout=PROMPT_WRITER_TIMEOUT_SEC, env=None):
+    """Runs a CLI with no window, in an empty folder (so it reads no project files), the request on stdin."""
+    cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+    with tempfile.TemporaryDirectory(prefix="kct_prompts_") as cwd:
+        try:
+            return subprocess.run(cmd, input=request if request is not None else None,
+                                  stdin=subprocess.DEVNULL if request is None else None,
+                                  capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                  timeout=timeout, cwd=cwd, creationflags=cf, env=env)
+        except subprocess.TimeoutExpired:
+            raise RuntimeError(f"no answer within {timeout // 60} minutes")
+
+
+def ask_claude(request: str) -> str:
+    exe = find_claude_cli()
+    if not exe:
+        raise PromptWriterUnavailable("Claude Code CLI not found")
+    r = _run_cli([exe, "-p", "--output-format", "json", "--model", CLAUDE_PROMPT_MODEL, "--tools", "",
+                  "--strict-mcp-config", "--no-session-persistence"], request)
+    try:
+        reply = json.loads(r.stdout)
+    except Exception:
+        raise RuntimeError((r.stdout or r.stderr or f"exit code {r.returncode}").strip()[-300:])
+    if reply.get("is_error"):
+        msg = str(reply.get("result") or reply.get("terminal_reason") or "error")
+        if re.search(r"log ?in|logged|auth|credential|token", msg, re.IGNORECASE):
+            raise PromptWriterUnavailable(f"Claude Code is not signed in ({msg})")
+        raise RuntimeError(msg)
+    return str(reply.get("result") or "")
+
+
+def ask_gemini(request: str) -> str:
+    exe = find_gemini_cli()
+    if not exe:
+        raise PromptWriterUnavailable("Gemini CLI not found")
+    env = {**os.environ, "NO_BROWSER": "true"}  # never open a sign-in page from a background render
+    # Sign-in check with no input first: an unsigned CLI asks whether to sign in, and must not take the request as
+    # its answer
+    pre = _run_cli([exe, "-p", "Reply with the word ready.", "-o", "json", "--approval-mode", "plan"], None,
+                   timeout=180, env=env)
+    if pre.returncode != 0:
+        raise PromptWriterUnavailable("Gemini CLI is not signed in")
+    r = _run_cli([exe, "-p", "Do the task above. Reply with the JSON object only.", "-o", "json",
+                  "--approval-mode", "plan"], request, env=env)
+    if r.returncode != 0:
+        raise RuntimeError((r.stderr or r.stdout or f"exit code {r.returncode}").strip()[-300:])
+    out = r.stdout.strip()
+    try:
+        return str(json.loads(out[out.find("{"):]).get("response") or "")
+    except Exception:
+        return out
+
+
+PROMPT_WRITERS = {"claude": ask_claude, "gemini": ask_gemini}
+PROMPT_WRITER_NAMES = {"claude": "Claude Code", "gemini": "Gemini"}
+SIGN_IN_HELP = {"claude": "open a terminal, run claude, then type /login",
+                "gemini": "open a terminal, run gemini, and sign in with Google"}
+
+
+def episode_prompt_context(ep_p: Path) -> str:
+    """Title, scriptures and Christological key from the episode metadata, plus any visual_guide.md notes."""
+    lines = []
+    for name in ("metadata.json", "episode_metadata.json"):
+        meta_p = ep_p / name
+        if meta_p.exists():
+            try:
+                m = json.loads(meta_p.read_text(encoding="utf-8"))
+            except Exception:
+                break
+            for key, label in (("episode_title", "Episode"), ("scriptures", "Scriptures"),
+                               ("christological_key", "Christological key")):
+                if m.get(key):
+                    lines.append(f"{label}: {m[key]}")
+            if not m.get("episode_title") and m.get("title"):
+                lines.insert(0, f"Episode: {m['title']}")
+            break
+    for guide_p in (ep_p / "visual_guide.md", ep_p.parent.parent / "visual_guide.md"):
+        if guide_p.exists():
+            lines.append("Visual notes for this episode:\n" + guide_p.read_text(encoding="utf-8")[:4000])
+            break
+    return "\n".join(lines)
+
+
+def build_prompt_request(scenes, context: str, earlier) -> str:
+    parts = [SCENE_PROMPT_GUIDE]
+    if context:
+        parts.append(context)
+    if earlier:
+        parts.append("Prompts already written for earlier scenes of this episode (describe recurring figures the same way):\n"
+                     + "\n".join(f"- {p}" for p in earlier))
+    parts.append("Scenes:\n" + "\n".join(f"{sc['id']}: {sc['text']}" for sc in scenes))
+    parts.append('Reply with only a JSON object mapping every scene id above to its prompt, for example '
+                 '{"scene_001": "..."}. No other text.')
+    return "\n\n".join(parts)
+
+
+def clean_scene_prompt(prompt: str) -> str:
+    p = " ".join(str(prompt).split()).strip().strip('"').rstrip(".,; ")
+    p = re.sub(r"\bcherub(?:im|ims|s)\b", "towering angelic guardians", p, flags=re.IGNORECASE)
+    p = re.sub(r"\bcherub\b", "towering angelic guardian", p, flags=re.IGNORECASE)
+    words = p.split()
+    return " ".join(words[:PROMPT_MAX_WORDS]).rstrip(".,; ")
+
+
+def parse_prompt_reply(reply: str, wanted_ids) -> dict:
+    """{scene id: prompt} for the wanted scenes the reply answered properly (a JSON object, maybe in a code fence)."""
+    start, end = reply.find("{"), reply.rfind("}")
+    if start < 0 or end <= start:
+        return {}
+    try:
+        data = json.loads(reply[start:end + 1])
+    except Exception:
+        return {}
+    out = {}
+    for sid in wanted_ids:
+        p = data.get(sid) if isinstance(data, dict) else None
+        if isinstance(p, str) and len(p.split()) >= PROMPT_MIN_WORDS:
+            out[sid] = clean_scene_prompt(p)
+    return out
+
+
+def write_scene_prompts_with_ai(plan: dict, ep_p: Path, writers):
+    """Fills the plan's empty prompts with the writers, in order, batch by batch (saved after each batch).
+    Returns the notes on writers that could not be used."""
+    plan_p = ep_p / SCENE_PLAN_FILE
+    context = episode_prompt_context(ep_p)
+    available = list(writers)
+    notes = []
+    missing = [sc for sc in plan["scenes"] if not str(sc.get("prompt", "")).strip()]
+    for b in range(0, len(missing), PROMPT_BATCH_SIZE):
+        todo = {sc["id"]: sc for sc in missing[b:b + PROMPT_BATCH_SIZE]}
+        for name in list(available):
+            for attempt in (1, 2):
+                if not todo:
+                    break
+                earlier = [sc["prompt"] for sc in plan["scenes"] if str(sc.get("prompt", "")).strip()][-4:]
+                request = build_prompt_request(list(todo.values()), context, earlier)
+                try:
+                    got = parse_prompt_reply(PROMPT_WRITERS[name](request), list(todo))
+                except PromptWriterUnavailable as e:
+                    notes.append(f"{PROMPT_WRITER_NAMES[name]}: {e}. To sign in, {SIGN_IN_HELP[name]}.")
+                    print(f"[Scene Prompts] {PROMPT_WRITER_NAMES[name]} unavailable: {e}", flush=True)
+                    available.remove(name)
+                    break
+                except Exception as e:
+                    print(f"[Scene Prompts] {PROMPT_WRITER_NAMES[name]} failed on this batch ({e})", flush=True)
+                    got = {}
+                for sid, prompt in got.items():
+                    scene = todo.pop(sid)  # the plan's own scene entry
+                    scene["prompt"] = prompt
+                    scene["prompt_by"] = name
+                if got:
+                    plan_p.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+                    print(f"[Scene Prompts] {PROMPT_WRITER_NAMES[name]} wrote {len(got)} prompts "
+                          f"({min(got)} to {max(got)})", flush=True)
+            if not todo:
+                break
+        if not available:
+            break
+    return notes
+
+
+def legacy_images_ready(scenes, ep_p: Path) -> bool:
+    """True when an older episode already has its prompt file and (nearly) all of its pictures."""
+    images_dir = ep_p / "images"
+    have = sum(1 for sc in scenes if (images_dir / f"{sc['id']}.png").exists())
+    return bool(scenes) and have >= 0.9 * len(scenes)
+
+
+def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebuild=False,
+                     replan=False, auto_prompts=False, scene_sec=SCENE_TARGET_SEC, prompt_writer=None):
     ep_p = Path(ep_dir).resolve()
     
     # Extract clean prefix & title
@@ -1110,37 +1599,85 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
     print(f"Directory: {ep_p}")
     print("=" * 78, flush=True)
 
-    narration_text, scenes = parse_episode_folder(ep_p)
+    narration_text, legacy_scenes = parse_episode_folder(ep_p, build_dynamic=False)
     narration_text = ensure_books_cta(narration_text)
-    print(f"[Script] Narrative: {len(narration_text.split())} words, {len(scenes)} visual scenes.")
-
-    images_paths = ensure_scene_images(scenes, ep_p, ep_num)
-
-    if images_only:
-        print(f"\n✔ [Images Verified] All {len(images_paths)} scenes ready in: {ep_p}/images")
-        return None
-
     temp_dir = ep_p / "temp"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
-    soundtrack_path, transcript_path, total_duration = generate_speech_and_timestamps(
-        narration_text, str(temp_dir), ep_prefix, speed=speed, force_rebuild=force_rebuild
-    )
+    use_legacy = (not replan and not (ep_p / SCENE_PLAN_FILE).exists()
+                  and legacy_scenes and legacy_images_ready(legacy_scenes, ep_p))
+    if use_legacy:
+        # An older episode with its own prompt file and pictures: keep it as it was rendered before
+        scenes = legacy_scenes
+        print(f"[Script] Narrative: {len(narration_text.split())} words, {len(scenes)} visual scenes from the existing prompt file.")
+        print("[Scenes] Using this episode's existing pictures. Run with --replan to time new pictures to the narration.", flush=True)
+        images_paths = ensure_scene_images(scenes, ep_p, ep_num)
+        if images_only:
+            print(f"\n✔ [Images Verified] All {len(images_paths)} scenes ready in: {ep_p}/images")
+            return None
+        soundtrack_path, transcript_path, total_duration = generate_speech_and_timestamps(
+            narration_text, str(temp_dir), ep_prefix, speed=speed, force_rebuild=force_rebuild
+        )
+        total_weights = sum(s["weight"] for s in scenes)
+        curr_t = 0.0
+        timeline = []
+        for s in scenes:
+            dur = (s["weight"] / total_weights) * total_duration
+            timeline.append({"id": s["id"], "start": curr_t, "end": curr_t + dur, "motion": s["motion"]})
+            curr_t += dur
+    else:
+        # 1. Voice first (ComfyUI's models unloaded so the narration has the GPU), 2. scenes timed to what is said,
+        # 3. a prompt per scene for exactly those words, 4. pictures, shown exactly while their words are spoken
+        print(f"[Script] Narrative: {len(narration_text.split())} words. Recording the narration first; pictures follow its timing.", flush=True)
+        free_comfyui_memory()
+        soundtrack_path, transcript_path, total_duration = generate_speech_and_timestamps(
+            narration_text, str(temp_dir), ep_prefix, speed=speed, force_rebuild=force_rebuild
+        )
+        plan = load_or_build_scene_plan(ep_p, narration_text, transcript_path, total_duration, scene_sec)
+        missing = [sc for sc in plan["scenes"] if not str(sc.get("prompt", "")).strip()]
+        writer_notes = []
+        writers = prompt_writer_order(prompt_writer)
+        have = len(plan["scenes"]) - len(missing)
+        if not missing:
+            print(f"[Scene Prompts] All {have} scenes already have prompts: using them as written.", flush=True)
+        elif missing and writers:
+            print(f"[Scene Prompts] Writing {len(missing)} missing scene prompts from the narration with "
+                  f"{' then '.join(PROMPT_WRITER_NAMES[w] for w in writers)}"
+                  f"{f' ({have} already written are kept)' if have else ''}...", flush=True)
+            writer_notes = write_scene_prompts_with_ai(plan, ep_p, writers)
+            missing = [sc for sc in plan["scenes"] if not str(sc.get("prompt", "")).strip()]
+        if missing and auto_prompts:
+            for sc in missing:
+                sc["prompt"] = build_scene_prompt_16x9(sc["text"])
+            (ep_p / SCENE_PLAN_FILE).write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[Scene Plan] Filled {len(missing)} prompts with the built-in rules (--auto-prompts).", flush=True)
+            missing = []
+        if missing:
+            print("\n" + "=" * 78, flush=True)
+            print(f"⏸  VOICE READY, PICTURES WAITING: {len(missing)} of {len(plan['scenes'])} scenes need a picture prompt.", flush=True)
+            print(f"   Plan: {ep_p / SCENE_PLAN_FILE}", flush=True)
+            for note in writer_notes:
+                print(f"   {note}", flush=True)
+            print("   Ask Claude Code to write the prompts from each scene's narration, then press Generate again.", flush=True)
+            print("   (The narration is saved and will not be recorded again.)", flush=True)
+            print("=" * 78 + "\n", flush=True)
+            return "NEEDS_PROMPTS"
+        scenes = [{"id": sc["id"], "prompt": f"{sc['prompt'].strip().rstrip(',')}, {DOC_IMAGE_STYLE}",
+                   "weight": max(0.1, sc["end"] - sc["start"]), "motion": MOTION_PRESETS[i % len(MOTION_PRESETS)]}
+                  for i, sc in enumerate(plan["scenes"])]
+        retire_stale_scene_images(scenes, ep_p)
+        try:
+            images_paths = ensure_scene_images(scenes, ep_p, ep_num, allow_legacy_copy=False)
+        finally:
+            record_scene_prompts(scenes, ep_p)  # finished pictures are kept for the next run
+        if images_only:
+            print(f"\n✔ [Images Verified] All {len(images_paths)} scenes ready in: {ep_p}/images")
+            return None
+        timeline = [{"id": sc["id"], "start": sc["start"], "end": sc["end"], "motion": scenes[i]["motion"]}
+                    for i, sc in enumerate(plan["scenes"])]
+        timeline[0]["start"] = 0.0
 
     total_frames = int(total_duration * FPS) + 12
-    total_weights = sum(s["weight"] for s in scenes)
-    curr_t = 0.0
-    timeline = []
-
-    for s in scenes:
-        dur = (s["weight"] / total_weights) * total_duration
-        timeline.append({
-            "id": s["id"],
-            "start": curr_t,
-            "end": curr_t + dur,
-            "motion": s["motion"]
-        })
-        curr_t += dur
     timeline[-1]["end"] = max(timeline[-1]["end"], total_duration + 1.0)
 
     chunks = load_chunked_captions_16x9(narration_text, transcript_path)
@@ -1329,6 +1866,12 @@ def main():
     parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild all images, audio, and video")
     parser.add_argument("--speed", type=float, default=1.0, help="Voiceover pace multiplier (e.g. 1.05)")
     parser.add_argument("--list", action="store_true", help="List all available documentary releases and status")
+    parser.add_argument("--replan", action="store_true", help="Time new pictures to the narration even if older prompts/images exist")
+    parser.add_argument("--auto-prompts", action="store_true", help="Fill missing scene prompts with the built-in rules instead of pausing")
+    parser.add_argument("--scene-sec", type=float, default=SCENE_TARGET_SEC, help="Average seconds per picture (default 20)")
+    parser.add_argument("--prompt-writer", default=None,
+                        help="Who writes the scene prompts after the voice: e.g. claude,gemini (default from "
+                             "generator_settings.json), gemini, or manual to pause for them")
 
     raw_args = sys.argv[1:]
     target_ep = None
@@ -1365,13 +1908,19 @@ def main():
         list_episodes()
         return
 
-    build_16x9_video(
+    result = build_16x9_video(
         ep_dir=ep_dir,
         ep_num=ep_num or 1,
         speed=args.speed,
         images_only=args.images_only,
-        force_rebuild=args.force_rebuild
+        force_rebuild=args.force_rebuild,
+        replan=args.replan,
+        auto_prompts=args.auto_prompts,
+        scene_sec=args.scene_sec,
+        prompt_writer=args.prompt_writer
     )
+    if result == "NEEDS_PROMPTS":
+        sys.exit(EXIT_NEEDS_PROMPTS)
 
 if __name__ == "__main__":
     main()

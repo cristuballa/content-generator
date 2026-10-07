@@ -291,6 +291,19 @@
 
             <!-- Where this cut is posted -->
             <div id="lfPostIcons" class="pt-1"></div>
+
+            <!-- Who writes the scene prompts after the narration is recorded -->
+            <div class="flex items-center gap-2 flex-wrap pt-1">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Scene prompts</span>
+              <select id="lfPromptWriter" onchange="savePromptWriter(this.value)" class="bg-[#181e2b] border border-[#232b3d] rounded-md px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:border-amber-500/50" title="Who writes each scene's picture prompt from its narration, right after the voice is recorded">
+                <option value="claude,gemini">Claude, then Gemini</option>
+                <option value="gemini,claude">Gemini, then Claude</option>
+                <option value="claude">Claude only</option>
+                <option value="gemini">Gemini only</option>
+                <option value="manual">Pause for me</option>
+              </select>
+              <span id="lfPromptWriterStatus" class="text-[10px] font-mono text-slate-500"></span>
+            </div>
           </div>
 
           <!-- Action Buttons -->
@@ -949,7 +962,41 @@
 
       await loadWeeksList();
       await loadWeekData(currentWeekId);
+      loadPromptWriter();
     });
+
+    // Who writes the long-form scene prompts after the voice (Claude Code / Gemini CLI, or pause for me)
+    async function loadPromptWriter() {
+      const sel = document.getElementById("lfPromptWriter");
+      const stat = document.getElementById("lfPromptWriterStatus");
+      if (!sel) return;
+      try {
+        const res = await fetch("/api/generator/prompt-writer");
+        if (!res.ok) throw new Error(await res.text());
+        const d = await res.json();
+        sel.value = d.setting;
+        const claude = !d.claude.installed ? "Claude: not installed" : (d.claude.signed_in === false ? "Claude: not signed in" : "Claude: ready");
+        const gemini = !d.gemini.installed ? "Gemini: not installed" : "Gemini: installed";
+        stat.textContent = sel.value === "manual" ? "" : `${claude} · ${gemini}`;
+        stat.title = "Sign in once in a terminal: run claude then /login, or run gemini and sign in with Google. Until then the render pauses for prompts.";
+        stat.className = `text-[10px] font-mono ${d.claude.signed_in === false ? "text-amber-400" : "text-slate-500"}`;
+      } catch (e) {
+        if (stat) stat.textContent = "";
+      }
+    }
+
+    async function savePromptWriter(value) {
+      try {
+        const res = await fetch("/api/generator/prompt-writer", {
+          method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({setting: value})
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showToast(value === "manual" ? "Long-form renders will pause for scene prompts" : "Scene prompt writer saved", "success");
+        loadPromptWriter();
+      } catch (e) {
+        showToast(`Could not save the prompt writer: ${e.message}`, "error");
+      }
+    }
 
     // 2. Load Weeks List
     async function loadWeeksList() {
@@ -1288,6 +1335,12 @@
         if (vid.video_url) {
           statusBadge.textContent = "✔ Video Rendered & Ready";
           statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 glow-emerald-sm";
+        } else if (vid.scene_plan && vid.scene_plan.missing_prompts > 0) {
+          statusBadge.textContent = `Voice Ready • ${vid.scene_plan.missing_prompts} Scene Prompts Needed`;
+          statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-sky-500/15 text-sky-300 border border-sky-500/35";
+        } else if (vid.scene_plan) {
+          statusBadge.textContent = `Voice & ${vid.scene_plan.scenes} Scene Prompts Ready • Pending Render`;
+          statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35";
         } else if (vid.script_file) {
           statusBadge.textContent = "Script Ready • Pending Render";
           statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35";
@@ -2240,6 +2293,14 @@
                 }
                 appendDrawerLog("=== [GENERATION COMPLETED SUCCESSFULLY] ===", "system");
                 // Reload week data to show newly rendered video
+                setTimeout(() => loadWeekData(currentWeekId), 1200);
+              } else if (data.status === "paused") {
+                // generate_video.py recorded the narration and waits for its scene prompts
+                isJobRunning = false;
+                stopJobTimer();
+                drawerStatusDot.className = "w-3 h-3 rounded-full bg-sky-400";
+                drawerJobSubtitle.textContent = "Voice ready • scene prompts needed";
+                appendDrawerLog("=== [PAUSED] Voice recorded. Ask Claude Code to write the scene prompts, then press Generate again. ===", "system");
                 setTimeout(() => loadWeekData(currentWeekId), 1200);
               } else if (data.status === "error" || data.status === "stopped") {
                 isJobRunning = false;

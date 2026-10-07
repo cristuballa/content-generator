@@ -357,6 +357,19 @@ function handleWsMessage(data) {
       );
       flashDocumentTitle("❌ Job Failed! - KCT Studio");
       playChime("error");
+    } else if (lastProcessStatus === "running" && data.status === "paused") {
+      showNotification({
+        title: "Voice Ready",
+        message: "The narration is recorded. Ask Claude Code to write the scene prompts, then press Generate again.",
+        type: "info",
+        duration: 9000
+      });
+      triggerDesktopNotification(
+        "⏸ Voice Ready - KCT Studio",
+        "Narration recorded. Scene prompts are needed before the pictures are drawn.",
+        "info"
+      );
+      playChime("job_completed");
     } else if (lastProcessStatus === "running" && data.status === "stopped") {
       showNotification({
         title: "Process Terminated",
@@ -429,6 +442,9 @@ function setProcessStatus(status, job) {
     } else if (status === "stopped") {
       badge.className = "font-bold text-amber-400";
       dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+    } else if (status === "paused") {
+      badge.className = "font-bold text-sky-300";
+      dot.className = "w-2.5 h-2.5 rounded-full bg-sky-400";
     } else {
       badge.className = "font-bold text-slate-300";
       dot.className = "w-2.5 h-2.5 rounded-full bg-slate-500";

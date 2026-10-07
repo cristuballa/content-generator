@@ -387,7 +387,9 @@ def clean_script_for_tts(raw_text: str, phonetic: bool = True) -> str:
         pattern = r"\b" + re.escape(orig) + r"\b"
         full_narr = re.sub(pattern, phon, full_narr, flags=re.IGNORECASE)
 
-    full_narr = re.sub(r'(\d+):(\d+)', r'\1, \2', full_narr)
+    # The voice reads "14:12" as "14, 12"; captions keep the reference as written (Isaiah 14:12)
+    if phonetic:
+        full_narr = re.sub(r'(\d+):(\d+)', r'\1, \2', full_narr)
     full_narr = re.sub(r'\s*[—–]\s*', ', ', full_narr)
     full_narr = full_narr.replace("'", "'").replace('"', '')
     full_narr = re.sub(r'\s+', ' ', full_narr).strip()

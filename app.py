@@ -39,6 +39,7 @@ from core.calendar_manager import calendar_manager, PostBusyError
 from core.reels import (DAY_NAMES as REEL_DAY_NAMES, DAYS as REEL_DAYS, find_reel, recorded_reel_number, reel_day_and_time,
                         reel_posting_times, reel_slots)
 from core.story_map_manager import story_map_manager
+from core import prompt_writers
 from core.meta_uploader import meta_uploader
 from core.youtube_uploader import youtube_uploader
 from core.threads_uploader import threads_uploader
@@ -1031,6 +1032,19 @@ async def get_generator_weeks_api():
         })
     return {"weeks": weeks}
 
+def scene_plan_summary(ep_dir: Path) -> Optional[Dict[str, int]]:
+    """generate_video.py's scene_plan.json (narration-timed scenes): how many scenes, how many still need a prompt."""
+    plan_p = ep_dir / "scene_plan.json"
+    if not plan_p.exists():
+        return None
+    try:
+        scenes = json.loads(plan_p.read_text(encoding="utf-8")).get("scenes") or []
+    except Exception:
+        return None
+    missing = sum(1 for sc in scenes if not str(sc.get("prompt") or "").strip())
+    return {"scenes": len(scenes), "missing_prompts": missing}
+
+
 def get_video_duration_fast(path: Path) -> float:
     try:
         cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(path)]
@@ -1285,7 +1299,8 @@ async def get_generator_week_api(week_id: str):
                     "tiktok_caption": v_tt,
                     "threads_caption": caps["threads_caption"],
                     "x_post": v_x,
-                    "pinned_comment": v_pinned
+                    "pinned_comment": v_pinned,
+                    "scene_plan": scene_plan_summary(s_dir)
                 }
                 lf_data["videos"].append(v_obj)
 
@@ -1789,6 +1804,30 @@ async def get_generator_script(
         "content": script_text,
         "metadata": meta
     }
+
+class PromptWriterRequest(BaseModel):
+    setting: str
+
+
+@app.get("/api/generator/prompt-writer")
+async def get_prompt_writer():
+    """Who writes long-form scene prompts after the voice, and whether Claude Code / Gemini CLI are ready."""
+    active_path = config_manager.get_active_project()
+    if not active_path or not Path(active_path).exists():
+        raise HTTPException(status_code=400, detail="No active project")
+    return await asyncio.to_thread(prompt_writers.status, active_path)
+
+
+@app.post("/api/generator/prompt-writer")
+async def set_prompt_writer(req: PromptWriterRequest):
+    active_path = config_manager.get_active_project()
+    if not active_path or not Path(active_path).exists():
+        raise HTTPException(status_code=400, detail="No active project")
+    try:
+        return {"success": True, "setting": prompt_writers.set_setting(active_path, req.setting)}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @app.post("/api/generator/run")
 async def run_generator_api(req: GeneratorRunRequest):
