@@ -2240,9 +2240,9 @@
           "hook_type": "Mystery Hook",
           "hook": "The first prophecy of Jesus was not spoken by a prophet. God spoke it to the serpent.",
           "folder": "mon_1_the_first_prophecy_of_jesus",
-          "rel_path": "W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
-          "video_url": "/api/media/W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
-          "thumbnail_url": "/api/thumbnail/W04/reels/mon_1_the_first_prophecy_of_jesus/51_the_first_prophecy_of_jesus_final_reel.mp4",
+          "rel_path": "W04/reels/mon_1_the_first_prophecy_of_jesus/mon_1_the_first_prophecy_of_jesus_final_reel.mp4",
+          "video_url": "/api/media/W04/reels/mon_1_the_first_prophecy_of_jesus/mon_1_the_first_prophecy_of_jesus_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W04/reels/mon_1_the_first_prophecy_of_jesus/mon_1_the_first_prophecy_of_jesus_final_reel.mp4",
           "has_video": true,
           "published": {}
         },
@@ -2278,10 +2278,10 @@
           "hook_type": "",
           "hook": "Genesis 3:15 uses the same Hebrew word for both wounds. So why does one heal and the other kill?",
           "folder": "tue_1_he_shall_bruise_your_head",
-          "rel_path": null,
-          "video_url": null,
-          "thumbnail_url": null,
-          "has_video": false,
+          "rel_path": "W04/reels/tue_1_he_shall_bruise_your_head/tue_1_he_shall_bruise_your_head_final_reel.mp4",
+          "video_url": "/api/media/W04/reels/tue_1_he_shall_bruise_your_head/tue_1_he_shall_bruise_your_head_final_reel.mp4",
+          "thumbnail_url": "/api/thumbnail/W04/reels/tue_1_he_shall_bruise_your_head/tue_1_he_shall_bruise_your_head_final_reel.mp4",
+          "has_video": true,
           "published": {}
         },
         {

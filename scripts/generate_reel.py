@@ -1059,22 +1059,12 @@ def narration_timed_reel_scenes(target_dir: Path, caption_narr: str, clean_narr:
         notes = gvm.write_scene_prompts_with_ai(plan, target_dir, writers, guide=reel_prompt_guide(gvm),
                                                 extra_context=curated_prompt_hint(target_dir))
         missing = [sc for sc in plan["scenes"] if gvm.needs_prompt(sc)]
-    if missing and auto_prompts:
-        for sc in missing:
-            sc["prompt"] = build_scene_prompt(sc["text"])
-        (target_dir / gvm.SCENE_PLAN_FILE).write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-        print(f"[Scene Prompts] Filled {len(missing)} prompts with the built-in rules (--auto-prompts).", flush=True)
-        missing = []
     if missing:
-        print("\n" + "=" * 74, flush=True)
-        print(f"⏸  {'VOICE READY' if voice_ready else 'SCENES PLANNED'}, PICTURES WAITING: {len(missing)} of "
-              f"{len(plan['scenes'])} reel scenes need a picture prompt.", flush=True)
-        print(f"   Plan: {target_dir / gvm.SCENE_PLAN_FILE}", flush=True)
-        for note in notes:
-            print(f"   {note}", flush=True)
-        print("   Ask Claude Code to write the prompts from each scene's narration, then press Generate again.", flush=True)
-        print("=" * 74 + "\n", flush=True)
-        return "NEEDS_PROMPTS"
+        for sc in missing:
+            sc["prompt"] = build_scene_prompt(sc["text"], title=target_dir.name)
+        (target_dir / gvm.SCENE_PLAN_FILE).write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"[Scene Prompts] Auto-filled {len(missing)} prompts with built-in rules (will no longer wait for manual prompt writing).", flush=True)
+        missing = []
     if plan_only:
         print(f"\n✔ [Scene Plan] {len(plan['scenes'])} reel scenes planned with their prompts. Draw the pictures now "
               f"(--images-only) or render; the voice will time each scene to its words.", flush=True)

@@ -1982,24 +1982,12 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
                   f"{f' ({have} already written are kept)' if have else ''}...", flush=True)
             writer_notes = write_scene_prompts_with_ai(plan, ep_p, writers)
             missing = [sc for sc in plan["scenes"] if needs_prompt(sc)]
-        if missing and auto_prompts:
+        if missing:
             for sc in missing:
                 sc["prompt"] = build_scene_prompt_16x9(sc["text"])
             (ep_p / SCENE_PLAN_FILE).write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-            print(f"[Scene Plan] Filled {len(missing)} prompts with the built-in rules (--auto-prompts).", flush=True)
+            print(f"[Scene Plan] Auto-filled {len(missing)} prompts with built-in rules (will no longer wait for manual prompt writing).", flush=True)
             missing = []
-        if missing:
-            print("\n" + "=" * 78, flush=True)
-            print(f"⏸  {'VOICE READY' if voice_ready else 'SCENES PLANNED'}, PICTURES WAITING: {len(missing)} of "
-                  f"{len(plan['scenes'])} scenes need a picture prompt.", flush=True)
-            print(f"   Plan: {ep_p / SCENE_PLAN_FILE}", flush=True)
-            for note in writer_notes:
-                print(f"   {note}", flush=True)
-            print("   Ask Claude Code to write the prompts from each scene's narration, then press Generate again.", flush=True)
-            if voice_ready:
-                print("   (The narration is saved and will not be recorded again.)", flush=True)
-            print("=" * 78 + "\n", flush=True)
-            return "NEEDS_PROMPTS"
         if plan_only:
             print(f"\n✔ [Scene Plan] {len(plan['scenes'])} scenes planned with their prompts. Draw the pictures now "
                   f"(--images-only) or render; the voice will time each scene to its words.", flush=True)
