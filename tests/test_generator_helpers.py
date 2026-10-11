@@ -21,36 +21,47 @@ GENERATORS = [load("generate_video"), load("generate_reel")]
 
 class BooksLineTests(unittest.TestCase):
     def test_old_long_form_line_is_upgraded(self):
-        for g in GENERATORS:
-            text = ("The blood speaks better things. If this study opened your eyes, go deeper. Our books and sacred art "
-                    "merch are linked in the bio and comments. Until next time, keep searching the Scriptures.")
-            out = g.ensure_books_cta(text)
-            self.assertIn(g.BOOKS_LINE, out)
-            self.assertNotIn("If this study opened your eyes", out)
-            self.assertTrue(out.endswith("keep searching the Scriptures."))
+        gv = load("generate_video")
+        text = ("The blood speaks better things. If this study opened your eyes, go deeper. Our books and sacred art "
+                "merch are linked in the bio and comments. Until next time, keep searching the Scriptures.")
+        out = gv.ensure_books_cta(text)
+        self.assertIn(gv.BOOKS_LINE, out)
+        self.assertNotIn("If this study opened your eyes", out)
+        self.assertTrue(out.endswith("keep searching the Scriptures."))
 
-    def test_old_reel_line_is_upgraded(self):
-        for g in GENERATORS:
-            text = "Christ is the Lamb. Our books and sacred art merch are linked in the bio and comments. Follow for more secrets hidden in Scripture."
-            out = g.ensure_books_cta(text)
-            self.assertEqual(out.count("linked in the bio and comments"), 1)
-            self.assertTrue(out.endswith(g.BOOKS_LINE + " Follow for more secrets hidden in Scripture."))
+    def test_missing_long_form_line_goes_before_the_sign_off(self):
+        gv = load("generate_video")
+        body = "word " * 200
+        out = gv.ensure_books_cta(body + "Until next time, keep searching the Scriptures.")
+        self.assertIn(gv.BOOKS_LINE + " Until next time", out)
 
-    def test_missing_line_goes_before_the_sign_off(self):
-        for g in GENERATORS:
-            body = "word " * 200
-            out = g.ensure_books_cta(body + "Until next time, keep searching the Scriptures.")
-            self.assertIn(g.BOOKS_LINE + " Until next time", out)
+    def test_missing_long_form_line_is_appended_without_a_sign_off(self):
+        gv = load("generate_video")
+        out = gv.ensure_books_cta("A short video about the Passover lamb.")
+        self.assertTrue(out.endswith(gv.BOOKS_LINE))
 
-    def test_missing_line_is_appended_without_a_sign_off(self):
-        for g in GENERATORS:
-            out = g.ensure_books_cta("A short reel about the Passover lamb.")
-            self.assertTrue(out.endswith(g.BOOKS_LINE))
+    def test_current_long_form_line_is_left_alone(self):
+        gv = load("generate_video")
+        text = "Light before the sun. " + gv.BOOKS_LINE + " Until next time."
+        self.assertEqual(gv.ensure_books_cta(text), text)
 
-    def test_current_line_is_left_alone(self):
-        for g in GENERATORS:
-            text = "Light before the sun. " + g.BOOKS_LINE + " Until next time."
-            self.assertEqual(g.ensure_books_cta(text), text)
+    def test_reel_strips_books_cta(self):
+        gr = load("generate_reel")
+        # Ensure any residual books line is completely stripped from clean reel narration
+        with_books = (
+            "Watch the full episode on our channel, and save this so you don't lose this scripture. "
+            "If this blew your mind, it's just one part of what we uncover in our books. "
+            "They're linked in the bio and comments, along with our sacred art merch. "
+            "Follow for more secrets hidden in Scripture."
+        )
+        clean = gr.strip_books_cta(with_books)
+        self.assertNotIn("If this blew your mind", clean)
+        self.assertNotIn("linked in the bio and comments", clean)
+        self.assertEqual(
+            clean,
+            "Watch the full episode on our channel, and save this so you don't lose this scripture. "
+            "Follow for more secrets hidden in Scripture."
+        )
 
 
 class StaleRecordingTests(unittest.TestCase):

@@ -1,0 +1,193 @@
+{
+  "week": 35,
+  "year": 1,
+  "quarter": "Q3",
+  "theme": "Ezekiel's Merkabah Chariot",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W35",
+    "title": "Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+    "duration": "35 min",
+    "scriptures": [
+      "Ezekiel 1:1-28",
+      "Ezekiel 10:1-22",
+      "Revelation 4:1-11"
+    ],
+    "christological_key": "Above the crystalline expanse and Ophanim wheels sits the likeness of a Man (pre-incarnate Jesus).",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W35.A",
+    "pillar_title": "Wheels Within Wheels: The Sapphire Throne of the Son of Man",
+    "digest_id": "SUB-W35.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W35.1",
+      "num": 1,
+      "global_num": 171,
+      "day": "Mon",
+      "badge": "Bible Secrets #171 [W35.1]",
+      "title": "Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W35.2",
+      "num": 2,
+      "global_num": 172,
+      "day": "Tue",
+      "badge": "Bible Secrets #172 [W35.2]",
+      "title": "Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W35.3",
+      "num": 3,
+      "global_num": 173,
+      "day": "Wed",
+      "badge": "Bible Secrets #173 [W35.3]",
+      "title": "Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W35.4",
+      "num": 4,
+      "global_num": 174,
+      "day": "Thu",
+      "badge": "Bible Secrets #174 [W35.4]",
+      "title": "Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W35.5",
+      "num": 5,
+      "global_num": 175,
+      "day": "Fri",
+      "badge": "Bible Secrets #175 [W35.5]",
+      "title": "Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W35.1",
+      "num": 1,
+      "global_num": 171,
+      "day": "Mon",
+      "badge": "Story #171 [W35.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W35.2",
+      "num": 2,
+      "global_num": 172,
+      "day": "Tue",
+      "badge": "Story #172 [W35.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W35.3",
+      "num": 3,
+      "global_num": 173,
+      "day": "Wed",
+      "badge": "Story #173 [W35.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W35.4",
+      "num": 4,
+      "global_num": 174,
+      "day": "Thu",
+      "badge": "Story #174 [W35.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse"
+    },
+    {
+      "id": "S-W35.5",
+      "num": 5,
+      "global_num": 175,
+      "day": "Fri",
+      "badge": "Story #175 [W35.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W35.1",
+      "num": 1,
+      "global_num": 171,
+      "day": "Mon",
+      "badge": "Community Post #171",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+      "options": []
+    },
+    {
+      "id": "CT-W35.2",
+      "num": 2,
+      "global_num": 172,
+      "day": "Tue",
+      "badge": "Community Post #172",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W35.3",
+      "num": 3,
+      "global_num": 173,
+      "day": "Wed",
+      "badge": "Community Post #173",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+      "options": []
+    },
+    {
+      "id": "CT-W35.4",
+      "num": 4,
+      "global_num": 174,
+      "day": "Thu",
+      "badge": "Community Post #174",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+      "options": []
+    },
+    {
+      "id": "CT-W35.5",
+      "num": 5,
+      "global_num": 175,
+      "day": "Fri",
+      "badge": "Community Post #175",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss Ezekiel’s Merkabah: The Chariot-Throne, Ophanim Wheels & The Man on the Sapphire Expanse",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

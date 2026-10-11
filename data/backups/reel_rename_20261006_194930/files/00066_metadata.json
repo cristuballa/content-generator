@@ -1,0 +1,192 @@
+{
+  "week": 28,
+  "year": 1,
+  "quarter": "Q3",
+  "theme": "The Threshing Floor of Araunah",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W28",
+    "title": "David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+    "duration": "26 min",
+    "scriptures": [
+      "2 Samuel 24:18-25",
+      "1 Chronicles 21:18-22:1"
+    ],
+    "christological_key": "The Angel of Yahweh stands with drawn sword over Mount Moriah; blood sacrifice halts judgment.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W28.A",
+    "pillar_title": "The Mount of Atonement: Where the Angel's Sword Was Sheathed",
+    "digest_id": "SUB-W28.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W28.1",
+      "num": 1,
+      "global_num": 136,
+      "day": "Mon",
+      "badge": "Bible Secrets #136 [W28.1]",
+      "title": "David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W28.2",
+      "num": 2,
+      "global_num": 137,
+      "day": "Tue",
+      "badge": "Bible Secrets #137 [W28.2]",
+      "title": "David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W28.3",
+      "num": 3,
+      "global_num": 138,
+      "day": "Wed",
+      "badge": "Bible Secrets #138 [W28.3]",
+      "title": "David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W28.4",
+      "num": 4,
+      "global_num": 139,
+      "day": "Thu",
+      "badge": "Bible Secrets #139 [W28.4]",
+      "title": "David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W28.5",
+      "num": 5,
+      "global_num": 140,
+      "day": "Fri",
+      "badge": "Bible Secrets #140 [W28.5]",
+      "title": "David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W28.1",
+      "num": 1,
+      "global_num": 136,
+      "day": "Mon",
+      "badge": "Story #136 [W28.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W28.2",
+      "num": 2,
+      "global_num": 137,
+      "day": "Tue",
+      "badge": "Story #137 [W28.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W28.3",
+      "num": 3,
+      "global_num": 138,
+      "day": "Wed",
+      "badge": "Story #138 [W28.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W28.4",
+      "num": 4,
+      "global_num": 139,
+      "day": "Thu",
+      "badge": "Story #139 [W28.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment"
+    },
+    {
+      "id": "S-W28.5",
+      "num": 5,
+      "global_num": 140,
+      "day": "Fri",
+      "badge": "Story #140 [W28.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W28.1",
+      "num": 1,
+      "global_num": 136,
+      "day": "Mon",
+      "badge": "Community Post #136",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+      "options": []
+    },
+    {
+      "id": "CT-W28.2",
+      "num": 2,
+      "global_num": 137,
+      "day": "Tue",
+      "badge": "Community Post #137",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W28.3",
+      "num": 3,
+      "global_num": 138,
+      "day": "Wed",
+      "badge": "Community Post #138",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+      "options": []
+    },
+    {
+      "id": "CT-W28.4",
+      "num": 4,
+      "global_num": 139,
+      "day": "Thu",
+      "badge": "Community Post #139",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+      "options": []
+    },
+    {
+      "id": "CT-W28.5",
+      "num": 5,
+      "global_num": 140,
+      "day": "Fri",
+      "badge": "Community Post #140",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss David Buys the Threshing Floor of Araunah: The Altar of Mercy Over Judgment",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

@@ -47,6 +47,7 @@ import threading
 import argparse
 import subprocess
 from pathlib import Path
+from typing import Any, Optional, Dict, List, Union
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -673,7 +674,8 @@ def get_story_background_candidates(story_dir: Path, week_dir: Path, story_idx: 
     if reels_dir.exists():
         target_reel = story_reel(reels_dir, reel, reel_num, story_idx)
         if target_reel:
-            r_imgs = sorted(list((target_reel / "images").glob("reel*.png")))
+            # Earlier reels name their pictures reelNN_*; narration-timed reels name them scene_NNN
+            r_imgs = sorted((target_reel / "images").glob("reel*.png")) + sorted((target_reel / "images").glob("scene_*.png"))
             r_imgs = [img for img in r_imgs if "card" not in img.name]
             if (reel or reel_num) and r_imgs:
                 # Several stories share a reel's art: start each one at a different image
@@ -701,27 +703,338 @@ def count_week_stories(week_dir: Path) -> int:
     subdirs = [d for d in stories_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")] if stories_dir.exists() else []
     return max(5, len(subdirs))
 
-def find_story_folder(week_dir: Path, story_num: int) -> Path:
-    """Finds the folder for a given story index within week_dir/stories."""
+def find_story_folder(week_dir: Path, story_ref: Any) -> Path:
+    """Finds the folder for a given story index or key within week_dir/stories."""
     stories_dir = week_dir / "stories"
     stories_dir.mkdir(parents=True, exist_ok=True)
     
+    subdirs = [d for d in stories_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")]
+    if not subdirs:
+        new_dir = stories_dir / f"mon_1_story_{story_ref}"
+        new_dir.mkdir(parents=True, exist_ok=True)
+        return new_dir
+
+    ref_str = str(story_ref).lower().strip()
+
+    # 0. Direct folder name or prefix match (e.g. "mon_1", "mon_1_before_the_first_day")
+    for d in subdirs:
+        if d.name.lower() == ref_str or d.name.lower().startswith(f"{ref_str}_") or d.name.lower().startswith(f"{ref_str}-"):
+            return d
+
+    story_num = int(ref_str) if ref_str.isdigit() else 1
+
+    # 1. Direct numeric prefix match (legacy e.g. 01_..., 1_..., 1-...)
     prefix = f"0{story_num}"
-    subdirs = sorted([d for d in stories_dir.iterdir() if d.is_dir() and d.name.lower() not in ("temp", "temp_slides")])
-    
     for d in subdirs:
         if d.name.startswith(prefix) or d.name.startswith(f"{story_num}_") or d.name.startswith(f"{story_num}-"):
             return d
-            
-    if story_num <= len(subdirs):
-        return subdirs[story_num - 1]
-        
+
+    # 2. Sort by day order and slot (mon_1..mon_3, tue_1..tue_3, etc.)
+    day_order = {'mon': 0, 'tue': 1, 'wed': 2, 'thu': 3, 'fri': 4}
+    def sort_key(d):
+        parts = d.name.split('_')
+        d_val = day_order.get(parts[0].lower(), 99)
+        n_val = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 99
+        return (d_val, n_val, d.name)
+
+    sorted_subdirs = sorted(subdirs, key=sort_key)
+    if 1 <= story_num <= len(sorted_subdirs):
+        return sorted_subdirs[story_num - 1]
+
     # Create standard folder if completely missing
-    days = ["monday", "tuesday", "wednesday", "thursday", "friday"]
-    day = days[story_num - 1] if story_num <= 5 else f"day_{story_num}"
-    new_dir = stories_dir / f"0{story_num}_{day}_story"
+    days = ["mon", "tue", "wed", "thu", "fri"]
+    day = days[(story_num - 1) % 5]
+    slot = ((story_num - 1) // 5) + 1
+    new_dir = stories_dir / f"{day}_{slot}_story"
     new_dir.mkdir(parents=True, exist_ok=True)
     return new_dir
+
+# =============================================================================
+# AD OUTRO MANAGER & PINNED COMMENTS FOR STORIES
+# =============================================================================
+ADZ_IMAGE_DIR = Path(r"C:\Projects\Adz-Image")
+ADZ_DIR = Path(r"C:\Projects\Adz-Video")
+
+AD_PINNED_COMMENTS = {
+    # Ads 1, 2, 3: The Watchers & The Word (Desk, Standing, Cover)
+    "watchers": (
+        '📖 Get "The Watchers & The Word" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4591934547\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 4: Hidden Secrets of the Bible
+    "hidden_secrets": (
+        '📖 Get "Hidden Secrets of the Bible" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4526030482\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 5: Bible Hidden Gems - New Testament
+    "nt_gems": (
+        '📖 Get "Bible Hidden Gems: New Testament" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4536465297\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 6: Bible Hidden Gems - Old Testament
+    "ot_gems": (
+        '📖 Get "Bible Hidden Gems: Old Testament" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4526027051\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 7: Merch & Apparel Carousel
+    "merch": (
+        '✨ Official Biblical Apparel & Sacred Art on Etsy:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems\n\n'
+        '📖 Browse Bestselling Bible Books:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Fallback when custom ad attached
+    "default_ad": (
+        '📖 Get Our Bestselling Books on Etsy:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems\n\n'
+        '✨ Browse All Sacred Apparel & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Clean story (no ad attached)
+    "clean": (
+        '🛒 OFFICIAL MERCH & SACRED BOOKS:\n'
+        '✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n'
+        '📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n'
+        '📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n'
+        '👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!'
+    )
+}
+
+def generate_pinned_comment_for_ad(ad_source: Any, ad_clip_name: str = None) -> str:
+    """Returns a tailored pinned comment based on the attached ad outro (1 to 7)."""
+    if not ad_source and not ad_clip_name:
+        return AD_PINNED_COMMENTS["clean"]
+
+    ref = str(ad_clip_name or ad_source).lower().strip()
+    if "merch" in ref or "fishers" in ref or ref == "7" or ref.endswith("_7.mp4") or "carousel_7" in ref:
+        return AD_PINNED_COMMENTS["merch"]
+    elif "ot_gems" in ref or ref == "6" or ref.endswith("_6.mp4"):
+        return AD_PINNED_COMMENTS["ot_gems"]
+    elif "nt_gems" in ref or ref == "5" or ref.endswith("_5.mp4"):
+        return AD_PINNED_COMMENTS["nt_gems"]
+    elif "hidden_secrets" in ref or ref == "4" or ref.endswith("_4.mp4"):
+        return AD_PINNED_COMMENTS["hidden_secrets"]
+    elif "watchers" in ref or ref in ["1", "2", "3"] or any(ref.endswith(f"_{x}.mp4") for x in ["1", "2", "3"]):
+        return AD_PINNED_COMMENTS["watchers"]
+    else:
+        return AD_PINNED_COMMENTS["default_ad"]
+
+def resolve_ad_asset(ad_source: Any) -> Path:
+    """Resolves an ad outro reference into an image (C:\\Projects\\Adz-Image) or video (C:\\Projects\\Adz-Video)."""
+    ref_str = str(ad_source).strip()
+
+    # 1. Primary check: C:\Projects\Adz-Image (images for stories)
+    if ADZ_IMAGE_DIR.exists():
+        direct_img = ADZ_IMAGE_DIR / ref_str
+        if direct_img.is_file():
+            return direct_img
+        cand_png = ADZ_IMAGE_DIR / f"{ref_str}.png"
+        if cand_png.is_file():
+            return cand_png
+        cand_jpg = ADZ_IMAGE_DIR / f"{ref_str}.jpg"
+        if cand_jpg.is_file():
+            return cand_jpg
+        if ref_str.isdigit():
+            img_files = sorted([f for f in ADZ_IMAGE_DIR.iterdir() if f.is_file() and f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp')])
+            num = int(ref_str)
+            if 1 <= num <= len(img_files):
+                return img_files[num - 1]
+        stem_matches = list(ADZ_IMAGE_DIR.glob(f"*{ref_str}*.png")) or list(ADZ_IMAGE_DIR.glob(f"*{ref_str}*.*"))
+        if stem_matches:
+            return stem_matches[0]
+
+    # 2. Secondary check: C:\Projects\Adz-Video
+    if ADZ_DIR.exists():
+        direct_vid = ADZ_DIR / ref_str
+        if direct_vid.is_file():
+            return direct_vid
+        cand_mp4 = ADZ_DIR / f"{ref_str}.mp4"
+        if cand_mp4.is_file():
+            return cand_mp4
+        if ref_str.isdigit():
+            cand_num = ADZ_DIR / f"ad_outro_{ref_str}.mp4"
+            if cand_num.is_file():
+                return cand_num
+            num_matches = list(ADZ_DIR.glob(f"*_{ref_str}.mp4"))
+            if num_matches:
+                return num_matches[0]
+        stem_matches = list(ADZ_DIR.glob(f"*{ref_str}*.mp4"))
+        if stem_matches:
+            return stem_matches[0]
+
+    # 3. Check shared_assets in PROJECT_DIR
+    shared_dir = PROJECT_DIR / "shared_assets"
+    if shared_dir.exists():
+        shared_file = shared_dir / ref_str
+        if shared_file.is_file():
+            return shared_file
+        shared_png = shared_dir / f"{ref_str}.png"
+        if shared_png.is_file():
+            return shared_png
+        shared_mp4 = shared_dir / f"{ref_str}.mp4"
+        if shared_mp4.is_file():
+            return shared_mp4
+        stem_matches = list(shared_dir.glob(f"*{ref_str}*.*"))
+        if stem_matches:
+            return stem_matches[0]
+
+    raise FileNotFoundError(f"Could not find advertisement asset for '{ad_source}' in {ADZ_IMAGE_DIR} or {ADZ_DIR}")
+
+def combine_story_with_ad(story_dir: Path, ad_source: Any, out_mp4: Path) -> Path:
+    """Combines a base story video and an ad image from C:\\Projects\\Adz-Image (or video) via ffmpeg."""
+    clean_vid = story_dir / f"{story_dir.name}_clean.mp4"
+    base_vid = clean_vid if clean_vid.exists() else out_mp4
+    if not base_vid.exists():
+        cands = [p for p in story_dir.glob("*.mp4") if "clean" not in p.name.lower() and "temp" not in p.name.lower()]
+        if cands:
+            base_vid = cands[0]
+    if not base_vid.exists():
+        raise FileNotFoundError(f"Base story video not found in {story_dir.name}")
+
+    if not clean_vid.exists():
+        shutil.copy2(base_vid, clean_vid)
+
+    ad_asset_path = resolve_ad_asset(ad_source)
+    is_image = ad_asset_path.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp")
+    temp_target = story_dir / f"temp_comb_{out_mp4.name}"
+    temp_slides_dir = story_dir / "temp_slides"
+    temp_slides_dir.mkdir(parents=True, exist_ok=True)
+
+    if is_image:
+        print(f"[Combine] Attaching ad image from C:\\Projects\\Adz-Image: {ad_asset_path.name}...", flush=True)
+        # 1. Copy ad image into story folder as slide_ad.png
+        try: shutil.copy2(ad_asset_path, story_dir / "slide_ad.png")
+        except Exception: pass
+
+        # 2. Render 3.5s video slide from the image
+        temp_ad_vid = temp_slides_dir / f"ad_slide_{ad_asset_path.stem}.mp4"
+        cmd_img = [
+            find_ffmpeg(), "-y", "-hide_banner", "-loglevel", "error",
+            "-loop", "1", "-i", str(ad_asset_path),
+            "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+            "-t", "3.5",
+            "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+            "-c:a", "aac", "-b:a", "192k",
+            "-movflags", "+faststart",
+            str(temp_ad_vid)
+        ]
+        subprocess.run(cmd_img, check=True)
+
+        # 3. Concat demux clean story video + ad slide video
+        concat_cmd = [
+            find_ffmpeg(), "-y", "-hide_banner", "-loglevel", "error",
+            "-i", str(clean_vid),
+            "-i", str(temp_ad_vid),
+            "-filter_complex", "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]",
+            "-map", "[v]", "-map", "[a]",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+            "-c:a", "aac", "-b:a", "192k",
+            "-movflags", "+faststart",
+            str(temp_target)
+        ]
+        subprocess.run(concat_cmd, check=True)
+    else:
+        print(f"[Combine] Attaching ad video from C:\\Projects\\Adz-Video: {ad_asset_path.name}...", flush=True)
+        filter_complex = (
+            "[1:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v1];"
+            "[0:v][0:a][v1][1:a]concat=n=2:v=1:a=1[v][a]"
+        )
+        cmd = [
+            find_ffmpeg(), "-y", "-hide_banner", "-loglevel", "error",
+            "-i", str(clean_vid),
+            "-i", str(ad_asset_path),
+            "-filter_complex", filter_complex,
+            "-map", "[v]", "-map", "[a]",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+            "-c:a", "aac", "-b:a", "192k",
+            "-movflags", "+faststart",
+            str(temp_target)
+        ]
+        subprocess.run(cmd, check=True)
+
+    if out_mp4.exists():
+        try: os.remove(str(out_mp4))
+        except Exception: pass
+    shutil.move(str(temp_target), str(out_mp4))
+
+    with_ads_p = story_dir / f"{story_dir.name}_with_ads.mp4"
+    try: shutil.copy2(out_mp4, with_ads_p)
+    except Exception: pass
+
+    meta_p = story_dir / "metadata.json"
+    if meta_p.exists():
+        try:
+            m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+            ad_comment = generate_pinned_comment_for_ad(ad_source, ad_asset_path.name)
+            m_data["ad_outro"] = {
+                "attached": True,
+                "type": "image" if is_image else "video",
+                "filename": ad_asset_path.name,
+                "title": f"Ad: {ad_asset_path.stem.replace('_', ' ').title()}",
+                "source_dir": str(ADZ_IMAGE_DIR if is_image else ADZ_DIR),
+                "attached_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "pinned_comment": ad_comment
+            }
+            m_data["pinned_comment"] = ad_comment
+            meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[Metadata] Pinned comment updated to match attached ad: {ad_asset_path.name}", flush=True)
+        except Exception as ex:
+            print(f"[Metadata Warning] Could not update metadata.json: {ex}", flush=True)
+
+    size_mb = out_mp4.stat().st_size / (1024 * 1024)
+    print(f"[SUCCESS] Fast ad combine completed: {out_mp4.name} ({size_mb:.1f} MB)", flush=True)
+    return out_mp4
+
+def remove_ad_from_story(story_dir: Path, out_mp4: Path) -> Path:
+    """Removes attached ad outro from story video and restores clean version."""
+    clean_vid = story_dir / f"{story_dir.name}_clean.mp4"
+    if not clean_vid.exists():
+        print(f"[Notice] Clean video {clean_vid.name} not found; checking existing video...", flush=True)
+        clean_vid = out_mp4
+    else:
+        if out_mp4.exists():
+            try: os.remove(str(out_mp4))
+            except Exception: pass
+        shutil.copy2(clean_vid, out_mp4)
+        print(f"[SUCCESS] Restored clean story video from {clean_vid.name}", flush=True)
+
+    with_ads_p = story_dir / f"{story_dir.name}_with_ads.mp4"
+    if with_ads_p.exists():
+        try: os.remove(str(with_ads_p))
+        except Exception: pass
+
+    slide_ad = story_dir / "slide_ad.png"
+    if slide_ad.exists():
+        try: os.remove(str(slide_ad))
+        except Exception: pass
+
+    meta_p = story_dir / "metadata.json"
+    if meta_p.exists():
+        try:
+            m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+            clean_comment = AD_PINNED_COMMENTS["clean"]
+            m_data["ad_outro"] = {
+                "attached": False,
+                "filename": None,
+                "title": None,
+                "detached_at": time.strftime("%Y-%m-%dT%H:%M:%SZ")
+            }
+            m_data["pinned_comment"] = clean_comment
+            meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[Metadata] Pinned comment reset to clean default", flush=True)
+        except Exception as ex:
+            print(f"[Metadata Warning] Could not update metadata.json: {ex}", flush=True)
+
+    return out_mp4
 
 # =============================================================================
 # STORY COMPILER ENGINE
@@ -734,16 +1047,54 @@ def render_story(
     thumbnail_only: bool = False,
     slides_only: bool = False,
     slide_duration: float = DEFAULT_SLIDE_DURATION,
-    custom_audio: str = None
+    custom_audio: str = None,
+    combine_ad_only: bool = False,
+    remove_ad_only: bool = False,
+    comment_only: bool = False,
+    ad_num: Any = None
 ) -> Path:
     """
     Renders or regenerates a 9:16 multi-slide story.
-    Supports quick thumbnail-only regeneration and full MP4 compilation.
+    Supports quick thumbnail-only regeneration, ad combination, and full MP4 compilation.
     """
     week_tag = f"W{week_num:02d}"
     out_mp4 = story_dir / "story_video_final.mp4"
     target_thumb = story_dir / "thumbnail.png"
     
+    # Quick Mode 1: Pinned Comment Update Only (No video render)
+    if comment_only:
+        print(f"\n[Quick Mode] Triggering pinned comment update for {story_dir.name}...", flush=True)
+        meta_p = story_dir / "metadata.json"
+        if not meta_p.exists():
+            print(f"[ERROR] metadata.json not found in {story_dir.name}!", flush=True)
+            return None
+        try:
+            m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+            current_ad = m_data.get("ad_outro") or {}
+            ad_source = ad_num if ad_num is not None else (current_ad.get("filename") if current_ad.get("attached") else None)
+            clip_name = current_ad.get("filename")
+            new_comment = generate_pinned_comment_for_ad(ad_source, clip_name)
+            m_data["pinned_comment"] = new_comment
+            if current_ad.get("attached"):
+                current_ad["pinned_comment"] = new_comment
+                m_data["ad_outro"] = current_ad
+            meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[SUCCESS] Pinned comment updated in {meta_p.name}", flush=True)
+            return out_mp4
+        except Exception as ex:
+            print(f"[ERROR] Failed to update pinned comment: {ex}", flush=True)
+            return None
+
+    # Quick Mode 2: Remove Ad Outro and restore clean video
+    if remove_ad_only:
+        print(f"\n[Quick Mode] Removing ad outro and restoring clean story for {story_dir.name}...", flush=True)
+        return remove_ad_from_story(story_dir, out_mp4)
+
+    # Quick Mode 3: Fast Ad Combine & Update
+    if combine_ad_only:
+        print(f"\n[Quick Mode] Fast combining ad '{ad_num or 1}' for {story_dir.name}...", flush=True)
+        return combine_story_with_ad(story_dir, ad_num or 1, out_mp4)
+
     # Check if existing video can be skipped
     if not force_rebuild and not thumbnail_only and out_mp4.exists() and out_mp4.stat().st_size > 100000:
         print(f"[SKIP] Story {story_num} video already rendered: {out_mp4.name} ({out_mp4.stat().st_size // 1024} KB). Use --force-rebuild to regenerate.")
@@ -879,6 +1230,13 @@ def render_story(
     file_size_mb = out_mp4.stat().st_size / (1024 * 1024)
     print(f"[SUCCESS] Story video created: {out_mp4.name} ({file_size_mb:.2f} MB)", flush=True)
     print(f"Path: {out_mp4}\n", flush=True)
+
+    # Attach ad outro if requested
+    if ad_num:
+        try:
+            out_mp4 = combine_story_with_ad(story_dir, ad_num, out_mp4)
+        except Exception as ex:
+            print(f"[WARNING] Could not attach ad outro '{ad_num}': {ex}", flush=True)
     
     shutil.rmtree(temp_dir, ignore_errors=True)
     return out_mp4
@@ -889,7 +1247,7 @@ def render_story(
 def main():
     parser = argparse.ArgumentParser(description="Master Social Story Video Generator (9:16)")
     parser.add_argument("--week", "-w", type=str, default=None, help="Target week (e.g. 1, W01)")
-    parser.add_argument("--story", "-s", type=int, default=None, help="Target story index (1 to 15)")
+    parser.add_argument("--story", "-s", type=str, default=None, help="Target story index (1 to 15) or key (mon_1)")
     parser.add_argument("--episode", "-e", "--global-story", "-g", type=int, default=None, help="Global story index (1 to 780)")
     parser.add_argument("--all", "-a", action="store_true", help="Generate every story of the week (5, or 15 when posting 3 a day)")
     parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild even if video already exists")
@@ -897,6 +1255,10 @@ def main():
     parser.add_argument("--slides-only", action="store_true", help="Generate slide images only without MP4 encoding")
     parser.add_argument("--duration", type=float, default=DEFAULT_SLIDE_DURATION, help="Per-slide duration in seconds (default: 3.5s)")
     parser.add_argument("--audio", "-m", type=str, default=None, help="Optional licensed soundtrack (default: no music, silent track)")
+    parser.add_argument("--combine-ad", "--ad-only", "--regen-ad", action="store_true", help="Fast combine existing story video with ad outro without re-rendering slides")
+    parser.add_argument("--remove-ad", "--strip-ad", action="store_true", help="Remove ad outro and restore clean story video")
+    parser.add_argument("--comment-only", "--trigger-comment", action="store_true", help="Trigger and sync pinned comment in metadata.json based on attached ad")
+    parser.add_argument("--ads", nargs="?", const="1", type=str, default=None, help="Include ad outro (variant 1, 2, 3 or filename in C:\\Projects\\Adz-Video)")
     args = parser.parse_args()
 
     week_num = None
@@ -933,13 +1295,17 @@ def main():
         try:
             out_p = render_story(
                 week_num=week_num,
-                story_num=s_idx,
+                story_num=int(s_idx) if str(s_idx).isdigit() else 1,
                 story_dir=target_sub,
                 force_rebuild=args.force_rebuild,
                 thumbnail_only=args.thumbnail_only,
                 slides_only=args.slides_only,
                 slide_duration=args.duration,
-                custom_audio=args.audio
+                custom_audio=args.audio,
+                combine_ad_only=args.combine_ad,
+                remove_ad_only=args.remove_ad,
+                comment_only=args.comment_only,
+                ad_num=args.ads
             )
             if out_p:
                 completed.append(out_p)

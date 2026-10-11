@@ -359,14 +359,14 @@ function handleWsMessage(data) {
       playChime("error");
     } else if (lastProcessStatus === "running" && data.status === "paused") {
       showNotification({
-        title: "Voice Ready",
-        message: "The narration is recorded. Ask Claude Code to write the scene prompts, then press Generate again.",
+        title: "Scene Prompts Needed",
+        message: "Scenes are planned but some have no picture prompt yet. Ask Claude Code to write them, then press the button again.",
         type: "info",
         duration: 9000
       });
       triggerDesktopNotification(
-        "⏸ Voice Ready - KCT Studio",
-        "Narration recorded. Scene prompts are needed before the pictures are drawn.",
+        "⏸ Scene Prompts Needed - KCT Studio",
+        "Scene prompts are needed before the pictures are drawn.",
         "info"
       );
       playChime("job_completed");

@@ -1,0 +1,193 @@
+{
+  "week": 52,
+  "year": 1,
+  "quarter": "Q4",
+  "theme": "The New Jerusalem Hypercube",
+  "testament": "New Testament",
+  "documentary": {
+    "id": "DOC-W52",
+    "title": "The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+    "duration": "35 min",
+    "scriptures": [
+      "Revelation 21:1-27",
+      "Ezekiel 48",
+      "1 Corinthians 15:28"
+    ],
+    "christological_key": "The 1,500-mile cube: the Holy of Holies expanded to encompass the entire cosmos; God dwells with man.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W52.A",
+    "pillar_title": "The 1,500-Mile Cube: Why the Holy City Is a Cosmic Tabernacle",
+    "digest_id": "SUB-W52.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W52.1",
+      "num": 1,
+      "global_num": 256,
+      "day": "Mon",
+      "badge": "Bible Secrets #256 [W52.1]",
+      "title": "The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W52.2",
+      "num": 2,
+      "global_num": 257,
+      "day": "Tue",
+      "badge": "Bible Secrets #257 [W52.2]",
+      "title": "The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W52.3",
+      "num": 3,
+      "global_num": 258,
+      "day": "Wed",
+      "badge": "Bible Secrets #258 [W52.3]",
+      "title": "The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W52.4",
+      "num": 4,
+      "global_num": 259,
+      "day": "Thu",
+      "badge": "Bible Secrets #259 [W52.4]",
+      "title": "The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W52.5",
+      "num": 5,
+      "global_num": 260,
+      "day": "Fri",
+      "badge": "Bible Secrets #260 [W52.5]",
+      "title": "The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W52.1",
+      "num": 1,
+      "global_num": 256,
+      "day": "Mon",
+      "badge": "Story #256 [W52.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W52.2",
+      "num": 2,
+      "global_num": 257,
+      "day": "Tue",
+      "badge": "Story #257 [W52.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W52.3",
+      "num": 3,
+      "global_num": 258,
+      "day": "Wed",
+      "badge": "Story #258 [W52.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W52.4",
+      "num": 4,
+      "global_num": 259,
+      "day": "Thu",
+      "badge": "Story #259 [W52.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos"
+    },
+    {
+      "id": "S-W52.5",
+      "num": 5,
+      "global_num": 260,
+      "day": "Fri",
+      "badge": "Story #260 [W52.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W52.1",
+      "num": 1,
+      "global_num": 256,
+      "day": "Mon",
+      "badge": "Community Post #256",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+      "options": []
+    },
+    {
+      "id": "CT-W52.2",
+      "num": 2,
+      "global_num": 257,
+      "day": "Tue",
+      "badge": "Community Post #257",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W52.3",
+      "num": 3,
+      "global_num": 258,
+      "day": "Wed",
+      "badge": "Community Post #258",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+      "options": []
+    },
+    {
+      "id": "CT-W52.4",
+      "num": 4,
+      "global_num": 259,
+      "day": "Thu",
+      "badge": "Community Post #259",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+      "options": []
+    },
+    {
+      "id": "CT-W52.5",
+      "num": 5,
+      "global_num": 260,
+      "day": "Fri",
+      "badge": "Community Post #260",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The New Jerusalem Hypercube: The Holy of Holies Fills the Cosmos",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

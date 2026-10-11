@@ -34,7 +34,9 @@ import subprocess
 import urllib.request
 import urllib.error
 from pathlib import Path
+from typing import Any, Union, Optional, List, Dict
 import numpy as np
+
 from PIL import Image, ImageDraw, ImageFont
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -42,12 +44,30 @@ if hasattr(sys.stdout, 'reconfigure'):
 if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
+if sys.platform == "win32":
+    try:
+        import ctypes
+        # Set process priority to BELOW_NORMAL to keep system and UI completely responsive
+        ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00004000)
+    except Exception:
+        pass
+
+# Clamp CPU thread storms to prevent laptop thermal throttling to 1.0 GHz
+os.environ.setdefault("OMP_NUM_THREADS", "4")
+os.environ.setdefault("MKL_NUM_THREADS", "4")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "4")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "4")
+
+SUBPROCESS_CREATIONFLAGS = (subprocess.CREATE_NO_WINDOW | 0x00004000) if sys.platform == "win32" else 0
+
 # =============================================================================
 # ENVIRONMENT & PYTHON PATH AUTO-SWITCHING
 # =============================================================================
 PROJECT_DIR = Path(r"C:\Projects\BHSR") if Path(r"C:\Projects\BHSR").exists() else Path(__file__).resolve().parent
 if PROJECT_DIR.name == "scripts":
     PROJECT_DIR = PROJECT_DIR.parent
+ADZ_DIR = Path(r"C:\Projects\Adz-Video")
+
 
 def find_vibevoice_paths():
     cand_pythons = [
@@ -200,6 +220,248 @@ PRONUNCIATION_MAP = {
     "1 Chronicles": "First Chronicles",
     "2 Chronicles": "Second Chronicles",
     "Baal": "BAY-uhl",
+    "zera": "ZEH-rah",
+    "eybah": "ay-VAH",
+    "shuph": "SHOOF",
+    "hu": "HOO",
+    "autos": "ow-TOS",
+    "Targum": "TAR-goom",
+    "Targums": "TAR-gooms",
+    "Neofiti": "neh-oh-FEE-tee",
+    "Irenaeus": "eye-ren-AY-us",
+    "gulgulta": "gool-GOOL-tah",
+    "Shiloh": "SHY-loh",
+    "Chavvah": "khah-VAH",
+    "tebah": "tay-VAH",
+    "Shiphrah": "SHIF-rah",
+    "Puah": "POO-ah",
+    "Athaliah": "ath-uh-LYE-uh",
+    "Jehosheba": "jeh-HOSH-eh-bah",
+    "Agagite": "AY-gag-ite",
+    "Jeconiah": "jek-oh-NYE-ah",
+    "Coniah": "koh-NYE-ah",
+    "suntribo": "soon-TREE-boh",
+    "Mariamne": "mar-ee-AM-nee",
+    "Macrobius": "mah-KROH-bee-us",
+    "Hammedatha": "ham-eh-DAY-thah",
+    "Sisera": "SIS-er-ah",
+    "Abimelech": "ah-BIM-eh-lek",
+    "Thebez": "THEE-bez",
+    "Jechonias": "jek-oh-NYE-as",
+    "Ahaziah": "ay-hah-ZYE-ah",
+    "Lamech": "LAY-mek",
+    "Mordecai": "MOR-deh-kye",
+    "Jael": "JAY-el",
+    "Protoevangelium": "proh-toh-ee-van-JEH-lee-um",
+    "Shemihazah": "sheh-mee-hah-ZAH",
+    "Ohyah": "oh-YAH",
+    "Hahyah": "hah-YAH",
+    "Mahaway": "mah-hah-WAY",
+    "Utnapishtim": "oot-nah-PISH-tim",
+    "tartaroo": "tar-tah-ROH-oh",
+    "Paneas": "pah-NEE-as",
+    "Banias": "bah-NEE-as",
+    "Sirion": "SIR-ee-on",
+    "Shenir": "SHEE-ner",
+    "Baalhermon": "BAY-al-HER-mon",
+    "oiketerion": "oy-kay-TAY-ree-on",
+    "kerusso": "kay-ROO-soh",
+    "Kokabiel": "koh-KAH-bee-el",
+    "Baraqiel": "bah-RAH-kee-el",
+    "abussos": "AH-boos-sos",
+    "herem": "KHEH-rem",
+    "Ardis": "AR-dis",
+    "Dudael": "DOO-dah-el",
+    "arche": "ar-KAY",
+    "Irin": "ee-REEN",
+    "gibborim": "gee-boh-REEM",
+    "Azazel": "ah-ZAH-zel",
+    "Hermon": "HER-mon",
+    "Apkallu": "ap-KAH-loo",
+    "Hobabish": "hoh-BAH-bish",
+    "Humbaba": "hoom-BAH-bah",
+    "Turfan": "toor-FAHN",
+    "Milik": "MEE-lik",
+    "Qumran": "koom-RAHN",
+    "chamas": "khah-MAHS",
+    "Anakims": "AN-ak-imz",
+    "Ahiman": "ah-HY-man",
+    "Sheshai": "SHESH-eye",
+    "Talmai": "TAL-my",
+    "Emims": "EE-mimz",
+    "Zamzummims": "zam-ZUM-imz",
+    "Rephaims": "REF-ay-imz",
+    "Rephaim": "REF-ay-im",
+    "Kirjatharba": "KEER-jath-AR-bah",
+    "Jephunneh": "jeh-FUN-eh",
+    "Ishbibenob": "ISH-by-BEE-nob",
+    "Sibbechai": "SIB-eh-kye",
+    "Elhanan": "el-HAY-nan",
+    "Lahmi": "LAH-mee",
+    "Abishai": "ah-BISH-eye",
+    "Zeruiah": "zer-oo-EYE-ah",
+    "Shimeah": "SHIM-ee-ah",
+    "Masoretic": "mas-oh-RET-ik",
+    "Ugarit": "OO-gah-reet",
+    "Atrahasis": "ah-trah-HAH-sis",
+    "Enlil": "EN-lil",
+    "Manichaeism": "MAN-ih-kee-iz-um",
+    "Manichaeans": "man-ih-KEE-unz",
+    "Kenezite": "KEN-ez-ite",
+    "Kenizzites": "KEN-iz-ites",
+    "Chedorlaomer": "KED-or-lay-OH-mer",
+    "Ashteroth": "ASH-teh-roth",
+    "Karnaim": "kar-NAY-im",
+    "Machpelah": "mak-PEE-lah",
+    "Mamre": "MAM-ree",
+    "Gittite": "GIT-ite",
+    "Zoan": "ZOH-an",
+    "Debir": "DEE-bur",
+    "Sirach": "SY-rak",
+    "Uruk": "OO-rook",
+    "Jozef": "YOH-zef",
+    "Gilgamesh": "GIL-gah-mesh",
+    "Mani": "MAH-nee",
+    "Asael": "AH-sah-el",
+    "Hadudo": "hah-DOO-doh",
+    "Yoma": "YOH-mah",
+    "Nachmanides": "nahk-MAN-ih-deez",
+    "Ibn Ezra": "IB-un EZ-rah",
+    "seirim": "seh-ee-REEM",
+    "Raphael": "RAF-ay-el",
+    "apopompaios": "ah-poh-pom-PIE-os",
+    "Tyndale": "TIN-dul",
+    "Segan": "seh-GAHN",
+    "Gamla": "GAHM-lah",
+    "Zakkai": "zah-KYE",
+    "Johanan": "joh-HAY-nan",
+    "Talmud": "TAHL-mood",
+    "Tacitus": "TASS-ih-tus",
+    "Hekal": "hay-KAHL",
+    "Abihu": "ah-BYE-hew",
+    "Nadab": "NAY-dab",
+    "Caiaphas": "KYE-ah-fus",
+    "Rashi": "RAH-shee",
+    "Kippur": "kee-POOR",
+    "Uza": "OO-zah",
+    "Azael": "AH-zah-el",
+    "Zacharias": "zak-ah-RYE-us",
+    "hilasterion": "hil-ah-STAIR-ee-on",
+    "gezerah": "geh-zeh-RAH",
+    "Jeroboam": "jair-oh-BOH-am",
+    "Gadarenes": "GAD-ah-reenz",
+    "Sadducees": "SAD-yoo-seez",
+    "Iddo": "ID-oh",
+    "menorah": "meh-NOR-ah",
+    "tsuk": "TSOOK",
+    "Elah": "EE-lah",
+    "gopher": "GOH-fer",
+    "kopher": "KOH-fer",
+    "kaphar": "kah-FAR",
+    "kupru": "KOOP-roo",
+    "qinnim": "kin-NEEM",
+    "tsohar": "TSOH-har",
+    "Methuselah": "meh-THOO-zeh-lah",
+    "mabbul": "mah-BOOL",
+    "Ararat": "AIR-ah-rat",
+    "Urartu": "oo-RAR-too",
+    "Noe": "NOH-ee",
+    "Japheth": "JAY-feth",
+    "antitypos": "AN-tee-tee-pos",
+    "Rabbah": "RAH-bah",
+    "Finkel": "FINK-ul",
+    "qeshet": "KEH-shet",
+    "berit": "beh-REET",
+    "mizbeach": "miz-BAY-akh",
+    "nichoach": "nee-KHO-akh",
+    "Enuma Elish": "eh-NOO-mah EH-lish",
+    "Marduk": "MAR-dook",
+    "Chebar": "KEE-bar",
+    "Jehoiachin": "jeh-HOY-ah-kin",
+    "Patmos": "PAT-mos",
+    "kyklothen": "KOO-kloh-then",
+    "smaragdos": "smah-RAG-dos",
+    "toxon": "TOK-son",
+    "sardius": "SAR-dee-us",
+    "Esaias": "eh-ZAY-us",
+    "Nippur": "nip-POOR",
+    "Pliny": "PLIN-ee",
+    "chalcedony": "kal-SED-oh-nee",
+    "Juda": "JOO-dah",
+    "Lystra": "LIS-trah",
+    "Mizraim": "miz-RAY-im",
+    "Phut": "FUTT",
+    "Megillah": "meh-GIL-ah",
+    "Gibeonites": "GIB-ee-on-ites",
+    "Syrophenician": "sy-roh-feh-NISH-un",
+    "Rachab": "RAY-kab",
+    "Madai": "MAY-dye",
+    "Javan": "JAY-van",
+    "Kittim": "KIT-im",
+    "Tarshish": "TAR-shish",
+    "Ashkenaz": "ASH-keh-naz",
+    "Caphtorim": "kaf-TOR-im",
+    "Casluhim": "KAS-loo-him",
+    "Philistim": "fih-LIS-tim",
+    "Girgasite": "GUR-gah-site",
+    "Arvadite": "AR-vad-ite",
+    "Zemarite": "ZEM-ah-rite",
+    "Hamathite": "HAY-math-ite",
+    "Arphaxad": "ar-FAX-ad",
+    "Joktan": "JOK-tan",
+    "Ras Shamra": "rahs SHAHM-rah",
+    "Asherah": "ah-SHEER-ah",
+    "Molech": "MOH-lek",
+    "Ittai": "IT-eye",
+    "Elamites": "EE-lam-ites",
+    "Peleset": "PEL-eh-set",
+    "Medinet Habu": "meh-DEE-net HAH-boo",
+    "Ramesses": "RAM-eh-seez",
+    "Caphtor": "KAF-tor",
+    "Ebedmelech": "EE-bed-MEE-lek",
+    "Kition": "KIT-ee-on",
+    "Gimirrai": "gim-ih-RYE",
+    "Sukkah": "SOO-kah",
+    "Talitha": "TAL-ih-thah",
+    "cumi": "KOO-mee",
+    "Eloi": "ay-LOH-ee",
+    "sabachthani": "sah-bahk-TAH-nee",
+    "Areni": "ah-REN-ee",
+    "Nimrod": "NIM-rod",
+    "Shinar": "SHY-nar",
+    "Erech": "EE-rek",
+    "Accad": "AK-ad",
+    "Calneh": "KAL-neh",
+    "Calah": "KAY-lah",
+    "Resen": "REE-sen",
+    "Nimrud": "nim-ROOD",
+    "gibbor": "gib-BOR",
+    "Etemenanki": "eh-teh-meh-NAHN-kee",
+    "ziggurat": "ZIG-oo-rat",
+    "ziggurats": "ZIG-oo-rats",
+    "Nabopolassar": "nab-oh-poh-LAS-ar",
+    "Herodotus": "heh-ROD-oh-tus",
+    "Enmerkar": "en-MER-kar",
+    "Aratta": "ah-RAT-ah",
+    "balal": "bah-LAHL",
+    "Bab-ili": "bahb-EE-lee",
+    "Hammurabi": "ham-oo-RAH-bee",
+    "Esagila": "eh-sah-GEE-lah",
+    "Nebuchadnezzar": "neb-oo-kad-NEZ-ar",
+    "Belshazzar": "bel-SHAZ-ar",
+    "Nabonidus": "nab-oh-NY-dus",
+    "Upharsin": "oo-FAR-sin",
+    "Peres": "PEH-res",
+    "helel": "hay-LAYL",
+    "Bethel": "BETH-el",
+    "Ashurbanipal": "ah-shur-BAH-nee-pal",
+    "Ninurta": "nih-NOOR-tah",
+    "Ekur": "EH-koor",
+    "Belteshazzar": "bel-teh-SHAZ-ar",
+    "Merodach": "MER-oh-dak",
+    "Kalhu": "KAL-hoo",
+    "Woolley": "WOOL-ee",
+    "Akkadian": "ah-KAY-dee-an"
 }
 
 ACRONYMS = {"USA", "UK", "DNA", "BC", "AD", "B.C.", "A.D.", "AI"}
@@ -241,36 +503,115 @@ MOTIONS_CYCLE = [
 
 AD_VARIANTS = {
     1: {
-        "id": "ad_1_bestselling_books_merch",
-        "title": "Bestselling Books Vol 1 & 2 + Sacred Merch",
-        "graphic": "shared_assets/merch_book_ad.png",
+        "id": "ad_1_watchers_and_the_word",
+        "title": "The Watchers & The Word — Book of Enoch Secrets (Ezra Keys)",
+        "graphic": "shared_assets/watchers_ad_desk.png",
         "script": (
-            " If this blew your mind, it's just one part of what we uncover in our books, Bible Hidden Gems in the "
-            "Old Testament and in the New Testament. They're linked in the bio and comments, along with our sacred art merch."
+            "If this revelation opened your eyes, go deeper. In our new book, The Watchers and the Word: "
+            "Unlocking the Secrets of the Book of Enoch by Ezra Keys, we decode the lost mysteries of the heavenly host "
+            "and ancient Scripture. Available now on Etsy, linked in our bio and comments."
         ),
         "motion": {"type": "slow_push_in", "start_zoom": 1.0, "end_zoom": 1.05, "pan_y": [0.5, 0.5]}
     },
     2: {
-        "id": "ad_2_book1_mysteries",
-        "title": "Book 1 Focus — Bible Hidden Gems in the Old Testament",
-        "graphic": "shared_assets/merch_book_ad.png",
+        "id": "ad_2_watchers_fallen_angels",
+        "title": "The Watchers & The Word — Forbidden History of the Watchers",
+        "graphic": "shared_assets/watchers_ad_standing.png",
         "script": (
-            " If this blew your mind, it's just one part of our book, Bible Hidden Gems in the Old Testament. "
-            "It's linked in the bio and comments, along with our sacred art merch."
+            "Ready to uncover what was hidden? The Watchers and the Word reveals the forbidden history "
+            "of the fallen watchers and the ancient biblical texts. Grab your copy of The Watchers and the Word "
+            "on Etsy. Link in the bio and comments."
         ),
         "motion": {"type": "slow_push_in", "start_zoom": 1.0, "end_zoom": 1.05, "pan_y": [0.5, 0.5]}
     },
     3: {
-        "id": "ad_3_book2_prophecies",
-        "title": "Book 2 Focus — Bible Hidden Gems in the New Testament",
-        "graphic": "shared_assets/merch_book_ad.png",
+        "id": "ad_3_watchers_spiritual_realm",
+        "title": "The Watchers & The Word — Deep Spiritual Study",
+        "graphic": "shared_assets/watchers_ad_cover.png",
         "script": (
-            " Ready to go deeper? Our second book, Bible Hidden Gems in the New Testament, picks up where this leaves off. "
-            "It's linked in the bio and comments, along with our sacred art merch."
+            "If you want to understand the spiritual realm like never before, get our book, The Watchers and the Word: "
+            "Unlocking the Secrets of the Book of Enoch by Ezra Keys. Available now on Etsy, "
+            "linked in the bio and comments below."
         ),
         "motion": {"type": "slow_push_in", "start_zoom": 1.0, "end_zoom": 1.05, "pan_y": [0.5, 0.5]}
     }
 }
+
+# =============================================================================
+# PINNED COMMENTS PER AD OUTRO VARIANT
+# =============================================================================
+AD_PINNED_COMMENTS = {
+    # Ads 1, 2, 3: The Watchers & The Word (Desk, Standing, Cover)
+    "watchers": (
+        '📖 Get "The Watchers & The Word" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4591934547\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 4: Hidden Secrets of the Bible
+    "hidden_secrets": (
+        '📖 Get "Hidden Secrets of the Bible" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4526030482\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 5: Bible Hidden Gems - New Testament
+    "nt_gems": (
+        '📖 Get "Bible Hidden Gems: New Testament" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4536465297\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 6: Bible Hidden Gems - Old Testament
+    "ot_gems": (
+        '📖 Get "Bible Hidden Gems: Old Testament" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4526027051\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Ad 7: Fishers of Men Official Merch Carousel
+    "merch": (
+        '👕 Get the Official "Fishers of Men" Collection on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4536166831\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Default fallback
+    "default_ad": (
+        '📖 Get "The Watchers & The Word" on Etsy:\n'
+        '👉 https://www.etsy.com/nz/listing/4591934547\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    ),
+    # Clean Video (No Ad Attached)
+    "clean": (
+        '💬 What was the biggest revelation for you in this video? Share your thoughts below!\n\n'
+        '✨ Browse All Books & Sacred Art:\n'
+        '👉 https://www.etsy.com/shop/BibleHiddenGems'
+    )
+}
+
+
+def generate_pinned_comment_for_ad(ad_source: Any = None, ad_clip_name: str = None) -> str:
+    """Returns a tailored pinned comment based on the attached ad outro (1 to 7)."""
+    if not ad_source and not ad_clip_name:
+        return AD_PINNED_COMMENTS["clean"]
+
+    ref = str(ad_clip_name or ad_source).lower().strip()
+    if "merch" in ref or "fishers" in ref or ref == "7" or ref.endswith("_7.mp4") or "carousel_7" in ref:
+        return AD_PINNED_COMMENTS["merch"]
+    elif "ot_gems" in ref or ref == "6" or ref.endswith("_6.mp4"):
+        return AD_PINNED_COMMENTS["ot_gems"]
+    elif "nt_gems" in ref or ref == "5" or ref.endswith("_5.mp4"):
+        return AD_PINNED_COMMENTS["nt_gems"]
+    elif "hidden_secrets" in ref or ref == "4" or ref.endswith("_4.mp4"):
+        return AD_PINNED_COMMENTS["hidden_secrets"]
+    elif "watchers" in ref or ref in ["1", "2", "3"] or any(ref.endswith(f"_{x}.mp4") for x in ["1", "2", "3"]):
+        return AD_PINNED_COMMENTS["watchers"]
+    else:
+        return AD_PINNED_COMMENTS["default_ad"]
+
+
 
 # =============================================================================
 # SCRIPT PARSER & VOICE PREPARATION
@@ -308,18 +649,25 @@ CLOSING_LINE_RE = re.compile(r"(?:Until next time|Thank you for watching|Thanks 
                              re.IGNORECASE)
 
 
-def ensure_books_cta(narration: str) -> str:
-    """Upgrades an older books/merch line, or adds the current one before the closing line (or at the end)."""
-    for old in OLD_BOOKS_LINES:
-        narration = narration.replace(old, BOOKS_LINE)
-    if "linked in the bio and comments" in narration:
-        return narration
-    closing = None
-    for closing in CLOSING_LINE_RE.finditer(narration):
-        pass
-    if closing and closing.start() >= len(narration) * 0.75:
-        return narration[:closing.start()] + BOOKS_LINE + " " + narration[closing.start():]
-    return narration.rstrip() + " " + BOOKS_LINE
+def strip_books_cta(narration: str) -> str:
+    """
+    Dual-layer short-form strategy: removes any hardcoded books/merch ad lines from clean reel narration.
+    The advertisement lives strictly in the optional dedicated Ad Outro clip (ad_outro_*.mp4)
+    rather than being baked into the core video voiceover and captions.
+    """
+    for old in (BOOKS_LINE, *OLD_BOOKS_LINES):
+        narration = narration.replace(old, "")
+    patterns = [
+        r"If this (?:revelation )?blew your mind[^\.]*\.[^\.]*sacred art merch\.",
+        r"If this (?:revelation )?blew your mind[^\.]*\.[^\.]*in our books\.",
+        r"They're linked in the bio and comments, along with our sacred art merch\.",
+        r"It's linked in the bio and comments, along with our sacred art merch\.",
+        r"Our books and sacred art merch are linked in the bio and comments\.",
+    ]
+    for pat in patterns:
+        narration = re.sub(pat, "", narration, flags=re.IGNORECASE)
+    narration = re.sub(r"\s{2,}", " ", narration).strip()
+    return narration
 
 
 def retire_stale_audio(temp_dir, paths):
@@ -625,6 +973,148 @@ def load_curated_prompts(target_dir: Path) -> list:
         return []
 
 
+# =============================================================================
+# NARRATION-TIMED SCENES (shared with generate_video.py): each picture shows while its words are heard
+# =============================================================================
+REEL_MAX_SCENES = 20       # at most 20 pictures a reel; fewer when the narration has fewer beats
+REEL_WPM = 130             # measured reel narration pace (~2.17 words/sec), for scenes planned before the voice
+REEL_SCENE_MIN_SEC = 3.0
+REEL_SCENE_MAX_SEC = 9.0
+REEL_LOOK_RULE = "Dramatic, atmospheric cinematic lighting that suits the moment, in rich biblical-era colors."
+REEL_FRAMING_RULE = ("- The picture is a tall 9:16 vertical frame: one clear main subject, close and centered, filling "
+                     "the frame; no wide panoramas with tiny figures.")
+_VIDEO_GEN = None
+
+
+def video_gen():
+    """generate_video.py, next to this file: scene planning, prompt writers and picture bookkeeping."""
+    global _VIDEO_GEN
+    if _VIDEO_GEN is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("generate_video", Path(__file__).resolve().parent / "generate_video.py")
+        _VIDEO_GEN = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_VIDEO_GEN)
+    return _VIDEO_GEN
+
+
+def reel_prompt_guide(gvm) -> str:
+    """The long-form prompt rules, for a vertical reel in its own look."""
+    guide = gvm.SCENE_PROMPT_GUIDE.replace("{look}", REEL_LOOK_RULE).replace(
+        "a Bible documentary video (Bible Hidden Secrets Revealed)", "a vertical short-form Bible reel (Bible Hidden Secrets Revealed)")
+    return guide + "\n" + REEL_FRAMING_RULE
+
+
+def reel_split(total_sec: float):
+    """Scene length for a reel of total_sec: about total/20 each (at least 4 s), never more than 20 scenes."""
+    target = max(4.0, total_sec / REEL_MAX_SCENES)
+    return target, {"max_scenes": REEL_MAX_SCENES, "min_sec": REEL_SCENE_MIN_SEC,
+                    "max_sec": max(REEL_SCENE_MAX_SEC, target * 1.6)}
+
+
+def reel_uses_legacy_scenes(target_dir: Path, replan: bool = False) -> bool:
+    """Reels rendered before narration-timed scenes keep their pictures (reelNN_dyn_*.png) unless --replan."""
+    if replan or (target_dir / "scene_plan.json").exists():
+        return False
+    return any((target_dir / "images").glob("reel*_dyn_*.png"))
+
+
+def curated_prompt_hint(target_dir: Path) -> str:
+    """scenes.json picture ideas, passed to the prompt writer as suggestions."""
+    curated = load_curated_prompts(target_dir)
+    if not curated:
+        return ""
+    return ("Picture ideas written for this reel earlier, in narration order (use one where it fits a scene's words, "
+            "but always show what that scene says):\n" + "\n".join(f"- {c}" for c in curated))
+
+
+def narration_timed_reel_scenes(target_dir: Path, caption_narr: str, clean_narr: str, temp_dir: Path,
+                                plan_only=False, images_only=False, prompt_writer=None, auto_prompts=False,
+                                force_images=False):
+    """Voice first (or the script, when planning ahead), then scenes cut where the words are (at most 20), a prompt
+    per scene from its words, and the pictures. Returns (scenes, image paths, plan, audio or None), or
+    "NEEDS_PROMPTS" / "PLANNED"."""
+    gvm = video_gen()
+    images_dir = target_dir / "images"
+    audio = None
+    if plan_only or images_only:
+        print("[Scenes] Planning the reel's scenes from the script; the voice will time them later.", flush=True)
+        target, split = reel_split(len(caption_narr.split()) / (REEL_WPM / 60.0))
+        plan = gvm.load_or_build_scene_plan(target_dir, caption_narr, None, None, target, wpm=REEL_WPM, **split)
+    else:
+        gvm.free_comfyui_memory()
+        audio = synthesize_and_align_audio(clean_narr, temp_dir, target_dir.name)
+        target, split = reel_split(audio[2])
+        plan = gvm.load_or_build_scene_plan(target_dir, caption_narr, temp_dir / f"{target_dir.name}_transcript.json",
+                                            audio[2], target, wpm=REEL_WPM, **split)
+    voice_ready = plan.get("timing", "recorded") == "recorded"
+
+    missing = [sc for sc in plan["scenes"] if gvm.needs_prompt(sc)]
+    writers = gvm.prompt_writer_order(prompt_writer)
+    notes = []
+    if not missing:
+        print(f"[Scene Prompts] All {len(plan['scenes'])} scenes already have prompts: using them as written.", flush=True)
+    elif writers:
+        print(f"[Scene Prompts] Writing {len(missing)} scene prompts from the narration with "
+              f"{' then '.join(gvm.PROMPT_WRITER_NAMES[w] for w in writers)}...", flush=True)
+        notes = gvm.write_scene_prompts_with_ai(plan, target_dir, writers, guide=reel_prompt_guide(gvm),
+                                                extra_context=curated_prompt_hint(target_dir))
+        missing = [sc for sc in plan["scenes"] if gvm.needs_prompt(sc)]
+    if missing and auto_prompts:
+        for sc in missing:
+            sc["prompt"] = build_scene_prompt(sc["text"])
+        (target_dir / gvm.SCENE_PLAN_FILE).write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"[Scene Prompts] Filled {len(missing)} prompts with the built-in rules (--auto-prompts).", flush=True)
+        missing = []
+    if missing:
+        print("\n" + "=" * 74, flush=True)
+        print(f"⏸  {'VOICE READY' if voice_ready else 'SCENES PLANNED'}, PICTURES WAITING: {len(missing)} of "
+              f"{len(plan['scenes'])} reel scenes need a picture prompt.", flush=True)
+        print(f"   Plan: {target_dir / gvm.SCENE_PLAN_FILE}", flush=True)
+        for note in notes:
+            print(f"   {note}", flush=True)
+        print("   Ask Claude Code to write the prompts from each scene's narration, then press Generate again.", flush=True)
+        print("=" * 74 + "\n", flush=True)
+        return "NEEDS_PROMPTS"
+    if plan_only:
+        print(f"\n✔ [Scene Plan] {len(plan['scenes'])} reel scenes planned with their prompts. Draw the pictures now "
+              f"(--images-only) or render; the voice will time each scene to its words.", flush=True)
+        return "PLANNED"
+
+    scenes = [{"id": sc["id"], "prompt": f"{sc['prompt'].strip().rstrip(',.')}, {REEL_IMAGE_STYLE}, no text or lettering",
+               "image": sc.get("image"), "motion": MOTIONS_CYCLE[i % len(MOTIONS_CYCLE)], "narration": sc["text"]}
+              for i, sc in enumerate(plan["scenes"])]
+    gvm.retire_stale_scene_images(scenes, target_dir)
+    gvm.place_chosen_images(scenes, target_dir)
+    paths = {}
+    try:
+        for sc in scenes:
+            paths[sc["id"]] = generate_scene_image(sc["prompt"], sc["id"], images_dir,
+                                                   force=force_images and not sc.get("image"))
+    finally:
+        gvm.record_scene_prompts(scenes, target_dir)  # finished pictures are kept for the next run
+        gvm.free_comfyui_memory()  # Free VRAM immediately so subsequent video encoding and next jobs run clean
+    return scenes, paths, plan, audio
+
+
+def reel_timeline(scenes: list, timed_plan, total_duration: float) -> list:
+    """When each picture is on screen. Narration-timed: from its first spoken word to the next scene's. Earlier reels:
+    by each scene's share of the words."""
+    if timed_plan:
+        timeline = [{"id": sc["id"], "motion": scenes[i]["motion"], "start": sc["start"], "end": sc["end"]}
+                    for i, sc in enumerate(timed_plan["scenes"])]
+        timeline[0]["start"] = 0.0
+        timeline[-1]["end"] = max(timeline[-1]["end"], total_duration)
+        return timeline
+    total_weight = sum(sc.get("weight", 2.0) for sc in scenes)
+    timeline = []
+    cur_t = 0.0
+    for sc in scenes:
+        dur = (sc.get("weight", 2.0) / total_weight) * total_duration
+        timeline.append({"id": sc["id"], "motion": sc["motion"], "start": cur_t, "end": cur_t + dur})
+        cur_t += dur
+    return timeline
+
+
 def load_or_build_scenes(target_dir: Path, sentences: list, ep_num: str, title: str = "") -> list:
     """Constructs strictly 18-20 distinct visual scenes from the script, with accurate biblical prompts."""
     # Check if local file has curated SCENES_CONFIG with strictly 18-20 scenes
@@ -729,7 +1219,7 @@ def ensure_comfyui_running(url=COMFY_URL, max_wait_sec=240) -> bool:
         print(f"[ComfyUI Error] Missing executable or main.py at: {COMFY_DIR}", flush=True)
         return False
     cmd = [COMFY_PYTHON, comfy_main, "--listen", "127.0.0.1", "--port", "8188", "--lowvram"]
-    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+    flags = SUBPROCESS_CREATIONFLAGS
     subprocess.Popen(cmd, cwd=COMFY_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=flags)
     start_time = time.time()
     while time.time() - start_time < max_wait_sec:
@@ -1144,6 +1634,12 @@ def synthesize_and_align_audio(script_text: str, temp_dir: Path, ep_title: str) 
                 except Exception: pass
 
         print("\n=== [Audio Step 1/3] Generating Studio Voiceover with Microsoft VibeVoice Cloned Voice ===", flush=True)
+        # Ensure ComfyUI yields VRAM before starting VibeVoice on 4GB GPU
+        try:
+            video_gen().free_comfyui_memory()
+        except Exception:
+            pass
+
         voice_script_file = temp_dir / f"{ep_title}_voice_script.txt"
         voice_script_file.write_text(voice_script, encoding="utf-8")
 
@@ -1159,7 +1655,7 @@ def synthesize_and_align_audio(script_text: str, temp_dir: Path, ep_title: str) 
                     "--output", str(raw_voice_path),
                     "--steps", "5"
                 ]
-                cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+                cf = SUBPROCESS_CREATIONFLAGS
                 with ProgressHeartbeat("Voiceover Synthesis", interval_sec=60):
                     proc = subprocess.Popen(
                         cmd,
@@ -1229,7 +1725,7 @@ def synthesize_and_align_audio(script_text: str, temp_dir: Path, ep_title: str) 
             "-ar", "44100",
             str(master_audio_path)
         ]
-        cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+        cf = SUBPROCESS_CREATIONFLAGS
         with ProgressHeartbeat("Voice Mastering", interval_sec=60):
             subprocess.run(master_cmd, check=True, creationflags=cf)
         print(f"[Audio] Voice master ready: {master_audio_path}", flush=True)
@@ -1435,22 +1931,77 @@ def render_ad_clip(ad_num: int, force: bool = False) -> Path:
         "-i", str(master_audio),
         "-c:v", "copy",
         "-c:a", "aac", "-b:a", "320k",
+        "-movflags", "+faststart",
         "-shortest", str(ad_clip_path)
     ]
-    cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+    cf = SUBPROCESS_CREATIONFLAGS
     subprocess.run(mux_cmd, check=True, creationflags=cf)
     print(f"[Ad Engine] Ad outro clip successfully created: {ad_clip_path.name} ({ad_duration:.1f}s)", flush=True)
     return ad_clip_path
 
 
-def combine_reel_with_ad(main_video_path: Path, ad_num: int, output_path: Path) -> Path:
+def resolve_ad_clip(ad_source: Any) -> Path:
+    """Resolves an ad reference (integer variant, filename, or stem) to a video file path in Adz-Video or shared_assets."""
+    if not ad_source:
+        ad_source = 1
+    ref_str = str(ad_source).strip()
+
+    # 1. Check C:\Projects\Adz-Video
+    if ADZ_DIR.exists():
+        direct = ADZ_DIR / ref_str
+        if direct.is_file():
+            return direct
+        cand_mp4 = ADZ_DIR / f"{ref_str}.mp4"
+        if cand_mp4.is_file():
+            return cand_mp4
+        if ref_str.isdigit():
+            cand_num = ADZ_DIR / f"ad_outro_{ref_str}.mp4"
+            if cand_num.is_file():
+                return cand_num
+            # Match any ad ending with _{ref_str}.mp4 (e.g. ad_outro_hidden_secrets_4.mp4)
+            num_matches = list(ADZ_DIR.glob(f"*_{ref_str}.mp4"))
+            if num_matches:
+                return num_matches[0]
+        # Text stem match (e.g. "merch", "ot_gems", "nt_gems", "hidden_secrets")
+        stem_matches = list(ADZ_DIR.glob(f"*{ref_str}*.mp4"))
+        if stem_matches:
+            return stem_matches[0]
+
+    # 2. Check shared_assets in PROJECT_DIR
+    shared_dir = PROJECT_DIR / "shared_assets"
+    if shared_dir.exists():
+        shared_file = shared_dir / ref_str
+        if shared_file.is_file():
+            return shared_file
+        shared_mp4 = shared_dir / f"{ref_str}.mp4"
+        if shared_mp4.is_file():
+            return shared_mp4
+        if ref_str.isdigit():
+            shared_num = shared_dir / f"ad_outro_{ref_str}.mp4"
+            if shared_num.is_file():
+                return shared_num
+            num_matches = list(shared_dir.glob(f"*_{ref_str}.mp4"))
+            if num_matches:
+                return num_matches[0]
+        stem_matches = list(shared_dir.glob(f"*{ref_str}*.mp4"))
+        if stem_matches:
+            return stem_matches[0]
+
+    # 3. Fallback to render_ad_clip if it's one of the legacy AD_VARIANTS
+    if ref_str.isdigit() and int(ref_str) in AD_VARIANTS:
+        return render_ad_clip(int(ref_str))
+
+    raise FileNotFoundError(f"Could not find advertisement video for '{ad_source}' in {ADZ_DIR} or {shared_dir}")
+
+
+def combine_reel_with_ad(main_video_path: Path, ad_num: Any, output_path: Path) -> Path:
     """Combines a base reel video and an ad outro clip via fast concat without re-rendering."""
     if not main_video_path.exists():
         raise FileNotFoundError(f"Base reel video not found: {main_video_path}")
 
-    ad_clip_path = render_ad_clip(ad_num)
+    ad_clip_path = resolve_ad_clip(ad_num)
 
-    concat_list_path = main_video_path.parent / "temp" / f"concat_ad_{ad_num}.txt"
+    concat_list_path = main_video_path.parent / "temp" / f"concat_ad_{Path(str(ad_num)).stem}.txt"
     concat_list_path.parent.mkdir(parents=True, exist_ok=True)
     with open(concat_list_path, "w", encoding="utf-8") as f:
         p1 = str(main_video_path).replace("\\", "/").replace("'", "'\\''")
@@ -1466,9 +2017,10 @@ def combine_reel_with_ad(main_video_path: Path, ad_num: int, output_path: Path) 
         "-f", "concat", "-safe", "0",
         "-i", str(concat_list_path),
         "-c", "copy",
+        "-movflags", "+faststart",
         str(temp_target)
     ]
-    cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+    cf = SUBPROCESS_CREATIONFLAGS
     res = subprocess.run(concat_cmd, creationflags=cf)
 
     if res.returncode != 0 or not temp_target.exists() or temp_target.stat().st_size < 10000:
@@ -1477,10 +2029,12 @@ def combine_reel_with_ad(main_video_path: Path, ad_num: int, output_path: Path) 
             FFMPEG_EXE, "-y", "-hide_banner", "-loglevel", "error",
             "-i", str(main_video_path),
             "-i", str(ad_clip_path),
-            "-filter_complex", "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]",
+            "-filter_complex",
+            "[1:v]scale=768:1344:force_original_aspect_ratio=decrease,pad=768:1344:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v1];[0:v][0:a][v1][1:a]concat=n=2:v=1:a=1[v][a]",
             "-map", "[v]", "-map", "[a]",
             "-c:v", "libx264", "-crf", "18", "-preset", "veryfast",
             "-c:a", "aac", "-b:a", "320k",
+            "-movflags", "+faststart",
             str(temp_target)
         ]
         subprocess.run(fallback_cmd, check=True, creationflags=cf)
@@ -1491,7 +2045,28 @@ def combine_reel_with_ad(main_video_path: Path, ad_num: int, output_path: Path) 
     shutil.move(str(temp_target), str(output_path))
     size_mb = output_path.stat().st_size / (1024 * 1024)
     print(f"[SUCCESS] Fast ad combine completed: {output_path.name} ({size_mb:.1f} MB)", flush=True)
+
+    # Persist ad attachment state in reel metadata.json
+    meta_p = output_path.parent / "metadata.json"
+    if meta_p.exists():
+        try:
+            m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+            ad_comment = generate_pinned_comment_for_ad(ad_num, ad_clip_path.name)
+            m_data["ad_outro"] = {
+                "attached": True,
+                "filename": ad_clip_path.name,
+                "title": f"Ad: {ad_clip_path.stem.replace('_', ' ').title()}",
+                "attached_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "pinned_comment": ad_comment
+            }
+            m_data["pinned_comment"] = ad_comment
+            meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[Metadata] Pinned comment updated to match attached ad: {ad_clip_path.name}", flush=True)
+        except Exception:
+            pass
+
     return output_path
+
 
 # =============================================================================
 # SINGLE REEL PRODUCTION PIPELINE
@@ -1503,10 +2078,16 @@ def render_reel(
     force_rebuild: bool = False,
     images_only: bool = False,
     force_images: bool = False,
-    ad_num: int = None,
+    ad_num: Any = None,
     speed: float = None,
     thumbnail_only: bool = False,
-    combine_ad_only: bool = False
+    combine_ad_only: bool = False,
+    remove_ad_only: bool = False,
+    comment_only: bool = False,
+    plan_only: bool = False,
+    replan: bool = False,
+    auto_prompts: bool = False,
+    prompt_writer: str = None
 ) -> Path:
     print(f"\n{'='*74}", flush=True)
     print(f"▶ PRODUCING REEL W{week_num:02d} {reel_key(target_dir) or reel_num}: {target_dir.name}", flush=True)
@@ -1517,33 +2098,104 @@ def render_reel(
     final_output = target_dir / final_vid_name
 
     # Quick Mode 1: Regenerate Thumbnail Only (No video render)
-    if thumbnail_only and not combine_ad_only:
+    if thumbnail_only and not combine_ad_only and not remove_ad_only and not comment_only:
         print(f"\n[Quick Mode] Regenerating Option-C composite thumbnail for {target_dir.name}...", flush=True)
         return regenerate_thumbnail_only(target_dir, week_num, reel_num)
 
-    # Quick Mode 2: Fast Ad Combine & Update (Instant concat demux)
+    # Quick Mode 2c: Trigger / Sync Pinned Comment Only (No video render)
+    if comment_only:
+        print(f"\n[Quick Mode] Triggering pinned comment update for {target_dir.name}...", flush=True)
+        meta_p = target_dir / "metadata.json"
+        if not meta_p.exists():
+            print(f"[ERROR] metadata.json not found in {target_dir.name}!", flush=True)
+            return None
+        try:
+            m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+            chosen_ad = ad_num
+            if not chosen_ad:
+                ad_info = m_data.get("ad_outro", {})
+                if ad_info.get("attached"):
+                    chosen_ad = ad_info.get("filename")
+
+            new_comment = generate_pinned_comment_for_ad(chosen_ad)
+            m_data["pinned_comment"] = new_comment
+            if "ad_outro" in m_data and m_data["ad_outro"].get("attached"):
+                m_data["ad_outro"]["pinned_comment"] = new_comment
+            meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[TRIGGER] Pinned comment updated in metadata.json based on attached ad: {chosen_ad or 'Clean/None'}\n", flush=True)
+            print(f"--- Pinned Comment Preview ---\n{new_comment}\n------------------------------\n", flush=True)
+            return meta_p
+        except Exception as e:
+            print(f"[ERROR] Failed to update pinned comment: {e}", flush=True)
+            return None
+
+    # Quick Mode 2a: Remove / Strip Ad Outro (Restore clean video)
+    if remove_ad_only:
+        print(f"\n[Quick Mode] Removing ad outro for {target_dir.name}...", flush=True)
+        clean_vid = target_dir / f"{target_dir.name}_clean.mp4"
+        if clean_vid.exists():
+            shutil.copy2(clean_vid, final_output)
+            print(f"[SUCCESS] Restored clean reel video: {final_output.name}", flush=True)
+            with_ads = target_dir / f"{target_dir.name}_with_ads_final_reel.mp4"
+            if with_ads.exists():
+                try: with_ads.unlink()
+                except Exception: pass
+            meta_p = target_dir / "metadata.json"
+            if meta_p.exists():
+                try:
+                    m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+                    m_data["ad_outro"] = {
+                        "attached": False,
+                        "filename": None,
+                        "attached_at": None
+                    }
+                    m_data["pinned_comment"] = generate_pinned_comment_for_ad(None)
+                    meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+                    print(f"[Metadata] Reset pinned comment to clean video discussion.", flush=True)
+                except Exception:
+                    pass
+        else:
+            print(f"[INFO] Clean reel video not found; keeping current {final_output.name}.", flush=True)
+        if thumbnail_only:
+            regenerate_thumbnail_only(target_dir, week_num, reel_num)
+        return final_output
+
+    # Quick Mode 2b: Fast Ad Combine & Update (Instant concat demux)
     if combine_ad_only:
-        print(f"\n[Quick Mode] Fast combining ad #{ad_num or 1} for {target_dir.name}...", flush=True)
+        print(f"\n[Quick Mode] Fast combining ad '{ad_num or 1}' for {target_dir.name}...", flush=True)
         clean_vid = target_dir / f"{target_dir.name}_clean.mp4"
         base_vid = clean_vid if clean_vid.exists() else final_output
         if not base_vid.exists():
+            cands = [p for p in target_dir.glob("*_final_reel.mp4") if "_with_ads_" not in p.name]
+            if cands:
+                base_vid = cands[0]
+        if not base_vid.exists():
             print(f"[ERROR] Cannot combine ad: Base reel video not found in {target_dir.name}!", flush=True)
             return None
-        if not clean_vid.exists() and base_vid == final_output:
-            shutil.copy2(final_output, clean_vid)
+        if not clean_vid.exists():
+            shutil.copy2(base_vid, clean_vid)
 
         combined_p = combine_reel_with_ad(clean_vid, ad_num or 1, final_output)
         if thumbnail_only:
             regenerate_thumbnail_only(target_dir, week_num, reel_num)
         return combined_p
 
-    if final_output.exists() and not force_rebuild and not images_only and final_output.stat().st_size > 100000:
+
+    if final_output.exists() and not force_rebuild and not images_only and not plan_only and final_output.stat().st_size > 100000:
         print(f"[Ready] Reel already rendered: {final_vid_name}", flush=True)
         return final_output
 
     temp_dir = target_dir / "temp"
+    use_legacy = reel_uses_legacy_scenes(target_dir, replan)
     if force_rebuild and temp_dir.exists():
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        if use_legacy:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        else:
+            # Narration-timed reels keep their recording (it is re-recorded by itself when the script changes):
+            # the scenes, prompts and pictures are timed to it
+            stale_frames = temp_dir / "rendered_frames.mp4"
+            if stale_frames.exists():
+                stale_frames.unlink()
     temp_dir.mkdir(parents=True, exist_ok=True)
     images_dir = target_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -1571,7 +2223,7 @@ def render_reel(
         clean_narr = f"{title}. {hook_text}. In the scriptures, {scripture_ref}. Follow for more biblical secrets."
     # Captions show the script's real words, not the voice's pronunciation spellings
     caption_narr = clean_script_for_tts(raw_script, phonetic=False) or clean_narr
-    clean_narr, caption_narr = ensure_books_cta(clean_narr), ensure_books_cta(caption_narr)
+    clean_narr, caption_narr = strip_books_cta(clean_narr), strip_books_cta(caption_narr)
 
     word_count = len(clean_narr.split())
     # Measured narration pace on rendered reels is ~130 words/min (~2.17 words/sec); reels must stay under 2:00
@@ -1591,36 +2243,54 @@ def render_reel(
         print(f"  • Status: [NOTICE] Script runs ~{est_dur_min:.2f} min; reels should be 1:30 - 2:00 (~200-260 words).", flush=True)
     print("=" * 74, flush=True)
 
-    sentences = split_into_sentences(clean_narr)
+    timed_plan = None
+    audio = None
+    if use_legacy and plan_only:
+        # Planning never records or draws: a reel rendered earlier keeps its pictures unless --replan
+        print(f"[Scenes] {target_dir.name} keeps its earlier pictures; nothing to plan (use --replan to re-time it).", flush=True)
+        return "KEPT"
+    if use_legacy:
+        # A reel rendered before narration-timed scenes: keep its pictures and their proportional timing
+        sentences = split_into_sentences(clean_narr)
 
-    # 3. Resolve Scenes Configuration (Strictly 18-20 Scenes)
-    scenes = load_or_build_scenes(target_dir, sentences, ep_num, title=title)
+        # 3. Resolve Scenes Configuration (Strictly 18-20 Scenes)
+        scenes = load_or_build_scenes(target_dir, sentences, ep_num, title=title)
 
-    print(f"\n[Scenes] Resolved {len(scenes)} visual scenes (Standard: 18-20 scenes):", flush=True)
-    for s_idx, sc in enumerate(scenes):
-        print(f"   Scene {s_idx+1:02d}: [{sc['id']}] {sc['prompt'][:72]}...", flush=True)
+        print(f"\n[Scenes] Resolved {len(scenes)} visual scenes (Standard: 18-20 scenes):", flush=True)
+        for s_idx, sc in enumerate(scenes):
+            print(f"   Scene {s_idx+1:02d}: [{sc['id']}] {sc['prompt'][:72]}...", flush=True)
 
-    # 4. Generate / Resolve Scene Images (FLUX or Fallback)
-    scene_image_paths = {}
-    missing_count = 0
-    for sc in scenes:
-        sc_id = sc["id"]
-        t_img = images_dir / f"{sc_id}.png"
-        a_name = re.sub(r'reel0+(\d+)', r'reel\1', sc_id)
-        a_img = images_dir / f"{a_name}.png"
-        exists = (t_img.exists() and t_img.stat().st_size > 50000) or (a_img.exists() and a_img.stat().st_size > 50000)
-        if not exists or force_images:
-            missing_count += 1
+        # 4. Generate / Resolve Scene Images (FLUX or Fallback)
+        scene_image_paths = {}
+        missing_count = 0
+        for sc in scenes:
+            sc_id = sc["id"]
+            t_img = images_dir / f"{sc_id}.png"
+            a_name = re.sub(r'reel0+(\d+)', r'reel\1', sc_id)
+            a_img = images_dir / f"{a_name}.png"
+            exists = (t_img.exists() and t_img.stat().st_size > 50000) or (a_img.exists() and a_img.stat().st_size > 50000)
+            if not exists or force_images:
+                missing_count += 1
 
-    if missing_count > 0:
-        print(f"\n[Images Check] {missing_count} / {len(scenes)} images missing or force-requested. Generating via ComfyUI...", flush=True)
+        if missing_count > 0:
+            print(f"\n[Images Check] {missing_count} / {len(scenes)} images missing or force-requested. Generating via ComfyUI...", flush=True)
+        else:
+            print(f"\n[Images Check] All {len(scenes)} scene images verified on disk.", flush=True)
+
+        for sc in scenes:
+            sc_id = sc["id"]
+            img_p = generate_scene_image(sc["prompt"], sc_id, images_dir, custom_image=sc.get("custom_image"), force=force_images)
+            scene_image_paths[sc_id] = img_p
     else:
-        print(f"\n[Images Check] All {len(scenes)} scene images verified on disk.", flush=True)
-
-    for sc in scenes:
-        sc_id = sc["id"]
-        img_p = generate_scene_image(sc["prompt"], sc_id, images_dir, custom_image=sc.get("custom_image"), force=force_images)
-        scene_image_paths[sc_id] = img_p
+        result = narration_timed_reel_scenes(target_dir, caption_narr, clean_narr, temp_dir, plan_only=plan_only,
+                                             images_only=images_only, prompt_writer=prompt_writer,
+                                             auto_prompts=auto_prompts, force_images=force_images)
+        if isinstance(result, str):
+            return result
+        scenes, scene_image_paths, timed_plan, audio = result
+        print(f"\n[Scenes] {len(scenes)} narration-timed scenes (at most {REEL_MAX_SCENES}):", flush=True)
+        for sc in timed_plan["scenes"]:
+            print(f"   {sc['id']} {sc['start']:6.1f}s-{sc['end']:6.1f}s: {sc['prompt'][:64]}...", flush=True)
 
 
     # 5. Generate Text Cards & Composite Thumbnail (Image + Caption)
@@ -1657,22 +2327,11 @@ def render_reel(
         print("[SUCCESS] Images-only mode complete.", flush=True)
         return target_thumb
 
-    # 6. Audio Synthesis & Alignment
-    master_audio, transcript_res, total_duration = synthesize_and_align_audio(clean_narr, temp_dir, target_dir.name)
+    # 6. Audio Synthesis & Alignment (narration-timed reels recorded it before planning their scenes)
+    master_audio, transcript_res, total_duration = audio or synthesize_and_align_audio(clean_narr, temp_dir, target_dir.name)
 
-    # 7. Calculate Proportional Scene Timelines
-    total_weight = sum(sc.get("weight", 2.0) for sc in scenes)
-    timeline = []
-    cur_t = 0.0
-    for sc in scenes:
-        dur = (sc.get("weight", 2.0) / total_weight) * total_duration
-        timeline.append({
-            "id": sc["id"],
-            "motion": sc["motion"],
-            "start": cur_t,
-            "end": cur_t + dur
-        })
-        cur_t += dur
+    # 7. Scene timeline: each picture from its first spoken word (narration-timed), or by word share (earlier reels)
+    timeline = reel_timeline(scenes, timed_plan, total_duration)
 
     # 8. Load Pre-loaded Images & Logo
     loaded_imgs = {}
@@ -1766,9 +2425,10 @@ def render_reel(
         "-i", str(master_audio),
         "-c:v", "copy",
         "-c:a", "aac", "-b:a", "320k",
+        "-movflags", "+faststart",
         "-shortest", str(clean_output)
     ]
-    cf = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
+    cf = SUBPROCESS_CREATIONFLAGS
     subprocess.run(mux_cmd, check=True, creationflags=cf)
 
     if temp_rendered.exists():
@@ -1776,10 +2436,27 @@ def render_reel(
         except Exception: pass
 
     # If ad requested, combine with ad outro; otherwise copy clean to final
-    if ad_num and ad_num in AD_VARIANTS:
-        combine_reel_with_ad(clean_output, ad_num, final_output)
+    if ad_num:
+        try:
+            combine_reel_with_ad(clean_output, ad_num, final_output)
+        except Exception as e:
+            print(f"[Ad Warning] Combining ad '{ad_num}' failed: {e}. Falling back to clean reel.", flush=True)
+            shutil.copy2(clean_output, final_output)
     else:
         shutil.copy2(clean_output, final_output)
+        meta_p = target_dir / "metadata.json"
+        if meta_p.exists():
+            try:
+                m_data = json.loads(meta_p.read_text(encoding="utf-8"))
+                m_data["ad_outro"] = {
+                    "attached": False,
+                    "filename": None,
+                    "attached_at": None
+                }
+                m_data["pinned_comment"] = generate_pinned_comment_for_ad(None)
+                meta_p.write_text(json.dumps(m_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            except Exception:
+                pass
 
     size_mb = final_output.stat().st_size / (1024 * 1024)
     print(f"\n[SUCCESS] Reel Render Completed: {final_output.name} ({size_mb:.1f} MB, {total_duration:.1f}s)\n", flush=True)
@@ -1800,9 +2477,20 @@ def main():
     parser.add_argument("--images-only", action="store_true", help="Generate scene images & text cards only")
     parser.add_argument("--thumbnail-only", "--thumb-only", action="store_true", help="Regenerate Option-C composite thumbnail without re-rendering video")
     parser.add_argument("--combine-ad", "--ad-only", "--regen-ad", action="store_true", help="Fast combine existing video with ad outro without re-rendering scenes")
+    parser.add_argument("--remove-ad", "--strip-ad", action="store_true", help="Remove ad outro and restore clean reel video")
     parser.add_argument("--quick-combine", action="store_true", help="Regenerate thumbnail and combine ad outro without full video re-render")
-    parser.add_argument("--ads", nargs="?", const=1, type=int, default=None, help="Include official ad variant (1, 2, or 3)")
+    parser.add_argument("--comment-only", "--trigger-comment", action="store_true",
+                        help="Trigger and sync pinned comment in metadata.json based on attached ad without altering video")
+    parser.add_argument("--ads", nargs="?", const="1", type=str, default=None, help="Include ad outro (variant 1, 2, 3 or filename in C:\\Projects\\Adz-Video)")
     parser.add_argument("--speed", type=float, default=None, help="Optional vocal speed multiplier")
+    parser.add_argument("--plan-only", action="store_true",
+                        help="Plan the scenes from the script and write their prompts, before any voice is recorded")
+    parser.add_argument("--replan", action="store_true",
+                        help="Time new pictures to the narration even if the reel already has its earlier pictures")
+    parser.add_argument("--auto-prompts", action="store_true",
+                        help="Fill missing scene prompts with the built-in rules instead of pausing")
+    parser.add_argument("--prompt-writer", default=None,
+                        help="Who writes the scene prompts: e.g. claude,gemini (default from generator_settings.json), or manual")
     args = parser.parse_args()
 
     week_num = None
@@ -1858,7 +2546,13 @@ def main():
                 ad_num=args.ads,
                 speed=args.speed,
                 thumbnail_only=args.thumbnail_only or args.quick_combine,
-                combine_ad_only=args.combine_ad or args.quick_combine
+                combine_ad_only=args.combine_ad or args.quick_combine,
+                remove_ad_only=args.remove_ad,
+                comment_only=args.comment_only,
+                plan_only=args.plan_only,
+                replan=args.replan,
+                auto_prompts=args.auto_prompts,
+                prompt_writer=args.prompt_writer
             )
             completed.append(out_p)
         except Exception as e:
@@ -1871,6 +2565,10 @@ def main():
     print(f"===========================================================================\n")
     if len([p for p in completed if p]) < len(targets):
         sys.exit(1)
+    paused = [p for p in completed if p == "NEEDS_PROMPTS"]
+    if paused:
+        print(f"⏸  {len(paused)} reel(s) wait for scene prompts.", flush=True)
+        sys.exit(3)  # KCT Studio shows this as paused, not failed
 
 if __name__ == "__main__":
     main()

@@ -47,6 +47,18 @@ class StoryFolderTests(unittest.TestCase):
         other = gs.get_story_background_candidates(self.week / "stories" / "09_extra_9", self.week, 9, reel_num=2)
         self.assertNotEqual(bgs[0], other[0])
 
+    def test_narration_timed_reel_art_is_found(self):
+        images = self.week / "reels" / "mon_2_new_reel" / "images"
+        images.mkdir(parents=True)
+        for i in range(1, 18):
+            (images / f"scene_{i:03d}.png").write_bytes(b"x")
+        (images / "reel306_card_thumbnail.png").write_bytes(b"x")
+        bgs = gs.get_story_background_candidates(self.week / "stories" / "07_extra_7", self.week, 7, reel="mon_2")
+        self.assertTrue(bgs)
+        self.assertTrue(all(p.parent.parent.name == "mon_2_new_reel" for p in bgs if "reels" in p.parts))
+        self.assertTrue(bgs[0].name.startswith("scene_"))
+        self.assertFalse(any("card" in p.name for p in bgs))
+
     def test_daily_story_uses_its_own_reel(self):
         bgs = gs.get_story_background_candidates(self.week / "stories" / "04_imago_dei", self.week, 4)
         self.assertEqual(bgs[0].name, "reel4_dyn_1.png")

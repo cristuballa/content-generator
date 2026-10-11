@@ -1,0 +1,193 @@
+{
+  "week": 43,
+  "year": 1,
+  "quarter": "Q4",
+  "theme": "The Red Heifer Sacrifice",
+  "testament": "Old & New Testament",
+  "documentary": {
+    "id": "DOC-W43",
+    "title": "The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+    "duration": "32 min",
+    "scriptures": [
+      "Numbers 19:1-10",
+      "Hebrews 9:13-14",
+      "Hebrews 13:12"
+    ],
+    "christological_key": "The red heifer had to be sacrificed facing the temple on the Mount of Olives; Christ fulfilled it outside the gate.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W43.A",
+    "pillar_title": "Without the Camp: Why Jesus Was Crucified on the Mount of Olives",
+    "digest_id": "SUB-W43.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W43.1",
+      "num": 1,
+      "global_num": 211,
+      "day": "Mon",
+      "badge": "Bible Secrets #211 [W43.1]",
+      "title": "The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W43.2",
+      "num": 2,
+      "global_num": 212,
+      "day": "Tue",
+      "badge": "Bible Secrets #212 [W43.2]",
+      "title": "The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W43.3",
+      "num": 3,
+      "global_num": 213,
+      "day": "Wed",
+      "badge": "Bible Secrets #213 [W43.3]",
+      "title": "The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W43.4",
+      "num": 4,
+      "global_num": 214,
+      "day": "Thu",
+      "badge": "Bible Secrets #214 [W43.4]",
+      "title": "The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W43.5",
+      "num": 5,
+      "global_num": 215,
+      "day": "Fri",
+      "badge": "Bible Secrets #215 [W43.5]",
+      "title": "The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W43.1",
+      "num": 1,
+      "global_num": 211,
+      "day": "Mon",
+      "badge": "Story #211 [W43.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W43.2",
+      "num": 2,
+      "global_num": 212,
+      "day": "Tue",
+      "badge": "Story #212 [W43.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W43.3",
+      "num": 3,
+      "global_num": 213,
+      "day": "Wed",
+      "badge": "Story #213 [W43.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W43.4",
+      "num": 4,
+      "global_num": 214,
+      "day": "Thu",
+      "badge": "Story #214 [W43.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate"
+    },
+    {
+      "id": "S-W43.5",
+      "num": 5,
+      "global_num": 215,
+      "day": "Fri",
+      "badge": "Story #215 [W43.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W43.1",
+      "num": 1,
+      "global_num": 211,
+      "day": "Mon",
+      "badge": "Community Post #211",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+      "options": []
+    },
+    {
+      "id": "CT-W43.2",
+      "num": 2,
+      "global_num": 212,
+      "day": "Tue",
+      "badge": "Community Post #212",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W43.3",
+      "num": 3,
+      "global_num": 213,
+      "day": "Wed",
+      "badge": "Community Post #213",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+      "options": []
+    },
+    {
+      "id": "CT-W43.4",
+      "num": 4,
+      "global_num": 214,
+      "day": "Thu",
+      "badge": "Community Post #214",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+      "options": []
+    },
+    {
+      "id": "CT-W43.5",
+      "num": 5,
+      "global_num": 215,
+      "day": "Fri",
+      "badge": "Community Post #215",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Red Heifer & The Third Temple Mystery: Why Jesus Suffered Outside the Gate",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

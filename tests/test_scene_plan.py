@@ -181,6 +181,30 @@ class SceneImageTests(unittest.TestCase):
         self.assertFalse((self.ep / "images" / "scene_001.png").exists())  # to be drawn for P0
         self.assertEqual((self.ep / "images" / "scene_002.png").read_bytes(), b"a" * 50000)
 
+    def test_a_chosen_existing_picture_is_used_instead_of_drawing(self):
+        (self.ep / "images" / "_placeholder_render").mkdir()
+        (self.ep / "images" / "_placeholder_render" / "scene_41.png").write_bytes(b"p" * 50000)
+        self.img("scene_002", b"drawn earlier" * 5000)  # drawn before the picture was chosen
+        gv.record_scene_prompts([{"id": "scene_002", "prompt": "P2"}], self.ep)
+        scenes = [{"id": "scene_001", "prompt": "P1", "image": "images/_placeholder_render/scene_41.png"},
+                  {"id": "scene_002", "prompt": "P2", "image": "images/_placeholder_render/scene_41.png"},
+                  {"id": "scene_003", "prompt": "P3", "image": "images/_placeholder_render/missing.png"}]
+        gv.retire_stale_scene_images(scenes, self.ep)
+        gv.place_chosen_images(scenes, self.ep)
+        for sid in ("scene_001", "scene_002"):
+            self.assertEqual((self.ep / "images" / f"{sid}.png").read_bytes(), b"p" * 50000)
+        self.assertNotIn("image", scenes[2])  # its picture is missing: it is drawn from its prompt
+        self.assertFalse((self.ep / "images" / "scene_003.png").exists())
+        gv.record_scene_prompts(scenes, self.ep)
+
+        # Dropping the choice later puts the scene back to drawing from its prompt
+        scenes[0].pop("image")
+        gv.retire_stale_scene_images(scenes, self.ep)
+        self.assertFalse((self.ep / "images" / "scene_001.png").exists())
+        self.assertTrue((self.ep / "images" / "scene_002.png").exists())
+        self.assertFalse(gv.needs_prompt({"id": "x", "prompt": "", "image": "a.png"}))
+        self.assertTrue(gv.needs_prompt({"id": "x", "prompt": ""}))
+
     def test_unchanged_pictures_are_kept(self):
         self.img("scene_001")
         gv.record_scene_prompts([{"id": "scene_001", "prompt": "P1"}], self.ep)
@@ -244,8 +268,9 @@ class VoiceFirstBuildTests(unittest.TestCase):
                 gv.build_16x9_video(self.ep, ep_num=3)
         scenes = images.call_args[0][0]
         self.assertEqual([s["id"] for s in scenes], [sc["id"] for sc in plan["scenes"]])
-        self.assertTrue(scenes[0]["prompt"].startswith("the scene where scene_001 is spoken, "))
-        self.assertIn(gv.DOC_IMAGE_STYLE, scenes[0]["prompt"])
+        # The house look leads and closes every prompt, so a prompt's own lighting can't override it
+        self.assertEqual(scenes[0]["prompt"],
+                         f"{gv.DOC_IMAGE_LEAD}, the scene where scene_001 is spoken, {gv.DOC_IMAGE_STYLE}")
         self.assertFalse(images.call_args[1]["allow_legacy_copy"])
 
     def test_auto_prompts_fill_the_plan_instead_of_pausing(self):
@@ -273,6 +298,18 @@ class VoiceFirstBuildTests(unittest.TestCase):
         self.assertEqual(len(images.call_args[0][0]), 12)
         self.assertFalse((self.ep / gv.SCENE_PLAN_FILE).exists())
         self.free.assert_not_called()
+
+    def test_planning_leaves_an_older_episode_alone(self):
+        prompts = [{"id": f"scene_{i:02d}", "prompt": f"old {i}", "weight": 1.0, "motion": "zoom_in"} for i in range(1, 13)]
+        (self.ep / "prompts_78_scenes.json").write_text(json.dumps(prompts), encoding="utf-8")
+        (self.ep / "images").mkdir()
+        for p in prompts:
+            (self.ep / "images" / f"{p['id']}.png").write_bytes(b"x" * 50000)
+        with mock.patch.object(gv, "ensure_scene_images") as images:
+            self.assertEqual(gv.build_16x9_video(self.ep, ep_num=3, plan_only=True), "KEPT")
+        images.assert_not_called()
+        self.voice.assert_not_called()
+        self.assertFalse((self.ep / gv.SCENE_PLAN_FILE).exists())
 
     def test_main_exits_3_when_prompts_are_needed(self):
         with mock.patch.object(gv, "find_episode_info", return_value=(str(self.ep), 3)), \
@@ -461,7 +498,7 @@ class AutoPromptBuildTests(unittest.TestCase):
                 mock.patch.object(gv, "ensure_scene_images", return_value={}) as images:
             self.assertIsNone(gv.build_16x9_video(self.ep, ep_num=3, images_only=True))
         writer.assert_not_called()
-        self.assertTrue(all(s["prompt"].startswith(good_prompt(f"scene_{i + 1:03d}", "hand"))
+        self.assertTrue(all(f", {good_prompt(f'scene_{i + 1:03d}', 'hand')}, " in s["prompt"]
                             for i, s in enumerate(images.call_args[0][0])))
 
     def test_only_missing_prompts_are_written(self):
@@ -498,6 +535,109 @@ class AutoPromptBuildTests(unittest.TestCase):
         self.assertTrue(any("run claude, then type /login" in line for line in out))
 
 
+class PlanAheadTests(unittest.TestCase):
+    """Prompts (and pictures) made before the voice; the recording then times every scene to its first spoken word."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.ep = Path(self.tmp.name) / "02_episode"
+        self.ep.mkdir()
+        (self.ep / "script_30min.txt").write_text(narration(sentences=40), encoding="utf-8")
+        self.recordings = []
+
+        def fake_voice(text, temp_dir, prefix, speed=1.0, force_rebuild=False):
+            # The real voice is slower than the planning estimate (0.5 s a word, not 148 wpm)
+            tp = Path(temp_dir) / f"{prefix}_transcript.json"
+            self.recordings.append(text)
+            return str(Path(temp_dir) / "audio.wav"), str(tp), write_transcript(tp, text, word_sec=0.5)
+
+        self.voice = mock.patch.object(gv, "generate_speech_and_timestamps", side_effect=fake_voice)
+        self.voice.start()
+        self.free = mock.patch.object(gv, "free_comfyui_memory")
+        self.free.start()
+
+    def tearDown(self):
+        self.voice.stop()
+        self.free.stop()
+        self.tmp.cleanup()
+
+    def plan(self):
+        return json.loads((self.ep / gv.SCENE_PLAN_FILE).read_text(encoding="utf-8"))
+
+    def fill(self, plan, ep_p, writers):
+        for sc in plan["scenes"]:
+            sc["prompt"] = good_prompt(sc["id"], "claude")
+        (ep_p / gv.SCENE_PLAN_FILE).write_text(json.dumps(plan), encoding="utf-8")
+        return []
+
+    def test_script_plan_splits_at_sentences_with_estimated_times(self):
+        text = narration(sentences=40)
+        scenes = gv.plan_scenes_from_script(text, target_sec=20)
+        self.assertEqual(" ".join(sc["text"] for sc in scenes), text)
+        self.assertTrue(all(sc["text"].endswith(".") for sc in scenes))
+        for a, b in zip(scenes, scenes[1:]):
+            self.assertEqual(a["end"], b["start"])
+        avg = scenes[-1]["end"] / len(scenes)
+        self.assertTrue(15 <= avg <= 25, avg)
+
+    def test_plan_only_writes_prompts_without_recording(self):
+        with mock.patch.object(gv, "prompt_writer_order", return_value=["claude"]), \
+                mock.patch.object(gv, "write_scene_prompts_with_ai", side_effect=self.fill), \
+                mock.patch.object(gv, "ensure_scene_images") as images:
+            result = gv.build_16x9_video(self.ep, ep_num=3, plan_only=True)
+        self.assertEqual(result, "PLANNED")
+        self.assertEqual(self.recordings, [])  # no voice
+        images.assert_not_called()  # no pictures either
+        plan = self.plan()
+        self.assertEqual(plan["timing"], "estimated")
+        self.assertIsNone(plan["transcript_hash"])
+        self.assertTrue(all(sc["prompt"] for sc in plan["scenes"]))
+
+    def test_plan_only_without_a_writer_pauses_for_prompts(self):
+        with mock.patch.object(gv, "prompt_writer_order", return_value=[]):
+            self.assertEqual(gv.build_16x9_video(self.ep, ep_num=3, plan_only=True), "NEEDS_PROMPTS")
+        self.assertEqual(self.recordings, [])
+
+    def test_pictures_drawn_ahead_are_timed_to_the_voice_later(self):
+        # 1. Plan + prompts, 2. pictures, all before the voice
+        with mock.patch.object(gv, "prompt_writer_order", return_value=["claude"]), \
+                mock.patch.object(gv, "write_scene_prompts_with_ai", side_effect=self.fill):
+            gv.build_16x9_video(self.ep, ep_num=3, plan_only=True)
+        planned = self.plan()
+
+        def draw(scenes, ep_p, ep_num, allow_legacy_copy=True):
+            for s in scenes:
+                (ep_p / "images" / f"{s['id']}.png").write_bytes(b"x" * 50000)
+            return {s["id"]: str(ep_p / "images" / f"{s['id']}.png") for s in scenes}
+
+        with mock.patch.object(gv, "prompt_writer_order", return_value=["claude"]), \
+                mock.patch.object(gv, "ensure_scene_images", side_effect=draw) as images:
+            self.assertIsNone(gv.build_16x9_video(self.ep, ep_num=3, images_only=True))
+        self.assertEqual(self.recordings, [])
+        images.assert_called_once()
+
+        # 3. The voice: same scenes, prompts and pictures, now on the spoken words' real times
+        class Stop(Exception):
+            pass
+
+        with mock.patch.object(gv, "prompt_writer_order", return_value=["claude"]), \
+                mock.patch.object(gv, "write_scene_prompts_with_ai") as writer, \
+                mock.patch.object(gv, "ensure_scene_images", side_effect=draw), \
+                mock.patch.object(gv, "load_chunked_captions_16x9", side_effect=Stop):
+            with self.assertRaises(Stop):
+                gv.build_16x9_video(self.ep, ep_num=3)
+        writer.assert_not_called()
+        self.assertEqual(len(self.recordings), 1)
+        timed = self.plan()
+        self.assertEqual(timed["timing"], "recorded")
+        self.assertEqual([sc["words"] for sc in timed["scenes"]], [sc["words"] for sc in planned["scenes"]])
+        self.assertEqual([sc["prompt"] for sc in timed["scenes"]], [sc["prompt"] for sc in planned["scenes"]])
+        for sc in timed["scenes"][1:]:
+            self.assertAlmostEqual(sc["start"], sc["words"][0] * 0.5, places=2)  # on its first spoken word
+        self.assertNotEqual(timed["scenes"][1]["start"], planned["scenes"][1]["start"])
+        self.assertFalse((self.ep / "images" / "_replaced").exists())  # no picture was redrawn
+
+
 class StudioPromptWriterTests(unittest.TestCase):
     def test_setting_is_saved_in_the_project(self):
         from core import prompt_writers
@@ -522,7 +662,40 @@ class StudioSummaryTests(unittest.TestCase):
             (ep / "scene_plan.json").write_text(json.dumps({"scenes": [
                 {"id": "scene_001", "prompt": "a cherub"}, {"id": "scene_002", "prompt": ""}, {"id": "scene_003"}]}),
                 encoding="utf-8")
-            self.assertEqual(app_module.scene_plan_summary(ep), {"scenes": 3, "missing_prompts": 2})
+            self.assertEqual(app_module.scene_plan_summary(ep),
+                             {"scenes": 3, "missing_prompts": 2, "timing": "estimated"})
+            # A scene showing a chosen picture needs no prompt; a recorded plan says so
+            (ep / "scene_plan.json").write_text(json.dumps({"timing": "recorded", "transcript_hash": "abc", "scenes": [
+                {"id": "scene_001", "prompt": "", "image": "images/_placeholder_render/scene_41.png"},
+                {"id": "scene_002", "prompt": ""}]}), encoding="utf-8")
+            self.assertEqual(app_module.scene_plan_summary(ep),
+                             {"scenes": 2, "missing_prompts": 1, "timing": "recorded"})
+
+    def test_plan_and_draw_buttons_pass_their_step_to_the_generator(self):
+        import app as app_module
+        from fastapi.testclient import TestClient
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "generate_video.py").write_text("", encoding="utf-8")
+            (Path(tmp) / "W03").mkdir()
+            calls = []
+
+            async def fake_run(script_path, args, cwd=None, **kwargs):
+                calls.append(args)
+                return {"success": True, "job": {"pid": 1}}
+
+            with mock.patch.object(app_module.config_manager, "get_active_project", return_value=tmp), \
+                    mock.patch.object(app_module.process_runner, "run_script", side_effect=fake_run):
+                client = TestClient(app_module.app)
+                for mode, flag in (("plan", "--plan-only"), ("images", "--images-only"), (None, None)):
+                    r = client.post("/api/generator/run", json={"week": 3, "type": "long_form", "target_num": 2,
+                                                                "mode": mode})
+                    self.assertEqual(r.status_code, 200, r.text)
+                    self.assertEqual(calls[-1][:4], ["--week", "3", "--video", "2"])
+                    if flag:
+                        self.assertIn(flag, calls[-1])
+                    else:
+                        self.assertNotIn("--plan-only", calls[-1])
+                        self.assertNotIn("--images-only", calls[-1])
 
 
 class FakeResponse:

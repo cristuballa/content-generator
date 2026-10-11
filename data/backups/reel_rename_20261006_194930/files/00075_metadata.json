@@ -1,0 +1,193 @@
+{
+  "week": 37,
+  "year": 1,
+  "quarter": "Q3",
+  "theme": "Daniel's 70 Weeks Countdown",
+  "testament": "Old Testament / Prophecy",
+  "documentary": {
+    "id": "DOC-W37",
+    "title": "Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+    "duration": "32 min",
+    "scriptures": [
+      "Daniel 9:24-27",
+      "Nehemiah 2:1-8",
+      "Luke 19:41-44"
+    ],
+    "christological_key": "69 prophetic weeks of 360 days (173,880 days) from Artaxerxes hits the exact day Jesus rode the donkey.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W37.A",
+    "pillar_title": "The 483-Year Countdown: Predicting the Exact Day of Messiah's Entry",
+    "digest_id": "SUB-W37.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W37.1",
+      "num": 1,
+      "global_num": 181,
+      "day": "Mon",
+      "badge": "Bible Secrets #181 [W37.1]",
+      "title": "Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W37.2",
+      "num": 2,
+      "global_num": 182,
+      "day": "Tue",
+      "badge": "Bible Secrets #182 [W37.2]",
+      "title": "Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W37.3",
+      "num": 3,
+      "global_num": 183,
+      "day": "Wed",
+      "badge": "Bible Secrets #183 [W37.3]",
+      "title": "Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W37.4",
+      "num": 4,
+      "global_num": 184,
+      "day": "Thu",
+      "badge": "Bible Secrets #184 [W37.4]",
+      "title": "Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W37.5",
+      "num": 5,
+      "global_num": 185,
+      "day": "Fri",
+      "badge": "Bible Secrets #185 [W37.5]",
+      "title": "Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W37.1",
+      "num": 1,
+      "global_num": 181,
+      "day": "Mon",
+      "badge": "Story #181 [W37.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W37.2",
+      "num": 2,
+      "global_num": 182,
+      "day": "Tue",
+      "badge": "Story #182 [W37.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W37.3",
+      "num": 3,
+      "global_num": 183,
+      "day": "Wed",
+      "badge": "Story #183 [W37.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W37.4",
+      "num": 4,
+      "global_num": 184,
+      "day": "Thu",
+      "badge": "Story #184 [W37.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday"
+    },
+    {
+      "id": "S-W37.5",
+      "num": 5,
+      "global_num": 185,
+      "day": "Fri",
+      "badge": "Story #185 [W37.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W37.1",
+      "num": 1,
+      "global_num": 181,
+      "day": "Mon",
+      "badge": "Community Post #181",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+      "options": []
+    },
+    {
+      "id": "CT-W37.2",
+      "num": 2,
+      "global_num": 182,
+      "day": "Tue",
+      "badge": "Community Post #182",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W37.3",
+      "num": 3,
+      "global_num": 183,
+      "day": "Wed",
+      "badge": "Community Post #183",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+      "options": []
+    },
+    {
+      "id": "CT-W37.4",
+      "num": 4,
+      "global_num": 184,
+      "day": "Thu",
+      "badge": "Community Post #184",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+      "options": []
+    },
+    {
+      "id": "CT-W37.5",
+      "num": 5,
+      "global_num": 185,
+      "day": "Fri",
+      "badge": "Community Post #185",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss Daniel’s 70 Weeks: The Mathematical Countdown Pinpointing Palm Sunday",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

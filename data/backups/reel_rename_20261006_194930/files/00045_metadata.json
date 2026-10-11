@@ -1,0 +1,193 @@
+{
+  "week": 7,
+  "year": 1,
+  "quarter": "Q1",
+  "theme": "The Nephilim Crisis",
+  "testament": "Dead Sea Scrolls / Apocrypha",
+  "documentary": {
+    "id": "DOC-W07",
+    "title": "The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+    "duration": "30 min",
+    "scriptures": [
+      "4Q203 Book of Giants",
+      "Jubilees 7",
+      "Genesis 6:11-13"
+    ],
+    "christological_key": "The earth was filled with violent bio-corruption; God preserved Noah's genealogy pure until Christ.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W07.A",
+    "pillar_title": "The Qumran Giants: Ancient Aramaic Proof of the Genesis 6 Cataclysm",
+    "digest_id": "SUB-W07.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W07.1",
+      "num": 1,
+      "global_num": 31,
+      "day": "Mon",
+      "badge": "Bible Secrets #031 [W07.1]",
+      "title": "The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W07.2",
+      "num": 2,
+      "global_num": 32,
+      "day": "Tue",
+      "badge": "Bible Secrets #032 [W07.2]",
+      "title": "The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W07.3",
+      "num": 3,
+      "global_num": 33,
+      "day": "Wed",
+      "badge": "Bible Secrets #033 [W07.3]",
+      "title": "The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W07.4",
+      "num": 4,
+      "global_num": 34,
+      "day": "Thu",
+      "badge": "Bible Secrets #034 [W07.4]",
+      "title": "The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W07.5",
+      "num": 5,
+      "global_num": 35,
+      "day": "Fri",
+      "badge": "Bible Secrets #035 [W07.5]",
+      "title": "The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W07.1",
+      "num": 1,
+      "global_num": 31,
+      "day": "Mon",
+      "badge": "Story #031 [W07.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W07.2",
+      "num": 2,
+      "global_num": 32,
+      "day": "Tue",
+      "badge": "Story #032 [W07.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W07.3",
+      "num": 3,
+      "global_num": 33,
+      "day": "Wed",
+      "badge": "Story #033 [W07.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W07.4",
+      "num": 4,
+      "global_num": 34,
+      "day": "Thu",
+      "badge": "Story #034 [W07.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World"
+    },
+    {
+      "id": "S-W07.5",
+      "num": 5,
+      "global_num": 35,
+      "day": "Fri",
+      "badge": "Story #035 [W07.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W07.1",
+      "num": 1,
+      "global_num": 31,
+      "day": "Mon",
+      "badge": "Community Post #031",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+      "options": []
+    },
+    {
+      "id": "CT-W07.2",
+      "num": 2,
+      "global_num": 32,
+      "day": "Tue",
+      "badge": "Community Post #032",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W07.3",
+      "num": 3,
+      "global_num": 33,
+      "day": "Wed",
+      "badge": "Community Post #033",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+      "options": []
+    },
+    {
+      "id": "CT-W07.4",
+      "num": 4,
+      "global_num": 34,
+      "day": "Thu",
+      "badge": "Community Post #034",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+      "options": []
+    },
+    {
+      "id": "CT-W07.5",
+      "num": 5,
+      "global_num": 35,
+      "day": "Fri",
+      "badge": "Community Post #035",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Nephilim & The Book of Giants: The Bio-Spiritual Crisis of the Ancient World",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

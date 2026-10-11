@@ -581,5 +581,78 @@
     "skipped_platforms": {},
     "retry_count": 0,
     "next_retry_at": null
+  },
+  {
+    "id": "sched_1791346828_f98e9d",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "BHSR (Bible Hidden Secrets Revealed)",
+    "video_rel_path": "W02/stories/11_a_thousand_years_as_one_day/story_video_final.mp4",
+    "video_filename": "story_video_final.mp4",
+    "episode_num": 11,
+    "title": "Time and Eternity",
+    "thumbnail_url": "/api/thumbnail/W02/stories/11_a_thousand_years_as_one_day/story_video_final.mp4",
+    "duration": "0:10",
+    "scheduled_date": "2026-10-07",
+    "scheduled_time": "20:00",
+    "scheduled_datetime_iso": "2026-10-07T20:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "posted",
+    "created_at": "2026-10-07T17:20:28.304131",
+    "posted_at": "2026-10-07T20:00:24",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "Time and Eternity",
+      "video": "story_video_final.mp4",
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "id": "XLiAHl4u1O8",
+          "url": "https://youtu.be/XLiAHl4u1O8",
+          "scheduled": false,
+          "scheduled_for": null,
+          "thumbnail_attached": true,
+          "comment_posted": true,
+          "message": "Published to YouTube: https://youtu.be/XLiAHl4u1O8",
+          "comment_id": "Ugx9Ie0Vg84WJ6eOBrx4AaABAg",
+          "mode": "YouTube Shorts",
+          "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+        },
+        "facebook": {
+          "status": "published",
+          "platform": "Facebook Story",
+          "id": "2320106595493233",
+          "url": "https://www.facebook.com/2320106595493233",
+          "is_story": true,
+          "message": "Published Story to Facebook Page: https://www.facebook.com/2320106595493233",
+          "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+        },
+        "instagram": {
+          "status": "published",
+          "platform": "Instagram",
+          "id": "17976250632130056",
+          "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4002510752485385161",
+          "first_comment": null,
+          "is_story": true,
+          "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4002510752485385161",
+          "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+        }
+      }
+    },
+    "last_attempt_at": "2026-10-07T20:00:24",
+    "published_platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "skipped_platforms": {},
+    "retry_count": 0,
+    "next_retry_at": null
   }
 ]

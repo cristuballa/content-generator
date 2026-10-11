@@ -178,8 +178,10 @@ Description:
 ============================================================
 🛒 OFFICIAL MERCH & BOOKS:
 ✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems
-📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2
-📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG
+📖 Book of Enoch https://www.etsy.com/nz/listing/4591934547
+📖 Study Guide NT https://www.etsy.com/nz/listing/4536465297
+📖 Study Guide OT https://www.etsy.com/nz/listing/4526027051
+📖 Bible Hidden Secrets https://www.etsy.com/nz/listing/4526030482
 ============================================================
 
 Tags: 

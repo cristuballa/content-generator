@@ -1,0 +1,193 @@
+{
+  "week": 17,
+  "year": 1,
+  "quarter": "Q2",
+  "theme": "The Akedah on Moriah",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W17",
+    "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+    "duration": "28 min",
+    "scriptures": [
+      "Genesis 22:1-19",
+      "Hebrews 11:17-19",
+      "John 19:17"
+    ],
+    "christological_key": "Isaac carries the wood up Mount Moriah (the future Golgotha); God provides Himself the Lamb.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W17.A",
+    "pillar_title": "Moriah to Calvary: The Father, The Beloved Son & The Thicket Ram",
+    "digest_id": "SUB-W17.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W17.1",
+      "num": 1,
+      "global_num": 81,
+      "day": "Mon",
+      "badge": "Bible Secrets #081 [W17.1]",
+      "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W17.2",
+      "num": 2,
+      "global_num": 82,
+      "day": "Tue",
+      "badge": "Bible Secrets #082 [W17.2]",
+      "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W17.3",
+      "num": 3,
+      "global_num": 83,
+      "day": "Wed",
+      "badge": "Bible Secrets #083 [W17.3]",
+      "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W17.4",
+      "num": 4,
+      "global_num": 84,
+      "day": "Thu",
+      "badge": "Bible Secrets #084 [W17.4]",
+      "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W17.5",
+      "num": 5,
+      "global_num": 85,
+      "day": "Fri",
+      "badge": "Bible Secrets #085 [W17.5]",
+      "title": "The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W17.1",
+      "num": 1,
+      "global_num": 81,
+      "day": "Mon",
+      "badge": "Story #081 [W17.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W17.2",
+      "num": 2,
+      "global_num": 82,
+      "day": "Tue",
+      "badge": "Story #082 [W17.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W17.3",
+      "num": 3,
+      "global_num": 83,
+      "day": "Wed",
+      "badge": "Story #083 [W17.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W17.4",
+      "num": 4,
+      "global_num": 84,
+      "day": "Thu",
+      "badge": "Story #084 [W17.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back"
+    },
+    {
+      "id": "S-W17.5",
+      "num": 5,
+      "global_num": 85,
+      "day": "Fri",
+      "badge": "Story #085 [W17.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W17.1",
+      "num": 1,
+      "global_num": 81,
+      "day": "Mon",
+      "badge": "Community Post #081",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+      "options": []
+    },
+    {
+      "id": "CT-W17.2",
+      "num": 2,
+      "global_num": 82,
+      "day": "Tue",
+      "badge": "Community Post #082",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W17.3",
+      "num": 3,
+      "global_num": 83,
+      "day": "Wed",
+      "badge": "Community Post #083",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+      "options": []
+    },
+    {
+      "id": "CT-W17.4",
+      "num": 4,
+      "global_num": 84,
+      "day": "Thu",
+      "badge": "Community Post #084",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+      "options": []
+    },
+    {
+      "id": "CT-W17.5",
+      "num": 5,
+      "global_num": 85,
+      "day": "Fri",
+      "badge": "Community Post #085",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Akedah: Abraham Offers Isaac on Mount Moriah — The Wood on the Son's Back",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

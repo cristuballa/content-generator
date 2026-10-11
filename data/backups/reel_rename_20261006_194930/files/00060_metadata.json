@@ -1,0 +1,192 @@
+{
+  "week": 22,
+  "year": 1,
+  "quarter": "Q2",
+  "theme": "The Red Sea Crossing",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W22",
+    "title": "The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+    "duration": "28 min",
+    "scriptures": [
+      "Exodus 14:1-31",
+      "1 Corinthians 10:1-4"
+    ],
+    "christological_key": "Paul reveals: 'They drank of that spiritual Rock that followed them, and that Rock was Christ.'",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W22.A",
+    "pillar_title": "Baptism in the Sea: The Angel of Yahweh Standing Between Israel and Death",
+    "digest_id": "SUB-W22.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W22.1",
+      "num": 1,
+      "global_num": 106,
+      "day": "Mon",
+      "badge": "Bible Secrets #106 [W22.1]",
+      "title": "The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W22.2",
+      "num": 2,
+      "global_num": 107,
+      "day": "Tue",
+      "badge": "Bible Secrets #107 [W22.2]",
+      "title": "The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W22.3",
+      "num": 3,
+      "global_num": 108,
+      "day": "Wed",
+      "badge": "Bible Secrets #108 [W22.3]",
+      "title": "The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W22.4",
+      "num": 4,
+      "global_num": 109,
+      "day": "Thu",
+      "badge": "Bible Secrets #109 [W22.4]",
+      "title": "The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W22.5",
+      "num": 5,
+      "global_num": 110,
+      "day": "Fri",
+      "badge": "Bible Secrets #110 [W22.5]",
+      "title": "The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W22.1",
+      "num": 1,
+      "global_num": 106,
+      "day": "Mon",
+      "badge": "Story #106 [W22.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W22.2",
+      "num": 2,
+      "global_num": 107,
+      "day": "Tue",
+      "badge": "Story #107 [W22.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W22.3",
+      "num": 3,
+      "global_num": 108,
+      "day": "Wed",
+      "badge": "Story #108 [W22.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W22.4",
+      "num": 4,
+      "global_num": 109,
+      "day": "Thu",
+      "badge": "Story #109 [W22.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert"
+    },
+    {
+      "id": "S-W22.5",
+      "num": 5,
+      "global_num": 110,
+      "day": "Fri",
+      "badge": "Story #110 [W22.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W22.1",
+      "num": 1,
+      "global_num": 106,
+      "day": "Mon",
+      "badge": "Community Post #106",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+      "options": []
+    },
+    {
+      "id": "CT-W22.2",
+      "num": 2,
+      "global_num": 107,
+      "day": "Tue",
+      "badge": "Community Post #107",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W22.3",
+      "num": 3,
+      "global_num": 108,
+      "day": "Wed",
+      "badge": "Community Post #108",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+      "options": []
+    },
+    {
+      "id": "CT-W22.4",
+      "num": 4,
+      "global_num": 109,
+      "day": "Thu",
+      "badge": "Community Post #109",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+      "options": []
+    },
+    {
+      "id": "CT-W22.5",
+      "num": 5,
+      "global_num": 110,
+      "day": "Fri",
+      "badge": "Community Post #110",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Red Sea Crossing & The Pillar of Cloud: The Angel of God in the Desert",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

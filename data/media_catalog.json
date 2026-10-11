@@ -115708,7 +115708,67 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {},
+      "published": {
+        "facebook": {
+          "status": "published",
+          "time": 1791425192.0410557,
+          "details": {
+            "manual": true,
+            "url": "https://www.facebook.com/reel/4684074638487392"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791425267.8696034,
+          "details": {
+            "manual": true,
+            "url": "https://www.instagram.com/p/DeNz3m9kf0_/"
+          }
+        },
+        "tiktok": {
+          "status": "published",
+          "time": 1791425880.217005,
+          "details": {
+            "manual": true,
+            "url": "https://www.tiktok.com/@biblestories832/video/7694114576341814546"
+          }
+        },
+        "x": {
+          "status": "published",
+          "time": 1791425935.211473,
+          "details": {
+            "manual": true,
+            "url": "https://x.com/BibleSecret08/status/2108018686623883577/video/1"
+          }
+        },
+        "youtube": {
+          "status": "published",
+          "time": 1791426301.0965238,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "mBEe6vZVfTc",
+            "url": "https://youtu.be/mBEe6vZVfTc",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/mBEe6vZVfTc",
+            "comment_id": "UgxqWU4K6O3RlVXkM_F4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/wjAAVTT7vG4\n\n\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!",
+            "documentary_link": "https://youtu.be/wjAAVTT7vG4"
+          }
+        },
+        "threads": {
+          "status": "published",
+          "time": 1791427049.4980688,
+          "details": {
+            "manual": true,
+            "url": "https://www.threads.com/@cris.tuballa/post/DeN2PlNk2MC/media"
+          }
+        }
+      },
       "duration": "3:01",
       "resolution": "768x1344",
       "probe_mtime": 1788618575.653129
@@ -115865,7 +115925,10 @@
             "message": "Published to Facebook Page: https://www.facebook.com/watch/?v=1621100229805030"
           }
         }
-      }
+      },
+      "duration": "3:21",
+      "resolution": "768x1344",
+      "probe_mtime": 1791123605.789707
     },
     "W01/reels/wed_1_morning_stars_singing_job_38/wed_1_morning_stars_singing_job_38_final_reel.mp4": {
       "status": "pending",
@@ -115908,7 +115971,10 @@
             "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeCU2Qemzzt/"
           }
         }
-      }
+      },
+      "duration": "1:39",
+      "resolution": "768x1344",
+      "probe_mtime": 1790745547.7387316
     },
     "W01/reels/thu_1_why_john_1_rewrote_genesis_1/thu_1_why_john_1_rewrote_genesis_1_final_reel.mp4": {
       "status": "pending",
@@ -115916,7 +115982,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "2:05",
+      "resolution": "768x1344",
+      "probe_mtime": 1791123611.8464546
     },
     "W01/reels/fri_1_lucifers_pre_cosmic_fall/fri_1_lucifers_pre_cosmic_fall_final_reel.mp4": {
       "status": "pending",
@@ -115964,7 +116033,10 @@
             "message": "Published Reel to @biblesecretsrevealed2318: https://www.instagram.com/reel/Dd-_MnwDv_k/"
           }
         }
-      }
+      },
+      "duration": "1:54",
+      "resolution": "768x1344",
+      "probe_mtime": 1791123616.9484642
     },
     "W01/stories/01_teaser_trailer_countdown/story_video_final.mp4": {
       "status": "pending",
@@ -116040,7 +116112,10 @@
             "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeGdVNCj4Fh/"
           }
         }
-      }
+      },
+      "duration": "1:36",
+      "resolution": "768x1344",
+      "probe_mtime": 1791175536.303308
     },
     "W10/reels/mon_1_the_rainbow_was_gods_war_bow/mon_1_the_rainbow_was_gods_war_bow_final_reel.mp4": {
       "status": "pending",
@@ -116209,7 +116284,10 @@
             "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
           }
         }
-      }
+      },
+      "duration": "1:32",
+      "resolution": "768x1344",
+      "probe_mtime": 1791176542.827086
     },
     "W02/reels/wed_1_six_days_literal_or_epochs/wed_1_six_days_literal_or_epochs_final_reel.mp4": {
       "status": "pending",
@@ -116217,7 +116295,62 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {
+        "facebook": {
+          "status": "published",
+          "time": 1791364772.0419357,
+          "details": {
+            "manual": true,
+            "url": "https://www.facebook.com/reel/1094536503313900"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791364794.346975,
+          "details": {
+            "manual": true,
+            "url": "https://www.instagram.com/p/DeLXEU-j5lB/"
+          }
+        },
+        "tiktok": {
+          "status": "published",
+          "time": 1791364834.2640238,
+          "details": {
+            "manual": true,
+            "url": "https://www.tiktok.com/@biblestories832/video/7693763316321144072"
+          }
+        },
+        "x": {
+          "status": "published",
+          "time": 1791364860.9838455,
+          "details": {
+            "manual": true,
+            "url": "https://x.com/BibleSecret08/status/2107675878423691374"
+          }
+        },
+        "youtube": {
+          "status": "published",
+          "time": 1791365043.7709038,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "4rEN2eMIyZU",
+            "url": "https://youtu.be/4rEN2eMIyZU",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/4rEN2eMIyZU",
+            "comment_id": "Ugx9iBFTEEkc37a11dZ4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/wjAAVTT7vG4\n\n\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!",
+            "documentary_link": "https://youtu.be/wjAAVTT7vG4"
+          }
+        }
+      },
+      "duration": "2:03",
+      "resolution": "768x1344",
+      "probe_mtime": 1791123636.7555342
     },
     "W03/long_form/01_the_seraph_in_the_garden_the_creature_behind_the_serpent/10-The_Seraph_and_the_Garden_final_16x9.mp4": {
       "status": "pending",
@@ -116225,7 +116358,24 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791571773.229704,
+          "details": {
+            "manual": true,
+            "url": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791622944.573743,
+          "details": {
+            "manual": true,
+            "url": "https://www.facebook.com/reel/2589027478188299"
+          }
+        }
+      }
     },
     "W06/long_form/01_the_watchers_and_the_nephilim_pre_flood_cosmic_incursion/04_the_watchers_and_nephilim_35min_final_16x9.mp4": {
       "status": "pending",
@@ -116281,7 +116431,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791177381.5443294
     },
     "W02/reels/fri_1_day_seven_sabbath_rest_of_christ/fri_1_day_seven_sabbath_rest_of_christ_final_reel.mp4": {
       "status": "pending",
@@ -116289,7 +116442,19 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {
+        "facebook": {
+          "status": "published",
+          "time": 1791466644.908779,
+          "details": {
+            "manual": true,
+            "url": "https://www.facebook.com/reel/1845438196455801"
+          }
+        }
+      },
+      "duration": "1:49",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791453914.6277573
     },
     "W02/long_form/02_fiat_lux_uncreated_light/W02_week_02_final_16x9.mp4": {
       "status": "pending",
@@ -116390,7 +116555,10 @@
             "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
           }
         }
-      }
+      },
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791253267.548043
     },
     "W02/stories/03_six_day_cosmic_temple/story_video_final.mp4": {
       "status": "pending",
@@ -116398,7 +116566,56 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791343242.0378444,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "7amE5j58vCk",
+            "url": "https://youtu.be/7amE5j58vCk",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/7amE5j58vCk",
+            "comment_id": "UgwPZY1cM2BlRvj68394AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791343242.249923,
+          "details": {
+            "status": "published",
+            "platform": "Facebook Story",
+            "id": "993797427081963",
+            "url": "https://www.facebook.com/993797427081963",
+            "is_story": true,
+            "message": "Published Story to Facebook Page: https://www.facebook.com/993797427081963",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791343242.4676833,
+          "details": {
+            "status": "published",
+            "platform": "Instagram",
+            "id": "17894410017426812",
+            "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4002399330312665213",
+            "first_comment": null,
+            "is_story": true,
+            "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4002399330312665213",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        }
+      },
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123899.1386468
     },
     "W02/stories/04_image_of_god_imago_dei/story_video_final.mp4": {
       "status": "pending",
@@ -116406,7 +116623,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123899.5289335
     },
     "W02/stories/05_sabbath_rest_foreshadow/story_video_final.mp4": {
       "status": "pending",
@@ -116414,7 +116634,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123899.9467876
     },
     "W05/reels/mon_1_why_god_rejected_cains_fruit/mon_1_why_god_rejected_cains_fruit_final_reel.mp4": {
       "status": "pending",
@@ -116422,7 +116645,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "1:43",
+      "resolution": "768x1344",
+      "probe_mtime": 1791123656.635625
     },
     "W05/stories/01_cain_and_abel_first_murder/story_video_final.mp4": {
       "status": "pending",
@@ -116430,7 +116656,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123903.6216972
     },
     "W05/stories/02_works_vs_faith_altars/story_video_final.mp4": {
       "status": "pending",
@@ -116438,7 +116667,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123903.9003358
     },
     "W01/stories/12_john_rewrote_genesis/story_video_final.mp4": {
       "status": "pending",
@@ -116570,7 +116802,10 @@
             "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
           }
         }
-      }
+      },
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791177339.5578368
     },
     "W02/stories/08_the_spirit_hovering/story_video_final.mp4": {
       "status": "pending",
@@ -116624,7 +116859,10 @@
             "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
           }
         }
-      }
+      },
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791253245.6285799
     },
     "W02/stories/09_the_eagle_over_its_nest/story_video_final.mp4": {
       "status": "pending",
@@ -116678,7 +116916,10 @@
             "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
           }
         }
-      }
+      },
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791253253.6399183
     },
     "W02/long_form/01_genesis_1_pre_existent_logos/W02_genesis_1_decoded_the_word_final_16x9.mp4": {
       "status": "pending",
@@ -116686,7 +116927,45 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791345784.907927,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "wjAAVTT7vG4",
+            "url": "https://youtu.be/wjAAVTT7vG4",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/wjAAVTT7vG4",
+            "comment_id": "UgyLyiyF4NAvtZk-n_d4AaABAg",
+            "mode": "YouTube Standard",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791345785.0309236,
+          "details": {
+            "status": "published",
+            "platform": "Facebook",
+            "id": "971981529283373",
+            "url": "https://www.facebook.com/watch/?v=971981529283373",
+            "thumbnail_attached": true,
+            "scheduled": false,
+            "scheduled_timestamp": null,
+            "first_comment": {
+              "status": "posted",
+              "comment_id": "971981529283373_1786650025868581"
+            },
+            "message": "Published to Facebook Page: https://www.facebook.com/watch/?v=971981529283373",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        }
+      }
     },
     "W03/reels/mon_1_serpent_was_not_a_legged_snake/mon_1_serpent_was_not_a_legged_snake_final_reel.mp4": {
       "status": "pending",
@@ -116694,7 +116973,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "2:23",
+      "resolution": "768x1344",
+      "probe_mtime": 1791642876.7143073
     },
     "W03/reels/tue_1_nachash_shining_bronze_seraph/tue_1_nachash_shining_bronze_seraph_final_reel.mp4": {
       "status": "pending",
@@ -116702,7 +116984,10 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
-      "published": {}
+      "published": {},
+      "duration": "1:56",
+      "resolution": "768x1344",
+      "probe_mtime": 1791554275.7277937
     },
     "W03/stories/01_garden_of_eden_holy_mountain/story_video_final.mp4": {
       "status": "pending",
@@ -116710,7 +116995,1253 @@
       "notes": "",
       "approved_at": null,
       "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299767.8241313
+    },
+    "W01/stories/06_before_the_first_day/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
       "published": {}
+    },
+    "W01/stories/07_chosen_before_the_world/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/08_in_the_beginning_bereshit/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/09_the_lamb_before_the_world/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/10_who_sang_at_creation/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/11_gods_heavenly_council/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/13_the_maker_of_thrones/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/14_son_of_the_dawn/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/15_the_true_morning_star/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W02/stories/07_light_in_our_hearts/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791177353.5954924
+    },
+    "W02/stories/10_six_days/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791346526.756871,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "-xKh-NTL8aQ",
+            "url": "https://youtu.be/-xKh-NTL8aQ",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/-xKh-NTL8aQ",
+            "comment_id": "UgwWTSCoZM-mK-wBcIl4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791346526.9605365,
+          "details": {
+            "status": "published",
+            "platform": "Facebook Story",
+            "id": "1394268042884369",
+            "url": "https://www.facebook.com/1394268042884369",
+            "is_story": true,
+            "message": "Published Story to Facebook Page: https://www.facebook.com/1394268042884369",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791346527.1924608,
+          "details": {
+            "status": "published",
+            "platform": "Instagram",
+            "id": "18092760437556671",
+            "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4002426892461112756",
+            "first_comment": null,
+            "is_story": true,
+            "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4002426892461112756",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        }
+      },
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123901.7108405
+    },
+    "W02/stories/11_a_thousand_years_as_one_day/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791356521.7067451,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "XLiAHl4u1O8",
+            "url": "https://youtu.be/XLiAHl4u1O8",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/XLiAHl4u1O8",
+            "comment_id": "Ugx9Ie0Vg84WJ6eOBrx4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791356522.3725922,
+          "details": {
+            "status": "published",
+            "platform": "Facebook Story",
+            "id": "2320106595493233",
+            "url": "https://www.facebook.com/2320106595493233",
+            "is_story": true,
+            "message": "Published Story to Facebook Page: https://www.facebook.com/2320106595493233",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791356523.0855975,
+          "details": {
+            "status": "published",
+            "platform": "Instagram",
+            "id": "17976250632130056",
+            "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4002510752485385161",
+            "first_comment": null,
+            "is_story": true,
+            "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4002510752485385161",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udcd6 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n\ud83d\udcd6 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        }
+      },
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.0358877
+    },
+    "W02/stories/12_let_us_make_man/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.3301055
+    },
+    "W02/stories/13_the_image_of_the_invisible_god/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.6509013
+    },
+    "W02/stories/14_day_seven/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.9808693
+    },
+    "W02/stories/15_come_unto_me/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123903.2760916
+    },
+    "W03/long_form/02_the_anointed_cherub_cast_out_of_eden/W03_week_03_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W03/reels/mon_2_the_first_question_was_a_trap/mon_2_the_first_question_was_a_trap_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "1:54",
+      "resolution": "768x1344",
+      "probe_mtime": 1791642928.5139673
+    },
+    "W03/reels/tue_2_why_jesus_compared_himself_to_a_serpent/tue_2_why_jesus_compared_himself_to_a_serpent_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "1:39",
+      "resolution": "768x1344",
+      "probe_mtime": 1791554689.2975335
+    },
+    "W03/reels/wed_1_eden_had_jewels_not_just_trees/wed_1_eden_had_jewels_not_just_trees_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791651530.2624204,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "ecWirjZgpL4",
+            "url": "https://youtu.be/ecWirjZgpL4",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/ecWirjZgpL4",
+            "comment_id": "UgzORSzpscJReHTdvQV4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/07TNgCtqjMo\n\n\ud83d\udcd6 Get \"The Watchers & The Word\" on Etsy:\n\ud83d\udc49 https://www.etsy.com/nz/listing/4591934547\n\n\u2728 Browse All Books & Sacred Art:\n\ud83d\udc49 https://www.etsy.com/shop/BibleHiddenGems",
+            "documentary_link": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791651530.423242,
+          "details": {
+            "status": "published",
+            "platform": "Facebook Reels",
+            "id": "1755229418872353",
+            "url": "https://www.facebook.com/reel/1755229418872353",
+            "is_reel": true,
+            "thumbnail_attached": true,
+            "scheduled": false,
+            "scheduled_timestamp": null,
+            "first_comment": {
+              "status": "posted",
+              "comment_id": "1755229418872353_1442229254503750"
+            },
+            "message": "Published Reel to Facebook Page: https://www.facebook.com/reel/1755229418872353",
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/07TNgCtqjMo\n\n\ud83d\udcd6 Get \"The Watchers & The Word\" on Etsy:\n\ud83d\udc49 https://www.etsy.com/nz/listing/4591934547\n\n\u2728 Browse All Books & Sacred Art:\n\ud83d\udc49 https://www.etsy.com/shop/BibleHiddenGems",
+            "documentary_link": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791651530.5764081,
+          "details": {
+            "status": "published",
+            "platform": "Instagram",
+            "id": "17972123904173836",
+            "url": "https://www.instagram.com/reel/DeUkDT9G4-f/",
+            "first_comment": {
+              "status": "failed",
+              "error": "(#10) Application does not have permission for this action"
+            },
+            "is_story": false,
+            "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeUkDT9G4-f/",
+            "thumbnail_attached": true,
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/07TNgCtqjMo\n\n\ud83d\udcd6 Get \"The Watchers & The Word\" on Etsy:\n\ud83d\udc49 https://www.etsy.com/nz/listing/4591934547\n\n\u2728 Browse All Books & Sacred Art:\n\ud83d\udc49 https://www.etsy.com/shop/BibleHiddenGems",
+            "documentary_link": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "threads": {
+          "status": "published",
+          "time": 1791652200.8936863,
+          "details": {
+            "manual": true,
+            "url": "https://www.threads.com/@bible.hidden.secrets.revealed/post/DeUkSV1k7Ih"
+          }
+        },
+        "tiktok": {
+          "status": "published",
+          "time": 1791652215.4271095,
+          "details": {
+            "manual": true,
+            "url": "https://www.tiktok.com/@biblestories832/video/7695082387524324615"
+          }
+        },
+        "x": {
+          "status": "published",
+          "time": 1791652252.2092113,
+          "details": {
+            "manual": true,
+            "url": "https://x.com/BibleSecret08/status/2108964564390011085"
+          }
+        }
+      },
+      "duration": "2:11",
+      "resolution": "768x1344",
+      "probe_mtime": 1791650584.2099957
+    },
+    "W03/reels/wed_2_the_forbidden_fruit_was_not_an_apple/wed_2_the_forbidden_fruit_was_not_an_apple_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791694034.2662425,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "9_b64PbaQAI",
+            "url": "https://youtu.be/9_b64PbaQAI",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/9_b64PbaQAI",
+            "comment_id": "UgzZmQ7MrKULz9R8brx4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/07TNgCtqjMo\n\n\ud83d\udcd6 Get \"The Watchers & The Word\" on Etsy:\n\ud83d\udc49 https://www.etsy.com/nz/listing/4591934547\n\n\u2728 Browse All Books & Sacred Art:\n\ud83d\udc49 https://www.etsy.com/shop/BibleHiddenGems",
+            "documentary_link": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791694034.7764194,
+          "details": {
+            "status": "published",
+            "platform": "Facebook Reels",
+            "id": "1649366666906218",
+            "url": "https://www.facebook.com/reel/1649366666906218",
+            "is_reel": true,
+            "thumbnail_attached": true,
+            "scheduled": false,
+            "scheduled_timestamp": null,
+            "first_comment": {
+              "status": "posted",
+              "comment_id": "1649366666906218_1625171309650889"
+            },
+            "message": "Published Reel to Facebook Page: https://www.facebook.com/reel/1649366666906218",
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/07TNgCtqjMo\n\n\ud83d\udcd6 Get \"The Watchers & The Word\" on Etsy:\n\ud83d\udc49 https://www.etsy.com/nz/listing/4591934547\n\n\u2728 Browse All Books & Sacred Art:\n\ud83d\udc49 https://www.etsy.com/shop/BibleHiddenGems",
+            "documentary_link": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791694035.309484,
+          "details": {
+            "status": "published",
+            "platform": "Instagram",
+            "id": "18029458919910545",
+            "url": "https://www.instagram.com/reel/DeV1FsCGLWT/",
+            "first_comment": {
+              "status": "failed",
+              "error": "(#10) Application does not have permission for this action"
+            },
+            "is_story": false,
+            "message": "Published Reel to Instagram: https://www.instagram.com/reel/DeV1FsCGLWT/",
+            "thumbnail_attached": true,
+            "comment_text": "\ud83c\udfac Watch the full documentary: https://youtu.be/07TNgCtqjMo\n\n\ud83d\udcd6 Get \"The Watchers & The Word\" on Etsy:\n\ud83d\udc49 https://www.etsy.com/nz/listing/4591934547\n\n\u2728 Browse All Books & Sacred Art:\n\ud83d\udc49 https://www.etsy.com/shop/BibleHiddenGems",
+            "documentary_link": "https://youtu.be/07TNgCtqjMo"
+          }
+        },
+        "threads": {
+          "status": "published",
+          "time": 1791694370.0800858,
+          "details": {
+            "manual": true,
+            "url": "https://www.threads.com/@bible.hidden.secrets.revealed/post/DeV1Hs-E618/media"
+          }
+        },
+        "tiktok": {
+          "status": "published",
+          "time": 1791694384.2227466,
+          "details": {
+            "manual": true,
+            "url": "https://www.tiktok.com/@biblestories832/video/7695265528125984007"
+          }
+        },
+        "x": {
+          "status": "published",
+          "time": 1791694428.542358,
+          "details": {
+            "manual": true,
+            "url": "https://x.com/BibleSecret08/status/2109143503183995084"
+          }
+        }
+      },
+      "duration": "1:57",
+      "resolution": "768x1344",
+      "probe_mtime": 1791693390.196107
+    },
+    "W03/reels/thu_1_five_i_wills_of_isaiah_14/thu_1_five_i_wills_of_isaiah_14_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "1:47",
+      "resolution": "768x1344",
+      "probe_mtime": 1791555894.1192265
+    },
+    "W03/reels/thu_2_why_the_serpent_eats_dust/thu_2_why_the_serpent_eats_dust_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "1:34",
+      "resolution": "768x1344",
+      "probe_mtime": 1791556283.2367914
+    },
+    "W03/reels/fri_1_guardian_cherub_disqualified/fri_1_guardian_cherub_disqualified_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "1:59",
+      "resolution": "768x1344",
+      "probe_mtime": 1791556789.007918
+    },
+    "W03/reels/fri_2_the_title_satan_lost_and_jesus_holds/fri_2_the_title_satan_lost_and_jesus_holds_final_reel.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "1:35",
+      "resolution": "768x1344",
+      "probe_mtime": 1791557298.380881
+    },
+    "W03/stories/02_nachash_etymology_deep_dive/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299776.890846
+    },
+    "W03/stories/03_the_two_trees_in_the_midst/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299784.7143352
+    },
+    "W03/stories/04_ezekiel_28_edenic_priest/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299792.4087152
+    },
+    "W03/stories/05_the_fall_and_disqualification/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299801.065946
+    },
+    "W03/stories/06_not_a_garden_snake/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299805.7642248
+    },
+    "W03/stories/07_did_god_really_say/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299810.1696386
+    },
+    "W03/stories/08_seraph_means_burning_one/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299814.5826309
+    },
+    "W03/stories/09_even_the_burning_ones_hide/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299818.8943021
+    },
+    "W03/stories/10_look_and_live/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299823.1852272
+    },
+    "W03/stories/11_eden_was_full_of_gemstones/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299827.655415
+    },
+    "W03/stories/12_five_sentences_that_started_a_war/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299831.9336584
+    },
+    "W03/stories/13_why_was_he_jealous_of_man/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299836.275163
+    },
+    "W03/stories/14_the_cherub_who_covered/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299840.9757574
+    },
+    "W03/stories/15_the_true_morning_star/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791299845.723053
+    },
+    "W04/long_form/01_the_protoevangelium_genesis_3_15_seed_war/W04_week_04_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W01/stories/fri_1_son_of_the_dawn/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123897.7728403
+    },
+    "W01/stories/fri_2_the_true_morning_star/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123898.0905561
+    },
+    "W01/stories/fri_3_throne_of_glory_art/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123894.8769245
+    },
+    "W01/stories/mon_1_before_the_first_day/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123895.1714027
+    },
+    "W01/stories/mon_2_chosen_before_the_world/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123895.5085697
+    },
+    "W01/stories/mon_3_teaser_trailer_countdown/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123893.4990394
+    },
+    "W01/stories/thu_1_john_rewrote_genesis/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123897.0795135
+    },
+    "W01/stories/thu_2_the_maker_of_thrones/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123897.4340124
+    },
+    "W01/stories/thu_3_colossians_1_16_quiz/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123894.5150247
+    },
+    "W01/stories/tue_1_in_the_beginning_bereshit/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123895.8026996
+    },
+    "W01/stories/tue_2_the_lamb_before_the_world/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123896.1290982
+    },
+    "W01/stories/tue_3_hebrew_bereshit_breakdown/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123893.8220484
+    },
+    "W01/stories/wed_1_who_sang_at_creation/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123896.4322262
+    },
+    "W01/stories/wed_2_gods_heavenly_council/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123896.7264292
+    },
+    "W01/stories/wed_3_divine_council_study_notes/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123894.1823301
+    },
+    "W02/stories/fri_1_day_seven/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.9808693
+    },
+    "W02/stories/fri_2_come_unto_me/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123903.2760916
+    },
+    "W02/stories/fri_3_sabbath_rest_foreshadow/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123899.9467876
+    },
+    "W02/stories/mon_1_light_before_the_sun/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791177339.5578368
+    },
+    "W02/stories/mon_2_light_in_our_hearts/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791177353.5954924
+    },
+    "W02/stories/mon_3_the_creation_dawn_of_existence/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791177381.5443294
+    },
+    "W02/stories/thu_1_let_us_make_man/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.3301055
+    },
+    "W02/stories/thu_2_the_image_of_the_invisible_god/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.6509013
+    },
+    "W02/stories/thu_3_image_of_god_imago_dei/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123899.5289335
+    },
+    "W02/stories/tue_1_the_spirit_hovering/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791253245.6285799
+    },
+    "W02/stories/tue_2_the_eagle_over_its_nest/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791253253.6399183
+    },
+    "W02/stories/tue_3_bara_vs_asah_word_study/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791253267.548043
+    },
+    "W02/stories/wed_1_six_days/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123901.7108405
+    },
+    "W02/stories/wed_2_a_thousand_years_as_one_day/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123902.0358877
+    },
+    "W02/stories/wed_3_six_day_cosmic_temple/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791123899.1386468
+    },
+    "W03/stories/fri_1_the_cherub_who_covered/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546228.5258489
+    },
+    "W03/stories/fri_2_ezekiel_28_edenic_priest/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546228.6435394
+    },
+    "W03/stories/fri_3_the_true_morning_star/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546228.738804
+    },
+    "W03/stories/mon_1_not_a_garden_snake/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546228.845789
+    },
+    "W03/stories/mon_2_nachash_etymology_deep_dive/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546228.9424078
+    },
+    "W03/stories/mon_3_did_god_really_say/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.0521405
+    },
+    "W03/stories/thu_1_five_sentences_that_started_a_war/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.1570475
+    },
+    "W03/stories/thu_2_why_was_he_jealous_of_man/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.2519743
+    },
+    "W03/stories/thu_3_the_fall_and_disqualification/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.3735201
+    },
+    "W03/stories/tue_1_seraph_means_burning_one/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.4788687
+    },
+    "W03/stories/tue_2_even_the_burning_ones_hide/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.5734289
+    },
+    "W03/stories/tue_3_look_and_live/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.681332
+    },
+    "W03/stories/wed_1_eden_was_full_of_gemstones/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {
+        "youtube": {
+          "status": "published",
+          "time": 1791653676.4527912,
+          "details": {
+            "status": "published",
+            "platform": "YouTube",
+            "id": "5HCv4E_Igjo",
+            "url": "https://youtu.be/5HCv4E_Igjo",
+            "scheduled": false,
+            "scheduled_for": null,
+            "thumbnail_attached": true,
+            "comment_posted": true,
+            "message": "Published to YouTube: https://youtu.be/5HCv4E_Igjo",
+            "comment_id": "UgwDhocYHOsz-to6aLF4AaABAg",
+            "mode": "YouTube Shorts",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "facebook": {
+          "status": "published",
+          "time": 1791653676.7378435,
+          "details": {
+            "status": "published",
+            "platform": "Facebook Story",
+            "id": "1057305677353983",
+            "url": "https://www.facebook.com/1057305677353983",
+            "is_story": true,
+            "message": "Published Story to Facebook Page: https://www.facebook.com/1057305677353983",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        },
+        "instagram": {
+          "status": "published",
+          "time": 1791653677.1116538,
+          "details": {
+            "status": "published",
+            "platform": "Instagram",
+            "id": "18023726750931792",
+            "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4005003480679530169",
+            "first_comment": null,
+            "is_story": true,
+            "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4005003480679530169",
+            "comment_text": "\ud83d\uded2 OFFICIAL MERCH & SACRED BOOKS:\n\u2728 Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n\ud83d\udc49 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+          }
+        }
+      },
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.7912369
+    },
+    "W03/stories/wed_2_garden_of_eden_holy_mountain/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546229.9229825
+    },
+    "W03/stories/wed_3_the_two_trees_in_the_midst/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:17",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546230.0311346
+    },
+    "W05/stories/mon_2_works_vs_faith_altars/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W05/stories/mon_3_cain_and_abel_first_murder/story_video_final.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W04/long_form/02_enmity_and_the_crushing_of_the_serpents_head/W04_week_04_final_16x9.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {}
+    },
+    "W03/stories/mon_1_not_a_garden_snake/mon_1_not_a_garden_snake_clean.mp4": {
+      "status": "pending",
+      "hidden": false,
+      "notes": "",
+      "approved_at": null,
+      "reviewed_at": null,
+      "published": {},
+      "duration": "0:10",
+      "resolution": "1080x1920",
+      "probe_mtime": 1791546228.845789
     }
   }
 }

@@ -1,0 +1,192 @@
+{
+  "week": 53,
+  "year": 2,
+  "quarter": "Q5",
+  "theme": "The Hidden Codex & Archaeology",
+  "testament": "Apocrypha / Dead Sea Scrolls",
+  "documentary": {
+    "id": "DOC-W53",
+    "title": "1 Enoch: The Book of the Watchers Decoded",
+    "duration": "30 min",
+    "scriptures": [
+      "Jude 14-15",
+      "1 Enoch 1:9"
+    ],
+    "christological_key": "Jude confirms Enoch prophesied the Second Coming of Christ.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W53.A",
+    "pillar_title": "1 Enoch: The Book of the Watchers Decoded: Full Study Guide & Ancient Translation",
+    "digest_id": "SUB-W53.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: 1 Enoch: The Book of the Watchers Decoded",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W53.1",
+      "num": 1,
+      "global_num": 261,
+      "day": "Mon",
+      "badge": "Bible Secrets #261 [W53.1]",
+      "title": "1 Enoch: The Book of the Watchers Decoded (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W53.2",
+      "num": 2,
+      "global_num": 262,
+      "day": "Tue",
+      "badge": "Bible Secrets #262 [W53.2]",
+      "title": "1 Enoch: The Book of the Watchers Decoded (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W53.3",
+      "num": 3,
+      "global_num": 263,
+      "day": "Wed",
+      "badge": "Bible Secrets #263 [W53.3]",
+      "title": "1 Enoch: The Book of the Watchers Decoded (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W53.4",
+      "num": 4,
+      "global_num": 264,
+      "day": "Thu",
+      "badge": "Bible Secrets #264 [W53.4]",
+      "title": "1 Enoch: The Book of the Watchers Decoded (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W53.5",
+      "num": 5,
+      "global_num": 265,
+      "day": "Fri",
+      "badge": "Bible Secrets #265 [W53.5]",
+      "title": "1 Enoch: The Book of the Watchers Decoded (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W53.1",
+      "num": 1,
+      "global_num": 261,
+      "day": "Mon",
+      "badge": "Story #261 [W53.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W53.2",
+      "num": 2,
+      "global_num": 262,
+      "day": "Tue",
+      "badge": "Story #262 [W53.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W53.3",
+      "num": 3,
+      "global_num": 263,
+      "day": "Wed",
+      "badge": "Story #263 [W53.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W53.4",
+      "num": 4,
+      "global_num": 264,
+      "day": "Thu",
+      "badge": "Story #264 [W53.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on 1 Enoch: The Book of the Watchers Decoded"
+    },
+    {
+      "id": "S-W53.5",
+      "num": 5,
+      "global_num": 265,
+      "day": "Fri",
+      "badge": "Story #265 [W53.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W53.1",
+      "num": 1,
+      "global_num": 261,
+      "day": "Mon",
+      "badge": "Community Post #261",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss 1 Enoch: The Book of the Watchers Decoded",
+      "options": []
+    },
+    {
+      "id": "CT-W53.2",
+      "num": 2,
+      "global_num": 262,
+      "day": "Tue",
+      "badge": "Community Post #262",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss 1 Enoch: The Book of the Watchers Decoded",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W53.3",
+      "num": 3,
+      "global_num": 263,
+      "day": "Wed",
+      "badge": "Community Post #263",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss 1 Enoch: The Book of the Watchers Decoded",
+      "options": []
+    },
+    {
+      "id": "CT-W53.4",
+      "num": 4,
+      "global_num": 264,
+      "day": "Thu",
+      "badge": "Community Post #264",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss 1 Enoch: The Book of the Watchers Decoded",
+      "options": []
+    },
+    {
+      "id": "CT-W53.5",
+      "num": 5,
+      "global_num": 265,
+      "day": "Fri",
+      "badge": "Community Post #265",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss 1 Enoch: The Book of the Watchers Decoded",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

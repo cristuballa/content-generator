@@ -1,0 +1,193 @@
+{
+  "week": 24,
+  "year": 1,
+  "quarter": "Q2",
+  "theme": "The Bronze Serpent",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W24",
+    "title": "The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+    "duration": "25 min",
+    "scriptures": [
+      "Numbers 21:4-9",
+      "John 3:14-15",
+      "2 Corinthians 5:21"
+    ],
+    "christological_key": "God made Him who knew no sin to be sin for us; lifted up on a pole so all who look and believe live.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W24.A",
+    "pillar_title": "Serpent on a Pole: Why God Commanded a Symbol of Sin to Save",
+    "digest_id": "SUB-W24.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W24.1",
+      "num": 1,
+      "global_num": 116,
+      "day": "Mon",
+      "badge": "Bible Secrets #116 [W24.1]",
+      "title": "The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W24.2",
+      "num": 2,
+      "global_num": 117,
+      "day": "Tue",
+      "badge": "Bible Secrets #117 [W24.2]",
+      "title": "The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W24.3",
+      "num": 3,
+      "global_num": 118,
+      "day": "Wed",
+      "badge": "Bible Secrets #118 [W24.3]",
+      "title": "The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W24.4",
+      "num": 4,
+      "global_num": 119,
+      "day": "Thu",
+      "badge": "Bible Secrets #119 [W24.4]",
+      "title": "The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W24.5",
+      "num": 5,
+      "global_num": 120,
+      "day": "Fri",
+      "badge": "Bible Secrets #120 [W24.5]",
+      "title": "The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W24.1",
+      "num": 1,
+      "global_num": 116,
+      "day": "Mon",
+      "badge": "Story #116 [W24.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W24.2",
+      "num": 2,
+      "global_num": 117,
+      "day": "Tue",
+      "badge": "Story #117 [W24.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W24.3",
+      "num": 3,
+      "global_num": 118,
+      "day": "Wed",
+      "badge": "Story #118 [W24.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W24.4",
+      "num": 4,
+      "global_num": 119,
+      "day": "Thu",
+      "badge": "Story #119 [W24.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole"
+    },
+    {
+      "id": "S-W24.5",
+      "num": 5,
+      "global_num": 120,
+      "day": "Fri",
+      "badge": "Story #120 [W24.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W24.1",
+      "num": 1,
+      "global_num": 116,
+      "day": "Mon",
+      "badge": "Community Post #116",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+      "options": []
+    },
+    {
+      "id": "CT-W24.2",
+      "num": 2,
+      "global_num": 117,
+      "day": "Tue",
+      "badge": "Community Post #117",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W24.3",
+      "num": 3,
+      "global_num": 118,
+      "day": "Wed",
+      "badge": "Community Post #118",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+      "options": []
+    },
+    {
+      "id": "CT-W24.4",
+      "num": 4,
+      "global_num": 119,
+      "day": "Thu",
+      "badge": "Community Post #119",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+      "options": []
+    },
+    {
+      "id": "CT-W24.5",
+      "num": 5,
+      "global_num": 120,
+      "day": "Fri",
+      "badge": "Community Post #120",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Bronze Serpent (Numbers 21): Christ Bearing the Curse on the Pole",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

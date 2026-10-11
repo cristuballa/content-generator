@@ -1,0 +1,193 @@
+{
+  "week": 49,
+  "year": 1,
+  "quarter": "Q4",
+  "theme": "Pentecost & Babel Reversal",
+  "testament": "New Testament",
+  "documentary": {
+    "id": "DOC-W49",
+    "title": "Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+    "duration": "28 min",
+    "scriptures": [
+      "Genesis 11:1-9",
+      "Acts 2:1-13",
+      "Deuteronomy 32:8"
+    ],
+    "christological_key": "At Babel God divided the nations into tongues; at Pentecost the Spirit unites every nation into Christ's Kingdom.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W49.A",
+    "pillar_title": "Tongues of Fire: Reclaiming the 70 Disinherited Nations of Babel",
+    "digest_id": "SUB-W49.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W49.1",
+      "num": 1,
+      "global_num": 241,
+      "day": "Mon",
+      "badge": "Bible Secrets #241 [W49.1]",
+      "title": "Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W49.2",
+      "num": 2,
+      "global_num": 242,
+      "day": "Tue",
+      "badge": "Bible Secrets #242 [W49.2]",
+      "title": "Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W49.3",
+      "num": 3,
+      "global_num": 243,
+      "day": "Wed",
+      "badge": "Bible Secrets #243 [W49.3]",
+      "title": "Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W49.4",
+      "num": 4,
+      "global_num": 244,
+      "day": "Thu",
+      "badge": "Bible Secrets #244 [W49.4]",
+      "title": "Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W49.5",
+      "num": 5,
+      "global_num": 245,
+      "day": "Fri",
+      "badge": "Bible Secrets #245 [W49.5]",
+      "title": "Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W49.1",
+      "num": 1,
+      "global_num": 241,
+      "day": "Mon",
+      "badge": "Story #241 [W49.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W49.2",
+      "num": 2,
+      "global_num": 242,
+      "day": "Tue",
+      "badge": "Story #242 [W49.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W49.3",
+      "num": 3,
+      "global_num": 243,
+      "day": "Wed",
+      "badge": "Story #243 [W49.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W49.4",
+      "num": 4,
+      "global_num": 244,
+      "day": "Thu",
+      "badge": "Story #244 [W49.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel"
+    },
+    {
+      "id": "S-W49.5",
+      "num": 5,
+      "global_num": 245,
+      "day": "Fri",
+      "badge": "Story #245 [W49.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W49.1",
+      "num": 1,
+      "global_num": 241,
+      "day": "Mon",
+      "badge": "Community Post #241",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+      "options": []
+    },
+    {
+      "id": "CT-W49.2",
+      "num": 2,
+      "global_num": 242,
+      "day": "Tue",
+      "badge": "Community Post #242",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W49.3",
+      "num": 3,
+      "global_num": 243,
+      "day": "Wed",
+      "badge": "Community Post #243",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+      "options": []
+    },
+    {
+      "id": "CT-W49.4",
+      "num": 4,
+      "global_num": 244,
+      "day": "Thu",
+      "badge": "Community Post #244",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+      "options": []
+    },
+    {
+      "id": "CT-W49.5",
+      "num": 5,
+      "global_num": 245,
+      "day": "Fri",
+      "badge": "Community Post #245",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss Pentecost (Acts 2): The Holy Spirit Reclaims the 70 Disinherited Nations of Babel",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

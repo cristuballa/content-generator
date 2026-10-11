@@ -1,0 +1,192 @@
+{
+  "week": 46,
+  "year": 1,
+  "quarter": "Q4",
+  "theme": "Tetelestai - Paid in Full",
+  "testament": "New Testament",
+  "documentary": {
+    "id": "DOC-W46",
+    "title": "'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+    "duration": "25 min",
+    "scriptures": [
+      "John 19:30",
+      "Colossians 2:14"
+    ],
+    "christological_key": "Not a dying groan, but an ancient Greco-Roman commercial stamp on paid debt receipts: 'PAID IN FULL'.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W46.A",
+    "pillar_title": "Tetelestai: The Ancient Receipt Stamped Across Your Sin Debt",
+    "digest_id": "SUB-W46.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W46.1",
+      "num": 1,
+      "global_num": 226,
+      "day": "Mon",
+      "badge": "Bible Secrets #226 [W46.1]",
+      "title": "'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W46.2",
+      "num": 2,
+      "global_num": 227,
+      "day": "Tue",
+      "badge": "Bible Secrets #227 [W46.2]",
+      "title": "'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W46.3",
+      "num": 3,
+      "global_num": 228,
+      "day": "Wed",
+      "badge": "Bible Secrets #228 [W46.3]",
+      "title": "'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W46.4",
+      "num": 4,
+      "global_num": 229,
+      "day": "Thu",
+      "badge": "Bible Secrets #229 [W46.4]",
+      "title": "'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W46.5",
+      "num": 5,
+      "global_num": 230,
+      "day": "Fri",
+      "badge": "Bible Secrets #230 [W46.5]",
+      "title": "'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W46.1",
+      "num": 1,
+      "global_num": 226,
+      "day": "Mon",
+      "badge": "Story #226 [W46.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W46.2",
+      "num": 2,
+      "global_num": 227,
+      "day": "Tue",
+      "badge": "Story #227 [W46.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W46.3",
+      "num": 3,
+      "global_num": 228,
+      "day": "Wed",
+      "badge": "Story #228 [W46.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W46.4",
+      "num": 4,
+      "global_num": 229,
+      "day": "Thu",
+      "badge": "Story #229 [W46.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation"
+    },
+    {
+      "id": "S-W46.5",
+      "num": 5,
+      "global_num": 230,
+      "day": "Fri",
+      "badge": "Story #230 [W46.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W46.1",
+      "num": 1,
+      "global_num": 226,
+      "day": "Mon",
+      "badge": "Community Post #226",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+      "options": []
+    },
+    {
+      "id": "CT-W46.2",
+      "num": 2,
+      "global_num": 227,
+      "day": "Tue",
+      "badge": "Community Post #227",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W46.3",
+      "num": 3,
+      "global_num": 228,
+      "day": "Wed",
+      "badge": "Community Post #228",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+      "options": []
+    },
+    {
+      "id": "CT-W46.4",
+      "num": 4,
+      "global_num": 229,
+      "day": "Thu",
+      "badge": "Community Post #229",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+      "options": []
+    },
+    {
+      "id": "CT-W46.5",
+      "num": 5,
+      "global_num": 230,
+      "day": "Fri",
+      "badge": "Community Post #230",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss 'It Is Finished' (Tetelestai): The Ancient Legal Stamp of Debt Cancellation",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

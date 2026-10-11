@@ -3,6 +3,13 @@ os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 import sys
+if sys.platform == "win32":
+    dll_dir = os.path.join(sys.prefix, "DLLs")
+    if os.path.isdir(dll_dir):
+        try:
+            os.add_dll_directory(dll_dir)
+        except Exception:
+            pass
 import json
 import time
 import re
@@ -11,7 +18,7 @@ import mimetypes
 import subprocess
 import shlex
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 
 # Ensure stdout and stderr are available when running under pythonw.exe
 if sys.stdout is None:
@@ -22,11 +29,14 @@ if sys.stderr is None:
 import logging
 from contextlib import asynccontextmanager
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Request, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from core import adz_manager
+
 
 from core.config import config_manager
 from core.gpu_monitor import get_system_stats
@@ -223,11 +233,15 @@ class AssetSocialToggleRequest(BaseModel):
 
 class GeneratorRunRequest(BaseModel):
     week: int
-    type: str  # "long_form", "reel", "story", "all_reels", "all_stories", "all_week", "regen_thumbnail", "combine_ad"
-    target_num: Optional[int] = None
-    target_key: Optional[str] = None  # a reel's day key (mon_2); wins over target_num
-    ad_variant: Optional[int] = 1
+    type: str  # "long_form", "reel", "story", "all_reels", "all_stories", "all_week", "regen_thumbnail", "combine_ad", "remove_ad", "combine_ad_story", "remove_ad_story"
+    target_num: Optional[Union[int, str]] = None
+    target_key: Optional[str] = None  # a reel/story day key (mon_2); wins over target_num
+    ad_variant: Optional[Any] = 1
+    ad_filename: Optional[str] = None
     regen_thumb: Optional[bool] = False
+    target_type: Optional[str] = "reel"  # "reel" or "story"
+    mode: Optional[str] = None  # long_form: "plan" (scenes + prompts, no voice) or "images" (draw ahead of the voice)
+
 
 class AssetSocialBatchRequest(BaseModel):
     rel_path: str
@@ -1038,11 +1052,14 @@ def scene_plan_summary(ep_dir: Path) -> Optional[Dict[str, int]]:
     if not plan_p.exists():
         return None
     try:
-        scenes = json.loads(plan_p.read_text(encoding="utf-8")).get("scenes") or []
+        plan = json.loads(plan_p.read_text(encoding="utf-8"))
     except Exception:
         return None
-    missing = sum(1 for sc in scenes if not str(sc.get("prompt") or "").strip())
-    return {"scenes": len(scenes), "missing_prompts": missing}
+    scenes = plan.get("scenes") or []
+    missing = sum(1 for sc in scenes if not str(sc.get("prompt") or "").strip() and not sc.get("image"))
+    # "estimated": planned from the script before the voice; "recorded": timed to the narration
+    timing = plan.get("timing") or ("recorded" if plan.get("transcript_hash") else "estimated")
+    return {"scenes": len(scenes), "missing_prompts": missing, "timing": timing}
 
 
 def get_video_duration_fast(path: Path) -> float:
@@ -1564,6 +1581,30 @@ async def get_generator_week_api(week_id: str):
                 r_info["thumbnail_url"] = f"/api/thumbnail/{rel_vid}"
                 r_info["video_size_mb"] = round(vid.stat().st_size / (1024 * 1024), 1)
 
+                clean_p = target_sub / f"{target_sub.name}_clean.mp4"
+                with_ads_p = target_sub / f"{target_sub.name}_with_ads_final_reel.mp4"
+                has_clean = clean_p.exists()
+
+                meta_p = target_sub / "metadata.json"
+                ad_meta = {}
+                if meta_p.exists():
+                    try:
+                        ad_meta = json.loads(meta_p.read_text(encoding="utf-8")).get("ad_outro") or {}
+                    except Exception:
+                        pass
+
+                has_ad = bool(ad_meta.get("attached")) if ("attached" in ad_meta) else (
+                    with_ads_p.exists() or (has_clean and "clean" not in vid.name.lower() and abs(vid.stat().st_size - clean_p.stat().st_size) > 500000)
+                )
+                r_info["has_clean"] = has_clean
+                r_info["has_ad"] = bool(has_ad)
+                r_info["ad_outro"] = {
+                    "attached": bool(has_ad),
+                    "filename": ad_meta.get("filename") or ("ad_outro_1.mp4" if has_ad else None),
+                    "title": ad_meta.get("title") or ("Ad 1: Bestselling Books & Merch" if has_ad else None)
+                }
+
+
             # Always look for a thumbnail/scene background image for the reel card
             if not r_info["thumbnail_url"]:
                 thumb_candidates = [
@@ -1587,6 +1628,7 @@ async def get_generator_week_api(week_id: str):
                         r_info["thumbnail_url"] = f"/api/thumbnail/{rel_tc}"
                         break
 
+        r_info["scene_plan"] = scene_plan_summary(target_sub) if target_sub else None
         reels_list.append(r_info)
 
     # Daily Stories (9:16): 5 a week, or 15 when posting 3 a day (stories 6-15 carry their day in metadata.json)
@@ -1623,11 +1665,16 @@ async def get_generator_week_api(week_id: str):
             "video_url": None,
             "thumbnail_url": None,
             "video_size_mb": 0.0,
-            "folder_name": target_sub.name if target_sub else None
+            "folder_name": target_sub.name if target_sub else None,
+            "key": target_sub.name if target_sub else f"story_{story_num}",
+            "has_clean": False,
+            "has_ad": False,
+            "ad_outro": None,
         }
 
         if target_sub:
             m_path = target_sub / "metadata.json"
+            m_json = {}
             if m_path.exists():
                 try:
                     m_json = json.loads(m_path.read_text(encoding="utf-8"))
@@ -1658,6 +1705,23 @@ async def get_generator_week_api(week_id: str):
                 s_info["video_path"] = rel_vid
                 s_info["video_url"] = f"/api/media/{rel_vid}"
                 s_info["video_size_mb"] = round(vid.stat().st_size / (1024 * 1024), 1)
+
+            clean_p = target_sub / f"{target_sub.name}_clean.mp4"
+            with_ads_p = target_sub / f"{target_sub.name}_with_ads.mp4"
+            has_clean = clean_p.exists()
+            ad_meta = m_json.get("ad_outro") if isinstance(m_json, dict) else {}
+            ad_meta = ad_meta or {}
+
+            has_ad = bool(ad_meta.get("attached")) if ("attached" in ad_meta) else (
+                with_ads_p.exists() or (has_clean and mp4s and "clean" not in mp4s[0].name.lower() and abs(mp4s[0].stat().st_size - clean_p.stat().st_size) > 300000)
+            )
+            s_info["has_clean"] = has_clean
+            s_info["has_ad"] = bool(has_ad)
+            s_info["ad_outro"] = {
+                "attached": bool(has_ad),
+                "filename": ad_meta.get("filename") or ("ad_outro_1.mp4" if has_ad else None),
+                "title": ad_meta.get("title") or ("Ad 1: Bestselling Books & Merch" if has_ad else None)
+            }
 
             # Check for cover thumbnail or slide preview image
             thumb_candidates = [
@@ -1690,6 +1754,7 @@ async def get_generator_week_api(week_id: str):
         item["video_duration"] = video_duration(base_p, item.get("video_path"))
 
     return {
+        "week": w_num,
         "week_num": w_num,
         "week_tag": w_tag,
         "title": title,
@@ -1829,6 +1894,11 @@ async def set_prompt_writer(req: PromptWriterRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+def reel_mode_args(mode: Optional[str]) -> List[str]:
+    """Reel renders always rebuild the video; "plan" plans scenes + prompts without the voice, "images" draws them."""
+    return {"plan": ["--plan-only"], "images": ["--images-only"]}.get(mode or "", ["--force-rebuild"])
+
+
 @app.post("/api/generator/run")
 async def run_generator_api(req: GeneratorRunRequest):
     active_path = config_manager.get_active_project()
@@ -1858,6 +1928,10 @@ async def run_generator_api(req: GeneratorRunRequest):
         args = ["--week", str(req.week)]
         if req.target_num:
             args.extend(["--video", str(req.target_num)])
+        if req.mode == "plan":
+            args.append("--plan-only")
+        elif req.mode == "images":
+            args.append("--images-only")
         cwd = str(base_p)
 
     elif req.type == "reel":
@@ -1870,7 +1944,7 @@ async def run_generator_api(req: GeneratorRunRequest):
         script_path = next((p for p in script_candidates if p.exists()), None)
         if not script_path:
             raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
-        args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--force-rebuild"]
+        args = ["--week", str(req.week), "--reel", req.target_key or str(target_num)] + reel_mode_args(req.mode)
 
     elif req.type == "regen_thumbnail":
         target_num = req.target_num or 1
@@ -1884,19 +1958,81 @@ async def run_generator_api(req: GeneratorRunRequest):
             raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
         args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--thumbnail-only"]
 
-    elif req.type == "combine_ad":
-        target_num = req.target_num or 1
-        script_candidates = [
-            base_p / "generate_reel.py",
-            base_p / "scripts" / "generate_reel.py",
-            Path(__file__).resolve().parent / "scripts" / "generate_reel.py"
-        ]
-        script_path = next((p for p in script_candidates if p.exists()), None)
-        if not script_path:
-            raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
-        args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--ads", str(req.ad_variant or 1), "--combine-ad"]
-        if req.regen_thumb:
-            args.append("--thumbnail-only")
+    elif req.type in ("combine_ad", "combine_ad_all", "combine_ad_story", "combine_ad_story_all"):
+        is_story = (getattr(req, "target_type", None) == "story") or ("story" in req.type)
+        ad_choice = str(req.ad_filename or req.ad_variant or 1)
+        is_all = req.type in ("combine_ad_all", "combine_ad_story_all") or str(req.target_num).lower() == "all" or str(req.target_key).lower() == "all"
+
+        if is_story:
+            script_candidates = [
+                base_p / "scripts" / "generate_story.py",
+                base_p / "generate_story.py",
+                Path(__file__).resolve().parent / "scripts" / "generate_story.py"
+            ]
+            script_path = next((p for p in script_candidates if p.exists()), None)
+            if not script_path:
+                raise HTTPException(status_code=404, detail="generate_story.py not found in project")
+            if is_all:
+                args = ["--week", str(req.week), "--all", "--ads", ad_choice, "--combine-ad"]
+            else:
+                target_num = req.target_num or 1
+                args = ["--week", str(req.week), "--story", req.target_key or str(target_num), "--ads", ad_choice, "--combine-ad"]
+            if req.regen_thumb:
+                args.append("--thumbnail-only")
+        else:
+            script_candidates = [
+                base_p / "generate_reel.py",
+                base_p / "scripts" / "generate_reel.py",
+                Path(__file__).resolve().parent / "scripts" / "generate_reel.py"
+            ]
+            script_path = next((p for p in script_candidates if p.exists()), None)
+            if not script_path:
+                raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
+            if is_all:
+                args = ["--week", str(req.week), "--all", "--ads", ad_choice, "--combine-ad"]
+            else:
+                target_num = req.target_num or 1
+                args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--ads", ad_choice, "--combine-ad"]
+            if req.regen_thumb:
+                args.append("--thumbnail-only")
+
+    elif req.type in ("remove_ad", "remove_ad_all", "remove_ad_story", "remove_ad_story_all"):
+        is_story = (getattr(req, "target_type", None) == "story") or ("story" in req.type)
+        is_all = req.type in ("remove_ad_all", "remove_ad_story_all") or str(req.target_num).lower() == "all" or str(req.target_key).lower() == "all"
+
+        if is_story:
+            script_candidates = [
+                base_p / "scripts" / "generate_story.py",
+                base_p / "generate_story.py",
+                Path(__file__).resolve().parent / "scripts" / "generate_story.py"
+            ]
+            script_path = next((p for p in script_candidates if p.exists()), None)
+            if not script_path:
+                raise HTTPException(status_code=404, detail="generate_story.py not found in project")
+            if is_all:
+                args = ["--week", str(req.week), "--all", "--remove-ad"]
+            else:
+                target_num = req.target_num or 1
+                args = ["--week", str(req.week), "--story", req.target_key or str(target_num), "--remove-ad"]
+            if req.regen_thumb:
+                args.append("--thumbnail-only")
+        else:
+            script_candidates = [
+                base_p / "generate_reel.py",
+                base_p / "scripts" / "generate_reel.py",
+                Path(__file__).resolve().parent / "scripts" / "generate_reel.py"
+            ]
+            script_path = next((p for p in script_candidates if p.exists()), None)
+            if not script_path:
+                raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
+            if is_all:
+                args = ["--week", str(req.week), "--all", "--remove-ad"]
+            else:
+                target_num = req.target_num or 1
+                args = ["--week", str(req.week), "--reel", req.target_key or str(target_num), "--remove-ad"]
+            if req.regen_thumb:
+                args.append("--thumbnail-only")
+
 
     elif req.type == "all_reels":
         script_candidates = [
@@ -1907,7 +2043,7 @@ async def run_generator_api(req: GeneratorRunRequest):
         script_path = next((p for p in script_candidates if p.exists()), None)
         if not script_path:
             raise HTTPException(status_code=404, detail="generate_reel.py not found in project")
-        args = ["--week", str(req.week), "--all", "--force-rebuild"]
+        args = ["--week", str(req.week), "--all"] + reel_mode_args(req.mode)
 
     elif req.type == "story":
         target_num = req.target_num or 1
@@ -2240,6 +2376,104 @@ async def get_n8n_template():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ----------------- Advertisement Video Endpoints (C:\Projects\Adz-Video) -----------------
+@app.get("/api/adz/list")
+async def get_adz_list_endpoint(target_type: Optional[str] = "reel", media_type: Optional[str] = None):
+    """Lists advertisement videos or images based on target_type/media_type."""
+    is_image = (media_type == "image") or (target_type == "story")
+    if is_image:
+        items = adz_manager.list_ad_images()
+        return {
+            "adz_dir": str(adz_manager.get_adz_image_dir()),
+            "media_type": "image",
+            "videos": items,
+            "images": items
+        }
+    return {
+        "adz_dir": str(adz_manager.get_adz_dir()),
+        "media_type": "video",
+        "videos": adz_manager.list_ad_videos()
+    }
+
+@app.get("/api/adz/images")
+async def get_adz_images_endpoint():
+    """Lists all advertisement images available in C:\\Projects\\Adz-Image."""
+    return {
+        "adz_dir": str(adz_manager.get_adz_image_dir()),
+        "media_type": "image",
+        "images": adz_manager.list_ad_images()
+    }
+
+@app.get("/api/adz/image/{filename:path}")
+async def get_adz_image_endpoint(filename: str):
+    """Serves an advertisement image from C:\\Projects\\Adz-Image."""
+    safe_name = Path(filename).name
+    p = adz_manager.resolve_ad_image(safe_name)
+    if not p or not p.is_file():
+        raise HTTPException(status_code=404, detail=f"Ad image '{safe_name}' not found")
+    mime_type, _ = mimetypes.guess_type(str(p))
+    return FileResponse(p, media_type=mime_type or "image/png", content_disposition_type="inline")
+
+@app.get("/api/adz/media/{filename:path}")
+async def get_adz_media_endpoint(filename: str, request: Request):
+    """Streams an advertisement video from C:\\Projects\\Adz-Video."""
+    safe_name = Path(filename).name
+    p = adz_manager.resolve_ad_video(safe_name)
+    if not p or not p.is_file():
+        raise HTTPException(status_code=404, detail=f"Ad video '{safe_name}' not found")
+    mime_type, _ = mimetypes.guess_type(str(p))
+    return FileResponse(p, media_type=mime_type or "video/mp4", content_disposition_type="inline")
+
+@app.get("/api/adz/thumbnail/{filename:path}")
+async def get_adz_thumbnail_endpoint(filename: str):
+    """Returns or generates a thumbnail frame for an advertisement video or image."""
+    safe_name = Path(filename).name
+    if safe_name.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        img_p = adz_manager.resolve_ad_image(safe_name)
+        if img_p and img_p.is_file():
+            mime_type, _ = mimetypes.guess_type(str(img_p))
+            return FileResponse(img_p, media_type=mime_type or "image/png", headers={"Cache-Control": "public, max-age=86400"})
+    thumb_p = await asyncio.to_thread(adz_manager.get_or_create_thumbnail, safe_name)
+    if not thumb_p or not thumb_p.is_file():
+        raise HTTPException(status_code=404, detail=f"Thumbnail not available for '{safe_name}'")
+    return FileResponse(thumb_p, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+@app.delete("/api/adz/item/{filename:path}")
+async def delete_adz_item_endpoint(filename: str):
+    """Deletes an advertisement video or image file."""
+    safe_name = Path(filename).name
+    if safe_name.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        success = adz_manager.delete_ad_image(safe_name)
+    else:
+        success = adz_manager.delete_ad_video(safe_name)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Could not delete '{safe_name}'")
+    return {"status": "deleted", "filename": safe_name}
+
+@app.post("/api/adz/upload")
+async def upload_adz_video_endpoint(file: UploadFile = File(...)):
+    """Uploads a new advertisement video into C:\\Projects\\Adz-Video."""
+    safe_name = Path(file.filename).name
+    if not any(safe_name.lower().endswith(ext) for ext in [".mp4", ".mov", ".webm", ".mkv"]):
+        raise HTTPException(status_code=400, detail="Only video files (.mp4, .mov, .webm, .mkv) are allowed")
+    dest = adz_manager.get_adz_dir() / safe_name
+    content = await file.read()
+    dest.write_bytes(content)
+    await asyncio.to_thread(adz_manager.get_or_create_thumbnail, safe_name)
+    return {"status": "uploaded", "filename": safe_name, "size_mb": round(len(content) / (1024 * 1024), 2)}
+
+@app.post("/api/adz/upload-image")
+async def upload_adz_image_endpoint(file: UploadFile = File(...)):
+    """Uploads a new advertisement image into C:\\Projects\\Adz-Image."""
+    safe_name = Path(file.filename).name
+    if not any(safe_name.lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".webp"]):
+        raise HTTPException(status_code=400, detail="Only image files (.png, .jpg, .jpeg, .webp) are allowed")
+    dest = adz_manager.get_adz_image_dir() / safe_name
+    content = await file.read()
+    dest.write_bytes(content)
+    return {"status": "uploaded", "filename": safe_name, "size_mb": round(len(content) / (1024 * 1024), 2)}
+
+
 # ----------------- Hardware & System APIs -----------------
 @app.get("/api/system/stats")
 async def get_system():
@@ -2269,7 +2503,12 @@ async def stream_media(file_path: str, request: Request):
     if not mime_type:
         mime_type = "application/octet-stream"
 
-    return FileResponse(target, media_type=mime_type, filename=target.name)
+    return FileResponse(
+        target,
+        media_type=mime_type,
+        content_disposition_type="inline",
+        headers={"Cache-Control": "no-cache, must-revalidate"}
+    )
  
 @app.api_route("/api/video/{file_path:path}", methods=["GET", "HEAD"])
 async def stream_video_alias(file_path: str, request: Request):

@@ -31,11 +31,13 @@ if hasattr(sys.stdout, "reconfigure"):
 from core.config import config_manager  # noqa: E402
 
 
-REEL_EPISODE = "Watch the full episode on our channel."
+REEL_EPISODE_SAVE = "Watch the full episode on our channel, and save this so you don't lose this scripture."
+REEL_STANDALONE_SAVE = "Save this so you don't lose this scripture."
 BOOKS_LINE = ("If this blew your mind, it's just one part of what we uncover in our books. They're linked in the bio and "
               "comments, along with our sacred art merch.")
+FOLLOW_LINE = "Follow for more secrets hidden in Scripture."
 LONG_FORM_CTA = BOOKS_LINE
-REEL_CTA = BOOKS_LINE + " Follow for more secrets hidden in Scripture."
+REEL_CTA = REEL_STANDALONE_SAVE + " " + BOOKS_LINE + " " + FOLLOW_LINE
 ADVERTISES = re.compile(r"\b(?:amazon|etsy|our (?:two )?books|merch)\b", re.IGNORECASE)
 SIGN_OFF = re.compile(r"^\W*(?:until next time|thank you for watching|thanks for watching)", re.IGNORECASE)
 END_MARKERS = re.compile(r"^\s*(?:WORD COUNT|SOURCES|METADATA|HASHTAGS|TAGS|NOTES)\b", re.IGNORECASE)
@@ -46,10 +48,15 @@ WORDING_FIXES = [
     (re.compile(r"If this study opened your eyes, go deeper\. Our books and sacred art merch are linked in the bio and comments\."),
      BOOKS_LINE),
     (re.compile(r"Our books and sacred art merch are linked in the bio and comments\. Follow for more secrets hidden in Scripture\."),
-     BOOKS_LINE + " Follow for more secrets hidden in Scripture."),
+     BOOKS_LINE + " " + FOLLOW_LINE),
     (re.compile(r"(?:The links are|Tap the link) in the description below\.", re.IGNORECASE), "They're linked in the bio and comments."),
     (re.compile(r"check the link in bio for the full master documentary", re.IGNORECASE), "watch the full documentary on our channel"),
     (re.compile(r"WATCH FULL EPISODE\s*[—-]\s*LINK IN DESCRIPTION"), "BOOKS & MERCH — LINKS IN THE COMMENTS"),
+    # Short-form reel retention upgrades (prioritizing saves & shares before books/merch):
+    (re.compile(r"Watch the full episode on our channel\.\s*If this blew your mind, it's just one part of what we uncover in our books\. They're linked in the bio and comments, along with our sacred art merch\. Follow for more secrets hidden in Scripture\."),
+     f"{REEL_EPISODE_SAVE} {BOOKS_LINE} {FOLLOW_LINE}"),
+    (re.compile(r"(?<!our channel, and )(?<!our channel\. )(?<!save this so you don't lose this scripture\. )If this blew your mind, it's just one part of what we uncover in our books\. They're linked in the bio and comments, along with our sacred art merch\. Follow for more secrets hidden in Scripture\."),
+     f"{REEL_STANDALONE_SAVE} {BOOKS_LINE} {FOLLOW_LINE}"),
 ]
 
 
@@ -68,9 +75,9 @@ def update_reel(text: str) -> str:
         while end < len(lines) and not lines[end].strip().startswith(("[", "===")):
             end += 1
         old_body = " ".join(lines[cta + 1:end])
-        if ADVERTISES.search(old_body):
+        if ADVERTISES.search(old_body) and "save this so you don't lose this scripture" in old_body:
             return text
-        new_body = (REEL_EPISODE + " " if re.search(r"full episode", old_body, re.IGNORECASE) else "") + REEL_CTA
+        new_body = (REEL_EPISODE_SAVE + " " if re.search(r"full episode", old_body, re.IGNORECASE) else REEL_STANDALONE_SAVE + " ") + BOOKS_LINE + " " + FOLLOW_LINE
         return "\n".join(lines[:cta + 1] + [new_body, ""] + lines[end:]).rstrip() + "\n"
     if ADVERTISES.search(text):
         return text
@@ -103,15 +110,26 @@ def update_long_form(text: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--project", default=config_manager.get_active_project())
+    parser.add_argument("--start-week", type=int, default=1, help="Starting week number (e.g. 3 for W03 onward)")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     project = Path(args.project)
+
+    def week_num(p: Path) -> int:
+        for part in p.parts:
+            m = re.match(r"^W(\d+)$", part, re.IGNORECASE)
+            if m:
+                return int(m.group(1))
+        return 0
 
     reels = sorted(project.glob("W*/reels/*/script*.txt"))
     long_form = sorted(set(
         list(project.glob("W*/long_form/*/script*.txt")) + list(project.glob("W*/long_form/script*.txt"))
         + list(project.glob("W*/long_form/*/script*.md"))
     ))
+    if args.start_week > 1:
+        reels = [p for p in reels if week_num(p) >= args.start_week]
+        long_form = [p for p in long_form if week_num(p) >= args.start_week]
     changes = {}
     for path, fn in [(p, update_reel) for p in reels] + [(p, update_long_form) for p in long_form]:
         raw = path.read_text(encoding="utf-8", errors="replace")

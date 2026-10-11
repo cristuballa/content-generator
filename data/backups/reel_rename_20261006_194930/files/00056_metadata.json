@@ -1,0 +1,193 @@
+{
+  "week": 18,
+  "year": 1,
+  "quarter": "Q2",
+  "theme": "Jacob's Duel at Peniel",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W18",
+    "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+    "duration": "30 min",
+    "scriptures": [
+      "Genesis 32:22-32",
+      "Hosea 12:3-5",
+      "Genesis 35:9-15"
+    ],
+    "christological_key": "Christophany: Jacob wrestled God in human form, had his natural strength broken, and was named Israel.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W18.A",
+    "pillar_title": "Wrestling at the Jabbok: The Pre-Incarnate Angel of Yahweh",
+    "digest_id": "SUB-W18.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W18.1",
+      "num": 1,
+      "global_num": 86,
+      "day": "Mon",
+      "badge": "Bible Secrets #086 [W18.1]",
+      "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W18.2",
+      "num": 2,
+      "global_num": 87,
+      "day": "Tue",
+      "badge": "Bible Secrets #087 [W18.2]",
+      "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W18.3",
+      "num": 3,
+      "global_num": 88,
+      "day": "Wed",
+      "badge": "Bible Secrets #088 [W18.3]",
+      "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W18.4",
+      "num": 4,
+      "global_num": 89,
+      "day": "Thu",
+      "badge": "Bible Secrets #089 [W18.4]",
+      "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W18.5",
+      "num": 5,
+      "global_num": 90,
+      "day": "Fri",
+      "badge": "Bible Secrets #090 [W18.5]",
+      "title": "Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W18.1",
+      "num": 1,
+      "global_num": 86,
+      "day": "Mon",
+      "badge": "Story #086 [W18.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W18.2",
+      "num": 2,
+      "global_num": 87,
+      "day": "Tue",
+      "badge": "Story #087 [W18.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W18.3",
+      "num": 3,
+      "global_num": 88,
+      "day": "Wed",
+      "badge": "Story #088 [W18.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W18.4",
+      "num": 4,
+      "global_num": 89,
+      "day": "Thu",
+      "badge": "Story #089 [W18.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh"
+    },
+    {
+      "id": "S-W18.5",
+      "num": 5,
+      "global_num": 90,
+      "day": "Fri",
+      "badge": "Story #090 [W18.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W18.1",
+      "num": 1,
+      "global_num": 86,
+      "day": "Mon",
+      "badge": "Community Post #086",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+      "options": []
+    },
+    {
+      "id": "CT-W18.2",
+      "num": 2,
+      "global_num": 87,
+      "day": "Tue",
+      "badge": "Community Post #087",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W18.3",
+      "num": 3,
+      "global_num": 88,
+      "day": "Wed",
+      "badge": "Community Post #088",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+      "options": []
+    },
+    {
+      "id": "CT-W18.4",
+      "num": 4,
+      "global_num": 89,
+      "day": "Thu",
+      "badge": "Community Post #089",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+      "options": []
+    },
+    {
+      "id": "CT-W18.5",
+      "num": 5,
+      "global_num": 90,
+      "day": "Fri",
+      "badge": "Community Post #090",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss Jacob’s Midnight Duel at Peniel: Wrestling the Pre-Incarnate Angel of Yahweh",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

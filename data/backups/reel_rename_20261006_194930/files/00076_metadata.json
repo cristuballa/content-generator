@@ -1,0 +1,193 @@
+{
+  "week": 38,
+  "year": 1,
+  "quarter": "Q3",
+  "theme": "Cosmic Angelic Warfare",
+  "testament": "Old Testament / Angelology",
+  "documentary": {
+    "id": "DOC-W38",
+    "title": "Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+    "duration": "30 min",
+    "scriptures": [
+      "Daniel 10:12-21",
+      "Ephesians 6:12",
+      "Colossians 2:15"
+    ],
+    "christological_key": "Angelic territorial princes battle over worldly empires; Christ disarms every demonic principality on the cross.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W38.A",
+    "pillar_title": "Territorial Spirits: The 21-Day Cosmic Battle in the Heavens",
+    "digest_id": "SUB-W38.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W38.1",
+      "num": 1,
+      "global_num": 186,
+      "day": "Mon",
+      "badge": "Bible Secrets #186 [W38.1]",
+      "title": "Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10 (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W38.2",
+      "num": 2,
+      "global_num": 187,
+      "day": "Tue",
+      "badge": "Bible Secrets #187 [W38.2]",
+      "title": "Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10 (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W38.3",
+      "num": 3,
+      "global_num": 188,
+      "day": "Wed",
+      "badge": "Bible Secrets #188 [W38.3]",
+      "title": "Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10 (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W38.4",
+      "num": 4,
+      "global_num": 189,
+      "day": "Thu",
+      "badge": "Bible Secrets #189 [W38.4]",
+      "title": "Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10 (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W38.5",
+      "num": 5,
+      "global_num": 190,
+      "day": "Fri",
+      "badge": "Bible Secrets #190 [W38.5]",
+      "title": "Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10 (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W38.1",
+      "num": 1,
+      "global_num": 186,
+      "day": "Mon",
+      "badge": "Story #186 [W38.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W38.2",
+      "num": 2,
+      "global_num": 187,
+      "day": "Tue",
+      "badge": "Story #187 [W38.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W38.3",
+      "num": 3,
+      "global_num": 188,
+      "day": "Wed",
+      "badge": "Story #188 [W38.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W38.4",
+      "num": 4,
+      "global_num": 189,
+      "day": "Thu",
+      "badge": "Story #189 [W38.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10"
+    },
+    {
+      "id": "S-W38.5",
+      "num": 5,
+      "global_num": 190,
+      "day": "Fri",
+      "badge": "Story #190 [W38.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W38.1",
+      "num": 1,
+      "global_num": 186,
+      "day": "Mon",
+      "badge": "Community Post #186",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+      "options": []
+    },
+    {
+      "id": "CT-W38.2",
+      "num": 2,
+      "global_num": 187,
+      "day": "Tue",
+      "badge": "Community Post #187",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W38.3",
+      "num": 3,
+      "global_num": 188,
+      "day": "Wed",
+      "badge": "Community Post #188",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+      "options": []
+    },
+    {
+      "id": "CT-W38.4",
+      "num": 4,
+      "global_num": 189,
+      "day": "Thu",
+      "badge": "Community Post #189",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+      "options": []
+    },
+    {
+      "id": "CT-W38.5",
+      "num": 5,
+      "global_num": 190,
+      "day": "Fri",
+      "badge": "Community Post #190",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss Michael vs The Prince of Persia: Angelic Territorial Warfare in Daniel 10",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

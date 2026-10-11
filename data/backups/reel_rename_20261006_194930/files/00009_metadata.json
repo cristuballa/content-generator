@@ -1,0 +1,195 @@
+{
+  "week": 1,
+  "year": 1,
+  "quarter": "Q1",
+  "theme": "Primeval Cosmos & Divine Council",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W01",
+    "title": "What Happened Before Genesis? The Divine Council & Heylel's Pre-Cosmic Fall",
+    "duration": "30 min",
+    "scriptures": [
+      "Job 38:4-7",
+      "Proverbs 8:22-31",
+      "Isaiah 14:12-15",
+      "John 1:1-3",
+      "Colossians 1:16"
+    ],
+    "christological_key": "Christ is the Uncreated Logos who presided over the cosmic council; all things were spoken into being by Him.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W01.A",
+    "pillar_title": "Before the Dust: The Divine Council, Morning Stars & The Pre-Existent King",
+    "digest_id": "SUB-W01.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: What Happened Before Genesis? The Divine Council & Heylel's Pre-Cosmic Fall",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W01.1",
+      "num": 1,
+      "global_num": 1,
+      "day": "Mon",
+      "badge": "Bible Secrets #001 [W01.1]",
+      "title": "What Did God Do BEFORE Genesis 1:1?",
+      "hook_type": "Mystery Hook",
+      "hook": "The angels sang for joy before earth was formed (Job 38:7)."
+    },
+    {
+      "id": "R-W01.2",
+      "num": 2,
+      "global_num": 2,
+      "day": "Tue",
+      "badge": "Bible Secrets #002 [W01.2]",
+      "title": "The Cross Hidden in the Very First Hebrew Word!",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "The pictographic letters of Bereshit spell 'The Son of God dies on the Cross'."
+    },
+    {
+      "id": "R-W01.3",
+      "num": 3,
+      "global_num": 3,
+      "day": "Wed",
+      "badge": "Bible Secrets #003 [W01.3]",
+      "title": "Who Were the 'Morning Stars' Who Sang at Creation?",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Explaining the Sons of God (Bene Elohim) in Job 38."
+    },
+    {
+      "id": "R-W01.4",
+      "num": 4,
+      "global_num": 4,
+      "day": "Thu",
+      "badge": "Bible Secrets #004 [W01.4]",
+      "title": "Why John 1:1 Re-Wrote Genesis 1:1",
+      "hook_type": "Christological Typology",
+      "hook": "Jesus is the Speaker of Genesis: In the beginning was the WORD."
+    },
+    {
+      "id": "R-W01.5",
+      "num": 5,
+      "global_num": 5,
+      "day": "Fri",
+      "badge": "Bible Secrets #005 [W01.5]",
+      "title": "Heylel's Disqualification: The Guardian Who Fell",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Why Ezekiel 28 says the covering cherub walked in Eden before his pride."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W01.1",
+      "num": 1,
+      "global_num": 1,
+      "day": "Mon",
+      "badge": "Story #001 [W01.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W01.2",
+      "num": 2,
+      "global_num": 2,
+      "day": "Tue",
+      "badge": "Story #002 [W01.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W01.3",
+      "num": 3,
+      "global_num": 3,
+      "day": "Wed",
+      "badge": "Story #003 [W01.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W01.4",
+      "num": 4,
+      "global_num": 4,
+      "day": "Thu",
+      "badge": "Story #004 [W01.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on What Happened Before Genesis? The Divine Council & Heylel's Pre-Cosmic Fall"
+    },
+    {
+      "id": "S-W01.5",
+      "num": 5,
+      "global_num": 5,
+      "day": "Fri",
+      "badge": "Story #005 [W01.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W01.1",
+      "num": 1,
+      "global_num": 1,
+      "day": "Mon",
+      "badge": "Community Post #001",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Job 38:4 asks: 'Where were you when I laid the earth's foundations?'",
+      "options": []
+    },
+    {
+      "id": "CT-W01.2",
+      "num": 2,
+      "global_num": 2,
+      "day": "Tue",
+      "badge": "Community Post #002",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Before God created light, which entity already existed? A) Chaos B) Only the Triune God C) Angels D) Darkness",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W01.3",
+      "num": 3,
+      "global_num": 3,
+      "day": "Wed",
+      "badge": "Community Post #003",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Proverbs 8:22 reveals Wisdom was beside the Father at creation.",
+      "options": []
+    },
+    {
+      "id": "CT-W01.4",
+      "num": 4,
+      "global_num": 4,
+      "day": "Thu",
+      "badge": "Community Post #004",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Mid-Week Dispatch: Read our paper on the Pre-Incarnate Christ on Substack.",
+      "options": []
+    },
+    {
+      "id": "CT-W01.5",
+      "num": 5,
+      "global_num": 5,
+      "day": "Fri",
+      "badge": "Community Post #005",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "What was your biggest takeaway about Genesis this week?",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

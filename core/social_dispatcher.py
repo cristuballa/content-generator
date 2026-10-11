@@ -20,8 +20,10 @@ from core.week_links import (comment_id_of, export_week_links, is_reel, live_doc
 # Posted as the first comment right after every upload (captions themselves carry no links)
 DEFAULT_BHRS_PINNED_COMMENT = """🛒 OFFICIAL MERCH & SACRED BOOKS:
 ✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems
-📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2
-📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG
+📖 Book of Enoch https://www.etsy.com/nz/listing/4591934547
+📖 Study Guide NT https://www.etsy.com/nz/listing/4536465297
+📖 Study Guide OT https://www.etsy.com/nz/listing/4526027051
+📖 Bible Hidden Secrets https://www.etsy.com/nz/listing/4526030482
 
 👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"""
 DEFAULT_BHRS_FIRST_COMMENT = DEFAULT_BHRS_PINNED_COMMENT
@@ -31,8 +33,10 @@ DEFAULT_BHRS_FIRST_COMMENT = DEFAULT_BHRS_PINNED_COMMENT
 DEFAULT_BHRS_MERCH_BLOCK = """=======================================================
 🛒 OFFICIAL MERCH & BOOKS:
 ✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems
-📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2
-📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG
+📖 Book of Enoch https://www.etsy.com/nz/listing/4591934547
+📖 Study Guide NT https://www.etsy.com/nz/listing/4536465297
+📖 Study Guide OT https://www.etsy.com/nz/listing/4526027051
+📖 Bible Hidden Secrets https://www.etsy.com/nz/listing/4526030482
 ======================================================="""
 DEFAULT_BHRS_FB_CALLOUT = "📖 Official Books & Sacred Art collection linked in the pinned comment below 👇"
 DEFAULT_BHRS_YT_MERCH_BLOCK = DEFAULT_BHRS_MERCH_BLOCK
@@ -43,7 +47,7 @@ DEFAULT_YT_AI_DISCLOSURE = "ℹ️ Altered or synthetic content: Sound and visua
 
 # Promo text that must not appear in captions: store/book lines, link-in-bio pointers, raw URLs
 PROMO_LINE_RE = re.compile(
-    r"^[ \t]*(?:🛒|✨\s*Etsy|📖\s*Book|📚\s*Books?|•\s*Book|👉\s*(?:Tap|Find all|Subscribe)|📖\s*(?:Official Books|Check our books)|🔗\s*Link in bio)[^\n]*(?:\n|$)",
+    r"^[ \t]*(?:🛒|✨\s*Etsy|📖\s*(?:Book|Study|Bible|Official Books|Check our books)|📚\s*Books?|•\s*Book|👉\s*(?:Tap|Find all|Subscribe)|🔗\s*Link in bio)[^\n]*(?:\n|$)",
     re.IGNORECASE | re.MULTILINE
 )
 INLINE_PROMO_RE = re.compile(r"[ \t]*(?:Follow for more!\s*)?🔗\s*Link in bio[^\n]*|[ \t]*📖\s*Books? & Merch in bio!?", re.IGNORECASE)

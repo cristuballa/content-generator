@@ -1,0 +1,193 @@
+{
+  "week": 51,
+  "year": 1,
+  "quarter": "Q4",
+  "theme": "The Two Witnesses & 666",
+  "testament": "New Testament / Eschatology",
+  "documentary": {
+    "id": "DOC-W51",
+    "title": "The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+    "duration": "35 min",
+    "scriptures": [
+      "Malachi 4:5-6",
+      "Revelation 11:3-14",
+      "Revelation 13:18"
+    ],
+    "christological_key": "The two men who never died return in sackcloth; the counterfeit trinity and the mark of rebellion exposed.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W51.A",
+    "pillar_title": "The Men Who Never Died: The Final Prophetic Duel in Jerusalem",
+    "digest_id": "SUB-W51.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W51.1",
+      "num": 1,
+      "global_num": 251,
+      "day": "Mon",
+      "badge": "Bible Secrets #251 [W51.1]",
+      "title": "The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W51.2",
+      "num": 2,
+      "global_num": 252,
+      "day": "Tue",
+      "badge": "Bible Secrets #252 [W51.2]",
+      "title": "The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W51.3",
+      "num": 3,
+      "global_num": 253,
+      "day": "Wed",
+      "badge": "Bible Secrets #253 [W51.3]",
+      "title": "The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W51.4",
+      "num": 4,
+      "global_num": 254,
+      "day": "Thu",
+      "badge": "Bible Secrets #254 [W51.4]",
+      "title": "The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W51.5",
+      "num": 5,
+      "global_num": 255,
+      "day": "Fri",
+      "badge": "Bible Secrets #255 [W51.5]",
+      "title": "The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W51.1",
+      "num": 1,
+      "global_num": 251,
+      "day": "Mon",
+      "badge": "Story #251 [W51.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W51.2",
+      "num": 2,
+      "global_num": 252,
+      "day": "Tue",
+      "badge": "Story #252 [W51.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W51.3",
+      "num": 3,
+      "global_num": 253,
+      "day": "Wed",
+      "badge": "Story #253 [W51.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W51.4",
+      "num": 4,
+      "global_num": 254,
+      "day": "Thu",
+      "badge": "Story #254 [W51.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded"
+    },
+    {
+      "id": "S-W51.5",
+      "num": 5,
+      "global_num": 255,
+      "day": "Fri",
+      "badge": "Story #255 [W51.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W51.1",
+      "num": 1,
+      "global_num": 251,
+      "day": "Mon",
+      "badge": "Community Post #251",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+      "options": []
+    },
+    {
+      "id": "CT-W51.2",
+      "num": 2,
+      "global_num": 252,
+      "day": "Tue",
+      "badge": "Community Post #252",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W51.3",
+      "num": 3,
+      "global_num": 253,
+      "day": "Wed",
+      "badge": "Community Post #253",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+      "options": []
+    },
+    {
+      "id": "CT-W51.4",
+      "num": 4,
+      "global_num": 254,
+      "day": "Thu",
+      "badge": "Community Post #254",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+      "options": []
+    },
+    {
+      "id": "CT-W51.5",
+      "num": 5,
+      "global_num": 255,
+      "day": "Fri",
+      "badge": "Community Post #255",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Two Witnesses (Enoch & Elijah) & The 666 Mark of the Beast Decoded",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

@@ -1,0 +1,194 @@
+{
+  "week": 4,
+  "year": 1,
+  "quarter": "Q1",
+  "theme": "The Seed War",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W04",
+    "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+    "duration": "26 min",
+    "scriptures": [
+      "Genesis 3:15",
+      "Romans 16:20",
+      "Galatians 3:16",
+      "Hebrews 2:14"
+    ],
+    "christological_key": "The seed of the woman will crush the serpent's head; fulfilled physically at Golgotha (the skull hill).",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W04.A",
+    "pillar_title": "The First Prophecy: How Genesis 3:15 Stamped the Cross onto Human History",
+    "digest_id": "SUB-W04.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W04.1",
+      "num": 1,
+      "global_num": 16,
+      "day": "Mon",
+      "badge": "Bible Secrets #016 [W04.1]",
+      "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W04.2",
+      "num": 2,
+      "global_num": 17,
+      "day": "Tue",
+      "badge": "Bible Secrets #017 [W04.2]",
+      "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W04.3",
+      "num": 3,
+      "global_num": 18,
+      "day": "Wed",
+      "badge": "Bible Secrets #018 [W04.3]",
+      "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W04.4",
+      "num": 4,
+      "global_num": 19,
+      "day": "Thu",
+      "badge": "Bible Secrets #019 [W04.4]",
+      "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W04.5",
+      "num": 5,
+      "global_num": 20,
+      "day": "Fri",
+      "badge": "Bible Secrets #020 [W04.5]",
+      "title": "The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W04.1",
+      "num": 1,
+      "global_num": 16,
+      "day": "Mon",
+      "badge": "Story #016 [W04.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W04.2",
+      "num": 2,
+      "global_num": 17,
+      "day": "Tue",
+      "badge": "Story #017 [W04.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W04.3",
+      "num": 3,
+      "global_num": 18,
+      "day": "Wed",
+      "badge": "Story #018 [W04.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W04.4",
+      "num": 4,
+      "global_num": 19,
+      "day": "Thu",
+      "badge": "Story #019 [W04.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins"
+    },
+    {
+      "id": "S-W04.5",
+      "num": 5,
+      "global_num": 20,
+      "day": "Fri",
+      "badge": "Story #020 [W04.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W04.1",
+      "num": 1,
+      "global_num": 16,
+      "day": "Mon",
+      "badge": "Community Post #016",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+      "options": []
+    },
+    {
+      "id": "CT-W04.2",
+      "num": 2,
+      "global_num": 17,
+      "day": "Tue",
+      "badge": "Community Post #017",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W04.3",
+      "num": 3,
+      "global_num": 18,
+      "day": "Wed",
+      "badge": "Community Post #018",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+      "options": []
+    },
+    {
+      "id": "CT-W04.4",
+      "num": 4,
+      "global_num": 19,
+      "day": "Thu",
+      "badge": "Community Post #019",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+      "options": []
+    },
+    {
+      "id": "CT-W04.5",
+      "num": 5,
+      "global_num": 20,
+      "day": "Fri",
+      "badge": "Community Post #020",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Protoevangelium (Gen 3:15): The 6,000-Year Seed War Begins",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

@@ -261,7 +261,241 @@ PRONUNCIATION_MAP = {
     "rakil": "rah-KEEL",
     "Mashiach": "mah-SHEE-akh",
     "Zaphon": "tsah-FOHN",
-    "Tyrus": "TY-rus"
+    "Tyrus": "TY-rus",
+    "zera": "ZEH-rah",
+    "eybah": "ay-VAH",
+    "shuph": "SHOOF",
+    "hu": "HOO",
+    "autos": "ow-TOS",
+    "Targum": "TAR-goom",
+    "Targums": "TAR-gooms",
+    "Neofiti": "neh-oh-FEE-tee",
+    "Irenaeus": "eye-ren-AY-us",
+    "gulgulta": "gool-GOOL-tah",
+    "Shiloh": "SHY-loh",
+    "Chavvah": "khah-VAH",
+    "tebah": "tay-VAH",
+    "Shiphrah": "SHIF-rah",
+    "Puah": "POO-ah",
+    "Athaliah": "ath-uh-LYE-uh",
+    "Jehosheba": "jeh-HOSH-eh-bah",
+    "Agagite": "AY-gag-ite",
+    "Jeconiah": "jek-oh-NYE-ah",
+    "Coniah": "koh-NYE-ah",
+    "suntribo": "soon-TREE-boh",
+    "Mariamne": "mar-ee-AM-nee",
+    "Macrobius": "mah-KROH-bee-us",
+    "Hammedatha": "ham-eh-DAY-thah",
+    "Sisera": "SIS-er-ah",
+    "Abimelech": "ah-BIM-eh-lek",
+    "Thebez": "THEE-bez",
+    "Jechonias": "jek-oh-NYE-as",
+    "Ahaziah": "ay-hah-ZYE-ah",
+    "Lamech": "LAY-mek",
+    "Mordecai": "MOR-deh-kye",
+    "Jael": "JAY-el",
+    "Shemihazah": "sheh-mee-hah-ZAH",
+    "Ohyah": "oh-YAH",
+    "Hahyah": "hah-YAH",
+    "Mahaway": "mah-hah-WAY",
+    "Utnapishtim": "oot-nah-PISH-tim",
+    "tartaroo": "tar-tah-ROH-oh",
+    "Paneas": "pah-NEE-as",
+    "Banias": "bah-NEE-as",
+    "Sirion": "SIR-ee-on",
+    "Shenir": "SHEE-ner",
+    "Baalhermon": "BAY-al-HER-mon",
+    "oiketerion": "oy-kay-TAY-ree-on",
+    "kerusso": "kay-ROO-soh",
+    "Kokabiel": "koh-KAH-bee-el",
+    "Baraqiel": "bah-RAH-kee-el",
+    "abussos": "AH-boos-sos",
+    "herem": "KHEH-rem",
+    "Ardis": "AR-dis",
+    "Dudael": "DOO-dah-el",
+    "arche": "ar-KAY",
+    "Irin": "ee-REEN",
+    "gibborim": "gee-boh-REEM",
+    "Hermon": "HER-mon",
+    "Hobabish": "hoh-BAH-bish",
+    "Humbaba": "hoom-BAH-bah",
+    "Turfan": "toor-FAHN",
+    "Milik": "MEE-lik",
+    "chamas": "khah-MAHS",
+    "Anakims": "AN-ak-imz",
+    "Ahiman": "ah-HY-man",
+    "Sheshai": "SHESH-eye",
+    "Talmai": "TAL-my",
+    "Emims": "EE-mimz",
+    "Zamzummims": "zam-ZUM-imz",
+    "Rephaims": "REF-ay-imz",
+    "Kirjatharba": "KEER-jath-AR-bah",
+    "Jephunneh": "jeh-FUN-eh",
+    "Ishbibenob": "ISH-by-BEE-nob",
+    "Sibbechai": "SIB-eh-kye",
+    "Elhanan": "el-HAY-nan",
+    "Lahmi": "LAH-mee",
+    "Abishai": "ah-BISH-eye",
+    "Zeruiah": "zer-oo-EYE-ah",
+    "Shimeah": "SHIM-ee-ah",
+    "Masoretic": "mas-oh-RET-ik",
+    "Ugarit": "OO-gah-reet",
+    "Atrahasis": "ah-trah-HAH-sis",
+    "Enlil": "EN-lil",
+    "Manichaeism": "MAN-ih-kee-iz-um",
+    "Manichaeans": "man-ih-KEE-unz",
+    "Kenezite": "KEN-ez-ite",
+    "Kenizzites": "KEN-iz-ites",
+    "Chedorlaomer": "KED-or-lay-OH-mer",
+    "Ashteroth": "ASH-teh-roth",
+    "Karnaim": "kar-NAY-im",
+    "Machpelah": "mak-PEE-lah",
+    "Mamre": "MAM-ree",
+    "Gittite": "GIT-ite",
+    "Zoan": "ZOH-an",
+    "Debir": "DEE-bur",
+    "Sirach": "SY-rak",
+    "Uruk": "OO-rook",
+    "Jozef": "YOH-zef",
+    "Gilgamesh": "GIL-gah-mesh",
+    "Mani": "MAH-nee",
+    "Asael": "AH-sah-el",
+    "Hadudo": "hah-DOO-doh",
+    "Yoma": "YOH-mah",
+    "Nachmanides": "nahk-MAN-ih-deez",
+    "Ibn Ezra": "IB-un EZ-rah",
+    "seirim": "seh-ee-REEM",
+    "Raphael": "RAF-ay-el",
+    "apopompaios": "ah-poh-pom-PIE-os",
+    "Tyndale": "TIN-dul",
+    "Segan": "seh-GAHN",
+    "Gamla": "GAHM-lah",
+    "Zakkai": "zah-KYE",
+    "Johanan": "joh-HAY-nan",
+    "Talmud": "TAHL-mood",
+    "Tacitus": "TASS-ih-tus",
+    "Hekal": "hay-KAHL",
+    "Abihu": "ah-BYE-hew",
+    "Nadab": "NAY-dab",
+    "Caiaphas": "KYE-ah-fus",
+    "Rashi": "RAH-shee",
+    "Kippur": "kee-POOR",
+    "Uza": "OO-zah",
+    "Azael": "AH-zah-el",
+    "Zacharias": "zak-ah-RYE-us",
+    "gezerah": "geh-zeh-RAH",
+    "Jeroboam": "jair-oh-BOH-am",
+    "Gadarenes": "GAD-ah-reenz",
+    "Sadducees": "SAD-yoo-seez",
+    "Iddo": "ID-oh",
+    "menorah": "meh-NOR-ah",
+    "tsuk": "TSOOK",
+    "Elah": "EE-lah",
+    "gopher": "GOH-fer",
+    "kopher": "KOH-fer",
+    "kupru": "KOOP-roo",
+    "qinnim": "kin-NEEM",
+    "tsohar": "TSOH-har",
+    "Methuselah": "meh-THOO-zeh-lah",
+    "mabbul": "mah-BOOL",
+    "Ararat": "AIR-ah-rat",
+    "Urartu": "oo-RAR-too",
+    "Noe": "NOH-ee",
+    "Japheth": "JAY-feth",
+    "antitypos": "AN-tee-tee-pos",
+    "Rabbah": "RAH-bah",
+    "Finkel": "FINK-ul",
+    "qeshet": "KEH-shet",
+    "berit": "beh-REET",
+    "mizbeach": "miz-BAY-akh",
+    "nichoach": "nee-KHO-akh",
+    "Enuma Elish": "eh-NOO-mah EH-lish",
+    "Marduk": "MAR-dook",
+    "Chebar": "KEE-bar",
+    "Jehoiachin": "jeh-HOY-ah-kin",
+    "Patmos": "PAT-mos",
+    "kyklothen": "KOO-kloh-then",
+    "smaragdos": "smah-RAG-dos",
+    "toxon": "TOK-son",
+    "sardius": "SAR-dee-us",
+    "Esaias": "eh-ZAY-us",
+    "Nippur": "nip-POOR",
+    "Pliny": "PLIN-ee",
+    "chalcedony": "kal-SED-oh-nee",
+    "Juda": "JOO-dah",
+    "Lystra": "LIS-trah",
+    "Mizraim": "miz-RAY-im",
+    "Phut": "FUTT",
+    "Megillah": "meh-GIL-ah",
+    "Gibeonites": "GIB-ee-on-ites",
+    "Syrophenician": "sy-roh-feh-NISH-un",
+    "Rachab": "RAY-kab",
+    "Madai": "MAY-dye",
+    "Javan": "JAY-van",
+    "Kittim": "KIT-im",
+    "Tarshish": "TAR-shish",
+    "Ashkenaz": "ASH-keh-naz",
+    "Caphtorim": "kaf-TOR-im",
+    "Casluhim": "KAS-loo-him",
+    "Philistim": "fih-LIS-tim",
+    "Girgasite": "GUR-gah-site",
+    "Arvadite": "AR-vad-ite",
+    "Zemarite": "ZEM-ah-rite",
+    "Hamathite": "HAY-math-ite",
+    "Arphaxad": "ar-FAX-ad",
+    "Joktan": "JOK-tan",
+    "Ras Shamra": "rahs SHAHM-rah",
+    "Asherah": "ah-SHEER-ah",
+    "Molech": "MOH-lek",
+    "Ittai": "IT-eye",
+    "Elamites": "EE-lam-ites",
+    "Peleset": "PEL-eh-set",
+    "Medinet Habu": "meh-DEE-net HAH-boo",
+    "Ramesses": "RAM-eh-seez",
+    "Caphtor": "KAF-tor",
+    "Ebedmelech": "EE-bed-MEE-lek",
+    "Kition": "KIT-ee-on",
+    "Gimirrai": "gim-ih-RYE",
+    "Sukkah": "SOO-kah",
+    "Talitha": "TAL-ih-thah",
+    "cumi": "KOO-mee",
+    "Eloi": "ay-LOH-ee",
+    "sabachthani": "sah-bahk-TAH-nee",
+    "Areni": "ah-REN-ee",
+    "Nimrod": "NIM-rod",
+    "Shinar": "SHY-nar",
+    "Erech": "EE-rek",
+    "Accad": "AK-ad",
+    "Calneh": "KAL-neh",
+    "Calah": "KAY-lah",
+    "Resen": "REE-sen",
+    "Nimrud": "nim-ROOD",
+    "gibbor": "gib-BOR",
+    "ziggurat": "ZIG-oo-rat",
+    "ziggurats": "ZIG-oo-rats",
+    "Nabopolassar": "nab-oh-poh-LAS-ar",
+    "Herodotus": "heh-ROD-oh-tus",
+    "Enmerkar": "en-MER-kar",
+    "Aratta": "ah-RAT-ah",
+    "balal": "bah-LAHL",
+    "Bab-ili": "bahb-EE-lee",
+    "Hammurabi": "ham-oo-RAH-bee",
+    "Esagila": "eh-sah-GEE-lah",
+    "Nebuchadnezzar": "neb-oo-kad-NEZ-ar",
+    "Belshazzar": "bel-SHAZ-ar",
+    "Nabonidus": "nab-oh-NY-dus",
+    "Upharsin": "oo-FAR-sin",
+    "Peres": "PEH-res",
+    "helel": "hay-LAYL",
+    "Bethel": "BETH-el",
+    "Ashurbanipal": "ah-shur-BAH-nee-pal",
+    "Ninurta": "nih-NOOR-tah",
+    "Ekur": "EH-koor",
+    "Belteshazzar": "bel-teh-SHAZ-ar",
+    "Merodach": "MER-oh-dak",
+    "Kalhu": "KAL-hoo",
+    "Woolley": "WOOL-ee",
+    "Akkadian": "ah-KAY-dee-an"
 }
 
 ACRONYMS = {"USA", "UK", "DNA", "BC", "AD", "B.C.", "A.D.", "AI"}
@@ -358,8 +592,14 @@ SCENE_TARGET_SEC = 20.0
 SCENE_MIN_SEC = 8.0
 SCENE_MAX_SEC = 32.0
 SCENE_PLAN_FILE = "scene_plan.json"
+NARRATION_WPM = 148  # long-form VibeVoice pace, for scene times planned before the voice
 EXIT_NEEDS_PROMPTS = 3
-DOC_IMAGE_STYLE = "cinematic 16:9 composition, ancient biblical mystery aesthetic, photorealistic, dramatic atmospheric lighting, 8k resolution, no text or lettering"
+# The channel's look (the W03 placeholder render): dark, low-key scenes lit by warm divine gold. The lead goes before the
+# scene prompt and the style after it, so a prompt's own lighting words can't turn a picture bright and colorful.
+DOC_IMAGE_LEAD = "cinematic 16:9 shot, dark low-key scene lit by divine golden light"
+DOC_IMAGE_STYLE = ("sacred biblical atmosphere, majestic composition, dark atmospheric lighting, deep black shadows, "
+                   "warm amber and gold tones, ancient biblical mystery aesthetic, photorealistic, cinematic composition, "
+                   "8k resolution, divine golden light, no text or lettering")
 # A scene may wait behind other ComfyUI jobs; it is abandoned only past this (or on an error / lost job)
 FLUX_SCENE_MAX_WAIT_SEC = 45 * 60
 
@@ -1185,14 +1425,38 @@ def narration_hash(text: str) -> str:
     return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
-def plan_scenes_from_transcript(narration_text, transcript_path, total_duration, target_sec=SCENE_TARGET_SEC):
-    """Splits the recorded narration into scenes at sentence ends, averaging about target_sec each. Every scene has the
-    exact words spoken in it and its start/end in the audio, so its picture can show what is being said."""
+def transcript_words(transcript_path):
     with open(transcript_path, "r", encoding="utf-8") as f:
         transcript = json.load(f)
-    words = [{"word": w["word"].strip(), "start": w["start"], "end": w["end"]}
-             for seg in transcript.get("segments", []) for w in seg.get("words", [])]
-    aligned = align_transcript_with_script(narration_text, words)
+    return [{"word": w["word"].strip(), "start": w["start"], "end": w["end"]}
+            for seg in transcript.get("segments", []) for w in seg.get("words", [])]
+
+
+def plan_scenes_from_transcript(narration_text, transcript_path, total_duration, target_sec=SCENE_TARGET_SEC, **split):
+    """Splits the recorded narration into scenes at sentence ends, averaging about target_sec each. Every scene has the
+    exact words spoken in it and its start/end in the audio, so its picture can show what is being said."""
+    aligned = align_transcript_with_script(narration_text, transcript_words(transcript_path))
+    return scenes_from_timed_words(aligned, total_duration, target_sec, **split)
+
+
+def estimated_word_times(narration_text, wpm=NARRATION_WPM):
+    """Script words with the times they would have at the narration pace (before the voice exists)."""
+    wps = wpm / 60.0
+    return [{"word": tok, "start": round(i / wps, 2), "end": round((i + 1) / wps - 0.05, 2)}
+            for i, tok in enumerate(narration_text.split())]
+
+
+def plan_scenes_from_script(narration_text, target_sec=SCENE_TARGET_SEC, wpm=NARRATION_WPM, **split):
+    """The same scenes, planned from the script before the voice: times are estimates until the recording re-times
+    them (each scene keeps its words, so its picture lands exactly on them)."""
+    timed = estimated_word_times(narration_text, wpm)
+    return scenes_from_timed_words(timed, timed[-1]["end"] if timed else 0.0, target_sec, **split)
+
+
+def scenes_from_timed_words(aligned, total_duration, target_sec=SCENE_TARGET_SEC, max_scenes=None,
+                            min_sec=SCENE_MIN_SEC, max_sec=SCENE_MAX_SEC):
+    """Scenes cut at sentence ends (or at a clause when a sentence runs past max_sec). With max_scenes, the shortest
+    neighbouring scenes are joined until there are no more than that (fewer is fine)."""
     close_at = target_sec * 0.8  # a scene closes at the first sentence end past this, so they average ~target_sec
 
     # Groups are [first, last) word positions in the script (the alignment has one entry per script word)
@@ -1202,15 +1466,22 @@ def plan_scenes_from_transcript(narration_text, transcript_path, total_duration,
         token = w["word"].rstrip("\"'”’)]")
         sentence_end = token.endswith((".", "!", "?"))
         clause_end = token.endswith((",", ";", ":"))
-        if (sentence_end and dur >= close_at) or (clause_end and dur >= SCENE_MAX_SEC) or dur >= SCENE_MAX_SEC * 1.5:
+        if (sentence_end and dur >= close_at) or (clause_end and dur >= max_sec) or dur >= max_sec * 1.5:
             groups.append([first, i + 1])
             first = i + 1
     if first < len(aligned):
         groups.append([first, len(aligned)])
     # A short last scene (usually the sign-off) joins the one before it
-    if len(groups) > 1 and aligned[groups[-1][1] - 1]["end"] - aligned[groups[-1][0]]["start"] < SCENE_MIN_SEC:
+    if len(groups) > 1 and aligned[groups[-1][1] - 1]["end"] - aligned[groups[-1][0]]["start"] < min_sec:
         last = groups.pop()
         groups[-1][1] = last[1]
+
+    def span(a, b):  # seconds from the start of group a to the end of group b
+        return aligned[groups[b][1] - 1]["end"] - aligned[groups[a][0]]["start"]
+
+    while max_scenes and len(groups) > max_scenes:
+        i = min(range(len(groups) - 1), key=lambda k: span(k, k + 1))
+        groups[i][1] = groups.pop(i + 1)[1]
 
     scenes = [{"id": f"scene_{i + 1:03d}", "words": [w0, w1], "start": 0.0, "end": 0.0,
                "text": " ".join(x["word"] for x in aligned[w0:w1]), "prompt": ""} for i, (w0, w1) in enumerate(groups)]
@@ -1233,12 +1504,14 @@ def file_hash(path) -> str:
     return hashlib.md5(Path(path).read_bytes()).hexdigest()
 
 
-def load_or_build_scene_plan(ep_p: Path, narration_text, transcript_path, total_duration, target_sec=SCENE_TARGET_SEC) -> dict:
+def load_or_build_scene_plan(ep_p: Path, narration_text, transcript_path=None, total_duration=None,
+                             target_sec=SCENE_TARGET_SEC, wpm=NARRATION_WPM, **split) -> dict:
     """scene_plan.json in the episode folder: reused while the narration is unchanged; rebuilt (old copy kept, prompts
-    carried over for scenes whose words are the same) when it changes."""
+    carried over for scenes whose words are the same) when it changes. Without a recording (transcript_path None) the
+    scenes are planned from the script with estimated times; the recording later re-times them to the spoken words."""
     plan_p = ep_p / SCENE_PLAN_FILE
     current_hash = narration_hash(narration_text)
-    transcript_hash = file_hash(transcript_path)
+    transcript_hash = file_hash(transcript_path) if transcript_path else None
     old_prompts = {}
     if plan_p.exists():
         try:
@@ -1246,30 +1519,39 @@ def load_or_build_scene_plan(ep_p: Path, narration_text, transcript_path, total_
         except Exception:
             plan = None
         if plan and plan.get("narration_hash") == current_hash and plan.get("scenes"):
-            if plan.get("transcript_hash") != transcript_hash and all("words" in sc for sc in plan["scenes"]):
-                # Same words, new recording: keep the scenes and prompts, move them to the new timing
-                with open(transcript_path, "r", encoding="utf-8") as f:
-                    transcript = json.load(f)
-                words = [{"word": w["word"].strip(), "start": w["start"], "end": w["end"]}
-                         for seg in transcript.get("segments", []) for w in seg.get("words", [])]
-                time_scenes(plan["scenes"], align_transcript_with_script(narration_text, words), total_duration)
+            if (transcript_path and plan.get("transcript_hash") != transcript_hash
+                    and all("words" in sc for sc in plan["scenes"])):
+                # Same words, new recording (or the first one, for a plan made from the script): keep the scenes,
+                # prompts and pictures, and move them to the words' real times
+                planned_ahead = plan.get("timing") == "estimated" or not plan.get("transcript_hash")
+                time_scenes(plan["scenes"], align_transcript_with_script(narration_text, transcript_words(transcript_path)),
+                            total_duration)
                 plan["transcript_hash"] = transcript_hash
+                plan["timing"] = "recorded"
                 plan["audio_duration"] = round(total_duration, 2)
                 plan_p.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-                print("[Scene Plan] New recording of the same narration: scenes re-timed to it, prompts kept.", flush=True)
+                print("[Scene Plan] " + ("Scenes planned before the voice now follow the recording: each picture starts "
+                                         "on its first spoken word." if planned_ahead else
+                                         "New recording of the same narration: scenes re-timed to it, prompts kept."),
+                      flush=True)
             return plan
         if plan:
             shutil.copy2(plan_p, ep_p / "scene_plan.previous.json")
             old_prompts = {sc.get("text"): sc.get("prompt") for sc in plan.get("scenes", []) if sc.get("prompt")}
             print("[Scene Plan] The narration changed since the plan was made: building a new one "
                   "(previous plan kept in scene_plan.previous.json).", flush=True)
-    scenes = plan_scenes_from_transcript(narration_text, transcript_path, total_duration, target_sec)
+    if transcript_path:
+        scenes = plan_scenes_from_transcript(narration_text, transcript_path, total_duration, target_sec, **split)
+    else:
+        scenes = plan_scenes_from_script(narration_text, target_sec, wpm, **split)
+        total_duration = scenes[-1]["end"] if scenes else 0.0
     for sc in scenes:
         sc["prompt"] = old_prompts.get(sc["text"], "")
     plan = {
         "version": 1,
         "narration_hash": current_hash,
         "transcript_hash": transcript_hash,
+        "timing": "recorded" if transcript_path else "estimated",
         "audio_duration": round(total_duration, 2),
         "target_scene_sec": target_sec,
         "instructions": ("Write one FLUX image prompt per scene in 'prompt' that shows exactly what the narration says in "
@@ -1278,11 +1560,44 @@ def load_or_build_scene_plan(ep_p: Path, narration_text, transcript_path, total_
     }
     plan_p.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
     avg = total_duration / max(len(scenes), 1)
-    print(f"[Scene Plan] {len(scenes)} narration-timed scenes (about {avg:.0f}s each) saved to {plan_p.name}", flush=True)
+    kind = "narration-timed" if transcript_path else "script-planned (times estimated until the voice is recorded)"
+    print(f"[Scene Plan] {len(scenes)} {kind} scenes (about {avg:.0f}s each) saved to {plan_p.name}", flush=True)
     return plan
 
 
 SCENE_PROMPTS_RECORD = "scene_prompts.json"
+
+
+def needs_prompt(sc) -> bool:
+    """A scene needs a prompt unless it has one or uses a chosen existing picture."""
+    return not str(sc.get("prompt", "")).strip() and not sc.get("image")
+
+
+def picture_key(sc) -> str:
+    """What a scene's picture must come from: its chosen existing picture ("image" in the plan), else its prompt."""
+    return f"image:{sc['image']}" if sc.get("image") else sc["prompt"]
+
+
+def place_chosen_images(scenes, ep_p: Path):
+    """A scene can reuse an existing picture instead of drawing one: "image" in scene_plan.json, a path relative to the
+    episode folder (for example images/_placeholder_render/scene_41.png). It is copied into the scene's slot."""
+    images_dir = ep_p / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+    placed = 0
+    for sc in scenes:
+        if not sc.get("image"):
+            continue
+        src = ep_p / sc["image"]
+        if not src.exists():
+            print(f"[Scenes] {sc['id']}: chosen picture {sc['image']} not found, drawing it instead", flush=True)
+            sc.pop("image")
+            continue
+        dst = images_dir / f"{sc['id']}.png"
+        if not dst.exists():
+            shutil.copy2(src, dst)
+            placed += 1
+    if placed:
+        print(f"[Scenes] {placed} scene(s) use an existing picture chosen in the plan.", flush=True)
 
 
 def retire_stale_scene_images(scenes, ep_p: Path):
@@ -1298,7 +1613,7 @@ def retire_stale_scene_images(scenes, ep_p: Path):
     set_aside = {}
     for sc in scenes:
         img = images_dir / f"{sc['id']}.png"
-        if img.exists() and record.get(sc["id"]) != sc["prompt"]:
+        if img.exists() and record.get(sc["id"]) != picture_key(sc):
             replaced = images_dir / "_replaced"
             replaced.mkdir(parents=True, exist_ok=True)
             dest = replaced / f"{sc['id']}_{int(time.time())}.png"
@@ -1309,9 +1624,9 @@ def retire_stale_scene_images(scenes, ep_p: Path):
     reused = 0
     for sc in scenes:
         img = images_dir / f"{sc['id']}.png"
-        if not img.exists() and sc["prompt"] in set_aside:
-            shutil.copy2(set_aside[sc["prompt"]], img)
-            record[sc["id"]] = sc["prompt"]
+        if not img.exists() and picture_key(sc) in set_aside:
+            shutil.copy2(set_aside[picture_key(sc)], img)
+            record[sc["id"]] = picture_key(sc)
             reused += 1
     if set_aside or reused:
         record_p.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -1331,7 +1646,7 @@ def record_scene_prompts(scenes, ep_p: Path):
         record = {}
     for sc in scenes:
         if (images_dir / f"{sc['id']}.png").exists():
-            record[sc["id"]] = sc["prompt"]
+            record[sc["id"]] = picture_key(sc)
     record_p.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
@@ -1354,13 +1669,20 @@ For every scene, write one prompt that shows what that scene's narration says, s
 - When the narration quotes a verse, picture what the verse describes, not someone reading it.
 - Start with the main subject, then the setting, the action, the lighting and the camera view. 30 to 60 words, one paragraph.
 - Ancient Near Eastern, biblical-era settings, clothing and architecture.
+- {look}
 - No text, letters, numbers, inscriptions or writing anywhere in the picture. Never ask for readable scrolls, signs or book titles.
 - No gore, wounds or nudity (Adam and Eve framed from the shoulders up or clothed in garments of skin). Keep it reverent.
 - Never write cherub or cherubim (the image model draws baby angels). Write "towering angelic guardian with four vast wings" instead.
 - Angels are majestic adult beings with great feathered wings. Satan or fallen angels: a once-glorious winged being, dimmed and scorched, or a dark-robed figure with a shadowed face, never a cartoon devil.
 - Jesus: a Middle Eastern man with dark hair and beard in a simple cream linen robe, shown with dignity.
 - Describe each recurring figure or place with the same words every time, so the pictures stay consistent.
+- Closing call-to-action lines (watch the full episode, our books, follow for more): picture old leather-bound books and an open Bible on a wooden table by an oil lamp, or a candlelit library of ancient scrolls.
 - Do not add style words (cinematic, 8k, photorealistic): they are added automatically."""
+# The long-form documentary's look (the W03 ep2 placeholder render)
+HOUSE_LOOK_RULE = ("The channel's look: dark, low-key scenes with deep black shadows, lit by warm divine golden light, "
+                   "candles, lamps or fire, in amber and gold tones. Never bright daylight, white or pastel settings, blue "
+                   "skies or saturated colors; outdoor scenes are at dusk, at night or under dark storm skies.")
+LONG_FORM_PROMPT_GUIDE = SCENE_PROMPT_GUIDE.replace("{look}", HOUSE_LOOK_RULE)
 
 
 class PromptWriterUnavailable(Exception):
@@ -1487,8 +1809,8 @@ def episode_prompt_context(ep_p: Path) -> str:
     return "\n".join(lines)
 
 
-def build_prompt_request(scenes, context: str, earlier) -> str:
-    parts = [SCENE_PROMPT_GUIDE]
+def build_prompt_request(scenes, context: str, earlier, guide=None) -> str:
+    parts = [guide or LONG_FORM_PROMPT_GUIDE]
     if context:
         parts.append(context)
     if earlier:
@@ -1525,14 +1847,14 @@ def parse_prompt_reply(reply: str, wanted_ids) -> dict:
     return out
 
 
-def write_scene_prompts_with_ai(plan: dict, ep_p: Path, writers):
+def write_scene_prompts_with_ai(plan: dict, ep_p: Path, writers, guide=None, extra_context=""):
     """Fills the plan's empty prompts with the writers, in order, batch by batch (saved after each batch).
     Returns the notes on writers that could not be used."""
     plan_p = ep_p / SCENE_PLAN_FILE
-    context = episode_prompt_context(ep_p)
+    context = "\n\n".join(c for c in (episode_prompt_context(ep_p), extra_context) if c)
     available = list(writers)
     notes = []
-    missing = [sc for sc in plan["scenes"] if not str(sc.get("prompt", "")).strip()]
+    missing = [sc for sc in plan["scenes"] if needs_prompt(sc)]
     for b in range(0, len(missing), PROMPT_BATCH_SIZE):
         todo = {sc["id"]: sc for sc in missing[b:b + PROMPT_BATCH_SIZE]}
         for name in list(available):
@@ -1540,7 +1862,7 @@ def write_scene_prompts_with_ai(plan: dict, ep_p: Path, writers):
                 if not todo:
                     break
                 earlier = [sc["prompt"] for sc in plan["scenes"] if str(sc.get("prompt", "")).strip()][-4:]
-                request = build_prompt_request(list(todo.values()), context, earlier)
+                request = build_prompt_request(list(todo.values()), context, earlier, guide)
                 try:
                     got = parse_prompt_reply(PROMPT_WRITERS[name](request), list(todo))
                 except PromptWriterUnavailable as e:
@@ -1574,7 +1896,8 @@ def legacy_images_ready(scenes, ep_p: Path) -> bool:
 
 
 def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebuild=False,
-                     replan=False, auto_prompts=False, scene_sec=SCENE_TARGET_SEC, prompt_writer=None):
+                     replan=False, auto_prompts=False, scene_sec=SCENE_TARGET_SEC, prompt_writer=None,
+                     plan_only=False):
     ep_p = Path(ep_dir).resolve()
     
     # Extract clean prefix & title
@@ -1606,6 +1929,11 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
 
     use_legacy = (not replan and not (ep_p / SCENE_PLAN_FILE).exists()
                   and legacy_scenes and legacy_images_ready(legacy_scenes, ep_p))
+    if use_legacy and plan_only:
+        # Planning never records or draws: an older episode keeps its pictures unless --replan
+        print("[Scene Plan] This episode keeps its earlier pictures (its own prompt file); nothing to plan. "
+              "Use --replan to time new pictures to the narration.", flush=True)
+        return "KEPT"
     if use_legacy:
         # An older episode with its own prompt file and pictures: keep it as it was rendered before
         scenes = legacy_scenes
@@ -1626,15 +1954,23 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
             timeline.append({"id": s["id"], "start": curr_t, "end": curr_t + dur, "motion": s["motion"]})
             curr_t += dur
     else:
-        # 1. Voice first (ComfyUI's models unloaded so the narration has the GPU), 2. scenes timed to what is said,
-        # 3. a prompt per scene for exactly those words, 4. pictures, shown exactly while their words are spoken
-        print(f"[Script] Narrative: {len(narration_text.split())} words. Recording the narration first; pictures follow its timing.", flush=True)
-        free_comfyui_memory()
-        soundtrack_path, transcript_path, total_duration = generate_speech_and_timestamps(
-            narration_text, str(temp_dir), ep_prefix, speed=speed, force_rebuild=force_rebuild
-        )
-        plan = load_or_build_scene_plan(ep_p, narration_text, transcript_path, total_duration, scene_sec)
-        missing = [sc for sc in plan["scenes"] if not str(sc.get("prompt", "")).strip()]
+        # Scenes follow the narration's words: 1. the scene plan (from the recording, or from the script when planning
+        # ahead), 2. a prompt per scene for exactly those words, 3. pictures, 4. the voice re-times every scene to its
+        # first spoken word, so each picture shows while its words are heard
+        if plan_only or images_only:
+            # No recording needed: plan from the script (or keep the existing plan) and draw ahead of the voice
+            print(f"[Script] Narrative: {len(narration_text.split())} words. Planning scenes from the script; "
+                  f"the voice will time them later.", flush=True)
+            plan = load_or_build_scene_plan(ep_p, narration_text, None, None, scene_sec)
+        else:
+            print(f"[Script] Narrative: {len(narration_text.split())} words. Recording the narration first; pictures follow its timing.", flush=True)
+            free_comfyui_memory()
+            soundtrack_path, transcript_path, total_duration = generate_speech_and_timestamps(
+                narration_text, str(temp_dir), ep_prefix, speed=speed, force_rebuild=force_rebuild
+            )
+            plan = load_or_build_scene_plan(ep_p, narration_text, transcript_path, total_duration, scene_sec)
+        voice_ready = plan.get("timing", "recorded") == "recorded"
+        missing = [sc for sc in plan["scenes"] if needs_prompt(sc)]
         writer_notes = []
         writers = prompt_writer_order(prompt_writer)
         have = len(plan["scenes"]) - len(missing)
@@ -1645,7 +1981,7 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
                   f"{' then '.join(PROMPT_WRITER_NAMES[w] for w in writers)}"
                   f"{f' ({have} already written are kept)' if have else ''}...", flush=True)
             writer_notes = write_scene_prompts_with_ai(plan, ep_p, writers)
-            missing = [sc for sc in plan["scenes"] if not str(sc.get("prompt", "")).strip()]
+            missing = [sc for sc in plan["scenes"] if needs_prompt(sc)]
         if missing and auto_prompts:
             for sc in missing:
                 sc["prompt"] = build_scene_prompt_16x9(sc["text"])
@@ -1654,18 +1990,26 @@ def build_16x9_video(ep_dir, ep_num=1, speed=1.0, images_only=False, force_rebui
             missing = []
         if missing:
             print("\n" + "=" * 78, flush=True)
-            print(f"⏸  VOICE READY, PICTURES WAITING: {len(missing)} of {len(plan['scenes'])} scenes need a picture prompt.", flush=True)
+            print(f"⏸  {'VOICE READY' if voice_ready else 'SCENES PLANNED'}, PICTURES WAITING: {len(missing)} of "
+                  f"{len(plan['scenes'])} scenes need a picture prompt.", flush=True)
             print(f"   Plan: {ep_p / SCENE_PLAN_FILE}", flush=True)
             for note in writer_notes:
                 print(f"   {note}", flush=True)
             print("   Ask Claude Code to write the prompts from each scene's narration, then press Generate again.", flush=True)
-            print("   (The narration is saved and will not be recorded again.)", flush=True)
+            if voice_ready:
+                print("   (The narration is saved and will not be recorded again.)", flush=True)
             print("=" * 78 + "\n", flush=True)
             return "NEEDS_PROMPTS"
-        scenes = [{"id": sc["id"], "prompt": f"{sc['prompt'].strip().rstrip(',')}, {DOC_IMAGE_STYLE}",
+        if plan_only:
+            print(f"\n✔ [Scene Plan] {len(plan['scenes'])} scenes planned with their prompts. Draw the pictures now "
+                  f"(--images-only) or render; the voice will time each scene to its words.", flush=True)
+            return "PLANNED"
+        scenes = [{"id": sc["id"], "prompt": f"{DOC_IMAGE_LEAD}, {sc['prompt'].strip().rstrip(',.')}, {DOC_IMAGE_STYLE}",
+                   "image": sc.get("image"),
                    "weight": max(0.1, sc["end"] - sc["start"]), "motion": MOTION_PRESETS[i % len(MOTION_PRESETS)]}
                   for i, sc in enumerate(plan["scenes"])]
         retire_stale_scene_images(scenes, ep_p)
+        place_chosen_images(scenes, ep_p)
         try:
             images_paths = ensure_scene_images(scenes, ep_p, ep_num, allow_legacy_copy=False)
         finally:
@@ -1869,6 +2213,8 @@ def main():
     parser.add_argument("--replan", action="store_true", help="Time new pictures to the narration even if older prompts/images exist")
     parser.add_argument("--auto-prompts", action="store_true", help="Fill missing scene prompts with the built-in rules instead of pausing")
     parser.add_argument("--scene-sec", type=float, default=SCENE_TARGET_SEC, help="Average seconds per picture (default 20)")
+    parser.add_argument("--plan-only", action="store_true",
+                        help="Plan the scenes from the script and write their prompts, before any voice is recorded")
     parser.add_argument("--prompt-writer", default=None,
                         help="Who writes the scene prompts after the voice: e.g. claude,gemini (default from "
                              "generator_settings.json), gemini, or manual to pause for them")
@@ -1917,7 +2263,8 @@ def main():
         replan=args.replan,
         auto_prompts=args.auto_prompts,
         scene_sec=args.scene_sec,
-        prompt_writer=args.prompt_writer
+        prompt_writer=args.prompt_writer,
+        plan_only=args.plan_only
     )
     if result == "NEEDS_PROMPTS":
         sys.exit(EXIT_NEEDS_PROMPTS)

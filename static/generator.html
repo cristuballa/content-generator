@@ -304,6 +304,17 @@
               </select>
               <span id="lfPromptWriterStatus" class="text-[10px] font-mono text-slate-500"></span>
             </div>
+
+            <!-- Plan ahead of the voice: the recording later times each scene to its first spoken word -->
+            <div class="flex items-center gap-2 flex-wrap pt-1">
+              <button id="btnPlanLongForm" class="py-1.5 px-3 rounded-lg bg-[#1e2638] hover:bg-[#2b354c] text-slate-200 border border-[#2b354c] font-semibold text-[11px] flex items-center gap-1.5 transition" title="Split the script into scenes and write their picture prompts, without recording the voice">
+                <i data-lucide="list-checks" class="w-3.5 h-3.5 text-sky-400"></i> Plan scenes
+              </button>
+              <button id="btnDrawLongForm" class="py-1.5 px-3 rounded-lg bg-[#1e2638] hover:bg-[#2b354c] text-slate-200 border border-[#2b354c] font-semibold text-[11px] flex items-center gap-1.5 transition" title="Draw the scene pictures now; the voice recorded later times each one to its words">
+                <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400"></i> Draw pictures
+              </button>
+              <span class="text-[10px] text-slate-500">before the voice; each picture is timed to its words when the voice is recorded</span>
+            </div>
           </div>
 
           <!-- Action Buttons -->
@@ -342,11 +353,49 @@
           </div>
         </div>
 
+        <div class="flex items-center gap-2 flex-wrap">
+        <!-- Plan / draw every reel ahead of the voice (each picture is timed to its words when the voice is recorded) -->
+        <button id="btnPlanAllReels" class="px-3 py-2 rounded-xl bg-[#1e2638] hover:bg-[#2b354c] text-slate-200 border border-[#2b354c] text-xs font-semibold flex items-center gap-1.5 transition" title="Split every reel's script into scenes (at most 20) and write their picture prompts, without recording">
+          <i data-lucide="list-checks" class="w-3.5 h-3.5 text-sky-400"></i> Plan all
+        </button>
+        <button id="btnDrawAllReels" class="px-3 py-2 rounded-xl bg-[#1e2638] hover:bg-[#2b354c] text-slate-200 border border-[#2b354c] text-xs font-semibold flex items-center gap-1.5 transition" title="Draw every reel's scene pictures now; the voice recorded later times each to its words">
+          <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400"></i> Draw all
+        </button>
+        <!-- Modular Ads Batch Actions -->
+        <div class="relative inline-block text-left" id="dropdownAllAdsWrapper">
+          <button id="btnAllAdsMenu" onclick="toggleAllAdsMenu()" class="px-3 py-2 rounded-xl bg-[#1e2638] hover:bg-[#2b354c] text-slate-200 border border-[#2b354c] text-xs font-semibold flex items-center gap-1.5 transition" title="Batch manage ad outro attachments across all reels this week">
+            <i data-lucide="badge-percent" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Ads</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+          <div id="allAdsMenuDropdown" class="hidden absolute right-0 mt-1 w-60 rounded-xl bg-[#161c2b] border border-[#252f44] shadow-2xl py-1.5 z-30 text-xs text-slate-200">
+            <div class="px-3 py-1 text-[10px] uppercase font-mono text-slate-400 font-bold border-b border-[#252f44]">Attach Ad to All Reels</div>
+            <button onclick="triggerBatchAd('combine', 'ad_outro_1.mp4')" class="w-full text-left px-3 py-1.5 hover:bg-emerald-500/15 hover:text-emerald-300 flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Attach <strong>Ad 1</strong> (Books & Merch)</span>
+            </button>
+            <button onclick="triggerBatchAd('combine', 'ad_outro_2.mp4')" class="w-full text-left px-3 py-1.5 hover:bg-emerald-500/15 hover:text-emerald-300 flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Attach <strong>Ad 2</strong> (Book 1 OT Focus)</span>
+            </button>
+            <button onclick="triggerBatchAd('combine', 'ad_outro_3.mp4')" class="w-full text-left px-3 py-1.5 hover:bg-emerald-500/15 hover:text-emerald-300 flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Attach <strong>Ad 3</strong> (Book 2 NT Focus)</span>
+            </button>
+            <div class="my-1 border-t border-[#252f44]"></div>
+            <button onclick="triggerBatchAd('remove')" class="w-full text-left px-3 py-1.5 hover:bg-rose-500/15 hover:text-rose-300 flex items-center gap-2 text-rose-400 font-semibold">
+              <i data-lucide="trash-2" class="w-3 h-3"></i>
+              <span>Remove Ads from All Reels (Clean)</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Generate All Reels Button -->
         <button id="btnGenerateAllReels" class="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 hover:text-emerald-200 border border-emerald-500/35 text-xs font-bold flex items-center gap-2 transition active:scale-[0.98]">
           <i data-lucide="layers" class="w-3.5 h-3.5"></i>
           <span id="btnGenerateAllReelsLabel">Generate All Reels</span>
         </button>
+        </div>
       </div>
 
       <!-- Daily Reels: one column per weekday when a day has more than one reel -->
@@ -815,17 +864,20 @@
   <!-- Modal: Quick Ad Combine & Thumbnail Generator -->
   <div id="modalCombineAd" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
     <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAdCombineModal()"></div>
-    <div class="relative bg-[#111622] border border-[#232a3b] rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 z-10 animate-in fade-in zoom-in-95 duration-200">
+    <div class="relative bg-[#111622] border border-[#232a3b] rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Modal Header -->
-      <div class="flex items-start justify-between">
+      <div class="p-5 border-b border-[#232a3b] flex items-start justify-between shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
             <i data-lucide="badge-percent" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-white">Combine Ad Outro &amp; Thumbnail</h3>
-            <p id="adCombineTargetTitle" class="text-xs text-slate-400 mt-0.5 line-clamp-1">Reel 01 • What Did God Do BEFORE Genesis 1:1?</p>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-white">Advertisement Outro Manager</h3>
+              <span id="adCurrentStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Clean Reel</span>
+            </div>
+            <p id="adCombineTargetTitle" class="text-xs text-slate-400 mt-0.5 line-clamp-1">Reel 01 • Title</p>
           </div>
         </div>
         <button onclick="closeAdCombineModal()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
@@ -833,70 +885,112 @@
         </button>
       </div>
 
-      <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2.5 text-xs text-amber-300">
-        <i data-lucide="zap" class="w-4 h-4 shrink-0 text-amber-400"></i>
-        <span><strong>Fast Concat:</strong> Attaches the ad and regenerates thumbnail without re-rendering the 20 main video scenes (~2 seconds).</span>
-      </div>
+      <!-- Scrollable Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
 
-      <!-- Ad Variant Options -->
-      <div class="space-y-2.5">
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Select Ad Outro Variant</label>
-        
-        <label class="flex items-start gap-3 p-3 rounded-xl border border-emerald-500/40 bg-emerald-950/20 hover:border-emerald-500 transition cursor-pointer ad-variant-opt">
-          <input type="radio" name="adVariantSelection" value="1" checked class="mt-1 accent-emerald-500">
-          <div class="flex-1 text-xs">
-            <div class="font-bold text-white flex items-center justify-between">
-              <span>Ad 1: Books Vol 1 &amp; 2 + Sacred Merch</span>
-              <span class="text-[10px] font-mono text-emerald-400 bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Recommended</span>
+        <!-- Folder Info & Upload Header -->
+        <div class="flex items-center justify-between p-2.5 bg-[#161c2b] border border-[#252f44] rounded-xl text-xs">
+          <div class="flex items-center gap-2 text-slate-300 font-mono text-[11px] truncate">
+            <i data-lucide="folder" class="w-4 h-4 text-amber-400 shrink-0"></i>
+            <span id="adModalFolderPath" class="truncate" title="C:\Projects\Adz-Video">C:\Projects\Adz-Video</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="loadAdVideosList()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold flex items-center gap-1 transition" title="Refresh ad list">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+              <span>Refresh</span>
+            </button>
+            <label id="adModalUploadBtnLabel" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition" title="Upload new advertisement asset">
+              <i data-lucide="upload" class="w-3 h-3"></i>
+              <span id="adModalUploadBtnText">Upload Ad</span>
+              <input type="file" id="adzVideoFileInput" accept="video/mp4,video/quicktime,video/webm" class="hidden" onchange="uploadNewAdVideo(this)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Ad Toggle Switch (Include / Remove) -->
+        <div class="p-3.5 bg-[#161c2b] border border-[#252f44] rounded-xl flex items-center justify-between">
+          <div class="space-y-0.5">
+            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+              <span>Enable Advertisement Outro</span>
             </div>
-            <p class="text-slate-400 mt-1 text-[11px] leading-relaxed">
-              Promotes 100 hidden secrets in Book 1 &amp; 2 on Amazon + sacred art and apparel on Etsy.
-            </p>
+            <p class="text-[11px] text-slate-400">Toggle off to strip the ad outro and restore the clean master video.</p>
           </div>
-        </label>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="toggleAdEnabled" class="sr-only peer" checked onchange="handleAdToggleChange()">
+            <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
 
-        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700/60 bg-[#161c2b] hover:border-slate-500 transition cursor-pointer ad-variant-opt">
-          <input type="radio" name="adVariantSelection" value="2" class="mt-1 accent-emerald-500">
-          <div class="flex-1 text-xs">
-            <div class="font-bold text-white">Ad 2: Book 1 Focus (50 Old Testament Mysteries)</div>
-            <p class="text-slate-400 mt-1 text-[11px] leading-relaxed">
-              Focuses specifically on fifty shocking Old Testament secrets decoded in Book One.
-            </p>
+        <!-- Warning / notice when toggled off -->
+        <div id="adDisabledNotice" class="hidden p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2.5 text-xs text-amber-300">
+          <i data-lucide="info" class="w-4 h-4 shrink-0 text-amber-400"></i>
+          <span><strong>Remove Ad Mode:</strong> Clicking apply will remove the attached advertisement outro and restore the clean master video.</span>
+        </div>
+
+        <!-- Ad List Section (Visible when Toggle is ON) -->
+        <div id="adSelectionSection" class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label id="adModalSelectionHeading" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Choose Advertisement Video</label>
+            <span id="adzCountBadge" class="text-[10px] font-mono text-slate-400">Loading...</span>
           </div>
-        </label>
 
-        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700/60 bg-[#161c2b] hover:border-slate-500 transition cursor-pointer ad-variant-opt">
-          <input type="radio" name="adVariantSelection" value="3" class="mt-1 accent-emerald-500">
-          <div class="flex-1 text-xs">
-            <div class="font-bold text-white">Ad 3: Book 2 Focus (Hidden Prophecies)</div>
-            <p class="text-slate-400 mt-1 text-[11px] leading-relaxed">
-              Focuses on controversial hidden prophecies from Genesis to Revelation.
-            </p>
+          <!-- Dynamic List of Ads -->
+          <div id="adzVideoListContainer" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <div class="p-6 text-center text-xs text-slate-500">Loading advertisement assets...</div>
           </div>
-        </label>
-      </div>
+        </div>
 
-      <!-- Additional Options -->
-      <div class="pt-2 border-t border-slate-800">
-        <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
-          <input type="checkbox" id="chkAlsoRegenThumbnail" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500 w-4 h-4">
-          <span>Also regenerate <strong>Option-C Composite Thumbnail</strong> with hook banner</span>
-        </label>
+        <!-- Media Preview Container (If user clicks preview) -->
+        <div id="adzPreviewContainer" class="hidden p-3 bg-black/60 border border-slate-800 rounded-xl space-y-2">
+          <div class="flex items-center justify-between text-xs text-slate-300 font-semibold">
+            <span id="adzPreviewTitle" class="truncate font-mono text-[11px]">Preview</span>
+            <button onclick="closeAdPreview()" class="text-slate-400 hover:text-white text-xs px-2 py-0.5 rounded bg-slate-800">Close</button>
+          </div>
+          <div class="w-full max-h-56 rounded overflow-hidden bg-black flex justify-center">
+            <video id="adzPreviewVideo" controls class="max-h-56 max-w-full rounded hidden"></video>
+            <img id="adzPreviewImg" class="max-h-56 max-w-full rounded object-contain hidden" alt="Ad Preview">
+          </div>
+        </div>
+
+        <!-- Target Scope (Single vs All) -->
+        <div class="p-3 bg-[#161c2b] border border-[#252f44] rounded-xl space-y-2">
+          <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">Apply Scope</label>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 border border-slate-700/60 cursor-pointer hover:border-emerald-500/50">
+              <input type="radio" name="adScopeRadio" value="single" checked class="text-emerald-500 focus:ring-emerald-500">
+              <span id="adScopeSingleLabel" class="text-slate-200">This Reel Only</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 border border-slate-700/60 cursor-pointer hover:border-emerald-500/50">
+              <input type="radio" name="adScopeRadio" value="all" class="text-emerald-500 focus:ring-emerald-500">
+              <span id="adScopeAllLabel" class="text-slate-200">All Reels This Week</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Thumbnail Option -->
+        <div class="pt-2 border-t border-slate-800">
+          <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="chkAlsoRegenThumbnail" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500 w-4 h-4">
+            <span>Also regenerate <strong>Option-C Composite Thumbnail</strong> with hook banner</span>
+          </label>
+        </div>
+
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+      <div class="p-4 border-t border-[#232a3b] flex items-center justify-end gap-3 shrink-0 bg-[#0d121c]/50">
         <button onclick="closeAdCombineModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-semibold transition">
           Cancel
         </button>
-        <button id="btnExecuteAdCombine" onclick="executeAdCombine()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
+        <button id="btnExecuteAdAction" onclick="executeAdAction()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
           <i data-lucide="layers" class="w-4 h-4"></i>
-          <span>Combine &amp; Update Reel</span>
+          <span id="btnExecuteAdActionLabel">Combine &amp; Update Reel</span>
         </button>
       </div>
 
     </div>
   </div>
+
 
   <!-- ================= CLIENT JAVASCRIPT ================= -->
   <script>
@@ -983,6 +1077,14 @@
       } catch (e) {
         if (stat) stat.textContent = "";
       }
+    }
+
+    // Plan scenes / draw pictures ahead of the voice for the selected long-form cut
+    function setLongFormPlanButtons(weekNum, cutNum, label) {
+      const plan = document.getElementById("btnPlanLongForm");
+      const draw = document.getElementById("btnDrawLongForm");
+      if (plan) plan.onclick = () => triggerGeneration(weekNum, "long_form", cutNum, `Scene plan + prompts: ${label}`, null, "plan");
+      if (draw) draw.onclick = () => triggerGeneration(weekNum, "long_form", cutNum, `Scene pictures: ${label}`, null, "images");
     }
 
     async function savePromptWriter(value) {
@@ -1192,11 +1294,15 @@
 
     // Reels must stay under 2 minutes: a longer render shows its length in amber
     function reelLengthLabel(r) {
-      if (!r.video_duration) return `<span>9:16 • ~1:45</span>`;
-      const [m, s] = r.video_duration.split(":").map(Number);
+      const dur = r.video_duration || "~1:45";
+      const parts = dur.split(":").map(Number);
+      const m = parts[0] || 0;
+      const s = parts[1] || 0;
       const over = m * 60 + s > 120;
-      return `<span class="${over ? 'text-amber-400 font-bold' : ''}" title="${over ? 'Over the 2-minute reel limit' : 'Rendered length'}">9:16 • ${r.video_duration}${over ? ' ⚠' : ''}</span>`;
+      const adBadge = r.has_ad ? `<span class="ml-1.5 px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 text-[9px]" title="Advertisement outro attached">AD</span>` : '';
+      return `<span class="${over ? 'text-amber-400 font-bold' : ''}" title="${over ? 'Over the 2-minute reel limit' : 'Rendered length'}">9:16 • ${dur}${over ? ' ⚠' : ''}${adBadge}</span>`;
     }
+
 
     function renderLongForm(lf, weekNum) {
       const container = document.getElementById("lfMediaContainer");
@@ -1299,6 +1405,7 @@
           </div>
         `;
         btnGen.onclick = () => triggerGeneration(weekNum, "long_form", 1, `Flagship Documentary for W${weekNum.toString().padStart(2, "0")}`);
+        setLongFormPlanButtons(weekNum, 1, `Flagship Documentary for W${weekNum.toString().padStart(2, "0")}`);
         document.getElementById("btnViewLongFormScript").onclick = () => viewLongFormScript(null, 1);
       }
 
@@ -1335,6 +1442,14 @@
         if (vid.video_url) {
           statusBadge.textContent = "✔ Video Rendered & Ready";
           statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 glow-emerald-sm";
+        } else if (vid.scene_plan && vid.scene_plan.timing === "estimated") {
+          // Planned from the script: the voice will time the scenes
+          statusBadge.textContent = vid.scene_plan.missing_prompts > 0
+            ? `Scenes Planned • ${vid.scene_plan.missing_prompts} Scene Prompts Needed`
+            : `${vid.scene_plan.scenes} Scenes & Prompts Ready • Voice Pending`;
+          statusBadge.className = vid.scene_plan.missing_prompts > 0
+            ? "text-xs font-mono px-3 py-1 rounded-full font-bold bg-sky-500/15 text-sky-300 border border-sky-500/35"
+            : "text-xs font-mono px-3 py-1 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35";
         } else if (vid.scene_plan && vid.scene_plan.missing_prompts > 0) {
           statusBadge.textContent = `Voice Ready • ${vid.scene_plan.missing_prompts} Scene Prompts Needed`;
           statusBadge.className = "text-xs font-mono px-3 py-1 rounded-full font-bold bg-sky-500/15 text-sky-300 border border-sky-500/35";
@@ -1358,7 +1473,7 @@
 
       if (vid.video_url) {
         container.innerHTML = `
-          <video controls preload="metadata" poster="${posterUrl}" class="w-full h-full object-cover">
+          <video controls preload="none" poster="${posterUrl}" class="w-full h-full object-cover" src="${videoSrc}" playsinline>
             <source src="${videoSrc}" type="video/mp4">
             Your browser does not support HTML5 video.
           </video>
@@ -1417,6 +1532,7 @@
           : "flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md shadow-amber-500/10 active:scale-[0.98]";
         btnGen.onclick = () => triggerGeneration(weekNum, "long_form", cutTargetNum, `${vid.label || `Cut ${cutTargetNum}`} for W${weekNum.toString().padStart(2, "0")}`);
       }
+      setLongFormPlanButtons(weekNum, cutTargetNum, `${vid.short_label || `Cut ${cutTargetNum}`} for W${weekNum.toString().padStart(2, "0")}`);
 
       const btnPost = document.getElementById("btnPostLongForm");
       if (btnPost) {
@@ -1454,10 +1570,21 @@
     }
 
     // Render the week's reels (reels/mon_1_..., mon_2_..., tue_1_... in posting order; any number a day)
+    // A reel's narration-timed scene plan: prompts still needed, or planned ahead of the voice
+    function reelPlanLabel(r) {
+      const p = r.scene_plan;
+      if (!p) return "Ready to Render";
+      if (p.missing_prompts > 0) return `${p.missing_prompts} of ${p.scenes} scene prompts needed`;
+      return p.timing === "estimated" ? `${p.scenes} scenes planned • voice pending` : `${p.scenes} scenes ready`;
+    }
+
     function renderReels(reels, weekNum) {
       const grid = document.getElementById("reelsGrid");
       document.getElementById("btnGenerateAllReelsLabel").textContent = `Generate All ${reels?.length || 5} Reels`;
       btnGenerateAllReels.onclick = () => triggerGeneration(weekNum, "all_reels", null, `All ${reels?.length || 5} Reels for W${weekNum.toString().padStart(2, "0")}`);
+      const wTag = `W${weekNum.toString().padStart(2, "0")}`;
+      document.getElementById("btnPlanAllReels").onclick = () => triggerGeneration(weekNum, "all_reels", null, `Scene plans + prompts for all ${wTag} reels`, null, "plan");
+      document.getElementById("btnDrawAllReels").onclick = () => triggerGeneration(weekNum, "all_reels", null, `Scene pictures for all ${wTag} reels`, null, "images");
 
       if (!reels || reels.length === 0) {
         grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-xs">No reels defined for this week.</div>`;
@@ -1465,14 +1592,13 @@
       }
 
       const reelCard = (r) => {
-        const isRendered = r.is_rendered && r.video_url;
+        const isRendered = Boolean(r.is_rendered && r.video_url);
         const cacheBuster = Date.now();
+
         const thumbBg = r.thumbnail_url ? `${r.thumbnail_url}?t=${cacheBuster}` : '';
         const videoSrc = r.video_url ? `${r.video_url}?t=${cacheBuster}` : '';
         const mediaHtml = isRendered ? `
-          <video controls preload="metadata" poster="${thumbBg}" class="w-full h-full object-cover">
-            <source src="${videoSrc}" type="video/mp4">
-          </video>
+          <video controls preload="none" poster="${thumbBg}" class="w-full h-full object-cover" src="${videoSrc}" playsinline></video>
         ` : `
           <div class="w-full h-full flex flex-col items-center justify-center p-4 text-center relative" style="${thumbBg ? `background-image: url('${thumbBg}'); background-size: cover; background-position: center;` : 'background: linear-gradient(to bottom, #141a27, #0c0f17);'}">
             ${thumbBg ? '<div class="absolute inset-0 bg-black/55"></div>' : ''}
@@ -1484,7 +1610,7 @@
                 "${r.hook || r.title}"
               </p>
               <span class="mt-3 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-600 backdrop-blur-sm">
-                Ready to Render
+                ${reelPlanLabel(r)}
               </span>
             </div>
           </div>
@@ -1506,8 +1632,14 @@
             </div>
 
             <!-- 9:16 Media Preview Box -->
-            <div class="aspect-9-16 w-full rounded-lg overflow-hidden bg-black border border-[#232a3b] shadow-inner relative">
+            <div class="aspect-9-16 w-full rounded-lg overflow-hidden bg-black border border-[#232a3b] shadow-inner relative group">
               ${mediaHtml}
+              ${r.has_ad ? `
+                <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-emerald-600/90 text-white text-[9px] font-bold font-mono flex items-center gap-1 shadow-lg backdrop-blur-sm pointer-events-none z-10" title="Advertisement Outro Attached: ${r.ad_outro?.filename || ''}">
+                  <i data-lucide="badge-percent" class="w-3 h-3 text-emerald-200"></i>
+                  <span>AD ATTACHED</span>
+                </div>
+              ` : ''}
             </div>
 
             <!-- Hook & Scripture -->
@@ -1521,6 +1653,24 @@
                   ${r.script_status === 'Ready' ? `✔ Script (${r.script_word_count}w)` : 'Missing'}
                 </span>
               </div>
+
+              <!-- Modular Ad Outro Status Pill -->
+              <div class="flex items-center justify-between text-[10px] font-mono pt-0.5">
+                ${r.has_ad ? `
+                  <button type="button" onclick="openAdCombineModal(${reels.indexOf(r)})" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition text-[10px]" title="${r.ad_outro?.title || 'Ad Outro Attached'} • Click to Swap or Remove">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="font-semibold truncate max-w-[125px]">${r.ad_outro?.filename ? r.ad_outro.filename.replace('.mp4','').replace('ad_outro_','Ad ') : 'Ad Attached'}</span>
+                  </button>
+                  <span class="text-[9px] text-emerald-400/80 cursor-pointer hover:underline" onclick="openAdCombineModal(${reels.indexOf(r)})">Swap/Detach</span>
+                ` : `
+                  <button type="button" onclick="openAdCombineModal(${reels.indexOf(r)})" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:border-slate-600 hover:text-slate-200 transition text-[10px]" title="Clean Reel (Zero Ads) • Click to Attach Ad">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                    <span>Clean Reel</span>
+                  </button>
+                  <span class="text-[9px] text-slate-500 cursor-pointer hover:text-slate-300" onclick="openAdCombineModal(${reels.indexOf(r)})">+ Attach Ad</span>
+                `}
+              </div>
+
               ${renderPostIcons(r.posts, "reel", r.video_path)}
             </div>
 
@@ -1535,9 +1685,11 @@
                 <i data-lucide="image" class="w-3.5 h-3.5"></i>
               </button>
 
-              <button onclick="openAdCombineModal(${weekNum}, ${r.num}, '${(r.title || '').replace(/'/g, "\\'")}', ${isRendered})" class="p-2 rounded-lg bg-[#181e2b] hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-300 border border-[#252f44] hover:border-emerald-500/40 transition" title="Attach / Swap Ad Outro (Instant Concat)">
+              <button onclick="openAdCombineModal(${reels.indexOf(r)})" class="p-2 rounded-lg ${r.has_ad ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 ring-1 ring-emerald-500/50' : 'bg-[#181e2b] hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-300 border-[#252f44] hover:border-emerald-500/40'} border transition" title="${r.has_ad ? 'Ad Outro Attached (Click to Swap or Remove)' : 'Attach / Swap Ad Outro (Instant Concat)'}">
                 <i data-lucide="badge-percent" class="w-3.5 h-3.5"></i>
               </button>
+
+
 
               ${isRendered && r.video_path ? `
               <button onclick="postReelFromGenerator(${r.num - 1})" class="p-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 hover:text-white border border-indigo-500/40 transition" title="Post or Schedule Reel">
@@ -1605,7 +1757,7 @@
         const thumbBg = s.thumbnail_url ? `${s.thumbnail_url}?t=${cacheBuster}` : '';
         const videoSrc = s.video_url ? `${s.video_url}?t=${cacheBuster}` : '';
         const mediaHtml = isRendered ? `
-          <video controls preload="metadata" poster="${thumbBg}" class="w-full h-full object-cover">
+          <video controls preload="none" poster="${thumbBg}" class="w-full h-full object-cover" src="${videoSrc}" playsinline>
             <source src="${videoSrc}" type="video/mp4">
           </video>
         ` : `
@@ -1641,8 +1793,14 @@
             </div>
 
             <!-- 9:16 Media Preview Box -->
-            <div class="aspect-9-16 w-full rounded-lg overflow-hidden bg-black border border-[#232a3b] shadow-inner relative">
+            <div class="aspect-9-16 w-full rounded-lg overflow-hidden bg-black border border-[#232a3b] shadow-inner relative group">
               ${mediaHtml}
+              ${s.has_ad ? `
+                <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-purple-600/90 text-white text-[9px] font-bold font-mono flex items-center gap-1 shadow-lg backdrop-blur-sm pointer-events-none z-10" title="Advertisement Outro Attached: ${s.ad_outro?.filename || ''}">
+                  <i data-lucide="badge-percent" class="w-3 h-3 text-purple-200"></i>
+                  <span>AD ATTACHED</span>
+                </div>
+              ` : ''}
             </div>
 
             <!-- Slide Specs -->
@@ -1656,6 +1814,23 @@
                   ${s.script_status === 'Ready' ? `✔ Slides Script` : 'Pending'}
                 </span>
               </div>
+              <!-- Modular Ad Outro Status Pill -->
+              <div class="flex items-center justify-between text-[10px] font-mono pt-0.5">
+                ${s.has_ad ? `
+                  <button type="button" onclick="openStoryAdCombineModal(${stories.indexOf(s)})" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition text-[10px]" title="${s.ad_outro?.title || 'Ad Slide Attached'} • Click to Swap or Remove">
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                    <span class="font-semibold truncate max-w-[125px]">${s.ad_outro?.title || (s.ad_outro?.filename ? s.ad_outro.filename.replace(/\.(mp4|png|jpg|jpeg|webp)/gi,'').replace(/^ad_outro_/,'Ad ').replace(/_/g, ' ') : 'Ad Slide Attached')}</span>
+                  </button>
+                  <span class="text-[9px] text-purple-400/80 cursor-pointer hover:underline" onclick="openStoryAdCombineModal(${stories.indexOf(s)})">Swap/Detach</span>
+                ` : `
+                  <button type="button" onclick="openStoryAdCombineModal(${stories.indexOf(s)})" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:border-slate-600 hover:text-slate-200 transition text-[10px]" title="Clean Story (Zero Ads) • Click to Attach Ad">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                    <span>Clean Story</span>
+                  </button>
+                  <span class="text-[9px] text-slate-500 cursor-pointer hover:text-slate-300" onclick="openStoryAdCombineModal(${stories.indexOf(s)})">+ Attach Ad</span>
+                `}
+              </div>
+
               ${renderPostIcons(s.posts, "story", s.video_path)}
             </div>
 
@@ -1668,6 +1843,10 @@
 
               <button onclick="triggerStoryThumbnailRegen(${weekNum}, ${s.num}, '${(s.title || '').replace(/'/g, "\\'")}')" class="p-2 rounded-lg bg-[#181e2b] hover:bg-purple-500/20 text-slate-400 hover:text-purple-300 border border-[#252f44] hover:border-purple-500/40 transition" title="Regenerate Story Thumbnail & Slide Previews (Fast, ~1s)">
                 <i data-lucide="image" class="w-3.5 h-3.5"></i>
+              </button>
+
+              <button onclick="openStoryAdCombineModal(${stories.indexOf(s)})" class="p-2 rounded-lg ${s.has_ad ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 ring-1 ring-purple-500/50' : 'bg-[#181e2b] hover:bg-purple-500/20 text-slate-400 hover:text-purple-300 border-[#252f44] hover:border-purple-500/40'} border transition" title="${s.has_ad ? 'Ad Slide Attached (Click to Swap or Remove)' : 'Attach / Swap Ad Image Slide (Instant Concat)'}">
+                <i data-lucide="badge-percent" class="w-3.5 h-3.5"></i>
               </button>
 
               ${isRendered && s.video_path ? `
@@ -1709,7 +1888,7 @@
     }
 
     // 5. Trigger Video Generation
-    async function triggerGeneration(weekNum, type, targetNum, label, targetKey = null) {
+    async function triggerGeneration(weekNum, type, targetNum, label, targetKey = null, mode = null) {
       if (isJobRunning) {
         if (!confirm("A pipeline task is already executing. Do you want to check its progress?")) return;
         showDrawer();
@@ -1730,7 +1909,8 @@
             week: weekNum,
             type: type,
             target_num: targetNum,
-            target_key: targetKey || null
+            target_key: targetKey || null,
+            mode: mode
           })
         });
 
@@ -1831,20 +2011,460 @@
       }
     }
 
-    // 5c. Quick Mode: Fast Ad Outro Combine & Thumbnail Update (No video re-render)
-    let currentAdCombineTarget = { weekNum: null, reelNum: null };
+    // 5c. Quick Mode: Fast Ad Outro Combine, Swap & Remove (No video re-render)
+    let currentAdCombineTarget = { weekNum: null, reelNum: null, title: "", hasAd: false };
+    let cachedAdVideos = [];
 
-    function openAdCombineModal(weekNum, reelNum, title, isRendered) {
-      if (!isRendered) {
-        if (!confirm(`This reel has not been rendered yet. Do you want to run a full generation for Reel 0${reelNum}?`)) return;
-        triggerGeneration(weekNum, 'reel', reelNum, `Reel 0${reelNum}`);
-        return;
+    async function loadAdVideosList(selectedFilename = null) {
+      const container = document.getElementById("adzVideoListContainer");
+      const countBadge = document.getElementById("adzCountBadge");
+      if (!container) return;
+
+      const isStory = currentAdCombineTarget?.targetType === "story";
+      const targetFolder = isStory ? "C:\\Projects\\Adz-Image" : "C:\\Projects\\Adz-Video";
+
+      container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2"><i data-lucide="loader-2" class="w-4 h-4 animate-spin ${isStory ? 'text-purple-400' : 'text-emerald-400'}"></i> Loading ad ${isStory ? 'images' : 'videos'}...</div>`;
+      if (window.lucide) lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/adz/list?target_type=${isStory ? 'story' : 'reel'}`);
+        if (!res.ok) throw new Error(`Failed to load advertisement ${isStory ? 'images' : 'videos'}`);
+        const data = await res.json();
+        cachedAdVideos = (isStory ? data.images : data.videos) || data.videos || data.images || [];
+
+        if (countBadge) {
+          countBadge.textContent = `${cachedAdVideos.length} ${isStory ? 'image' : 'video'}${cachedAdVideos.length === 1 ? '' : 's'} available`;
+        }
+
+        if (cachedAdVideos.length === 0) {
+          container.innerHTML = `
+            <div class="p-6 text-center rounded-xl border border-dashed border-slate-700 bg-slate-900/40 text-xs text-slate-400 space-y-2">
+              <i data-lucide="${isStory ? 'image-off' : 'video-off'}" class="w-8 h-8 text-slate-600 mx-auto"></i>
+              <p class="font-medium text-slate-300">No advertisement ${isStory ? 'images' : 'videos'} found in ${targetFolder}</p>
+              <p class="text-[11px] text-slate-500">Click <strong>${isStory ? 'Upload Ad Image' : 'Upload Ad'}</strong> above or place ${isStory ? 'PNG/JPG' : 'MP4'} files in the folder.</p>
+            </div>
+          `;
+          if (window.lucide) lucide.createIcons();
+          return;
+        }
+
+        let defaultChoice = selectedFilename || (cachedAdVideos.find(v => v.is_recommended) || cachedAdVideos[0]).filename;
+
+        container.innerHTML = cachedAdVideos.map((v, idx) => {
+          const isChecked = v.filename === defaultChoice;
+          const isImg = isStory || v.media_type === "image";
+          const mediaPreviewUrl = isImg ? (v.image_url || v.thumbnail_url) : (v.video_url || `/api/adz/media/${v.filename}`);
+          const thumbUrl = v.thumbnail_url || (isImg ? `/api/adz/image/${v.filename}` : `/api/adz/thumbnail/${v.filename}`);
+          const borderClass = isChecked 
+            ? (isStory ? 'border-purple-500/50 bg-purple-950/20 shadow-sm' : 'border-emerald-500/50 bg-emerald-950/20 shadow-sm')
+            : 'border-slate-800 bg-[#161c2b] hover:border-slate-700';
+
+          return `
+            <label class="flex items-start gap-3 p-3 rounded-xl border ${borderClass} transition cursor-pointer ad-choice-card" id="adCard_${idx}">
+              <input type="radio" name="adChoiceRadio" value="${v.filename}" ${isChecked ? 'checked' : ''} onchange="onAdChoiceSelected('${v.filename}', ${idx})" class="mt-1 ${isStory ? 'accent-purple-500' : 'accent-emerald-500'}">
+              
+              <!-- Mini Thumbnail Preview -->
+              <div class="w-12 h-16 rounded overflow-hidden bg-black/60 shrink-0 border border-slate-700/80 relative flex items-center justify-center">
+                <img src="${thumbUrl}" alt="${v.title}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); playAdPreview('${mediaPreviewUrl}', '${(v.title || v.filename).replace(/'/g, "\\'")}', ${isImg})" class="absolute inset-0 bg-black/40 hover:bg-black/60 flex items-center justify-center text-white opacity-80 hover:opacity-100 transition" title="${isImg ? 'Preview Ad Slide' : 'Preview Ad Video'}">
+                  <i data-lucide="${isImg ? 'eye' : 'play'}" class="w-4 h-4 ${isImg ? 'text-white' : 'fill-white'}"></i>
+                </button>
+              </div>
+
+              <!-- Metadata & Title -->
+              <div class="flex-1 min-w-0 text-xs">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="font-bold text-white truncate text-[12px]">${v.title}</div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    ${v.is_recommended ? `<span class="text-[9px] font-mono ${isStory ? 'text-purple-400 bg-purple-900/60 border-purple-700/50' : 'text-emerald-400 bg-emerald-900/60 border-emerald-700/50'} px-1.5 py-0.2 rounded border">Recommended</span>` : ''}
+                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); deleteAdVideo('${v.filename}', ${isImg})" class="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Delete from ${targetFolder}">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
+                  ${v.description || v.script || v.filename}
+                </p>
+
+                <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-500">
+                  <span class="flex items-center gap-1"><i data-lucide="${isImg ? 'image' : 'clock'}" class="w-3 h-3 text-slate-400"></i> ${v.duration_str || (isImg ? 'Image Slide' : 'Video Outro')}</span>
+                  <span>•</span>
+                  <span>${v.size_mb} MB</span>
+                  <span>•</span>
+                  <span class="text-slate-400 truncate max-w-[120px]">${v.filename}</span>
+                </div>
+              </div>
+            </label>
+          `;
+        }).join("");
+
+        if (window.lucide) lucide.createIcons();
+      } catch (err) {
+        console.error("Ad list error:", err);
+        container.innerHTML = `<div class="p-4 text-center text-xs text-rose-400">Failed to load advertisement items: ${err.message}</div>`;
       }
-      currentAdCombineTarget = { weekNum, reelNum };
+    }
+
+    function onAdChoiceSelected(filename, selectedIdx) {
+      const isStory = currentAdCombineTarget?.targetType === "story";
+      const activeClass = isStory
+        ? "flex items-start gap-3 p-3 rounded-xl border border-purple-500/50 bg-purple-950/20 shadow-sm transition cursor-pointer ad-choice-card"
+        : "flex items-start gap-3 p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/20 shadow-sm transition cursor-pointer ad-choice-card";
+
+      document.querySelectorAll(".ad-choice-card").forEach((card, idx) => {
+        if (idx === selectedIdx) {
+          card.className = activeClass;
+        } else {
+          card.className = "flex items-start gap-3 p-3 rounded-xl border border-slate-800 bg-[#161c2b] hover:border-slate-700 transition cursor-pointer ad-choice-card";
+        }
+      });
+    }
+
+    function playAdPreview(mediaUrl, title, isImage = false) {
+      const container = document.getElementById("adzPreviewContainer");
+      const videoEl = document.getElementById("adzPreviewVideo");
+      const imgEl = document.getElementById("adzPreviewImg");
+      const titleEl = document.getElementById("adzPreviewTitle");
+      if (!container) return;
+
+      if (titleEl) titleEl.textContent = `Preview: ${title}`;
+
+      if (isImage) {
+        if (videoEl) {
+          videoEl.pause();
+          videoEl.src = "";
+          videoEl.classList.add("hidden");
+        }
+        if (imgEl) {
+          imgEl.src = mediaUrl;
+          imgEl.classList.remove("hidden");
+        }
+      } else {
+        if (imgEl) {
+          imgEl.src = "";
+          imgEl.classList.add("hidden");
+        }
+        if (videoEl) {
+          videoEl.src = mediaUrl;
+          videoEl.classList.remove("hidden");
+          videoEl.play().catch(() => {});
+        }
+      }
+
+      container.classList.remove("hidden");
+    }
+
+    function closeAdPreview() {
+      const container = document.getElementById("adzPreviewContainer");
+      const videoEl = document.getElementById("adzPreviewVideo");
+      const imgEl = document.getElementById("adzPreviewImg");
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.src = "";
+        videoEl.classList.add("hidden");
+      }
+      if (imgEl) {
+        imgEl.src = "";
+        imgEl.classList.add("hidden");
+      }
+      if (container) container.classList.add("hidden");
+    }
+
+    async function deleteAdVideo(filename, isImage = false) {
+      const folder = isImage ? "C:\\Projects\\Adz-Image" : "C:\\Projects\\Adz-Video";
+      if (!confirm(`Are you sure you want to remove '${filename}' from ${folder}?`)) return;
+      try {
+        const res = await fetch(`/api/adz/item/${encodeURIComponent(filename)}`, { method: "DELETE" });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Delete failed");
+        }
+        await loadAdVideosList();
+      } catch (e) {
+        alert("Failed to delete ad asset: " + e.message);
+      }
+    }
+
+    async function uploadNewAdVideo(inputEl) {
+      const file = inputEl.files ? inputEl.files[0] : null;
+      if (!file) return;
+
+      const isStory = currentAdCombineTarget?.targetType === "story";
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const countBadge = document.getElementById("adzCountBadge");
+      if (countBadge) countBadge.textContent = "Uploading...";
+
+      try {
+        const uploadEndpoint = isStory ? "/api/adz/upload-image" : "/api/adz/upload";
+        const res = await fetch(uploadEndpoint, {
+          method: "POST",
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Upload failed");
+        }
+        const data = await res.json();
+        inputEl.value = "";
+        await loadAdVideosList(data.filename);
+      } catch (e) {
+        alert("Upload error: " + e.message);
+        await loadAdVideosList();
+      }
+    }
+
+    function handleAdToggleChange() {
+      const chk = document.getElementById("toggleAdEnabled");
+      const isEnabled = chk ? chk.checked : true;
+      const section = document.getElementById("adSelectionSection");
+      const notice = document.getElementById("adDisabledNotice");
+      const btn = document.getElementById("btnExecuteAdAction");
+      const btnLabel = document.getElementById("btnExecuteAdActionLabel");
+      const isStory = currentAdCombineTarget?.targetType === "story";
+
+      if (isEnabled) {
+        if (section) section.classList.remove("hidden");
+        if (notice) notice.classList.add("hidden");
+        if (btn) btn.className = isStory
+          ? "px-5 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-400 text-white text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-purple-500/20 active:scale-[0.98]"
+          : "px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-emerald-500/20 active:scale-[0.98]";
+        if (btnLabel) btnLabel.textContent = isStory ? "Combine & Attach Ad to Story" : "Combine & Attach Ad to Reel";
+      } else {
+        if (section) section.classList.add("hidden");
+        if (notice) notice.classList.remove("hidden");
+        if (btn) btn.className = "px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-amber-500/20 active:scale-[0.98]";
+        if (btnLabel) btnLabel.textContent = isStory ? "Remove Ad & Restore Clean Story" : "Remove Ad & Restore Clean Reel";
+      }
+      closeAdPreview();
+    }
+
+    function toggleAllAdsMenu(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const dropdown = document.getElementById("allAdsMenuDropdown");
+      if (dropdown) {
+        dropdown.classList.toggle("hidden");
+      }
+    }
+
+    // Close allAdsMenuDropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      const wrapper = document.getElementById("dropdownAllAdsWrapper");
+      const dropdown = document.getElementById("allAdsMenuDropdown");
+      if (wrapper && dropdown && !wrapper.contains(e.target)) {
+        dropdown.classList.add("hidden");
+      }
+    });
+
+    async function triggerBatchAd(action, adFilename = "ad_outro_1.mp4") {
+      const dropdown = document.getElementById("allAdsMenuDropdown");
+      if (dropdown) dropdown.classList.add("hidden");
+
+      const weekNum = currentWeekData?.week_num || currentWeekData?.week || 1;
+      const isCombine = action === "combine";
+      const label = isCombine
+        ? `Attach Ad (${adFilename}) to All Week ${weekNum} Reels`
+        : `Remove Ads from All Week ${weekNum} Reels`;
+
+      showDrawer(label);
+      appendDrawerLog(`[REQUEST] Batch ${isCombine ? `attaching '${adFilename}' onto` : "removing ads from"} all reels in Week ${weekNum} (with thumbnail refresh)...`, "system");
+
+      try {
+        const res = await fetch("/api/generator/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            week: weekNum,
+            type: isCombine ? "combine_ad_all" : "remove_ad_all",
+            target_num: "all",
+            ad_filename: adFilename,
+            regen_thumb: true
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Batch ad dispatch failed");
+        }
+
+        const data = await res.json();
+        appendDrawerLog(`[SUCCESS] Batch ad task launched. PID: ${data.job?.pid || 'Active'}`, "system");
+        isJobRunning = true;
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+      } catch (err) {
+        appendDrawerLog(`[ERROR] ${err.message}`, "error");
+        drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+      }
+    }
+
+    function openAdCombineModal(arg1, arg2, arg3, arg4, arg5) {
+      let r = null;
+      let weekNum = currentWeekData?.week_num || currentWeekData?.week || 1;
+      let reelNum = 1;
+      let targetKey = null;
+      let title = "";
+      let isRendered = false;
+      let hasAd = false;
+
+      if (arguments.length === 1 && typeof arg1 === "number") {
+        // Called with index: openAdCombineModal(rIdx)
+        r = currentWeekData?.reels?.[arg1];
+        if (!r) {
+          console.warn("Reel not found for index:", arg1);
+          return;
+        }
+        weekNum = currentWeekData?.week_num || currentWeekData?.week || 1;
+        reelNum = r.num || (arg1 + 1);
+        targetKey = r.key || null;
+        title = r.title || `Reel 0${reelNum}`;
+        isRendered = Boolean(r.is_rendered && r.video_url);
+        hasAd = Boolean(r.has_ad);
+      } else {
+        weekNum = typeof arg1 === "number" ? arg1 : (currentWeekData?.week_num || currentWeekData?.week || 1);
+        reelNum = typeof arg2 === "number" ? arg2 : 1;
+        r = currentWeekData?.reels?.find(x => x.num === reelNum) || currentWeekData?.reels?.[reelNum - 1];
+        targetKey = r?.key || null;
+        title = arg3 || r?.title || `Reel 0${reelNum}`;
+        isRendered = Boolean(typeof arg4 === "string" ? arg4.length > 0 : (arg4 !== undefined ? arg4 : (r?.is_rendered && r?.video_url)));
+        hasAd = Boolean(arg5 !== undefined ? arg5 : r?.has_ad);
+      }
+
+      currentAdCombineTarget = { targetType: "reel", weekNum, reelNum, storyNum: reelNum, targetKey, title, hasAd, isRendered };
+      
+      const folderPathElem = document.getElementById("adModalFolderPath");
+      if (folderPathElem) {
+        folderPathElem.textContent = "C:\\Projects\\Adz-Video";
+        folderPathElem.title = "C:\\Projects\\Adz-Video";
+      }
+      const uploadBtnText = document.getElementById("adModalUploadBtnText");
+      if (uploadBtnText) uploadBtnText.textContent = "Upload Ad Video";
+      const selectionHeading = document.getElementById("adModalSelectionHeading");
+      if (selectionHeading) selectionHeading.textContent = "Choose Advertisement Video";
+      const fileInput = document.getElementById("adzVideoFileInput");
+      if (fileInput) fileInput.accept = "video/mp4,video/quicktime,video/webm";
+
       const titleElem = document.getElementById("adCombineTargetTitle");
       if (titleElem) {
         titleElem.textContent = `Reel 0${reelNum} • ${title}`;
       }
+
+      const badgeElem = document.getElementById("adCurrentStatusBadge");
+      if (badgeElem) {
+        if (hasAd) {
+          badgeElem.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold";
+          badgeElem.textContent = "✔ Ad Outro Attached";
+        } else if (isRendered) {
+          badgeElem.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700";
+          badgeElem.textContent = "Clean Reel (No Ad)";
+        } else {
+          badgeElem.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
+          badgeElem.textContent = "Not Rendered Yet";
+        }
+      }
+
+      const scopeSingleLabel = document.getElementById("adScopeSingleLabel");
+      if (scopeSingleLabel) {
+        scopeSingleLabel.textContent = `This Reel Only (Reel 0${reelNum})`;
+      }
+      const scopeAllLabel = document.getElementById("adScopeAllLabel");
+      if (scopeAllLabel) {
+        scopeAllLabel.textContent = `All Reels in Week ${weekNum}`;
+      }
+
+      const toggle = document.getElementById("toggleAdEnabled");
+      if (toggle) {
+        toggle.checked = true;
+      }
+      handleAdToggleChange();
+
+      closeAdPreview();
+      loadAdVideosList();
+
+      const modal = document.getElementById("modalCombineAd");
+      if (modal) {
+        modal.classList.remove("hidden");
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openStoryAdCombineModal(sIdx) {
+      const s = currentWeekData?.stories?.[sIdx];
+      if (!s) {
+        console.warn("Story not found for index:", sIdx);
+        return;
+      }
+      const weekNum = currentWeekData?.week_num || currentWeekData?.week || 1;
+      const storyNum = s.num || (sIdx + 1);
+      const targetKey = s.key || s.folder_name || null;
+      const title = s.title || `Story 0${storyNum}`;
+      const isRendered = Boolean(s.is_rendered && s.video_url);
+      const hasAd = Boolean(s.has_ad);
+
+      currentAdCombineTarget = {
+        targetType: "story",
+        weekNum,
+        storyNum,
+        reelNum: storyNum,
+        targetKey,
+        title,
+        hasAd,
+        isRendered
+      };
+
+      const folderPathElem = document.getElementById("adModalFolderPath");
+      if (folderPathElem) {
+        folderPathElem.textContent = "C:\\Projects\\Adz-Image";
+        folderPathElem.title = "C:\\Projects\\Adz-Image";
+      }
+      const uploadBtnText = document.getElementById("adModalUploadBtnText");
+      if (uploadBtnText) uploadBtnText.textContent = "Upload Ad Image";
+      const selectionHeading = document.getElementById("adModalSelectionHeading");
+      if (selectionHeading) selectionHeading.textContent = "Choose Advertisement Image (Slide)";
+      const fileInput = document.getElementById("adzVideoFileInput");
+      if (fileInput) fileInput.accept = "image/png,image/jpeg,image/webp";
+
+      const titleElem = document.getElementById("adCombineTargetTitle");
+      if (titleElem) {
+        titleElem.textContent = `Story 0${storyNum} (${s.day || ''}) • ${title}`;
+      }
+
+      const badgeElem = document.getElementById("adCurrentStatusBadge");
+      if (badgeElem) {
+        if (hasAd) {
+          badgeElem.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold";
+          badgeElem.textContent = "✔ Ad Slide Attached";
+        } else if (isRendered) {
+          badgeElem.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700";
+          badgeElem.textContent = "Clean Story (No Ad)";
+        } else {
+          badgeElem.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
+          badgeElem.textContent = "Not Rendered Yet";
+        }
+      }
+
+      const scopeSingleLabel = document.getElementById("adScopeSingleLabel");
+      if (scopeSingleLabel) {
+        scopeSingleLabel.textContent = `This Story Only (Story 0${storyNum})`;
+      }
+      const scopeAllLabel = document.getElementById("adScopeAllLabel");
+      if (scopeAllLabel) {
+        scopeAllLabel.textContent = `All Stories in Week ${weekNum}`;
+      }
+
+      const toggle = document.getElementById("toggleAdEnabled");
+      if (toggle) {
+        toggle.checked = true;
+      }
+      handleAdToggleChange();
+
+      closeAdPreview();
+      loadAdVideosList();
+
       const modal = document.getElementById("modalCombineAd");
       if (modal) {
         modal.classList.remove("hidden");
@@ -1853,52 +2473,110 @@
     }
 
     function closeAdCombineModal() {
+      closeAdPreview();
       const modal = document.getElementById("modalCombineAd");
       if (modal) modal.classList.add("hidden");
     }
 
-    async function executeAdCombine() {
-      const { weekNum, reelNum } = currentAdCombineTarget;
-      if (!weekNum || !reelNum) return;
+    async function executeAdAction() {
+      const { targetType, weekNum, reelNum, storyNum, targetKey, hasAd, isRendered } = currentAdCombineTarget;
+      const isStory = targetType === "story";
+      const targetIndex = isStory ? (storyNum || 1) : (reelNum || 1);
+      const targetLabel = isStory ? `Story 0${targetIndex}` : `Reel 0${targetIndex}`;
 
-      const selectedOpt = document.querySelector('input[name="adVariantSelection"]:checked');
-      const adVariant = selectedOpt ? parseInt(selectedOpt.value, 10) : 1;
+      if (!weekNum || !targetIndex) return;
+
+      if (!isRendered) {
+        if (!confirm(`This ${isStory ? 'story' : 'reel'} has not been rendered yet. Do you want to run a full generation for ${targetLabel}?`)) return;
+        closeAdCombineModal();
+        triggerGeneration(weekNum, isStory ? 'story' : 'reel', targetIndex, targetLabel);
+        return;
+      }
+
+      const toggle = document.getElementById("toggleAdEnabled");
+      const isEnabled = toggle ? toggle.checked : true;
       const chkThumb = document.getElementById("chkAlsoRegenThumbnail");
       const regenThumb = chkThumb ? chkThumb.checked : true;
+      const scopeRadio = document.querySelector('input[name="adScopeRadio"]:checked');
+      const isAllScope = scopeRadio && scopeRadio.value === "all";
 
       closeAdCombineModal();
 
-      const label = `Combine Ad #${adVariant} onto Reel 0${reelNum}`;
-      showDrawer(label);
-      appendDrawerLog(`[REQUEST] Fast combining Ad Outro #${adVariant} onto Reel 0${reelNum}${regenThumb ? ' (with thumbnail refresh)' : ''}...`, "system");
+      if (isEnabled) {
+        const selectedOpt = document.querySelector('input[name="adChoiceRadio"]:checked');
+        const chosenFilename = selectedOpt ? selectedOpt.value : (cachedAdVideos[0]?.filename || "ad_outro_1.mp4");
 
-      try {
-        const res = await fetch("/api/generator/run", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            week: weekNum,
-            type: "combine_ad",
-            target_num: reelNum,
-            ad_variant: adVariant,
-            regen_thumb: regenThumb
-          })
-        });
+        const label = isAllScope 
+          ? `Attach Ad (${chosenFilename}) to All Week ${weekNum} ${isStory ? 'Stories' : 'Reels'}` 
+          : `Attach Ad (${chosenFilename}) onto ${targetLabel}`;
+        showDrawer(label);
+        appendDrawerLog(`[REQUEST] Fast combining advertisement '${chosenFilename}' onto ${isAllScope ? `all ${isStory ? 'stories' : 'reels'} in Week ${weekNum}` : targetLabel}${regenThumb ? ' (with thumbnail refresh)' : ''}...`, "system");
 
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.detail || "Ad combine dispatch failed");
+        try {
+          const res = await fetch("/api/generator/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              week: weekNum,
+              type: isStory ? (isAllScope ? "combine_ad_story_all" : "combine_ad_story") : (isAllScope ? "combine_ad_all" : "combine_ad"),
+              target_type: isStory ? "story" : "reel",
+              target_num: isAllScope ? "all" : targetIndex,
+              target_key: isAllScope ? null : targetKey,
+              ad_filename: chosenFilename,
+              regen_thumb: regenThumb
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Ad combine dispatch failed");
+          }
+
+          const data = await res.json();
+          appendDrawerLog(`[SUCCESS] Fast combine task launched. PID: ${data.job?.pid || 'Active'}`, "system");
+          isJobRunning = true;
+          drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+        } catch (err) {
+          appendDrawerLog(`[ERROR] ${err.message}`, "error");
+          drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
         }
+      } else {
+        const label = isAllScope 
+          ? `Remove Ads from All Week ${weekNum} ${isStory ? 'Stories' : 'Reels'}` 
+          : `Remove Ad from ${targetLabel}`;
+        showDrawer(label);
+        appendDrawerLog(`[REQUEST] Removing ad outro and restoring clean video for ${isAllScope ? `all ${isStory ? 'stories' : 'reels'} in Week ${weekNum}` : targetLabel}${regenThumb ? ' (with thumbnail refresh)' : ''}...`, "system");
 
-        const data = await res.json();
-        appendDrawerLog(`[SUCCESS] Fast combine task launched. PID: ${data.job?.pid || 'Active'}`, "system");
-        isJobRunning = true;
-        drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
-      } catch (err) {
-        appendDrawerLog(`[ERROR] ${err.message}`, "error");
-        drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+        try {
+          const res = await fetch("/api/generator/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              week: weekNum,
+              type: isStory ? (isAllScope ? "remove_ad_story_all" : "remove_ad_story") : (isAllScope ? "remove_ad_all" : "remove_ad"),
+              target_type: isStory ? "story" : "reel",
+              target_num: isAllScope ? "all" : targetIndex,
+              target_key: isAllScope ? null : targetKey,
+              regen_thumb: regenThumb
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Remove ad dispatch failed");
+          }
+
+          const data = await res.json();
+          appendDrawerLog(`[SUCCESS] Remove ad task launched. PID: ${data.job?.pid || 'Active'}`, "system");
+          isJobRunning = true;
+          drawerStatusDot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+        } catch (err) {
+          appendDrawerLog(`[ERROR] ${err.message}`, "error");
+          drawerStatusDot.className = "w-3 h-3 rounded-full bg-rose-500";
+        }
       }
     }
+
 
     // 6. Stop Running Process
     btnStopProcess.addEventListener("click", async () => {
@@ -2299,8 +2977,8 @@
                 isJobRunning = false;
                 stopJobTimer();
                 drawerStatusDot.className = "w-3 h-3 rounded-full bg-sky-400";
-                drawerJobSubtitle.textContent = "Voice ready • scene prompts needed";
-                appendDrawerLog("=== [PAUSED] Voice recorded. Ask Claude Code to write the scene prompts, then press Generate again. ===", "system");
+                drawerJobSubtitle.textContent = "Scene prompts needed";
+                appendDrawerLog("=== [PAUSED] Scene prompts needed. Ask Claude Code to write them, then press the button again. ===", "system");
                 setTimeout(() => loadWeekData(currentWeekId), 1200);
               } else if (data.status === "error" || data.status === "stopped") {
                 isJobRunning = false;

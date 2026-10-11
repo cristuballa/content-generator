@@ -1,0 +1,193 @@
+{
+  "week": 27,
+  "year": 1,
+  "quarter": "Q3",
+  "theme": "David vs Goliath",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W27",
+    "title": "David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+    "duration": "35 min",
+    "scriptures": [
+      "1 Samuel 17:1-58",
+      "1 Samuel 17:54",
+      "Matthew 27:33"
+    ],
+    "christological_key": "David took Goliath's severed head to Jerusalem (Golgotha / place of the skull); Christ crushed Satan's head.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W27.A",
+    "pillar_title": "Goliath's Head at Golgotha: The Ancient Mystery of the Skull Hill",
+    "digest_id": "SUB-W27.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W27.1",
+      "num": 1,
+      "global_num": 131,
+      "day": "Mon",
+      "badge": "Bible Secrets #131 [W27.1]",
+      "title": "David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W27.2",
+      "num": 2,
+      "global_num": 132,
+      "day": "Tue",
+      "badge": "Bible Secrets #132 [W27.2]",
+      "title": "David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W27.3",
+      "num": 3,
+      "global_num": 133,
+      "day": "Wed",
+      "badge": "Bible Secrets #133 [W27.3]",
+      "title": "David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W27.4",
+      "num": 4,
+      "global_num": 134,
+      "day": "Thu",
+      "badge": "Bible Secrets #134 [W27.4]",
+      "title": "David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W27.5",
+      "num": 5,
+      "global_num": 135,
+      "day": "Fri",
+      "badge": "Bible Secrets #135 [W27.5]",
+      "title": "David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W27.1",
+      "num": 1,
+      "global_num": 131,
+      "day": "Mon",
+      "badge": "Story #131 [W27.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W27.2",
+      "num": 2,
+      "global_num": 132,
+      "day": "Tue",
+      "badge": "Story #132 [W27.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W27.3",
+      "num": 3,
+      "global_num": 133,
+      "day": "Wed",
+      "badge": "Story #133 [W27.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W27.4",
+      "num": 4,
+      "global_num": 134,
+      "day": "Thu",
+      "badge": "Story #134 [W27.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha"
+    },
+    {
+      "id": "S-W27.5",
+      "num": 5,
+      "global_num": 135,
+      "day": "Fri",
+      "badge": "Story #135 [W27.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W27.1",
+      "num": 1,
+      "global_num": 131,
+      "day": "Mon",
+      "badge": "Community Post #131",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+      "options": []
+    },
+    {
+      "id": "CT-W27.2",
+      "num": 2,
+      "global_num": 132,
+      "day": "Tue",
+      "badge": "Community Post #132",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W27.3",
+      "num": 3,
+      "global_num": 133,
+      "day": "Wed",
+      "badge": "Community Post #133",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+      "options": []
+    },
+    {
+      "id": "CT-W27.4",
+      "num": 4,
+      "global_num": 134,
+      "day": "Thu",
+      "badge": "Community Post #134",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+      "options": []
+    },
+    {
+      "id": "CT-W27.5",
+      "num": 5,
+      "global_num": 135,
+      "day": "Fri",
+      "badge": "Community Post #135",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss David vs Goliath: Seed of the Woman Decapitates the Nephilim Champion at Golgotha",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

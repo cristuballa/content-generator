@@ -103,12 +103,18 @@ def story_state(folder: Path) -> str:
     return "stale" if newer_than([folder / "story_script.md", folder / "metadata.json"], video.stat().st_mtime) else "current"
 
 
-def run(label: str, cmd, cwd: Path) -> bool:
+EXIT_NEEDS_PROMPTS = 3  # a generator recorded the voice and waits for its scene prompts
+
+
+def run(label: str, cmd, cwd: Path) -> str:
+    """'done', 'paused' (scene prompts needed) or 'failed'."""
     print(f"\n{'=' * 78}\n▶ {label}\n  {' '.join(map(str, cmd))}\n{'=' * 78}", flush=True)
     start = time.time()
     code = subprocess.run([str(c) for c in cmd], cwd=str(cwd)).returncode
-    print(f"■ {label}: {'done' if code == 0 else f'FAILED (exit {code})'} in {(time.time() - start) / 60:.1f} min", flush=True)
-    return code == 0
+    result = "done" if code == 0 else ("paused" if code == EXIT_NEEDS_PROMPTS else "failed")
+    shown = {"done": "done", "paused": "paused: scene prompts needed"}.get(result, f"FAILED (exit {code})")
+    print(f"■ {label}: {shown} in {(time.time() - start) / 60:.1f} min", flush=True)
+    return result
 
 
 def main():
@@ -170,12 +176,15 @@ def main():
         return
 
     print(f"\n{'=' * 78}\nWEEK W{week:02d} SUMMARY")
-    for label, ok in results:
-        print(f"  {'✔' if ok else '✘'} {label}")
+    for label, result in results:
+        print(f"  {({'done': '✔', 'paused': '⏸'}).get(result, '✘')} {label}"
+              f"{' (scene prompts needed)' if result == 'paused' else ''}")
     if not results:
         print("  Everything is up to date.")
     print("=" * 78, flush=True)
-    sys.exit(0 if all(ok for _, ok in results) else 1)
+    if any(r == "failed" for _, r in results):
+        sys.exit(1)
+    sys.exit(EXIT_NEEDS_PROMPTS if any(r == "paused" for _, r in results) else 0)
 
 
 if __name__ == "__main__":

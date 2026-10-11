@@ -1,0 +1,192 @@
+{
+  "week": 60,
+  "year": 2,
+  "quarter": "Q5",
+  "theme": "The Hidden Codex & Archaeology",
+  "testament": "Apocrypha / Dead Sea Scrolls",
+  "documentary": {
+    "id": "DOC-W60",
+    "title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+    "duration": "30 min",
+    "scriptures": [
+      "Wisdom 7:22",
+      "Col 1:15"
+    ],
+    "christological_key": "Wisdom as the unspotted mirror of God - Hebrews 1 term for Jesus.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W60.A",
+    "pillar_title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah): Full Study Guide & Ancient Translation",
+    "digest_id": "SUB-W60.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W60.1",
+      "num": 1,
+      "global_num": 296,
+      "day": "Mon",
+      "badge": "Bible Secrets #296 [W60.1]",
+      "title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah) (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W60.2",
+      "num": 2,
+      "global_num": 297,
+      "day": "Tue",
+      "badge": "Bible Secrets #297 [W60.2]",
+      "title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah) (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W60.3",
+      "num": 3,
+      "global_num": 298,
+      "day": "Wed",
+      "badge": "Bible Secrets #298 [W60.3]",
+      "title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah) (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W60.4",
+      "num": 4,
+      "global_num": 299,
+      "day": "Thu",
+      "badge": "Bible Secrets #299 [W60.4]",
+      "title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah) (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W60.5",
+      "num": 5,
+      "global_num": 300,
+      "day": "Fri",
+      "badge": "Bible Secrets #300 [W60.5]",
+      "title": "The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah) (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W60.1",
+      "num": 1,
+      "global_num": 296,
+      "day": "Mon",
+      "badge": "Story #296 [W60.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W60.2",
+      "num": 2,
+      "global_num": 297,
+      "day": "Tue",
+      "badge": "Story #297 [W60.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W60.3",
+      "num": 3,
+      "global_num": 298,
+      "day": "Wed",
+      "badge": "Story #298 [W60.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W60.4",
+      "num": 4,
+      "global_num": 299,
+      "day": "Thu",
+      "badge": "Story #299 [W60.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)"
+    },
+    {
+      "id": "S-W60.5",
+      "num": 5,
+      "global_num": 300,
+      "day": "Fri",
+      "badge": "Story #300 [W60.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W60.1",
+      "num": 1,
+      "global_num": 296,
+      "day": "Mon",
+      "badge": "Community Post #296",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+      "options": []
+    },
+    {
+      "id": "CT-W60.2",
+      "num": 2,
+      "global_num": 297,
+      "day": "Tue",
+      "badge": "Community Post #297",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W60.3",
+      "num": 3,
+      "global_num": 298,
+      "day": "Wed",
+      "badge": "Community Post #298",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+      "options": []
+    },
+    {
+      "id": "CT-W60.4",
+      "num": 4,
+      "global_num": 299,
+      "day": "Thu",
+      "badge": "Community Post #299",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+      "options": []
+    },
+    {
+      "id": "CT-W60.5",
+      "num": 5,
+      "global_num": 300,
+      "day": "Fri",
+      "badge": "Community Post #300",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Wisdom of Solomon: Christ as Pre-Existent Wisdom (Chokmah)",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

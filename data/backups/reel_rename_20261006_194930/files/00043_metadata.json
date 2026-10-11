@@ -1,0 +1,197 @@
+{
+  "week": 5,
+  "year": 1,
+  "quarter": "Q1",
+  "theme": "Blood Atonement",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W05",
+    "title": "Cain, Abel & The First Blood Sacrifice: The Blood That Speaks Better Things",
+    "duration": "2 x 25-28 min",
+    "scriptures": [
+      "Genesis 4:1-16",
+      "Hebrews 11:4",
+      "Hebrews 12:24"
+    ],
+    "christological_key": "Abel's blood cried out for vengeance; Christ's blood cries out for mercy, reconciliation, and eternal pardon.",
+    "status": "planned",
+    "parts": [
+      "Cain & Abel: Why God Rejected Cain's Offering — The Two Altars and the First Blood Sacrifice",
+      "The Blood That Cries From the Ground: The Mark of Cain & the Better Blood of Jesus"
+    ]
+  },
+  "substack": {
+    "pillar_id": "SUB-W05.A",
+    "pillar_title": "Blood in the Soil: Why God Accepted Abel's Lamb and Rejected Cain's Works",
+    "digest_id": "SUB-W05.B",
+    "digest_title": "Mid-Week Q&A: Cain's Wife, Cain's Fear, and What Was Said in the Field",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W05.1",
+      "num": 1,
+      "global_num": 21,
+      "day": "Mon",
+      "badge": "Bible Secrets #021 [W05.1]",
+      "title": "Why Did God Reject Cain's Offering?",
+      "hook_type": "Mystery Hook",
+      "hook": "Cain worked for months to grow his offering. So why did God reject it?"
+    },
+    {
+      "id": "R-W05.2",
+      "num": 2,
+      "global_num": 22,
+      "day": "Tue",
+      "badge": "Bible Secrets #022 [W05.2]",
+      "title": "Abel's Lamb: The First Altar That Pointed to the Cross",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "The first person the Bible calls righteous came to God holding a lamb."
+    },
+    {
+      "id": "R-W05.3",
+      "num": 3,
+      "global_num": 23,
+      "day": "Wed",
+      "badge": "Bible Secrets #023 [W05.3]",
+      "title": "The Mark of Cain Was Not a Curse",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Everything you've heard about the mark of Cain is probably backwards."
+    },
+    {
+      "id": "R-W05.4",
+      "num": 4,
+      "global_num": 24,
+      "day": "Thu",
+      "badge": "Bible Secrets #024 [W05.4]",
+      "title": "Abel's Blood Is Still Crying Out",
+      "hook_type": "Christological Typology",
+      "hook": "One word in Genesis 4 is plural in Hebrew, and it changes everything."
+    },
+    {
+      "id": "R-W05.5",
+      "num": 5,
+      "global_num": 25,
+      "day": "Fri",
+      "badge": "Bible Secrets #025 [W05.5]",
+      "title": "Abel's Blood vs. Jesus' Blood: Two Voices",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Hebrews says Jesus' blood speaks better things than Abel's. So what is each one saying?"
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W05.1",
+      "num": 1,
+      "global_num": 21,
+      "day": "Mon",
+      "badge": "Story #021 [W05.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W05.2",
+      "num": 2,
+      "global_num": 22,
+      "day": "Tue",
+      "badge": "Story #022 [W05.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W05.3",
+      "num": 3,
+      "global_num": 23,
+      "day": "Wed",
+      "badge": "Story #023 [W05.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W05.4",
+      "num": 4,
+      "global_num": 24,
+      "day": "Thu",
+      "badge": "Story #024 [W05.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on Cain, Abel & The First Blood Sacrifice: The Blood That Speaks Better Things"
+    },
+    {
+      "id": "S-W05.5",
+      "num": 5,
+      "global_num": 25,
+      "day": "Fri",
+      "badge": "Story #025 [W05.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W05.1",
+      "num": 1,
+      "global_num": 21,
+      "day": "Mon",
+      "badge": "Community Post #021",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Two Altars",
+      "options": []
+    },
+    {
+      "id": "CT-W05.2",
+      "num": 2,
+      "global_num": 22,
+      "day": "Tue",
+      "badge": "Community Post #022",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Why Did God Reject Cain's Offering?",
+      "options": [
+        "He came without faith (Hebrews 11:4)",
+        "He ignored the blood covering God showed in Eden",
+        "He brought some fruit, not his first and best",
+        "All three"
+      ]
+    },
+    {
+      "id": "CT-W05.3",
+      "num": 3,
+      "global_num": 23,
+      "day": "Wed",
+      "badge": "Community Post #023",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Abel's Blood Is Plural in Hebrew (דְּמֵי)",
+      "options": []
+    },
+    {
+      "id": "CT-W05.4",
+      "num": 4,
+      "global_num": 24,
+      "day": "Thu",
+      "badge": "Community Post #024",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "The Mark of Cain Was Mercy",
+      "options": []
+    },
+    {
+      "id": "CT-W05.5",
+      "num": 5,
+      "global_num": 25,
+      "day": "Fri",
+      "badge": "Community Post #025",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Two Voices From the Ground",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

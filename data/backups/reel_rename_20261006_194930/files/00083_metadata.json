@@ -1,0 +1,193 @@
+{
+  "week": 45,
+  "year": 1,
+  "quarter": "Q4",
+  "theme": "The 60ft Torn Veil",
+  "testament": "New Testament",
+  "documentary": {
+    "id": "DOC-W45",
+    "title": "The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+    "duration": "30 min",
+    "scriptures": [
+      "Matthew 27:51",
+      "Mark 15:38",
+      "Hebrews 10:19-20"
+    ],
+    "christological_key": "The 4-inch-thick, 60ft veil torn from TOP to bottom; access to God's presence permanently opened by Christ.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W45.A",
+    "pillar_title": "Torn from Top to Bottom: God Rips Open the Holy of Holies",
+    "digest_id": "SUB-W45.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W45.1",
+      "num": 1,
+      "global_num": 221,
+      "day": "Mon",
+      "badge": "Bible Secrets #221 [W45.1]",
+      "title": "The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W45.2",
+      "num": 2,
+      "global_num": 222,
+      "day": "Tue",
+      "badge": "Bible Secrets #222 [W45.2]",
+      "title": "The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W45.3",
+      "num": 3,
+      "global_num": 223,
+      "day": "Wed",
+      "badge": "Bible Secrets #223 [W45.3]",
+      "title": "The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W45.4",
+      "num": 4,
+      "global_num": 224,
+      "day": "Thu",
+      "badge": "Bible Secrets #224 [W45.4]",
+      "title": "The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W45.5",
+      "num": 5,
+      "global_num": 225,
+      "day": "Fri",
+      "badge": "Bible Secrets #225 [W45.5]",
+      "title": "The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W45.1",
+      "num": 1,
+      "global_num": 221,
+      "day": "Mon",
+      "badge": "Story #221 [W45.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W45.2",
+      "num": 2,
+      "global_num": 222,
+      "day": "Tue",
+      "badge": "Story #222 [W45.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W45.3",
+      "num": 3,
+      "global_num": 223,
+      "day": "Wed",
+      "badge": "Story #223 [W45.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W45.4",
+      "num": 4,
+      "global_num": 224,
+      "day": "Thu",
+      "badge": "Story #224 [W45.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom"
+    },
+    {
+      "id": "S-W45.5",
+      "num": 5,
+      "global_num": 225,
+      "day": "Fri",
+      "badge": "Story #225 [W45.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W45.1",
+      "num": 1,
+      "global_num": 221,
+      "day": "Mon",
+      "badge": "Community Post #221",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+      "options": []
+    },
+    {
+      "id": "CT-W45.2",
+      "num": 2,
+      "global_num": 222,
+      "day": "Tue",
+      "badge": "Community Post #222",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W45.3",
+      "num": 3,
+      "global_num": 223,
+      "day": "Wed",
+      "badge": "Community Post #223",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+      "options": []
+    },
+    {
+      "id": "CT-W45.4",
+      "num": 4,
+      "global_num": 224,
+      "day": "Thu",
+      "badge": "Community Post #224",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+      "options": []
+    },
+    {
+      "id": "CT-W45.5",
+      "num": 5,
+      "global_num": 225,
+      "day": "Fri",
+      "badge": "Community Post #225",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The 60-Foot Temple Curtain Ripped: God Tears the Veil from Top to Bottom",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

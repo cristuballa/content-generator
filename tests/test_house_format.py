@@ -64,6 +64,7 @@ class HouseFormatTests(unittest.TestCase):
         self.assertEqual(self.caps["pinned_comment"], DEFAULT_BHRS_PINNED_COMMENT)
         self.assertTrue(DEFAULT_BHRS_PINNED_COMMENT.startswith("🛒 OFFICIAL MERCH & SACRED BOOKS:"))
         self.assertIn("https://www.etsy.com/shop/BibleHiddenGems", DEFAULT_BHRS_PINNED_COMMENT)
+        self.assertIn("https://www.etsy.com/nz/listing/4591934547", DEFAULT_BHRS_PINNED_COMMENT)
 
     def test_reel_caption_with_inline_tags(self):
         caps = SD.build_platform_captions({

@@ -63,16 +63,23 @@ class ProcessRunner:
 
 def resolve_python_runtime(cwd: Optional[str] = None) -> str:
     """Find the optimal Python environment for pipeline execution.
-    Prioritizes project venvs and ComfyUI PyTorch/CUDA environments over global python."""
+    Prioritizes project venvs (.venv_vibevoice, .venv, venv) over fallback python."""
     if cwd:
         p_dir = Path(cwd)
-        # Check direct project venvs (e.g. .venv, venv)
-        for venv_name in [".venv", "venv"]:
+        # Check direct project venvs (prioritize .venv_vibevoice for complete torch/whisper/audio support)
+        for venv_name in [".venv_vibevoice", ".venv", "venv"]:
             py_cand = p_dir / venv_name / "Scripts" / "python.exe"
             if py_cand.exists():
                 return str(py_cand.resolve())
 
-    # ComfyUI shared AI venv with PyTorch, CUDA, Whisper, Torchvision
+    # Check known global project paths
+    for cand_root in [Path(r"C:\Projects\BHSR"), Path(r"C:\Projects\Bible Hidden Secrets Revealed")]:
+        for venv_name in [".venv_vibevoice", ".venv", "venv"]:
+            py_cand = cand_root / venv_name / "Scripts" / "python.exe"
+            if py_cand.exists():
+                return str(py_cand.resolve())
+
+    # ComfyUI shared AI venv with PyTorch, CUDA, Torchvision
     comfy_py = Path(r"C:\Users\User\AppData\Local\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI\.venv\Scripts\python.exe")
     if comfy_py.exists():
         return str(comfy_py.resolve())
@@ -135,8 +142,8 @@ class ProcessRunner:
         asyncio.create_task(self.broadcast({"type": "clear_logs"}))
 
     async def run_script(self, script_path: str, cwd: str, args: List[str] = None, python_exe: Optional[str] = None) -> Dict[str, Any]:
-        if self.status == "running":
-            return {"success": False, "error": "A process is already running. Please stop it first."}
+        if self.status == "running" or (self.current_process and self.current_process.returncode is None):
+            return {"success": False, "error": "A pipeline task is already actively running. Please wait for it to finish or stop it first."}
 
         python_bin = python_exe or resolve_python_runtime(cwd)
         args = args or []
@@ -171,9 +178,14 @@ class ProcessRunner:
 
     async def _execute_subprocess(self, cmd: List[str], cwd: str):
         try:
-            # Set unbuffered env
+            # Set unbuffered env and clamp CPU thread storms to prevent thermal throttling to 1.0 GHz
             env = os.environ.copy()
             env["PYTHONUNBUFFERED"] = "1"
+            env["OMP_NUM_THREADS"] = "4"
+            env["MKL_NUM_THREADS"] = "4"
+            env["OPENBLAS_NUM_THREADS"] = "4"
+            env["NUMEXPR_NUM_THREADS"] = "4"
+            env["VECLIB_MAXIMUM_THREADS"] = "4"
 
             # Inject runner_hooks via PYTHONPATH to automatically suppress popup shell windows in all descendants
             hooks_dir = str((Path(__file__).parent / "runner_hooks").resolve())
@@ -187,7 +199,13 @@ class ProcessRunner:
                 orig_path = env.get("PATH", "")
                 env["PATH"] = f"{py_scripts};{py_scripts.parent};{cwd};{orig_path}"
 
-            creationflags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+            # CREATE_NO_WINDOW (0x08000000) + BELOW_NORMAL_PRIORITY_CLASS (0x00004000) on Windows.
+            # Below-normal scheduling guarantees Windows Desktop Window Manager (dwm.exe), mouse/keyboard input,
+            # and browser UI retain full responsiveness so video rendering never makes the PC laggy or stutter.
+            creationflags = 0
+            if sys.platform == "win32":
+                creationflags = subprocess.CREATE_NO_WINDOW | 0x00004000
+
             self.current_process = await asyncio.create_subprocess_exec(
                 *cmd,
                 cwd=cwd,
@@ -197,6 +215,15 @@ class ProcessRunner:
                 creationflags=creationflags
             )
             self.current_pid = self.current_process.pid
+
+            # Explicitly enforce BelowNormal priority class via psutil
+            if sys.platform == "win32" and self.current_pid:
+                try:
+                    p = psutil.Process(self.current_pid)
+                    p.nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
+                except Exception:
+                    pass
+
             if self.current_job_info:
                 self.current_job_info["pid"] = self.current_pid
                 await self.broadcast({"type": "pid", "pid": self.current_pid})

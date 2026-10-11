@@ -1,0 +1,193 @@
+{
+  "week": 34,
+  "year": 1,
+  "quarter": "Q3",
+  "theme": "The Virgin Birth Debate",
+  "testament": "Old Testament / Prophecy",
+  "documentary": {
+    "id": "DOC-W34",
+    "title": "The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+    "duration": "28 min",
+    "scriptures": [
+      "Isaiah 7:14",
+      "Matthew 1:22-23",
+      "Luke 1:34-35"
+    ],
+    "christological_key": "Jewish translators 250 years before Christ translated Almah as Parthenos (Virgin), confirming the miraculous sign.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W34.A",
+    "pillar_title": "Isaiah 7:14 Under the Microscope: What the Greek Septuagint Proved",
+    "digest_id": "SUB-W34.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W34.1",
+      "num": 1,
+      "global_num": 166,
+      "day": "Mon",
+      "badge": "Bible Secrets #166 [W34.1]",
+      "title": "The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W34.2",
+      "num": 2,
+      "global_num": 167,
+      "day": "Tue",
+      "badge": "Bible Secrets #167 [W34.2]",
+      "title": "The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W34.3",
+      "num": 3,
+      "global_num": 168,
+      "day": "Wed",
+      "badge": "Bible Secrets #168 [W34.3]",
+      "title": "The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W34.4",
+      "num": 4,
+      "global_num": 169,
+      "day": "Thu",
+      "badge": "Bible Secrets #169 [W34.4]",
+      "title": "The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W34.5",
+      "num": 5,
+      "global_num": 170,
+      "day": "Fri",
+      "badge": "Bible Secrets #170 [W34.5]",
+      "title": "The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W34.1",
+      "num": 1,
+      "global_num": 166,
+      "day": "Mon",
+      "badge": "Story #166 [W34.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W34.2",
+      "num": 2,
+      "global_num": 167,
+      "day": "Tue",
+      "badge": "Story #167 [W34.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W34.3",
+      "num": 3,
+      "global_num": 168,
+      "day": "Wed",
+      "badge": "Story #168 [W34.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W34.4",
+      "num": 4,
+      "global_num": 169,
+      "day": "Thu",
+      "badge": "Story #169 [W34.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint"
+    },
+    {
+      "id": "S-W34.5",
+      "num": 5,
+      "global_num": 170,
+      "day": "Fri",
+      "badge": "Story #170 [W34.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W34.1",
+      "num": 1,
+      "global_num": 166,
+      "day": "Mon",
+      "badge": "Community Post #166",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+      "options": []
+    },
+    {
+      "id": "CT-W34.2",
+      "num": 2,
+      "global_num": 167,
+      "day": "Tue",
+      "badge": "Community Post #167",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W34.3",
+      "num": 3,
+      "global_num": 168,
+      "day": "Wed",
+      "badge": "Community Post #168",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+      "options": []
+    },
+    {
+      "id": "CT-W34.4",
+      "num": 4,
+      "global_num": 169,
+      "day": "Thu",
+      "badge": "Community Post #169",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+      "options": []
+    },
+    {
+      "id": "CT-W34.5",
+      "num": 5,
+      "global_num": 170,
+      "day": "Fri",
+      "badge": "Community Post #170",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Virgin Birth Debate: Isaiah 7:14, Almah vs Parthenos in the Septuagint",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

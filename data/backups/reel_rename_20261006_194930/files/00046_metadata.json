@@ -1,0 +1,193 @@
+{
+  "week": 8,
+  "year": 1,
+  "quarter": "Q1",
+  "theme": "Yom Kippur Prototype",
+  "testament": "Old Testament",
+  "documentary": {
+    "id": "DOC-W08",
+    "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+    "duration": "30 min",
+    "scriptures": [
+      "Leviticus 16:1-34",
+      "1 Enoch 10:4-8",
+      "Hebrews 9:11-14"
+    ],
+    "christological_key": "Christ is both goats: the sacrificial lamb slaughtered for atonement, and the scapegoat bearing sin away.",
+    "status": "covered"
+  },
+  "substack": {
+    "pillar_id": "SUB-W08.A",
+    "pillar_title": "The Goat for Azazel: Returning Sin to the Wilderness Rebel",
+    "digest_id": "SUB-W08.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W08.1",
+      "num": 1,
+      "global_num": 36,
+      "day": "Mon",
+      "badge": "Bible Secrets #036 [W08.1]",
+      "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W08.2",
+      "num": 2,
+      "global_num": 37,
+      "day": "Tue",
+      "badge": "Bible Secrets #037 [W08.2]",
+      "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W08.3",
+      "num": 3,
+      "global_num": 38,
+      "day": "Wed",
+      "badge": "Bible Secrets #038 [W08.3]",
+      "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W08.4",
+      "num": 4,
+      "global_num": 39,
+      "day": "Thu",
+      "badge": "Bible Secrets #039 [W08.4]",
+      "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W08.5",
+      "num": 5,
+      "global_num": 40,
+      "day": "Fri",
+      "badge": "Bible Secrets #040 [W08.5]",
+      "title": "The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W08.1",
+      "num": 1,
+      "global_num": 36,
+      "day": "Mon",
+      "badge": "Story #036 [W08.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W08.2",
+      "num": 2,
+      "global_num": 37,
+      "day": "Tue",
+      "badge": "Story #037 [W08.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W08.3",
+      "num": 3,
+      "global_num": 38,
+      "day": "Wed",
+      "badge": "Story #038 [W08.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W08.4",
+      "num": 4,
+      "global_num": 39,
+      "day": "Thu",
+      "badge": "Story #039 [W08.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm"
+    },
+    {
+      "id": "S-W08.5",
+      "num": 5,
+      "global_num": 40,
+      "day": "Fri",
+      "badge": "Story #040 [W08.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W08.1",
+      "num": 1,
+      "global_num": 36,
+      "day": "Mon",
+      "badge": "Community Post #036",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+      "options": []
+    },
+    {
+      "id": "CT-W08.2",
+      "num": 2,
+      "global_num": 37,
+      "day": "Tue",
+      "badge": "Community Post #037",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W08.3",
+      "num": 3,
+      "global_num": 38,
+      "day": "Wed",
+      "badge": "Community Post #038",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+      "options": []
+    },
+    {
+      "id": "CT-W08.4",
+      "num": 4,
+      "global_num": 39,
+      "day": "Thu",
+      "badge": "Community Post #039",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+      "options": []
+    },
+    {
+      "id": "CT-W08.5",
+      "num": 5,
+      "global_num": 40,
+      "day": "Fri",
+      "badge": "Community Post #040",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Azazel Scapegoat Ritual: Banishment of Sin to the Demonic Realm",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

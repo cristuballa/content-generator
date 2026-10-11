@@ -1,0 +1,192 @@
+{
+  "week": 55,
+  "year": 2,
+  "quarter": "Q5",
+  "theme": "The Hidden Codex & Archaeology",
+  "testament": "Apocrypha / Dead Sea Scrolls",
+  "documentary": {
+    "id": "DOC-W55",
+    "title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+    "duration": "30 min",
+    "scriptures": [
+      "2 Cor 12:2",
+      "2 Enoch"
+    ],
+    "christological_key": "Christ ascended far above all heavens to fill all things.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W55.A",
+    "pillar_title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot: Full Study Guide & Ancient Translation",
+    "digest_id": "SUB-W55.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W55.1",
+      "num": 1,
+      "global_num": 271,
+      "day": "Mon",
+      "badge": "Bible Secrets #271 [W55.1]",
+      "title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W55.2",
+      "num": 2,
+      "global_num": 272,
+      "day": "Tue",
+      "badge": "Bible Secrets #272 [W55.2]",
+      "title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W55.3",
+      "num": 3,
+      "global_num": 273,
+      "day": "Wed",
+      "badge": "Bible Secrets #273 [W55.3]",
+      "title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W55.4",
+      "num": 4,
+      "global_num": 274,
+      "day": "Thu",
+      "badge": "Bible Secrets #274 [W55.4]",
+      "title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W55.5",
+      "num": 5,
+      "global_num": 275,
+      "day": "Fri",
+      "badge": "Bible Secrets #275 [W55.5]",
+      "title": "2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W55.1",
+      "num": 1,
+      "global_num": 271,
+      "day": "Mon",
+      "badge": "Story #271 [W55.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W55.2",
+      "num": 2,
+      "global_num": 272,
+      "day": "Tue",
+      "badge": "Story #272 [W55.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W55.3",
+      "num": 3,
+      "global_num": 273,
+      "day": "Wed",
+      "badge": "Story #273 [W55.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W55.4",
+      "num": 4,
+      "global_num": 274,
+      "day": "Thu",
+      "badge": "Story #274 [W55.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot"
+    },
+    {
+      "id": "S-W55.5",
+      "num": 5,
+      "global_num": 275,
+      "day": "Fri",
+      "badge": "Story #275 [W55.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W55.1",
+      "num": 1,
+      "global_num": 271,
+      "day": "Mon",
+      "badge": "Community Post #271",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+      "options": []
+    },
+    {
+      "id": "CT-W55.2",
+      "num": 2,
+      "global_num": 272,
+      "day": "Tue",
+      "badge": "Community Post #272",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W55.3",
+      "num": 3,
+      "global_num": 273,
+      "day": "Wed",
+      "badge": "Community Post #273",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+      "options": []
+    },
+    {
+      "id": "CT-W55.4",
+      "num": 4,
+      "global_num": 274,
+      "day": "Thu",
+      "badge": "Community Post #274",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+      "options": []
+    },
+    {
+      "id": "CT-W55.5",
+      "num": 5,
+      "global_num": 275,
+      "day": "Fri",
+      "badge": "Community Post #275",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss 2 Enoch (Secrets of Enoch): The Seven Heavens & Solar Chariot",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}

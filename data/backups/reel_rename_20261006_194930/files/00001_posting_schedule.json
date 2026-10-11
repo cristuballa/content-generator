@@ -1,0 +1,536 @@
+[
+  {
+    "id": "sched_1790062109_b307bc",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "BHRS - Youtube",
+    "video_rel_path": "W16/long_form/9-The_Covenant_of_Pieces_final_16x9.mp4",
+    "video_filename": "9-The_Covenant_of_Pieces_final_16x9.mp4",
+    "title": "The Terrifying Ritual of Genesis 15: When God Walked Through Fire and Blood",
+    "thumbnail_url": "/api/thumbnail/W16/long_form/9-The_Covenant_of_Pieces_final_16x9.mp4",
+    "scheduled_date": "2026-09-27",
+    "scheduled_time": "20:50",
+    "scheduled_datetime_iso": "2026-09-27T20:50:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "posted",
+    "created_at": "2026-09-22T19:28:29.606162",
+    "posted_at": "2026-09-27T22:15:28",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "The Terrifying Ritual of Genesis 15: When God Walked Through Fire and Blood",
+      "video": "9-The_Covenant_of_Pieces_final_16x9.mp4",
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "message": "Published to YouTube"
+        }
+      }
+    },
+    "episode_num": 9,
+    "retry_count": 0,
+    "next_retry_at": null,
+    "last_attempt_at": "2026-09-27T21:32:34",
+    "retry_history": [
+      {
+        "attempt": 1,
+        "timestamp": "2026-09-27T18:45:28",
+        "error": "HTTPConnectionPool(host='localhost', port=5678): Read timed out. (read timeout=900)"
+      },
+      {
+        "attempt": 2,
+        "timestamp": "2026-09-27T19:01:08",
+        "error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+      },
+      {
+        "attempt": 3,
+        "timestamp": "2026-09-27T19:11:24",
+        "error": "name 'asyncio' is not defined"
+      },
+      {
+        "attempt": 4,
+        "timestamp": "2026-09-27T19:12:57",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 1,
+        "timestamp": "2026-09-27T20:10:10",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 1,
+        "timestamp": "2026-09-27T20:50:12",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 2,
+        "timestamp": "2026-09-27T21:11:34",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      },
+      {
+        "attempt": 3,
+        "timestamp": "2026-09-27T21:32:34",
+        "error": "Webhook returned HTTP 500: Error in workflow"
+      }
+    ]
+  },
+  {
+    "id": "sched_1790062148_d36728",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "BHRS - Youtube",
+    "video_rel_path": "W15/long_form/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+    "video_filename": "05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+    "title": "The Ageless Priest-King: The Terrifying Secrets of Melchizedek Hidden in Genesis 14",
+    "thumbnail_url": "/api/thumbnail/W15/long_form/05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+    "scheduled_date": "2026-09-30",
+    "scheduled_time": "18:45",
+    "scheduled_datetime_iso": "2026-09-30T18:45:00",
+    "platforms": [
+      "facebook"
+    ],
+    "status": "failed",
+    "created_at": "2026-09-22T19:29:08.862505",
+    "posted_at": "2026-09-30T18:45:22",
+    "error": "Failed to publish to [facebook]: Expecting value: line 1 column 1 (char 0)",
+    "dispatch_result": {
+      "success": false,
+      "error": "Expecting value: line 1 column 1 (char 0)",
+      "dry_run": false,
+      "title": "The Ageless Priest-King: The Terrifying Secrets of Melchizedek Hidden in Genesis 14",
+      "video": "05_the_mystery_of_melchizedek_35min_final_16x9.mp4",
+      "webhook_result": {
+        "error": "HTTPConnectionPool(host='localhost', port=5678): Max retries exceeded with url: /webhook/kct-social-publish (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+      },
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "platform": "Facebook",
+          "error": "Expecting value: line 1 column 1 (char 0)"
+        }
+      }
+    },
+    "episode_num": 5,
+    "retry_count": 0,
+    "next_retry_at": null,
+    "last_attempt_at": "2026-09-30T18:45:22",
+    "published_platforms": []
+  },
+  {
+    "id": "sched_1790063075_239a4e",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "W15/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+    "video_filename": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+    "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
+    "thumbnail_url": "/api/thumbnail/W15/reels/75_the_jewish_feasts_are_a_timeline/75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+    "scheduled_date": "2026-10-01",
+    "scheduled_time": "22:52",
+    "scheduled_datetime_iso": "2026-10-01T22:52:00",
+    "platforms": [
+      "youtube"
+    ],
+    "status": "posted",
+    "created_at": "2026-09-22T19:44:35.092353",
+    "posted_at": "2026-10-01T22:52:28",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "The Jewish Feasts Are a TIMELINE — And Jesus Hit Every One on Schedule",
+      "video": "75_the_jewish_feasts_are_a_timeline_final_reel.mp4",
+      "webhook_result": {
+        "status_code": 501,
+        "latency_ms": 2067.4,
+        "response": "<!DOCTYPE HTML>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"utf-8\">\n        <title>Error response</title>\n    </head>\n    <body>\n        <h1>Error response</h1>\n        <p>Error code: 501</p>\n        <p>Message: Unsupported method ('POST').</p>\n        <p>Error code explanation: 501 - Server ",
+        "error": "Webhook returned HTTP 501"
+      },
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "id": "bq0uPHWqXoY",
+          "url": "https://youtu.be/bq0uPHWqXoY",
+          "scheduled": false,
+          "scheduled_for": null,
+          "thumbnail_attached": false,
+          "message": "Published to YouTube: https://youtu.be/bq0uPHWqXoY"
+        }
+      }
+    },
+    "episode_num": 75,
+    "last_attempt_at": "2026-10-01T22:52:28",
+    "published_platforms": [
+      "youtube"
+    ],
+    "retry_count": 0,
+    "next_retry_at": null
+  },
+  {
+    "id": "sched_1790174164_e628c9",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "reel_output/reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+    "video_filename": "reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+    "episode_num": 3,
+    "title": "The Stones of Jericho Fell Outward",
+    "thumbnail_url": "/api/thumbnail/reel_output/reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+    "duration": "1:03",
+    "scheduled_date": "2026-09-28",
+    "scheduled_time": "16:00",
+    "scheduled_datetime_iso": "2026-09-28T16:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "posted",
+    "created_at": "2026-09-24T02:36:04.161034",
+    "posted_at": "2026-09-27T04:48:01",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "The Stones of Jericho Fell Outward",
+      "video": "reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+      "webhook_result": {
+        "status_code": 200,
+        "latency_ms": 51362,
+        "response": {
+          "success": true,
+          "message": "Video processed by n8n.",
+          "video": "reel_3_the_stones_of_jericho_fell_outward_final_reel.mp4",
+          "youtube_id": "ReTzzbeQU_c",
+          "youtube_url": "https://youtu.be/ReTzzbeQU_c",
+          "facebook_id": "2088983931706271",
+          "facebook_url": "https://www.facebook.com/watch/?v=2088983931706271",
+          "target_platforms": [
+            "youtube",
+            "facebook",
+            "instagram"
+          ],
+          "instagram_id": "18133068205581581",
+          "instagram_url": "https://www.instagram.com/reel/DdxyRnnFVZl/"
+        }
+      },
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "message": "Published to YouTube: https://youtu.be/ReTzzbeQU_c",
+          "privacy": "public",
+          "url": "https://youtu.be/ReTzzbeQU_c",
+          "id": "ReTzzbeQU_c"
+        },
+        "facebook": {
+          "status": "published",
+          "platform": "Facebook",
+          "message": "Published to Facebook: https://www.facebook.com/watch/?v=2088983931706271",
+          "id": "2088983931706271",
+          "url": "https://www.facebook.com/watch/?v=2088983931706271"
+        },
+        "instagram": {
+          "status": "published",
+          "platform": "Instagram",
+          "message": "Published to Instagram: https://www.instagram.com/reel/DdxyRnnFVZl/",
+          "id": "18133068205581581",
+          "url": "https://www.instagram.com/reel/DdxyRnnFVZl/"
+        }
+      }
+    }
+  },
+  {
+    "id": "sched_1790226267_58c963",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "BHRS - Youtube",
+    "video_rel_path": "W12/long_form/06_the_babel_stargate_35min_final_16x9.mp4",
+    "video_filename": "06_the_babel_stargate_35min_final_16x9.mp4",
+    "episode_num": 6,
+    "title": "The Babel Stargate: The Terrifying Secrets of Nimrod and the Tower of Shinar",
+    "thumbnail_url": "/api/thumbnail/W12/long_form/06_the_babel_stargate_35min_final_16x9.mp4",
+    "duration": "34:54",
+    "scheduled_date": "2026-09-30",
+    "scheduled_time": "17:55",
+    "scheduled_datetime_iso": "2026-09-30T17:55:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "failed",
+    "created_at": "2026-09-24T17:04:27.951096",
+    "posted_at": "2026-09-30T17:55:07",
+    "error": "Failed to publish to [youtube, facebook, instagram]: YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup.",
+    "dispatch_result": {
+      "success": false,
+      "error": "YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup.",
+      "dry_run": false,
+      "title": "The Babel Stargate: The Terrifying Secrets of Nimrod and the Tower of Shinar",
+      "video": "06_the_babel_stargate_35min_final_16x9.mp4",
+      "webhook_result": {
+        "error": "HTTPConnectionPool(host='localhost', port=5678): Max retries exceeded with url: /webhook/kct-social-publish (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+      },
+      "platforms": {
+        "youtube": {
+          "status": "failed",
+          "platform": "YouTube",
+          "error": "YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup."
+        },
+        "facebook": {
+          "status": "failed",
+          "platform": "Facebook",
+          "error": "Expecting value: line 1 column 1 (char 0)"
+        }
+      }
+    },
+    "retry_count": 0,
+    "next_retry_at": null,
+    "last_attempt_at": "2026-09-30T17:55:07",
+    "published_platforms": []
+  },
+  {
+    "id": "sched_1790246833_eab6e2",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "W16/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+    "video_filename": "76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+    "episode_num": 76,
+    "title": "The First Death in the Bible Was GOD Killing an Animal — For Clothing",
+    "thumbnail_url": "/api/thumbnail/W16/reels/76_the_first_death_in_the_bible_was_god_killing_an_animal/76_the_first_death_in_the_bible_was_god_killing_an_animal_with_ads_final_reel.mp4",
+    "duration": "3:11",
+    "scheduled_date": "2026-09-27",
+    "scheduled_time": "21:40",
+    "scheduled_datetime_iso": "2026-09-27T21:40:00",
+    "platforms": [
+      "facebook",
+      "instagram"
+    ],
+    "status": "posted",
+    "created_at": "2026-09-24T22:47:13.906994",
+    "posted_at": "2026-09-27T20:07:43",
+    "error": null,
+    "dispatch_result": null,
+    "retry_count": 0,
+    "next_retry_at": null
+  },
+  {
+    "id": "sched_1790247207_923824",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "W16/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+    "video_filename": "78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+    "episode_num": 78,
+    "title": "Jesus's Last Words Weren't Despair — They Were a CITATION (And It Changes Everything)",
+    "thumbnail_url": "/api/thumbnail/W16/reels/78_jesuss_last_words_werent_despair/78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+    "duration": "3:02",
+    "scheduled_date": "2026-09-30",
+    "scheduled_time": "16:00",
+    "scheduled_datetime_iso": "2026-09-30T16:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "failed",
+    "created_at": "2026-09-24T22:53:27.353702",
+    "posted_at": "2026-09-30T16:00:18",
+    "error": "Failed to publish to [youtube, facebook, instagram]: YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup.",
+    "dispatch_result": {
+      "success": false,
+      "error": "YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup.",
+      "dry_run": false,
+      "title": "Jesus's Last Words Weren't Despair — They Were a CITATION (And It Changes Everything)",
+      "video": "78_jesuss_last_words_werent_despair_with_ads_final_reel.mp4",
+      "webhook_result": {
+        "error": "HTTPConnectionPool(host='localhost', port=5678): Max retries exceeded with url: /webhook/kct-social-publish (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=5678): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+      },
+      "platforms": {
+        "youtube": {
+          "status": "failed",
+          "platform": "YouTube",
+          "error": "YouTube is not authenticated. Please authenticate via Studio Settings or run OAuth setup."
+        },
+        "facebook": {
+          "status": "failed",
+          "platform": "Facebook",
+          "error": "Expecting value: line 1 column 1 (char 0)"
+        },
+        "instagram": {
+          "status": "failed",
+          "platform": "Instagram",
+          "error": "Upload stream failed with HTTP 400",
+          "response": "{\"debug_info\":{\"retriable\":false,\"type\":\"ProcessingFailedError\",\"message\":\"Request processing failed\"}}"
+        }
+      }
+    },
+    "last_attempt_at": "2026-09-30T16:00:18",
+    "published_platforms": [],
+    "retry_count": 0,
+    "next_retry_at": null
+  },
+  {
+    "id": "sched_1790247459_05ada0",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "Bible Hidden Secrets Revealed",
+    "video_rel_path": "W16/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+    "video_filename": "79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+    "episode_num": 79,
+    "title": "Joseph's Life Matches Jesus in 30+ Details — And Joseph Didn't Know",
+    "thumbnail_url": "/api/thumbnail/W16/reels/79_josephs_life_matches_jesus_in_30_details/79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+    "duration": "3:57",
+    "scheduled_date": "2026-10-02",
+    "scheduled_time": "16:00",
+    "scheduled_datetime_iso": "2026-10-02T16:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "failed",
+    "created_at": "2026-09-24T22:57:39.611610",
+    "posted_at": "2026-10-02T16:44:01",
+    "error": "Failed to publish to [facebook, instagram]: Platforms failed: facebook, instagram",
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "Joseph's Life Matches Jesus in 30+ Details — And Joseph Didn't Know",
+      "video": "79_josephs_life_matches_jesus_in_30_details_with_ads_final_reel.mp4",
+      "webhook_result": {
+        "status_code": 501,
+        "latency_ms": 2076.4,
+        "response": "<!DOCTYPE HTML>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"utf-8\">\n        <title>Error response</title>\n    </head>\n    <body>\n        <h1>Error response</h1>\n        <p>Error code: 501</p>\n        <p>Message: Unsupported method ('POST').</p>\n        <p>Error code explanation: 501 - Server ",
+        "error": "Webhook returned HTTP 501"
+      },
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "id": "YW4jXUnZ7ZY",
+          "url": "https://youtu.be/YW4jXUnZ7ZY",
+          "scheduled": false,
+          "scheduled_for": null,
+          "thumbnail_attached": false,
+          "message": "Published to YouTube: https://youtu.be/YW4jXUnZ7ZY"
+        },
+        "facebook": {
+          "status": "failed",
+          "platform": "Facebook",
+          "error": "Expecting value: line 1 column 1 (char 0)"
+        },
+        "instagram": {
+          "status": "failed",
+          "platform": "Instagram",
+          "error": "Upload stream failed with HTTP 400",
+          "response": "{\"debug_info\":{\"retriable\":false,\"type\":\"ProcessingFailedError\",\"message\":\"Request processing failed\"}}"
+        }
+      }
+    },
+    "last_attempt_at": "2026-10-02T16:44:01",
+    "published_platforms": [
+      "youtube"
+    ],
+    "retry_count": 0,
+    "next_retry_at": null
+  },
+  {
+    "id": "sched_1791255023_274bb1",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "BHSR (Bible Hidden Secrets Revealed)",
+    "video_rel_path": "W02/stories/09_the_eagle_over_its_nest/story_video_final.mp4",
+    "video_filename": "story_video_final.mp4",
+    "episode_num": 9,
+    "title": "Same Hebrew Word: Creation and the Eagle",
+    "thumbnail_url": "/api/thumbnail/W02/stories/09_the_eagle_over_its_nest/story_video_final.mp4",
+    "duration": "0:10",
+    "scheduled_date": "2026-10-06",
+    "scheduled_time": "18:00",
+    "scheduled_datetime_iso": "2026-10-06T18:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "posted",
+    "created_at": "2026-10-06T15:50:23.580412",
+    "posted_at": "2026-10-06T18:00:28",
+    "error": null,
+    "dispatch_result": {
+      "success": true,
+      "dry_run": false,
+      "title": "Same Hebrew Word: Creation and the Eagle",
+      "video": "story_video_final.mp4",
+      "platforms": {
+        "youtube": {
+          "status": "published",
+          "platform": "YouTube",
+          "id": "MEWNFO_gFZw",
+          "url": "https://youtu.be/MEWNFO_gFZw",
+          "scheduled": false,
+          "scheduled_for": null,
+          "thumbnail_attached": true,
+          "comment_posted": true,
+          "message": "Published to YouTube: https://youtu.be/MEWNFO_gFZw",
+          "comment_id": "UgyPSy409hxUCD92C_54AaABAg",
+          "mode": "YouTube Shorts",
+          "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+        },
+        "facebook": {
+          "status": "published",
+          "platform": "Facebook Story",
+          "id": "27509813995362088",
+          "url": "https://www.facebook.com/27509813995362088",
+          "is_story": true,
+          "message": "Published Story to Facebook Page: https://www.facebook.com/27509813995362088",
+          "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+        },
+        "instagram": {
+          "status": "published",
+          "platform": "Instagram",
+          "id": "18136959973727922",
+          "url": "https://www.instagram.com/stories/biblesecretsrevealed2318/4001725316649029212",
+          "first_comment": null,
+          "is_story": true,
+          "message": "Published Story to Instagram: https://www.instagram.com/stories/biblesecretsrevealed2318/4001725316649029212",
+          "comment_text": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+        }
+      }
+    },
+    "last_attempt_at": "2026-10-06T18:00:28",
+    "published_platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "skipped_platforms": {},
+    "retry_count": 0,
+    "next_retry_at": null
+  },
+  {
+    "id": "sched_1791255064_4a250b",
+    "project_path": "C:\\Projects\\BHSR",
+    "project_name": "BHSR (Bible Hidden Secrets Revealed)",
+    "video_rel_path": "W02/stories/02_bara_vs_asah_word_study/story_video_final.mp4",
+    "video_filename": "story_video_final.mp4",
+    "episode_num": 2,
+    "title": "Hebrew Word Study: Bara vs Asah",
+    "thumbnail_url": "/api/thumbnail/W02/stories/02_bara_vs_asah_word_study/story_video_final.mp4",
+    "duration": "0:17",
+    "scheduled_date": "2026-10-06",
+    "scheduled_time": "21:00",
+    "scheduled_datetime_iso": "2026-10-06T21:00:00",
+    "platforms": [
+      "youtube",
+      "facebook",
+      "instagram"
+    ],
+    "status": "scheduled",
+    "created_at": "2026-10-06T15:51:04.121262",
+    "posted_at": null,
+    "error": null,
+    "dispatch_result": null
+  }
+]

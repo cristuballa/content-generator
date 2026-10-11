@@ -1,0 +1,192 @@
+{
+  "week": 54,
+  "year": 2,
+  "quarter": "Q5",
+  "theme": "The Hidden Codex & Archaeology",
+  "testament": "Apocrypha / Dead Sea Scrolls",
+  "documentary": {
+    "id": "DOC-W54",
+    "title": "The Book of Giants (4Q203): The Nephilim Nightmares",
+    "duration": "30 min",
+    "scriptures": [
+      "4Q203",
+      "Genesis 6:4"
+    ],
+    "christological_key": "Ancient Aramaic scrolls prove Jews believed the Nephilim foresaw their doom.",
+    "status": "planned"
+  },
+  "substack": {
+    "pillar_id": "SUB-W54.A",
+    "pillar_title": "The Book of Giants (4Q203): The Nephilim Nightmares: Full Study Guide & Ancient Translation",
+    "digest_id": "SUB-W54.B",
+    "digest_title": "Mid-Week Q&A & Sacred Art: The Book of Giants (4Q203): The Nephilim Nightmares",
+    "lead_magnet": "Free Printable Study Guide & Scripture Concordance Chart"
+  },
+  "reels": [
+    {
+      "id": "R-W54.1",
+      "num": 1,
+      "global_num": 266,
+      "day": "Mon",
+      "badge": "Bible Secrets #266 [W54.1]",
+      "title": "The Book of Giants (4Q203): The Nephilim Nightmares (Part 1)",
+      "hook_type": "Mystery Hook",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W54.2",
+      "num": 2,
+      "global_num": 267,
+      "day": "Tue",
+      "badge": "Bible Secrets #267 [W54.2]",
+      "title": "The Book of Giants (4Q203): The Nephilim Nightmares (Part 2)",
+      "hook_type": "Ancient Hebrew / Text",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W54.3",
+      "num": 3,
+      "global_num": 268,
+      "day": "Wed",
+      "badge": "Bible Secrets #268 [W54.3]",
+      "title": "The Book of Giants (4Q203): The Nephilim Nightmares (Part 3)",
+      "hook_type": "Prophecy / Scroll",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W54.4",
+      "num": 4,
+      "global_num": 269,
+      "day": "Thu",
+      "badge": "Bible Secrets #269 [W54.4]",
+      "title": "The Book of Giants (4Q203): The Nephilim Nightmares (Part 4)",
+      "hook_type": "Christological Typology",
+      "hook": "Watch to discover the decoded mystery."
+    },
+    {
+      "id": "R-W54.5",
+      "num": 5,
+      "global_num": 270,
+      "day": "Fri",
+      "badge": "Bible Secrets #270 [W54.5]",
+      "title": "The Book of Giants (4Q203): The Nephilim Nightmares (Part 5)",
+      "hook_type": "Bestselling Book CTA",
+      "hook": "Watch to discover the decoded mystery."
+    }
+  ],
+  "stories": [
+    {
+      "id": "S-W54.1",
+      "num": 1,
+      "global_num": 266,
+      "day": "Mon",
+      "badge": "Story #266 [W54.1]",
+      "sticker_type": "link_youtube",
+      "caption": "New Documentary Streaming! Tap to watch full episode."
+    },
+    {
+      "id": "S-W54.2",
+      "num": 2,
+      "global_num": 267,
+      "day": "Tue",
+      "badge": "Story #267 [W54.2]",
+      "sticker_type": "poll",
+      "caption": "Did you know this biblical revelation? [Yes] / [Mind Blown]"
+    },
+    {
+      "id": "S-W54.3",
+      "num": 3,
+      "global_num": 268,
+      "day": "Wed",
+      "badge": "Story #268 [W54.3]",
+      "sticker_type": "link_substack",
+      "caption": "Free Companion Study Guide & Scripture Chart Live on Substack!"
+    },
+    {
+      "id": "S-W54.4",
+      "num": 4,
+      "global_num": 269,
+      "day": "Thu",
+      "badge": "Story #269 [W54.4]",
+      "sticker_type": "quiz",
+      "caption": "Bible Quiz of the Week on The Book of Giants (4Q203): The Nephilim Nightmares"
+    },
+    {
+      "id": "S-W54.5",
+      "num": 5,
+      "global_num": 270,
+      "day": "Fri",
+      "badge": "Story #270 [W54.5]",
+      "sticker_type": "countdown",
+      "caption": "Next Episode Drops Sunday 10 AM!"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "CT-W54.1",
+      "num": 1,
+      "global_num": 266,
+      "day": "Mon",
+      "badge": "Community Post #266",
+      "post_type": "image_quote",
+      "type_label": "Scripture Quote & Visual Archetype",
+      "prompt": "Discuss The Book of Giants (4Q203): The Nephilim Nightmares",
+      "options": []
+    },
+    {
+      "id": "CT-W54.2",
+      "num": 2,
+      "global_num": 267,
+      "day": "Tue",
+      "badge": "Community Post #267",
+      "post_type": "4_choice_poll",
+      "type_label": "Interactive Theological Community Poll",
+      "prompt": "Discuss The Book of Giants (4Q203): The Nephilim Nightmares",
+      "options": [
+        "Prophecy Fulfilled",
+        "Christological Type",
+        "Ancient Scroll Context",
+        "Never Taught in Church"
+      ]
+    },
+    {
+      "id": "CT-W54.3",
+      "num": 3,
+      "global_num": 268,
+      "day": "Wed",
+      "badge": "Community Post #268",
+      "post_type": "scroll_breakdown",
+      "type_label": "Ancient Scroll & Archaeological Discovery",
+      "prompt": "Discuss The Book of Giants (4Q203): The Nephilim Nightmares",
+      "options": []
+    },
+    {
+      "id": "CT-W54.4",
+      "num": 4,
+      "global_num": 269,
+      "day": "Thu",
+      "badge": "Community Post #269",
+      "post_type": "substack_link",
+      "type_label": "Mid-Week Deep Dive & Discussion Link",
+      "prompt": "Discuss The Book of Giants (4Q203): The Nephilim Nightmares",
+      "options": []
+    },
+    {
+      "id": "CT-W54.5",
+      "num": 5,
+      "global_num": 270,
+      "day": "Fri",
+      "badge": "Community Post #270",
+      "post_type": "discussion_prompt",
+      "type_label": "Weekend Reflection & Viewer Q&A Spotlight",
+      "prompt": "Discuss The Book of Giants (4Q203): The Nephilim Nightmares",
+      "options": []
+    }
+  ],
+  "youtube_description": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "instagram_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "threads_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "tiktok_caption": "#BibleSecrets #ScriptureUncovered #BibleStudy #BiblicalTruth",
+  "x_post": "#BibleSecrets #ScriptureUncovered",
+  "pinned_comment": "🛒 OFFICIAL MERCH & SACRED BOOKS:\n✨ Etsy Store (Merch & Art): https://www.etsy.com/shop/BibleHiddenGems\n📖 Book 1 (Amazon): https://www.amazon.com/dp/B0H9NX1BL2\n📖 Book 2 (Amazon): https://www.amazon.com/dp/B0H9S491BG\n\n👉 Subscribe to Bible Hidden Secrets Revealed for new revelations every week!"
+}
